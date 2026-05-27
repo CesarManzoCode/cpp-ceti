@@ -150,13 +150,13 @@ export function LessonViewer({
         className="animate-slide-in-right mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8"
       >
         {/* Title */}
-        <header className="space-y-1.5">
+        <header className="space-y-2">
           <ConsoleEyebrow tone="muted">
             paso_{(currentIndex + 1).toString().padStart(2, "0")}/{total
               .toString()
               .padStart(2, "0")}
           </ConsoleEyebrow>
-          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="font-display text-balance text-[28px] leading-[1.05] sm:text-[36px]">
             {lesson.title}
           </h1>
         </header>

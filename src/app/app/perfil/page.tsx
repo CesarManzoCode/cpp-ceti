@@ -85,7 +85,7 @@ export default async function PerfilPage() {
           </Avatar>
           <div className="space-y-2">
             <ConsoleEyebrow tone="muted">perfil</ConsoleEyebrow>
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="font-display text-[28px] leading-tight sm:text-[36px]">
               {user.name}
             </h1>
             <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground sm:items-start">

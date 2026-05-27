@@ -18,12 +18,9 @@ const toneColor = {
 } as const;
 
 /**
- * Eyebrow consistente para secciones — motivo de terminal.
- *
- *   >_ section_name
- *
- * Se usa en TODA la app para crear identidad reconocible.
- * Reemplaza eyebrows ad-hoc tipo "Por qué" / "Cómo funciona" sueltos.
+ * Eyebrow editorial — el motivo `::` (scope operator de C++) es la firma
+ * tipográfica de la marca. Va en cada cabecera de sección para crear
+ * identidad reconocible a primer pixel.
  */
 export function ConsoleEyebrow({
   tone = "primary",
@@ -36,13 +33,13 @@ export function ConsoleEyebrow({
     <span
       data-slot="console-eyebrow"
       className={cn(
-        "inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.16em]",
+        "inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em]",
         toneColor[tone],
         className,
       )}
       {...props}
     >
-      <span aria-hidden className="opacity-70">{">_"}</span>
+      <span aria-hidden className="opacity-70 tracking-tighter">::</span>
       <span>{children}</span>
       {caret ? (
         <span

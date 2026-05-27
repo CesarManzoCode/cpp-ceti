@@ -3,52 +3,50 @@ import { cn } from "@/lib/utils";
 interface LogoProps {
   className?: string;
   size?: "sm" | "default" | "lg";
-  /** Hide the wordmark and show only the glyph. */
+  /** Hide the wordmark and show only the brand mark. */
   glyphOnly?: boolean;
 }
 
 /**
- * Marca minimal: glifo monospace en placa cuadrada + wordmark.
- * Glyph usa "C++" en mono para que sea inmediatamente reconocible.
+ * Editorial Compiler logo: lockup tipográfico `cpp::ceti` en
+ * JetBrains Mono. El `::` (scope operator de C++) en color primary
+ * es la firma visual recurrente de la marca.
+ *
+ * Sin placa cuadrada genérica — la tipografía ES la marca.
  */
 export function Logo({ className, size = "default", glyphOnly = false }: LogoProps) {
-  const wordSizes = {
-    sm: "text-[15px]",
-    default: "text-base",
-    lg: "text-xl",
-  };
-  const glyphSizes = {
-    sm: "size-7 text-[10px]",
-    default: "size-8 text-[11px]",
-    lg: "size-10 text-[13px]",
+  const sizes = {
+    sm: "text-[14px]",
+    default: "text-[16px]",
+    lg: "text-[22px]",
   };
 
+  if (glyphOnly) {
+    return (
+      <span
+        aria-label="C++ CETI"
+        className={cn(
+          "font-mono font-bold tracking-[-0.04em] text-primary",
+          sizes[size],
+          className,
+        )}
+      >
+        ::
+      </span>
+    );
+  }
+
   return (
-    <div
+    <span
       className={cn(
-        "flex items-center gap-2.5 font-semibold tracking-tight",
-        wordSizes[size],
+        "inline-flex items-baseline gap-0 font-mono font-bold tracking-[-0.04em] leading-none text-foreground",
+        sizes[size],
         className,
       )}
     >
-      <span
-        aria-hidden
-        className={cn(
-          "grid place-items-center rounded-[10px] bg-foreground text-background",
-          "shadow-[var(--shadow-sm)] ring-1 ring-inset ring-foreground/15",
-          glyphSizes[size],
-        )}
-      >
-        <span className="font-mono font-bold leading-none">C++</span>
-      </span>
-      {glyphOnly ? (
-        <span className="sr-only">C++ CETI</span>
-      ) : (
-        <span className="leading-none">
-          <span className="text-foreground">C++</span>
-          <span className="ml-1.5 font-medium text-muted-foreground">CETI</span>
-        </span>
-      )}
-    </div>
+      <span>cpp</span>
+      <span aria-hidden className="text-primary mx-[0.05em]">::</span>
+      <span>ceti</span>
+    </span>
   );
 }

@@ -9,18 +9,25 @@ interface SectionHeadingProps
   title: React.ReactNode;
   description?: React.ReactNode;
   align?: "left" | "center";
+  /**
+   * Treatment for the title. "display" uses the Editorial Compiler
+   * mono-bold uppercase look; "editorial" keeps a humanist Inter title
+   * for warm/marketing moments.
+   */
+  variant?: "display" | "editorial";
 }
 
 /**
- * Editorial section heading used across landing/app screens for consistent
- * typographic rhythm (eyebrow → title → description). The eyebrow uses
- * the brand console motif (>_) for identity.
+ * Section heading used across landing/app screens. The "display" variant
+ * is the brand's signature: console-eyebrow + mono uppercase title +
+ * hairline underline.
  */
 function SectionHeading({
   eyebrow,
   title,
   description,
   align = "left",
+  variant = "display",
   className,
   ...props
 }: SectionHeadingProps) {
@@ -28,20 +35,36 @@ function SectionHeading({
     <div
       data-slot="section-heading"
       className={cn(
-        "flex flex-col gap-3",
+        "flex flex-col gap-4",
         align === "center" && "items-center text-center",
         className,
       )}
       {...props}
     >
       {eyebrow ? <ConsoleEyebrow>{eyebrow}</ConsoleEyebrow> : null}
-      <h2
-        className={cn(
-          "text-balance text-2xl font-semibold tracking-tight sm:text-3xl",
-        )}
-      >
-        {title}
-      </h2>
+
+      {variant === "display" ? (
+        <h2 className="text-balance font-display text-[28px] leading-[1.05] sm:text-[36px]">
+          {title}
+        </h2>
+      ) : (
+        <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+          {title}
+        </h2>
+      )}
+
+      {variant === "display" ? (
+        <span
+          aria-hidden
+          className={cn(
+            "block h-px bg-gradient-to-r from-border via-border to-transparent",
+            align === "center"
+              ? "mx-auto w-24"
+              : "w-full max-w-[40%]",
+          )}
+        />
+      ) : null}
+
       {description ? (
         <p
           className={cn(

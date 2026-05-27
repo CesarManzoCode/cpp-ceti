@@ -18,7 +18,7 @@ export function FinalCta() {
           />
 
           <div className="relative">
-            <h2 className="mx-auto max-w-2xl text-balance text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+            <h2 className="mx-auto max-w-2xl text-balance font-display text-[28px] leading-[1.05] sm:text-[40px]">
               Deja de copiar código del pizarrón.
               <br />
               <span className="text-primary">Empieza a programarlo.</span>

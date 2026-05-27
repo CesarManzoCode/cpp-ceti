@@ -1,50 +1,46 @@
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { BracketLabel } from "@/components/ui/bracket-label";
 
-const iconWrap = cva(
-  "grid shrink-0 place-items-center rounded-[var(--radius-md)] transition-colors",
-  {
-    variants: {
-      tone: {
-        primary: "bg-primary-soft text-primary-soft-foreground",
-        warning: "bg-warning-soft text-warning-foreground",
-        success: "bg-success-soft text-success",
-        info: "bg-info-soft text-info",
-        muted: "bg-surface-2 text-muted-foreground",
-      },
-      size: {
-        sm: "size-9 [&_svg]:size-4",
-        md: "size-11 [&_svg]:size-5",
-        lg: "size-12 [&_svg]:size-5",
-      },
-    },
-    defaultVariants: { tone: "primary", size: "md" },
-  },
-);
-
-interface StatTileProps
-  extends Omit<React.ComponentProps<"div">, "children">,
-    VariantProps<typeof iconWrap> {
-  icon: React.ReactNode;
+interface StatTileProps extends Omit<React.ComponentProps<"div">, "children"> {
   label: string;
   value: React.ReactNode;
   sub?: React.ReactNode;
+  /** Optional small decoration (e.g. StreakFlame). Renders to the left of label. */
+  icon?: React.ReactNode;
+  /** Tone is mostly decorative now — used for the sub-text and icon tint. */
+  tone?: "primary" | "warning" | "success" | "info" | "muted";
+  /** Layout density. */
+  size?: "sm" | "md" | "lg";
 }
 
+const toneClass = {
+  primary: "text-primary",
+  warning: "text-warning-foreground",
+  success: "text-success",
+  info: "text-info",
+  muted: "text-muted-foreground",
+} as const;
+
+const valueSize = {
+  sm: "text-[28px]",
+  md: "text-[40px]",
+  lg: "text-[52px]",
+} as const;
+
 /**
- * Consolidated stat tile used by dashboard, perfil, logros. Replaces
- * three different ad-hoc implementations across the app with one premium
- * pattern: icon → label/value (+ optional sub).
+ * Stat editorial: número GIGANTE en JetBrains Mono Bold + bracket
+ * label arriba + sub-text. Sin colored-icon-in-cajita genérico —
+ * la tipografía hace todo el peso visual.
  */
-function StatTile({
-  icon,
+export function StatTile({
   label,
   value,
   sub,
-  tone,
-  size,
+  icon,
+  tone = "primary",
+  size = "md",
   className,
   ...props
 }: StatTileProps) {
@@ -52,27 +48,34 @@ function StatTile({
     <div
       data-slot="stat-tile"
       className={cn(
-        "group flex items-center gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 sm:p-5",
-        "transition-[border-color,box-shadow] duration-200 hover:border-border-strong",
+        "group flex flex-col gap-2 border-t border-border pt-4",
         className,
       )}
       {...props}
     >
-      <span className={iconWrap({ tone, size })}>{icon}</span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </p>
-        <p className="mt-0.5 truncate text-xl font-semibold tabular-nums tracking-tight text-foreground">
-          {value}
-        </p>
-        {sub ? (
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>
+      <div className="flex items-center gap-2">
+        {icon ? (
+          <span className={cn("shrink-0", toneClass[tone])}>{icon}</span>
         ) : null}
+        <BracketLabel tone={tone === "muted" ? "muted" : tone}>
+          {label}
+        </BracketLabel>
       </div>
+      <p
+        className={cn(
+          "font-display tabular-nums leading-none text-foreground",
+          valueSize[size],
+        )}
+      >
+        {value}
+      </p>
+      {sub ? (
+        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+          {sub}
+        </p>
+      ) : null}
     </div>
   );
 }
 
-export { StatTile };
 export type { StatTileProps };

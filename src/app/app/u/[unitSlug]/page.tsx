@@ -59,14 +59,15 @@ export default async function UnitPage({ params }: PageProps) {
           <ConsoleEyebrow>
             unidad_{unit.order.toString().padStart(2, "0")}
           </ConsoleEyebrow>
+          <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           {unitComplete ? (
             <Badge variant="success" size="sm">
               <Check className="size-3" strokeWidth={3} aria-hidden />
-              Completa
+              completa
             </Badge>
           ) : null}
         </div>
-        <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="font-display text-balance text-[34px] leading-[1.05] sm:text-[48px]">
           {unit.title}
         </h1>
         {unit.description ? (

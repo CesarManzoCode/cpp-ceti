@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <div data-page-enter className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
+        <h1 className="font-display text-[26px] leading-tight sm:text-[34px]">
           Bienvenido de nuevo
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">

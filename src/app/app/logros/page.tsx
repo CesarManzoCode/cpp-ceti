@@ -150,8 +150,11 @@ export default async function LogrosPage() {
       </div>
 
       <header className="space-y-3">
-        <ConsoleEyebrow>logros</ConsoleEyebrow>
-        <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+        <div className="flex items-center gap-3">
+          <ConsoleEyebrow>logros</ConsoleEyebrow>
+          <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+        </div>
+        <h1 className="font-display text-balance text-[34px] leading-[1.05] sm:text-[48px]">
           Tu colección
         </h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">

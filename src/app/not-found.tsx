@@ -53,7 +53,7 @@ export default function NotFound() {
 
         <div className="flex flex-col items-center gap-3">
           <ConsoleEyebrow tone="muted">sugerencia</ConsoleEyebrow>
-          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="font-display text-balance text-[26px] leading-[1.1] sm:text-[34px]">
             Vuelve a un terreno conocido.
           </h1>
         </div>

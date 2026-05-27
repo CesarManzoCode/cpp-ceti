@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Check, Circle, Home, Lock, Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { LoadingLink } from "@/components/ui/loading-link";
 
 export interface SidebarUnit {
   slug: string;
@@ -20,8 +20,8 @@ export interface SidebarUnit {
 // pasar componentes de Lucide (function components) como prop desde un
 // Server Component a un Client Component rompe la serialización RSC.
 const topLinks = [
-  { href: "/app", label: "Inicio", icon: Home },
-  { href: "/app/logros", label: "Logros", icon: Trophy },
+  { href: "/app", label: "inicio", icon: Home },
+  { href: "/app/logros", label: "logros", icon: Trophy },
 ];
 
 export function SidebarNav({
@@ -36,7 +36,7 @@ export function SidebarNav({
 
   return (
     <nav className="flex flex-col gap-7">
-      <NavGroup>
+      <NavGroup label="navegación">
         {topLinks.map((link) => {
           const active = pathname === link.href;
           return (
@@ -46,69 +46,67 @@ export function SidebarNav({
               active={active}
               onNavigate={onNavigate}
             >
-              <link.icon className="size-4" aria-hidden />
-              {link.label}
+              <link.icon className="size-4 shrink-0" aria-hidden />
+              <span className="font-mono">{link.label}</span>
             </NavItem>
           );
         })}
       </NavGroup>
 
-      <div className="space-y-2.5">
-        <h3 className="px-3 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
-          Unidades
-        </h3>
-        <NavGroup>
-          {units.map((unit) => {
-            const href = `/app/u/${unit.slug}`;
-            const active = pathname.startsWith(href);
-            const percent =
-              unit.lessonCount === 0
-                ? 0
-                : Math.round((unit.completedCount / unit.lessonCount) * 100);
-            const completed =
-              unit.completedCount === unit.lessonCount && unit.lessonCount > 0;
+      <NavGroup label="unidades">
+        {units.map((unit) => {
+          const href = `/app/u/${unit.slug}`;
+          const active = pathname.startsWith(href);
+          const percent =
+            unit.lessonCount === 0
+              ? 0
+              : Math.round((unit.completedCount / unit.lessonCount) * 100);
+          const completed =
+            unit.completedCount === unit.lessonCount && unit.lessonCount > 0;
 
-            return (
-              <NavItem
-                key={unit.slug}
-                href={unit.published ? href : "#"}
-                active={active && unit.published}
-                disabled={!unit.published}
-                onNavigate={unit.published ? onNavigate : undefined}
-              >
-                <UnitStatusIcon
-                  completed={completed}
-                  locked={!unit.published}
-                  percent={percent}
-                />
-                <span className="flex-1 truncate font-medium">
-                  <span className="mr-1.5 font-mono text-[11px] text-muted-foreground/70">
-                    U{unit.order.toString().padStart(2, "0")}
-                  </span>
-                  {unit.title}
+          return (
+            <NavItem
+              key={unit.slug}
+              href={unit.published ? href : "#"}
+              active={active && unit.published}
+              disabled={!unit.published}
+              onNavigate={unit.published ? onNavigate : undefined}
+            >
+              <UnitStatusIcon
+                completed={completed}
+                locked={!unit.published}
+                percent={percent}
+              />
+              <span className="flex-1 min-w-0 truncate">
+                <span className="font-mono text-[11px] font-bold text-muted-foreground/70 mr-1.5 tabular-nums">
+                  {unit.order.toString().padStart(2, "0")}
                 </span>
-                {unit.published && unit.lessonCount > 0 && !completed ? (
-                  <span className="font-mono text-[10px] tabular-nums text-muted-foreground/80">
-                    {unit.completedCount}/{unit.lessonCount}
-                  </span>
-                ) : null}
-              </NavItem>
-            );
-          })}
-        </NavGroup>
-      </div>
+                <span className="text-primary mr-1 font-mono">::</span>
+                <span className="font-mono">{unit.title.toLowerCase()}</span>
+              </span>
+              {unit.published && unit.lessonCount > 0 && !completed ? (
+                <span className="font-mono text-[10px] tabular-nums text-muted-foreground/80">
+                  {unit.completedCount}/{unit.lessonCount}
+                </span>
+              ) : null}
+            </NavItem>
+          );
+        })}
+      </NavGroup>
     </nav>
   );
 }
 
 /**
- * Contenedor de items de navegación. La magia visual: medimos la
- * posición del item activo (data-active) y movemos un indicador absoluto
- * de fondo (la "pill" activa) y una barra lateral. Esto produce el
- * efecto signature de Linear/Notion donde el highlight "se desliza"
- * entre items en vez de aparecer/desaparecer.
+ * Grupo con label editorial arriba y indicador activo deslizante a la izquierda.
  */
-function NavGroup({ children }: { children: React.ReactNode }) {
+function NavGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   const groupRef = React.useRef<HTMLUListElement | null>(null);
   const [indicator, setIndicator] = React.useState<{
     top: number;
@@ -138,7 +136,6 @@ function NavGroup({ children }: { children: React.ReactNode }) {
     update();
     const ro = new ResizeObserver(update);
     ro.observe(group);
-    // Observe children too (in case items shift)
     Array.from(group.children).forEach((child) => ro.observe(child));
     window.addEventListener("resize", update);
     return () => {
@@ -148,25 +145,27 @@ function NavGroup({ children }: { children: React.ReactNode }) {
   });
 
   return (
-    <ul
-      ref={groupRef}
-      className="relative flex flex-col gap-0.5"
-    >
-      {/* Indicador lateral deslizante */}
-      <span
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute left-0 w-[3px] rounded-r-full bg-primary",
-          "transition-[transform,height,opacity] duration-[280ms] ease-[var(--ease-spring)]",
-        )}
-        style={{
-          transform: `translateY(${indicator.top}px)`,
-          height: indicator.height,
-          opacity: indicator.visible ? 1 : 0,
-        }}
-      />
-      {children}
-    </ul>
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 px-3 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">
+        <span aria-hidden className="text-primary opacity-70">::</span>
+        <span>{label}</span>
+      </div>
+      <ul ref={groupRef} className="relative flex flex-col gap-0.5">
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute left-0 w-[3px] rounded-r-full bg-primary",
+            "transition-[transform,height,opacity] duration-[280ms] ease-[var(--ease-spring)]",
+          )}
+          style={{
+            transform: `translateY(${indicator.top}px)`,
+            height: indicator.height,
+            opacity: indicator.visible ? 1 : 0,
+          }}
+        />
+        {children}
+      </ul>
+    </div>
   );
 }
 
@@ -185,31 +184,26 @@ function NavItem({
 }) {
   return (
     <li data-active={active ? "true" : undefined}>
-      <LoadingLink
+      <Link
         href={href}
         onClick={onNavigate}
         aria-disabled={disabled}
         aria-current={active ? "page" : undefined}
-        showHint={false}
         className={cn(
-          "group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-sm",
+          "group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13px]",
           "transition-[background-color,color] duration-150",
-          disabled && "cursor-not-allowed opacity-50",
+          disabled && "cursor-not-allowed opacity-40",
           active
             ? "bg-accent text-foreground"
             : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
         )}
       >
         {children}
-      </LoadingLink>
+      </Link>
     </li>
   );
 }
 
-/**
- * Indicador compacto: candado (bloqueado), check verde (completo) o
- * mini-anillo de progreso (parcial). Es 16x16 y se alinea con el texto.
- */
 function UnitStatusIcon({
   completed,
   locked,
@@ -241,7 +235,6 @@ function UnitStatusIcon({
       />
     );
   }
-  // Mini conic-gradient progress ring (no extra SVG cost)
   return (
     <span
       className="grid size-4 shrink-0 place-items-center rounded-full"

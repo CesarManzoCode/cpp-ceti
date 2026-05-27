@@ -25,10 +25,11 @@ export default function AuthLayout({
         </Link>
 
         <div className="relative z-10 max-w-md space-y-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-            Manifiesto
+          <p className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+            <span aria-hidden className="opacity-70">::</span>
+            manifiesto
           </p>
-          <blockquote className="text-balance text-3xl font-semibold leading-[1.15] tracking-tight text-foreground">
+          <blockquote className="font-display text-balance text-[28px] leading-[1.1] sm:text-[34px] text-foreground">
             Programar se aprende programando.
             <br />
             <span className="text-muted-foreground">
