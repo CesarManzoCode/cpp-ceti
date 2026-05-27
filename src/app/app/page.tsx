@@ -1,21 +1,12 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
-import {
-  ArrowRight,
-  BookOpen,
-  Check,
-  ChevronRight,
-  Lock,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Sparkles, Zap } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
+import { RoadmapUnits } from "@/components/roadmap/roadmap-units";
 import { db } from "@/lib/db";
 import {
   getDefaultCourse,
@@ -125,42 +116,13 @@ export default async function AppHomePage() {
         />
       </section>
 
-      {/* Tu camino */}
+      {/* Tu camino — roadmap del curso */}
       <section className="space-y-4">
         <SectionRule trailing={`${overallPercent}% completado`}>
           Tu camino
         </SectionRule>
 
-        <ul
-          data-stagger
-          style={{ "--stagger": "55ms" } as CSSProperties}
-          className="grid gap-3 sm:grid-cols-2"
-        >
-          {units.map((u, idx) => {
-            const percent =
-              u.lessonCount === 0
-                ? 0
-                : Math.round((u.completedCount / u.lessonCount) * 100);
-            const completed = percent === 100;
-            return (
-              <li
-                key={u.slug}
-                style={{ "--i": idx } as CSSProperties}
-                className="animate-fade-up"
-              >
-                <UnitCard
-                  href={u.published ? `/app/u/${u.slug}` : undefined}
-                  order={u.order}
-                  title={u.title}
-                  percent={percent}
-                  completed={completed}
-                  completedCount={u.completedCount}
-                  lessonCount={u.lessonCount}
-                />
-              </li>
-            );
-          })}
-        </ul>
+        <RoadmapUnits courseSlug={course?.slug ?? ""} units={units} />
       </section>
     </div>
   );
@@ -208,99 +170,6 @@ function ContinueHero({
         </Button>
       </div>
     </Link>
-  );
-}
-
-function UnitCard({
-  href,
-  order,
-  title,
-  percent,
-  completed,
-  completedCount,
-  lessonCount,
-}: {
-  href?: string;
-  order: number;
-  title: string;
-  percent: number;
-  completed: boolean;
-  completedCount: number;
-  lessonCount: number;
-}) {
-  const locked = !href;
-  const body = (
-    <div className="flex items-start gap-4">
-      <div
-        className={`grid size-12 shrink-0 place-items-center rounded-2xl ring-1 ring-inset ${
-          completed
-            ? "bg-success-soft text-success ring-success/25"
-            : locked
-              ? "bg-surface-2 text-muted-foreground ring-border"
-              : "bg-primary/12 text-primary ring-primary/20"
-        }`}
-      >
-        {locked ? (
-          <Lock className="size-5" aria-hidden />
-        ) : completed ? (
-          <Check className="size-5" strokeWidth={3} aria-hidden />
-        ) : (
-          <span className="font-mono text-sm font-bold tabular-nums">
-            {order.toString().padStart(2, "0")}
-          </span>
-        )}
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Unidad {order}
-          </p>
-          {!locked ? (
-            <ChevronRight
-              className="size-4 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
-              aria-hidden
-            />
-          ) : (
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
-              próximo
-            </span>
-          )}
-        </div>
-        <h3 className="mt-1 truncate text-base font-semibold leading-snug tracking-tight">
-          {title}
-        </h3>
-        {!locked ? (
-          <div className="mt-3 flex items-center gap-3">
-            <Progress
-              value={percent}
-              size="sm"
-              tone={completed ? "success" : "primary"}
-              className="flex-1"
-            />
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {completedCount}/{lessonCount}
-            </span>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className="group block rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-md)]"
-      >
-        {body}
-      </Link>
-    );
-  }
-  return (
-    <div className="block rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-5 opacity-65">
-      {body}
-    </div>
   );
 }
 

@@ -1,22 +1,15 @@
 import { notFound } from "next/navigation";
-import type { CSSProperties } from "react";
-import {
-  ArrowRight,
-  ChevronLeft,
-  Check,
-  Clock,
-  Zap,
-} from "lucide-react";
+import { ChevronLeft, Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
+import { RoadmapLessons } from "@/components/roadmap/roadmap-lessons";
 import { getDefaultCourse } from "@/lib/courses";
 import { getUnitBySlug } from "@/lib/lessons";
 import { requireSession } from "@/lib/get-session";
-import { cn } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ unitSlug: string }>;
@@ -86,113 +79,21 @@ export default async function UnitPage({ params }: PageProps) {
         </div>
       </header>
 
-      <ol
-        data-stagger
-        style={{ "--stagger": "45ms" } as CSSProperties}
-        className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
-      >
-        {unit.lessons.map((lesson, idx) => {
-          const isCompleted = lesson.status === "completed";
-          const isInProgress = lesson.status === "in_progress";
-          return (
-            <li
-              key={lesson.id}
-              style={{ "--i": idx } as CSSProperties}
-              className={cn(
-                "animate-fade-up",
-                idx > 0 && "border-t border-border/70",
-              )}
-            >
-              <LoadingLink
-                href={`/app/u/${unit.slug}/${lesson.slug}`}
-                showHint={false}
-                className="group flex items-center gap-4 p-4 transition-colors hover:bg-surface-2/60 sm:gap-5 sm:p-5"
-              >
-                <LessonStatusBadge
-                  index={idx + 1}
-                  completed={isCompleted}
-                  inProgress={isInProgress}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-[15px] font-semibold tracking-tight sm:text-base">
-                      {lesson.title}
-                    </h3>
-                    {isInProgress ? (
-                      <Badge variant="default" size="sm">
-                        En progreso
-                      </Badge>
-                    ) : null}
-                  </div>
-                  {lesson.description ? (
-                    <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
-                      {lesson.description}
-                    </p>
-                  ) : null}
-                  <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3" aria-hidden />
-                      {lesson.estimatedMinutes} min
-                    </span>
-                    <span aria-hidden className="text-muted-foreground/50">
-                      ·
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Zap className="size-3 text-primary" aria-hidden />
-                      +{lesson.xpReward} XP
-                    </span>
-                  </div>
-                </div>
-                <ArrowRight
-                  className="hidden size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
-                  aria-hidden
-                />
-              </LoadingLink>
-            </li>
-          );
-        })}
-        {unit.lessons.length === 0 ? (
-          <li className="p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              Esta unidad aún no tiene lecciones publicadas.
-            </p>
-          </li>
-        ) : null}
-      </ol>
+      <RoadmapLessons
+        unitSlug={unit.slug}
+        unitOrder={unit.order}
+        lessons={unit.lessons.map((l) => ({
+          id: l.id,
+          slug: l.slug,
+          title: l.title,
+          description: l.description,
+          order: l.order,
+          xpReward: l.xpReward,
+          estimatedMinutes: l.estimatedMinutes,
+          stepCount: l.stepCount,
+          status: l.status,
+        }))}
+      />
     </div>
-  );
-}
-
-function LessonStatusBadge({
-  index,
-  completed,
-  inProgress,
-}: {
-  index: number;
-  completed: boolean;
-  inProgress: boolean;
-}) {
-  if (completed) {
-    return (
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-success text-success-foreground">
-        <Check className="size-4" strokeWidth={3} aria-hidden />
-      </span>
-    );
-  }
-  if (inProgress) {
-    return (
-      <span className="relative grid size-9 shrink-0 place-items-center rounded-full border-2 border-primary font-mono text-xs font-bold text-primary">
-        <span
-          aria-hidden
-          className="absolute inset-0 rounded-full bg-primary/15 animate-pulse-soft"
-        />
-        <span className="relative">{index.toString().padStart(2, "0")}</span>
-      </span>
-    );
-  }
-  return (
-    <span className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-surface-2 text-muted-foreground font-mono text-xs font-medium tabular-nums">
-      {index.toString().padStart(2, "0")}
-    </span>
   );
 }
