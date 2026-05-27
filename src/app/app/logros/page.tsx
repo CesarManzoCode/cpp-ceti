@@ -2,23 +2,24 @@ import type { CSSProperties } from "react";
 import {
   Award,
   ChevronLeft,
-  Flame,
   Lock,
   Sparkles,
   Trophy,
   Zap,
 } from "lucide-react";
 
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { StatTile } from "@/components/ui/stat-tile";
+import { StreakFlame } from "@/components/ui/streak-flame";
 import { db } from "@/lib/db";
 import { getUserStats } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
-import { cn, formatNumber, pluralize } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 export const metadata = {
   title: "Logros",
@@ -181,21 +182,26 @@ export default async function LogrosPage() {
         <StatTile
           icon={<Zap />}
           label="XP totales"
-          value={formatNumber(stats.totalXp)}
+          value={<AnimatedNumber value={stats.totalXp} />}
           tone="primary"
           size="sm"
         />
         <StatTile
-          icon={<Flame />}
+          icon={<StreakFlame streak={stats.longestStreak} className="size-4" />}
           label="Racha más larga"
-          value={`${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}
+          value={
+            <>
+              <AnimatedNumber value={stats.longestStreak} />{" "}
+              {pluralize(stats.longestStreak, "día", "días")}
+            </>
+          }
           tone="warning"
           size="sm"
         />
         <StatTile
           icon={<Sparkles />}
           label="Retos resueltos"
-          value={String(exercisesPassed)}
+          value={<AnimatedNumber value={exercisesPassed} />}
           tone="success"
           size="sm"
         />

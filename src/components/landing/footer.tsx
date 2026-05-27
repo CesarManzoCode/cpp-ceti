@@ -10,8 +10,16 @@ const links = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/60 bg-surface-2/40">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-10 sm:px-6 sm:flex-row">
+    <footer className="relative overflow-hidden border-t border-border/60 bg-surface-2/40">
+      {/* Ascii signature decoration — semicolon as the C++ motif */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-32 right-4 select-none font-mono text-[260px] font-bold leading-none text-foreground/[0.025] sm:right-10 sm:text-[340px]"
+      >
+        ;
+      </span>
+
+      <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-10 sm:px-6 sm:flex-row">
         <div className="flex flex-col items-center gap-2 sm:items-start">
           <Logo size="sm" />
           <p className="text-xs text-muted-foreground">
@@ -33,7 +41,9 @@ export function LandingFooter() {
 
         <p className="text-center text-xs text-muted-foreground sm:text-right">
           Proyecto independiente.{" "}
-          <span className="font-medium text-foreground">No oficial del CETI.</span>
+          <span className="font-medium text-foreground">
+            No oficial del CETI.
+          </span>
         </p>
       </div>
     </footer>

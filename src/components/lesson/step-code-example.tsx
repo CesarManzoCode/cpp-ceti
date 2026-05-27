@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { ArrowRight, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { Markdown } from "@/components/markdown";
 import { CodePlayground } from "@/components/editor/code-playground";
 import { CppEditor } from "@/components/editor/cpp-editor";
@@ -19,6 +21,18 @@ export function StepCodeExample({
   onNext,
   isPending,
 }: StepCodeExampleProps) {
+  // Enter para continuar (siempre que no esté escribiendo en el editor)
+  React.useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      // Monaco usa textarea internamente; ignoramos
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "Enter" && !isPending) onNext();
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onNext, isPending]);
+
   return (
     <article className="space-y-7">
       <Markdown>{content.explanation}</Markdown>
@@ -41,8 +55,12 @@ export function StepCodeExample({
         </div>
       ) : null}
 
-      <div className="flex justify-end border-t border-border/70 pt-6">
-        <Button onClick={onNext} loading={isPending} size="lg">
+      <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">
+        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
+          <Kbd>Enter</Kbd>
+          para continuar
+        </span>
+        <Button onClick={onNext} loading={isPending} size="lg" className="ml-auto">
           Continuar
           <ArrowRight />
         </Button>

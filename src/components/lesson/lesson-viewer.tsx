@@ -147,8 +147,7 @@ export function LessonViewer({
 
       <div
         key={currentStep.id}
-        data-page-enter
-        className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8"
+        className="animate-slide-in-right mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8"
       >
         {/* Title */}
         <header className="space-y-1.5">

@@ -3,17 +3,18 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  Flame,
   Sparkles,
   Zap,
 } from "lucide-react";
 
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { StatTile } from "@/components/ui/stat-tile";
+import { StreakFlame } from "@/components/ui/streak-flame";
 import { db } from "@/lib/db";
 import {
   getDefaultCourse,
@@ -96,7 +97,7 @@ export default async function AppHomePage() {
           <StatTile
             icon={<Zap />}
             label="XP totales"
-            value={formatNumber(stats.totalXp)}
+            value={<AnimatedNumber value={stats.totalXp} />}
             tone="primary"
           />
         </div>
@@ -105,9 +106,13 @@ export default async function AppHomePage() {
           className="animate-fade-up"
         >
           <StatTile
-            icon={<Flame />}
+            icon={<StreakFlame streak={stats.currentStreak} className="size-5" />}
             label="Racha actual"
-            value={`${stats.currentStreak} días`}
+            value={
+              <>
+                <AnimatedNumber value={stats.currentStreak} /> días
+              </>
+            }
             sub={
               stats.longestStreak > stats.currentStreak
                 ? `Mejor: ${stats.longestStreak}`
@@ -123,7 +128,11 @@ export default async function AppHomePage() {
           <StatTile
             icon={<BookOpen />}
             label="Lecciones"
-            value={`${totalCompleted} / ${totalLessons}`}
+            value={
+              <>
+                <AnimatedNumber value={totalCompleted} /> / {totalLessons}
+              </>
+            }
             sub={`${overallPercent}% completado`}
             tone="success"
           />

@@ -401,6 +401,52 @@ kbd {
   100% { stroke-dashoffset: 80; transform: rotate(360deg); }
 }
 
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-5px); }
+  30% { transform: translateX(4px); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+}
+
+@keyframes correct-burst {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes scan-sweep {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  20% { transform: scale(1.04) rotate(-1.5deg); filter: brightness(1.08); }
+  40% { transform: scale(0.98) rotate(1deg); filter: brightness(0.95); }
+  60% { transform: scale(1.02) rotate(-0.5deg); filter: brightness(1.05); }
+  80% { transform: scale(1) rotate(0.5deg); filter: brightness(1); }
+}
+
+@keyframes flame-flicker-strong {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1) drop-shadow(0 0 4px var(--warning)); }
+  20% { transform: scale(1.08) rotate(-2deg); filter: brightness(1.15) drop-shadow(0 0 6px var(--warning)); }
+  40% { transform: scale(0.96) rotate(1.5deg); filter: brightness(0.9) drop-shadow(0 0 3px var(--warning)); }
+  60% { transform: scale(1.05) rotate(-1deg); filter: brightness(1.1) drop-shadow(0 0 5px var(--warning)); }
+  80% { transform: scale(1.01) rotate(1deg); filter: brightness(1) drop-shadow(0 0 4px var(--warning)); }
+}
+
 /* ============================================================
    Motion utility classes
    ============================================================ */
@@ -440,6 +486,44 @@ kbd {
 }
 .animate-dot-typing > *:nth-child(3) {
   animation-delay: 0.3s;
+}
+
+.animate-shake {
+  animation: shake-x 420ms var(--ease-out-quart);
+}
+.animate-correct {
+  animation: correct-burst 480ms var(--ease-out-back);
+}
+.animate-slide-in-right {
+  animation: slide-in-right 320ms var(--ease-out-quart) both;
+}
+.animate-slide-in-left {
+  animation: slide-in-left 320ms var(--ease-out-quart) both;
+}
+.animate-flame {
+  transform-origin: 50% 100%;
+  animation: flame-flicker 2.2s ease-in-out infinite;
+}
+.animate-flame-strong {
+  transform-origin: 50% 100%;
+  animation: flame-flicker-strong 1.8s ease-in-out infinite;
+}
+
+/* Compile scan sweep — banda diagonal que recorre el contenedor */
+.scan-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 35%,
+    color-mix(in oklch, var(--primary) 35%, transparent) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: scan-sweep 1.4s linear infinite;
 }
 
 /* Stagger helper — set inline `style={{ '--stagger': '60ms' }}` on parent,

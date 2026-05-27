@@ -306,10 +306,10 @@ function SubmissionResults({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-lg)] border p-4",
+        "rounded-[var(--radius-lg)] border p-4 animate-fade-up",
         submission.passed
-          ? "border-success/30 bg-success-soft"
-          : "border-warning/40 bg-warning-soft",
+          ? "border-success/30 bg-success-soft animate-correct"
+          : "border-warning/40 bg-warning-soft animate-shake",
       )}
     >
       <div className="mb-3 flex items-center justify-between gap-3">

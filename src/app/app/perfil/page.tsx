@@ -1,6 +1,5 @@
 import {
   ChevronLeft,
-  Flame,
   Mail,
   Send,
   Sparkles,
@@ -9,16 +8,18 @@ import {
   Zap,
 } from "lucide-react";
 
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { LoadingLink } from "@/components/ui/loading-link";
 import { StatTile } from "@/components/ui/stat-tile";
+import { StreakFlame } from "@/components/ui/streak-flame";
 import { db } from "@/lib/db";
 import { getUserStats } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
-import { formatNumber, pluralize } from "@/lib/utils";
+import { pluralize } from "@/lib/utils";
 
 import { SignOutButton } from "./sign-out-button";
 
@@ -109,14 +110,19 @@ export default async function PerfilPage() {
           <StatTile
             icon={<Zap />}
             label="XP totales"
-            value={formatNumber(stats.totalXp)}
+            value={<AnimatedNumber value={stats.totalXp} />}
             tone="primary"
             size="sm"
           />
           <StatTile
-            icon={<Flame />}
+            icon={<StreakFlame streak={stats.currentStreak} className="size-4" />}
             label="Racha actual"
-            value={`${stats.currentStreak} ${pluralize(stats.currentStreak, "día", "días")}`}
+            value={
+              <>
+                <AnimatedNumber value={stats.currentStreak} />{" "}
+                {pluralize(stats.currentStreak, "día", "días")}
+              </>
+            }
             sub={`Mejor: ${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}
             tone="warning"
             size="sm"
@@ -124,7 +130,7 @@ export default async function PerfilPage() {
           <StatTile
             icon={<Trophy />}
             label="Lecciones / retos"
-            value={`${lessonsCompleted}`}
+            value={<AnimatedNumber value={lessonsCompleted} />}
             sub={`${attempts} ${pluralize(attempts, "intento", "intentos")} en retos`}
             tone="success"
             size="sm"

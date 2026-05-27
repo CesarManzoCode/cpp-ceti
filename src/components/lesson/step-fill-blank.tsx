@@ -23,10 +23,16 @@ export function StepFillBlank({
   );
   const [submitted, setSubmitted] = React.useState(false);
   const [showHint, setShowHint] = React.useState<number | null>(null);
+  const [feedbackKey, setFeedbackKey] = React.useState(0);
 
   const allCorrect = content.blanks.every(
     (b, i) => values[i]?.trim() === b.answer.trim(),
   );
+
+  function verify() {
+    setSubmitted(true);
+    setFeedbackKey((k) => k + 1);
+  }
 
   // Renderiza el template intercalando inputs en los placeholders {{0}}, {{1}}...
   const parts = renderTemplate(content.template, values, setValues, submitted, content);
@@ -42,7 +48,14 @@ export function StepFillBlank({
         </h3>
       </header>
 
-      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]">
+      <div
+        key={feedbackKey}
+        className={cn(
+          "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
+          submitted && !allCorrect && "animate-shake",
+          submitted && allCorrect && "animate-correct",
+        )}
+      >
         <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] text-zinc-400">
           <span className="font-mono">main.cpp</span>
           <span className="font-mono uppercase tracking-wider">edición</span>
@@ -112,7 +125,7 @@ export function StepFillBlank({
               </Button>
             ) : null}
             <Button
-              onClick={() => setSubmitted(true)}
+              onClick={verify}
               disabled={values.some((v) => !v.trim())}
               size="lg"
             >

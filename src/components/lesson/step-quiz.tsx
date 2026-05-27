@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowRight, CheckCircle2, RotateCcw, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { Markdown } from "@/components/markdown";
 import { cn } from "@/lib/utils";
 import type { QuizStepContent } from "@/types/lesson";
@@ -17,13 +18,34 @@ interface StepQuizProps {
 export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
+  // Trigger one-shot animations: incrementing key re-mounts animated element
+  const [feedbackKey, setFeedbackKey] = React.useState(0);
 
   const isCorrect = selected === content.correctIndex;
 
   function handleCheck() {
     if (selected === null) return;
     setSubmitted(true);
+    setFeedbackKey((k) => k + 1);
   }
+
+  // Keyboard: Enter para verificar / avanzar
+  React.useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      // Ignorar si está escribiendo en un input
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key !== "Enter") return;
+      if (!submitted) {
+        if (selected !== null) handleCheck();
+      } else if (isCorrect && !isPending) {
+        onNext();
+      }
+    }
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, submitted, isCorrect, isPending]);
 
   return (
     <article className="space-y-7">
@@ -36,7 +58,15 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
         </h3>
       </header>
 
-      <ul className="space-y-2" role="radiogroup" aria-label="Opciones">
+      <ul
+        key={feedbackKey}
+        className={cn(
+          "space-y-2",
+          submitted && !isCorrect && "animate-shake",
+        )}
+        role="radiogroup"
+        aria-label="Opciones"
+      >
         {content.options.map((option, idx) => {
           const isSelected = selected === idx;
           const isThisCorrect = idx === content.correctIndex;
@@ -99,11 +129,13 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
 
       {submitted ? (
         <div
+          key={`fb-${feedbackKey}`}
           className={cn(
             "rounded-[var(--radius-lg)] border p-5",
             isCorrect
-              ? "border-success/30 bg-success-soft"
+              ? "border-success/30 bg-success-soft animate-correct"
               : "border-warning/40 bg-warning-soft",
+            "animate-fade-up",
           )}
         >
           <p
@@ -125,17 +157,22 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
         </div>
       ) : null}
 
-      <div className="flex justify-end gap-2 border-t border-border/70 pt-6">
+      <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">
+        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
+          <Kbd>Enter</Kbd>
+          {!submitted ? "para verificar" : isCorrect ? "para continuar" : ""}
+        </span>
         {!submitted ? (
           <Button
             onClick={handleCheck}
             disabled={selected === null}
             size="lg"
+            className="ml-auto"
           >
             Verificar
           </Button>
         ) : isCorrect ? (
-          <Button onClick={onNext} loading={isPending} size="lg">
+          <Button onClick={onNext} loading={isPending} size="lg" className="ml-auto">
             Continuar
             <ArrowRight />
           </Button>
@@ -147,6 +184,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
             }}
             variant="outline"
             size="lg"
+            className="ml-auto"
           >
             <RotateCcw />
             Intentar de nuevo

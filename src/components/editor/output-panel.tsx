@@ -23,11 +23,12 @@ export function OutputPanel({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-sm text-zinc-100",
+        "relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-sm text-zinc-100",
+        state === "running" && "scan-sweep",
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2">
+      <div className="relative flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2">
         <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-zinc-400">
           <Terminal className="size-3.5" aria-hidden />
           Consola
@@ -35,7 +36,7 @@ export function OutputPanel({
         <StatusBadge state={state} result={result} />
       </div>
 
-      <div className="max-h-72 min-h-24 overflow-auto p-4">
+      <div className="relative max-h-72 min-h-24 overflow-auto p-4">
         {state === "idle" ? (
           <p className="flex items-center gap-1.5 text-xs italic text-zinc-500">
             Pulsa <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">Ctrl</Kbd>
