@@ -26,7 +26,7 @@ export function MobileSidebar({ units }: { units: SidebarUnit[] }) {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           className="md:hidden"
           aria-label="Abrir menú"
         >

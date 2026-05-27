@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { LoadingLink } from "@/components/ui/loading-link";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -28,7 +27,7 @@ export function LandingNavbar() {
             <a
               key={link.href}
               href={link.href}
-              className="rounded-md px-3 py-1.5 font-medium transition-colors hover:bg-accent hover:text-foreground"
+              className="rounded-[var(--radius-sm)] px-3 py-1.5 font-medium transition-colors hover:bg-accent hover:text-foreground"
             >
               {link.label}
             </a>
@@ -43,17 +42,10 @@ export function LandingNavbar() {
             size="sm"
             className="hidden sm:inline-flex"
           >
-            <LoadingLink href="/login" showHint={false}>
-              Iniciar sesión
-            </LoadingLink>
+            <Link href="/login">Iniciar sesión</Link>
           </Button>
           <Button asChild size="sm">
-            <LoadingLink
-              href="/registro"
-              hintClassName="bg-primary-foreground"
-            >
-              Empezar gratis
-            </LoadingLink>
+            <Link href="/registro">Empezar gratis</Link>
           </Button>
         </div>
       </div>

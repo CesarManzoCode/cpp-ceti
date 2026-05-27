@@ -22,8 +22,6 @@ const badgeVariants = cva(
           "border-transparent bg-info-soft text-info",
         outline:
           "border-border text-foreground bg-transparent",
-        solid:
-          "border-transparent bg-foreground text-background",
       },
       size: {
         sm: "px-2 py-0.5 text-[10px] tracking-wide [&_svg]:size-3",

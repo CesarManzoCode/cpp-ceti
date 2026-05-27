@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import { Check, Lock } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/ui/section-heading";
 
 const units = [
@@ -61,11 +60,11 @@ export function Curriculum() {
       id="temario"
       className="border-b border-border/60 py-20 lg:py-28"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+      <div className="mx-auto max-w-5xl px-5 sm:px-6">
         <SectionHeading
           align="center"
           eyebrow="temario"
-          title="8 unidades, del primer cout hasta POO."
+          title="Ocho unidades, del primer cout hasta POO."
           description={
             <>
               Construidas sobre el plan oficial del CETI. Nuevas lecciones
@@ -75,86 +74,67 @@ export function Curriculum() {
           className="mx-auto items-center"
         />
 
-        {/* Path */}
-        <div className="relative mt-14">
-          {/* Vertical line backbone (desktop) */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-[27px] top-0 hidden h-full w-px bg-gradient-to-b from-border via-border to-transparent sm:block"
-          />
+        <ol
+          data-stagger
+          style={{ "--stagger": "50ms" } as CSSProperties}
+          className="mt-14 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
+        >
+          {units.map((u, idx) => (
+            <li
+              key={u.n}
+              style={{ "--i": idx } as CSSProperties}
+              className="animate-fade-up flex items-start gap-5 border-t border-border/70 p-5 first:border-t-0 sm:p-6"
+            >
+              <div
+                className={
+                  "grid size-10 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums " +
+                  (u.available
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-surface-2 text-muted-foreground/70")
+                }
+              >
+                {u.available ? (
+                  String(u.n).padStart(2, "0")
+                ) : (
+                  <Lock className="size-4" aria-hidden />
+                )}
+              </div>
 
-          <ol
-            data-stagger
-            style={{ "--stagger": "60ms" } as CSSProperties}
-            className="space-y-3"
-          >
-            {units.map((u, idx) => {
-              const isAvailable = u.available;
-              return (
-                <li
-                  key={u.n}
-                  style={{ "--i": idx } as CSSProperties}
-                  className="animate-fade-up relative flex items-stretch gap-4 sm:gap-6"
-                >
-                  {/* Node */}
-                  <div
-                    className={`relative z-10 grid size-[54px] shrink-0 place-items-center rounded-2xl font-mono text-lg font-bold ring-1 ring-inset ${
-                      isAvailable
-                        ? "bg-primary text-primary-foreground ring-primary/40 shadow-[0_6px_16px_-4px_var(--primary)]"
-                        : "bg-surface-2 text-muted-foreground/70 ring-border"
-                    }`}
-                  >
-                    {isAvailable ? (
-                      <span>{u.n.toString().padStart(2, "0")}</span>
-                    ) : (
-                      <Lock className="size-4" aria-hidden />
-                    )}
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                      Unidad {u.n}
+                    </p>
+                    <h3 className="mt-0.5 text-[17px] font-semibold tracking-tight sm:text-lg">
+                      {u.title}
+                    </h3>
                   </div>
-
-                  {/* Card */}
-                  <article
-                    className={`group flex-1 rounded-[var(--radius-xl)] border bg-card p-5 transition-[transform,box-shadow,border-color] ${
-                      isAvailable
-                        ? "border-border shadow-[var(--shadow-xs)] hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-md)]"
-                        : "border-dashed border-border opacity-70"
-                    }`}
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                          Unidad {u.n}
-                        </p>
-                        <h3 className="mt-0.5 text-lg font-semibold tracking-tight">
-                          {u.title}
-                        </h3>
-                      </div>
-                      {isAvailable ? (
-                        <Badge variant="success" size="sm">
-                          <Check className="size-3" strokeWidth={3} />
-                          Disponible
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" size="sm">
-                          Próximo
-                        </Badge>
-                      )}
-                    </div>
-                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                      {u.topics.map((t) => (
-                        <li
-                          key={t}
-                          className="inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs text-muted-foreground"
-                        >
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+                  {u.available ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-success">
+                      <Check className="size-3" strokeWidth={3} aria-hidden />
+                      Disponible
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      Próximamente
+                    </span>
+                  )}
+                </div>
+                <ul className="flex flex-wrap gap-1.5">
+                  {u.topics.map((t) => (
+                    <li
+                      key={t}
+                      className="inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs text-muted-foreground"
+                    >
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

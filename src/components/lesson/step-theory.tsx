@@ -15,7 +15,6 @@ interface StepTheoryProps {
 }
 
 export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
-  // Enter para continuar
   React.useEffect(() => {
     function handler(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement | null)?.tagName;

@@ -26,7 +26,7 @@
   --primary-foreground: oklch(0.985 0.01 263);
   --primary-soft: oklch(0.95 0.045 263);
   --primary-soft-foreground: oklch(0.38 0.18 263);
-  --primary-ring: oklch(0.52 0.21 263 / 0.35);
+  --primary-ring: oklch(0.52 0.21 263 / 0.25);
 
   --secondary: oklch(0.96 0.006 250);
   --secondary-foreground: oklch(0.2 0.015 252);
@@ -40,36 +40,35 @@
   /* Status — desaturated, premium */
   --destructive: oklch(0.58 0.21 27);
   --destructive-foreground: oklch(0.985 0.01 27);
-  --destructive-soft: oklch(0.955 0.04 27);
+  --destructive-soft: oklch(0.96 0.035 27);
 
   --success: oklch(0.62 0.16 152);
   --success-foreground: oklch(0.985 0.01 152);
-  --success-soft: oklch(0.95 0.045 152);
+  --success-soft: oklch(0.955 0.04 152);
 
   --warning: oklch(0.74 0.16 70); /* XP / streak / amber */
   --warning-foreground: oklch(0.22 0.06 70);
-  --warning-soft: oklch(0.96 0.06 70);
+  --warning-soft: oklch(0.965 0.05 70);
 
   --info: oklch(0.66 0.13 230);
-  --info-soft: oklch(0.95 0.04 230);
+  --info-soft: oklch(0.955 0.035 230);
 
   /* Lines & focus */
-  --border: oklch(0.91 0.006 250);
+  --border: oklch(0.92 0.006 250);
   --border-strong: oklch(0.86 0.008 250);
   --input: oklch(0.9 0.006 250);
   --ring: oklch(0.52 0.21 263);
 
-  /* Radii hierarchy */
-  --radius: 0.875rem;
+  /* Radii hierarchy — buttons tight, surfaces relaxed */
+  --radius: 0.75rem;
 
-  /* Elevation — layered, soft, premium */
+  /* Elevation — restrained, two levels of real depth */
   --shadow-color: 220 25% 18%;
-  --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.08);
-  --shadow-sm: 0 1px 2px -1px hsl(var(--shadow-color) / 0.06), 0 2px 4px -2px hsl(var(--shadow-color) / 0.05);
-  --shadow-md: 0 4px 12px -4px hsl(var(--shadow-color) / 0.1), 0 2px 4px -2px hsl(var(--shadow-color) / 0.06);
-  --shadow-lg: 0 12px 32px -8px hsl(var(--shadow-color) / 0.14), 0 4px 8px -4px hsl(var(--shadow-color) / 0.06);
-  --shadow-xl: 0 24px 56px -12px hsl(var(--shadow-color) / 0.22), 0 8px 16px -8px hsl(var(--shadow-color) / 0.08);
-  --shadow-glow: 0 0 0 1px oklch(0.52 0.21 263 / 0.25), 0 8px 24px -8px oklch(0.52 0.21 263 / 0.35);
+  --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.06);
+  --shadow-sm: 0 1px 3px -1px hsl(var(--shadow-color) / 0.08), 0 1px 2px -1px hsl(var(--shadow-color) / 0.04);
+  --shadow-md: 0 4px 12px -4px hsl(var(--shadow-color) / 0.08), 0 2px 4px -2px hsl(var(--shadow-color) / 0.05);
+  --shadow-lg: 0 12px 28px -8px hsl(var(--shadow-color) / 0.12), 0 4px 8px -4px hsl(var(--shadow-color) / 0.05);
+  --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.18), 0 8px 16px -8px hsl(var(--shadow-color) / 0.08);
 
   /* Editor / terminal — keep dark for code clarity */
   --terminal-bg: oklch(0.16 0.015 252);
@@ -80,60 +79,59 @@
 
 .dark {
   /* Slightly cool, deep neutrals — not pure black */
-  --background: oklch(0.135 0.012 250);
-  --foreground: oklch(0.975 0.005 250);
+  --background: oklch(0.13 0.012 250);
+  --foreground: oklch(0.97 0.005 250);
 
   --surface: oklch(0.165 0.014 252);
-  --surface-2: oklch(0.195 0.015 252);
+  --surface-2: oklch(0.19 0.015 252);
   --surface-3: oklch(0.225 0.016 252);
 
   --card: oklch(0.175 0.014 252);
-  --card-foreground: oklch(0.975 0.005 250);
-  --popover: oklch(0.195 0.015 252);
-  --popover-foreground: oklch(0.975 0.005 250);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.2 0.015 252);
+  --popover-foreground: oklch(0.97 0.005 250);
 
-  --primary: oklch(0.72 0.18 263);
+  --primary: oklch(0.7 0.18 263);
   --primary-foreground: oklch(0.14 0.04 263);
-  --primary-soft: oklch(0.32 0.11 263);
-  --primary-soft-foreground: oklch(0.85 0.13 263);
-  --primary-ring: oklch(0.72 0.18 263 / 0.5);
+  --primary-soft: oklch(0.3 0.1 263);
+  --primary-soft-foreground: oklch(0.86 0.12 263);
+  --primary-ring: oklch(0.7 0.18 263 / 0.35);
 
   --secondary: oklch(0.225 0.016 252);
-  --secondary-foreground: oklch(0.975 0.005 250);
+  --secondary-foreground: oklch(0.97 0.005 250);
 
   --muted: oklch(0.225 0.016 252);
   --muted-foreground: oklch(0.66 0.012 250);
 
-  --accent: oklch(0.255 0.018 252);
-  --accent-foreground: oklch(0.975 0.005 250);
+  --accent: oklch(0.25 0.018 252);
+  --accent-foreground: oklch(0.97 0.005 250);
 
   --destructive: oklch(0.66 0.2 27);
   --destructive-foreground: oklch(0.985 0.01 27);
-  --destructive-soft: oklch(0.3 0.08 27);
+  --destructive-soft: oklch(0.28 0.07 27);
 
   --success: oklch(0.7 0.17 152);
   --success-foreground: oklch(0.985 0.01 152);
-  --success-soft: oklch(0.29 0.07 152);
+  --success-soft: oklch(0.27 0.06 152);
 
   --warning: oklch(0.78 0.16 70);
   --warning-foreground: oklch(0.16 0.04 70);
-  --warning-soft: oklch(0.3 0.07 70);
+  --warning-soft: oklch(0.28 0.06 70);
 
   --info: oklch(0.74 0.13 230);
-  --info-soft: oklch(0.28 0.08 230);
+  --info-soft: oklch(0.26 0.07 230);
 
-  --border: oklch(0.27 0.015 252);
+  --border: oklch(0.255 0.015 252);
   --border-strong: oklch(0.34 0.018 252);
   --input: oklch(0.27 0.015 252);
-  --ring: oklch(0.72 0.18 263);
+  --ring: oklch(0.7 0.18 263);
 
   --shadow-color: 220 50% 4%;
-  --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.4);
-  --shadow-sm: 0 1px 2px -1px hsl(var(--shadow-color) / 0.4), 0 2px 4px -2px hsl(var(--shadow-color) / 0.3);
-  --shadow-md: 0 4px 12px -4px hsl(var(--shadow-color) / 0.45), 0 2px 4px -2px hsl(var(--shadow-color) / 0.3);
-  --shadow-lg: 0 12px 32px -8px hsl(var(--shadow-color) / 0.55), 0 4px 8px -4px hsl(var(--shadow-color) / 0.4);
-  --shadow-xl: 0 24px 56px -12px hsl(var(--shadow-color) / 0.7), 0 8px 16px -8px hsl(var(--shadow-color) / 0.5);
-  --shadow-glow: 0 0 0 1px oklch(0.72 0.18 263 / 0.35), 0 8px 24px -8px oklch(0.72 0.18 263 / 0.55);
+  --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.3);
+  --shadow-sm: 0 1px 3px -1px hsl(var(--shadow-color) / 0.35), 0 1px 2px -1px hsl(var(--shadow-color) / 0.2);
+  --shadow-md: 0 4px 12px -4px hsl(var(--shadow-color) / 0.4), 0 2px 4px -2px hsl(var(--shadow-color) / 0.25);
+  --shadow-lg: 0 12px 28px -8px hsl(var(--shadow-color) / 0.5), 0 4px 8px -4px hsl(var(--shadow-color) / 0.35);
+  --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.65), 0 8px 16px -8px hsl(var(--shadow-color) / 0.45);
 
   --terminal-bg: oklch(0.115 0.013 252);
   --terminal-fg: oklch(0.95 0.005 250);
@@ -187,19 +185,19 @@
   --color-terminal: var(--terminal-bg);
   --color-terminal-fg: var(--terminal-fg);
 
-  --radius-xs: calc(var(--radius) - 8px);
-  --radius-sm: calc(var(--radius) - 5px);
-  --radius-md: calc(var(--radius) - 3px);
+  /* Compact button radii (xs/sm), card radii (md/lg), modal radii (xl/2xl) */
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 10px);
+  --radius-2xl: calc(var(--radius) + 8px);
 
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
-  --shadow-glow: var(--shadow-glow);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
@@ -230,19 +228,16 @@ h1, h2, h3, h4 {
   font-feature-settings: "ss01", "cv11";
 }
 
-/* Display: Inter Bold con tracking más tight + leading apretado para
-   titulares "premium feel". No mono — los headings deben sentirse
-   cálidos y modernos, no técnicos. */
+/* Display heads on the marketing site only */
 .font-display {
   font-family: var(--font-sans);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.038em;
+  line-height: 1.02;
 }
 
-/* Selection */
 ::selection {
-  background: color-mix(in oklch, var(--primary) 30%, transparent);
+  background: color-mix(in oklch, var(--primary) 28%, transparent);
   color: var(--foreground);
 }
 
@@ -273,31 +268,23 @@ h1, h2, h3, h4 {
 }
 
 /* ============================================================
-   Pattern utilities (used very sparingly)
+   Pattern utilities — used sparingly, never as decoration alone
    ============================================================ */
 .grid-pattern {
   background-image:
     linear-gradient(to right, color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px),
     linear-gradient(to bottom, color-mix(in oklch, var(--border) 55%, transparent) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 50%, transparent 100%);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 65% 55% at 50% 30%, black 50%, transparent 100%);
 }
 
 .dot-pattern {
   background-image: radial-gradient(
-    color-mix(in oklch, var(--border-strong) 80%, transparent) 1px,
+    color-mix(in oklch, var(--border-strong) 70%, transparent) 1px,
     transparent 1px
   );
-  background-size: 18px 18px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 50%, transparent 100%);
-}
-
-.noise {
-  background-image: radial-gradient(
-    color-mix(in oklch, var(--muted-foreground) 8%, transparent) 1px,
-    transparent 0
-  );
-  background-size: 3px 3px;
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 65% 55% at 50% 30%, black 50%, transparent 100%);
 }
 
 /* ============================================================
@@ -311,11 +298,11 @@ h1, h2, h3, h4 {
   background: color-mix(in oklch, var(--primary) 10%, var(--muted));
   color: var(--primary-soft-foreground);
   font-weight: 500;
-  border: 1px solid color-mix(in oklch, var(--primary) 18%, transparent);
+  border: 1px solid color-mix(in oklch, var(--primary) 16%, transparent);
 }
 
 .dark .code-inline {
-  background: color-mix(in oklch, var(--primary) 14%, var(--muted));
+  background: color-mix(in oklch, var(--primary) 18%, var(--muted));
   color: oklch(0.92 0.06 263);
   border-color: color-mix(in oklch, var(--primary) 28%, transparent);
 }
@@ -343,7 +330,7 @@ kbd {
 }
 
 /* ============================================================
-   Brand keyframes
+   Keyframes
    ============================================================ */
 @keyframes brand-caret {
   0%, 49% { opacity: 1; }
@@ -375,7 +362,7 @@ kbd {
 }
 
 @keyframes enter-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -385,14 +372,8 @@ kbd {
 }
 
 @keyframes enter-scale {
-  from { opacity: 0; transform: scale(0.97); }
+  from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 45%, transparent); }
-  70% { box-shadow: 0 0 0 8px color-mix(in oklch, var(--primary) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 0%, transparent); }
 }
 
 @keyframes pulse-soft {
@@ -405,24 +386,17 @@ kbd {
   50% { transform: translateY(-2px); opacity: 1; }
 }
 
-@keyframes spinner-track {
-  0% { stroke-dashoffset: 80; transform: rotate(0deg); }
-  50% { stroke-dashoffset: 20; }
-  100% { stroke-dashoffset: 80; transform: rotate(360deg); }
-}
-
 @keyframes shake-x {
   0%, 100% { transform: translateX(0); }
-  15% { transform: translateX(-5px); }
-  30% { transform: translateX(4px); }
-  45% { transform: translateX(-3px); }
-  60% { transform: translateX(2px); }
-  75% { transform: translateX(-1px); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(1px); }
 }
 
 @keyframes correct-burst {
   0% { transform: scale(1); }
-  40% { transform: scale(1.02); }
+  40% { transform: scale(1.012); }
   100% { transform: scale(1); }
 }
 
@@ -432,42 +406,35 @@ kbd {
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(16px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-16px); }
+  from { opacity: 0; transform: translateX(12px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes flame-flicker {
   0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-  20% { transform: scale(1.04) rotate(-1.5deg); filter: brightness(1.08); }
-  40% { transform: scale(0.98) rotate(1deg); filter: brightness(0.95); }
-  60% { transform: scale(1.02) rotate(-0.5deg); filter: brightness(1.05); }
-  80% { transform: scale(1) rotate(0.5deg); filter: brightness(1); }
+  25% { transform: scale(1.03) rotate(-1deg); filter: brightness(1.06); }
+  50% { transform: scale(0.99) rotate(0.5deg); filter: brightness(0.97); }
+  75% { transform: scale(1.02) rotate(-0.5deg); filter: brightness(1.03); }
 }
 
 @keyframes flame-flicker-strong {
-  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1) drop-shadow(0 0 4px var(--warning)); }
-  20% { transform: scale(1.08) rotate(-2deg); filter: brightness(1.15) drop-shadow(0 0 6px var(--warning)); }
-  40% { transform: scale(0.96) rotate(1.5deg); filter: brightness(0.9) drop-shadow(0 0 3px var(--warning)); }
-  60% { transform: scale(1.05) rotate(-1deg); filter: brightness(1.1) drop-shadow(0 0 5px var(--warning)); }
-  80% { transform: scale(1.01) rotate(1deg); filter: brightness(1) drop-shadow(0 0 4px var(--warning)); }
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1) drop-shadow(0 0 3px var(--warning)); }
+  25% { transform: scale(1.06) rotate(-1.5deg); filter: brightness(1.12) drop-shadow(0 0 5px var(--warning)); }
+  50% { transform: scale(0.97) rotate(1deg); filter: brightness(0.94) drop-shadow(0 0 3px var(--warning)); }
+  75% { transform: scale(1.04) rotate(-0.5deg); filter: brightness(1.08) drop-shadow(0 0 4px var(--warning)); }
 }
 
 /* ============================================================
    Motion utility classes
    ============================================================ */
 .animate-fade-up {
-  animation: enter-fade-up 360ms var(--ease-out-quart) both;
+  animation: enter-fade-up 320ms var(--ease-out-quart) both;
 }
 .animate-fade-in {
-  animation: enter-fade 240ms var(--ease-out-quart) both;
+  animation: enter-fade 200ms var(--ease-out-quart) both;
 }
 .animate-scale-in {
-  animation: enter-scale 260ms var(--ease-spring) both;
+  animation: enter-scale 240ms var(--ease-spring) both;
 }
 .animate-blink {
   animation: brand-caret 1s steps(2, start) infinite;
@@ -481,9 +448,6 @@ kbd {
   );
   background-size: 200% 100%;
   animation: brand-shimmer 1.6s linear infinite;
-}
-.animate-pulse-ring {
-  animation: pulse-ring 1.6s ease-out infinite;
 }
 .animate-pulse-soft {
   animation: pulse-soft 1.8s var(--ease-out-quart) infinite;
@@ -499,24 +463,21 @@ kbd {
 }
 
 .animate-shake {
-  animation: shake-x 420ms var(--ease-out-quart);
+  animation: shake-x 360ms var(--ease-out-quart);
 }
 .animate-correct {
-  animation: correct-burst 480ms var(--ease-out-back);
+  animation: correct-burst 380ms var(--ease-out-back);
 }
 .animate-slide-in-right {
-  animation: slide-in-right 320ms var(--ease-out-quart) both;
-}
-.animate-slide-in-left {
-  animation: slide-in-left 320ms var(--ease-out-quart) both;
+  animation: slide-in-right 260ms var(--ease-out-quart) both;
 }
 .animate-flame {
   transform-origin: 50% 100%;
-  animation: flame-flicker 2.2s ease-in-out infinite;
+  animation: flame-flicker 2.4s ease-in-out infinite;
 }
 .animate-flame-strong {
   transform-origin: 50% 100%;
-  animation: flame-flicker-strong 1.8s ease-in-out infinite;
+  animation: flame-flicker-strong 2s ease-in-out infinite;
 }
 
 /* Compile scan sweep — banda diagonal que recorre el contenedor */
@@ -528,7 +489,7 @@ kbd {
     100deg,
     transparent 0%,
     transparent 35%,
-    color-mix(in oklch, var(--primary) 35%, transparent) 50%,
+    color-mix(in oklch, var(--primary) 28%, transparent) 50%,
     transparent 65%,
     transparent 100%
   );
@@ -536,33 +497,28 @@ kbd {
   animation: scan-sweep 1.4s linear infinite;
 }
 
-/* Stagger helper — set inline `style={{ '--stagger': '60ms' }}` on parent,
-   children animate-fade-up with --i index for cascading delay. */
+/* Stagger helper */
 [data-stagger] > * {
   animation-delay: calc(var(--i, 0) * var(--stagger, 50ms));
 }
 
-/* Generic hover-lift used by interactive cards — accessible (no scale) */
+/* Hover-lift — used by cards, more subtle */
 .hover-lift {
   transition: transform 220ms var(--ease-out-quart),
     box-shadow 220ms var(--ease-out-quart),
     border-color 200ms var(--ease-out-quart);
 }
 .hover-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 .hover-lift:active {
   transform: translateY(0);
   transition-duration: 80ms;
 }
 
-/* ============================================================
-   Page enter — applies subtle entrance animation when the
-   main content of a route mounts. The wrapper around <main>
-   activates this via the `data-page-enter` attribute.
-   ============================================================ */
+/* Page enter — subtle entrance for main content */
 [data-page-enter] {
-  animation: enter-fade-up 380ms var(--ease-out-quart) both;
+  animation: enter-fade-up 320ms var(--ease-out-quart) both;
 }
 
 /* ============================================================

@@ -12,11 +12,8 @@ const MonacoEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center gap-3 bg-[var(--terminal-bg)] text-zinc-400">
+      <div className="flex h-full items-center justify-center bg-[var(--terminal-bg)]">
         <BrandSpinner size="sm" />
-        <span className="font-mono text-xs uppercase tracking-wider">
-          inicializando editor
-        </span>
       </div>
     ),
   },
@@ -46,7 +43,7 @@ export function CppEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] shadow-[var(--shadow-xs)]",
+        "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
         className,
       )}
       style={{ minHeight }}
@@ -58,7 +55,6 @@ export function CppEditor({
         theme={monacoTheme}
         onChange={(v) => onChange?.(v ?? "")}
         beforeMount={(monaco) => {
-          // Tema oscuro custom para que combine con la app
           monaco.editor.defineTheme("cpp-ceti-dark", {
             base: "vs-dark",
             inherit: true,
@@ -105,7 +101,6 @@ export function CppEditor({
         onMount={(editor, monaco) => {
           editor.updateOptions({ readOnly });
           if (onRun) {
-            // Ctrl+Enter / Cmd+Enter → ejecutar
             editor.addCommand(
               monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
               () => onRun(),

@@ -1,20 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { BrandSpinner } from "@/components/ui/brand-spinner";
 
 export default function UnitLoading() {
   return (
     <div className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <Skeleton className="h-8 w-24 rounded-[var(--radius-md)]" />
+      <Skeleton className="h-9 w-20 rounded-[var(--radius-sm)]" />
 
       <header className="space-y-4">
-        <div className="flex items-center gap-2">
-          <ConsoleEyebrow tone="muted">abriendo_unidad</ConsoleEyebrow>
-          <BrandSpinner size="xs" />
-        </div>
-        <Skeleton className="h-10 w-3/4" />
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-10 w-80 max-w-full" />
         <Skeleton className="h-5 w-full max-w-2xl" />
-        <Skeleton className="h-2 w-64 rounded-full" />
+        <Skeleton className="h-2 w-72 max-w-full rounded-full" />
       </header>
 
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">

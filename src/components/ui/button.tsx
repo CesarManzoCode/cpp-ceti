@@ -7,41 +7,35 @@ import { cn } from "@/lib/utils";
 const buttonVariants = cva(
   [
     "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--radius-md)]",
+    "rounded-[var(--radius-sm)]",
     "transition-[background,color,border-color,box-shadow,transform] duration-150 ease-out",
     "disabled:pointer-events-none disabled:opacity-50",
     "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0",
-    "[&_svg]:transition-transform [&_svg]:duration-200",
-    "select-none active:scale-[0.97] active:transition-transform active:duration-75",
+    "select-none active:scale-[0.98] active:transition-transform active:duration-75",
   ].join(" "),
   {
     variants: {
       variant: {
         default: [
           "bg-primary text-primary-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-primary/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
-          "active:translate-y-0 active:shadow-[var(--shadow-xs)]",
+          "hover:bg-primary/92 hover:shadow-[var(--shadow-sm)]",
         ].join(" "),
         destructive: [
           "bg-destructive text-destructive-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-destructive/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
-          "active:translate-y-0",
+          "hover:bg-destructive/92 hover:shadow-[var(--shadow-sm)]",
         ].join(" "),
         success: [
           "bg-success text-success-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-success/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
-          "active:translate-y-0",
+          "hover:bg-success/92 hover:shadow-[var(--shadow-sm)]",
         ].join(" "),
         outline: [
           "border border-border bg-transparent text-foreground",
           "hover:bg-accent hover:border-border-strong",
-          "active:bg-accent",
         ].join(" "),
         secondary: [
           "bg-secondary text-secondary-foreground border border-border/60",
           "hover:bg-accent hover:border-border",
-          "active:bg-accent",
         ].join(" "),
         soft: [
           "bg-primary-soft text-primary-soft-foreground",
@@ -57,7 +51,7 @@ const buttonVariants = cva(
         sm: "h-9 px-3.5 text-sm",
         default: "h-10 px-4 text-sm",
         lg: "h-11 px-5 text-[15px]",
-        xl: "h-13 px-7 text-base rounded-[var(--radius-lg)]",
+        xl: "h-12 px-6 text-base rounded-[var(--radius-md)]",
         icon: "h-10 w-10",
         "icon-sm": "h-9 w-9",
         "icon-xs": "h-7 w-7 [&_svg:not([class*='size-'])]:size-3.5",
@@ -89,7 +83,6 @@ function Button({
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
 
-  // asChild + loading: keep children clean, no spinner injection
   const content = asChild ? (
     children
   ) : (
@@ -113,10 +106,6 @@ function Button({
   );
 }
 
-/**
- * Tiny brand-aligned spinner used inside buttons. Lives here (not a
- * separate file) to keep the Button import surface clean.
- */
 function ButtonSpinner() {
   return (
     <svg

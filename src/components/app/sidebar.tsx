@@ -8,10 +8,13 @@ export function Sidebar({ units }: { units: SidebarUnit[] }) {
   return (
     <aside
       aria-label="Navegación principal"
-      className="sticky top-0 hidden h-dvh w-[260px] shrink-0 flex-col border-r border-border/70 bg-surface-2/30 md:flex"
+      className="sticky top-0 hidden h-dvh w-[256px] shrink-0 flex-col border-r border-border/70 bg-surface-2/30 md:flex"
     >
       <div className="flex h-16 items-center border-b border-border/70 px-5">
-        <Link href="/app" className="-m-2 rounded-md p-2">
+        <Link
+          href="/app"
+          className="-m-2 rounded-[var(--radius-sm)] p-2 transition-opacity hover:opacity-80"
+        >
           <Logo />
         </Link>
       </div>
@@ -25,7 +28,7 @@ export function Sidebar({ units }: { units: SidebarUnit[] }) {
           href="https://github.com"
           target="_blank"
           rel="noreferrer noopener"
-          className="flex items-center gap-2 rounded-[var(--radius-md)] px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <Bug className="size-3.5" aria-hidden />
           Reportar un bug

@@ -1,6 +1,6 @@
+import Link from "next/link";
 import {
   ChevronLeft,
-  Mail,
   Send,
   Sparkles,
   Trophy,
@@ -12,8 +12,6 @@ import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { LoadingLink } from "@/components/ui/loading-link";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import { db } from "@/lib/db";
@@ -59,53 +57,38 @@ export default async function PerfilPage() {
       data-page-enter
       className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <div>
-        <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <LoadingLink href="/app" showHint={false}>
-            <ChevronLeft />
-            Inicio
-          </LoadingLink>
-        </Button>
-      </div>
+      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
+        <Link href="/app">
+          <ChevronLeft />
+          Inicio
+        </Link>
+      </Button>
 
-      {/* Hero del perfil */}
-      <header className="animate-scale-in relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
-        />
-        <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-          <Avatar className="size-24 ring-4 ring-background">
+      <header className="rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
+        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+          <Avatar className="size-20 ring-1 ring-border ring-inset">
             {user.image ? (
               <AvatarImage src={user.image} alt={user.name} />
             ) : null}
-            <AvatarFallback className="bg-primary-soft text-3xl font-semibold text-primary-soft-foreground">
-              {initials || <UserIcon className="size-9" />}
+            <AvatarFallback className="bg-primary-soft text-2xl font-semibold text-primary-soft-foreground">
+              {initials || <UserIcon className="size-8" />}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-2">
-            <ConsoleEyebrow tone="muted">perfil</ConsoleEyebrow>
-            <h1 className="font-display text-[28px] leading-tight sm:text-[36px]">
+          <div className="space-y-1.5">
+            <h1 className="text-[26px] font-bold tracking-[-0.025em] sm:text-[32px]">
               {user.name}
             </h1>
-            <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground sm:items-start">
-              <p className="inline-flex items-center gap-1.5">
-                <Mail className="size-3.5" aria-hidden />
-                {user.email}
-              </p>
-              <p className="inline-flex items-center gap-1.5 text-xs">
-                <Sparkles className="size-3" aria-hidden />
-                Miembro desde {memberSince}
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80">
+              <Sparkles className="size-3" aria-hidden />
+              Miembro desde {memberSince}
+            </p>
           </div>
         </div>
       </header>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Tu actividad
-        </h2>
+        <h2 className="text-lg font-semibold tracking-tight">Tu actividad</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <StatTile
             icon={<Zap />}
@@ -114,12 +97,14 @@ export default async function PerfilPage() {
             tone="primary"
           />
           <StatTile
-            icon={<StreakFlame streak={stats.currentStreak} className="size-4" />}
+            icon={<StreakFlame streak={stats.currentStreak} className="size-5" />}
             label="Racha actual"
             value={
               <>
                 <AnimatedNumber value={stats.currentStreak} />{" "}
-                {pluralize(stats.currentStreak, "día", "días")}
+                <span className="text-base font-medium text-muted-foreground">
+                  {pluralize(stats.currentStreak, "día", "días")}
+                </span>
               </>
             }
             sub={`Mejor: ${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}

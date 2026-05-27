@@ -15,9 +15,8 @@ export interface TopbarProps {
 }
 
 /**
- * Topbar amigable estilo Mimo: pills coloreadas con icono + número
- * grande. Cada métrica es su propia pastilla con tinte cromático
- * sutil, feel premium gamificado.
+ * Topbar editorial: lectura discreta de las dos métricas clave
+ * (racha + XP) en estilo sobrio — no son botones, son indicadores.
  */
 export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
   return (
@@ -26,58 +25,41 @@ export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
 
       <div className="flex-1" />
 
-      <div className="flex items-center gap-2 sm:gap-3">
-        <StatPill
-          tone="warning"
-          icon={<StreakFlame streak={streak} className="size-4" />}
-          value={<AnimatedNumber value={streak} />}
-          unit={streak === 1 ? "día" : "días"}
-          ariaLabel={`Racha de ${streak} días`}
-        />
-        <StatPill
-          tone="primary"
-          icon={<Zap className="size-4 fill-current" aria-hidden />}
-          value={<AnimatedNumber value={totalXp} />}
-          unit="XP"
-          ariaLabel={`${totalXp} XP totales`}
-        />
+      <div
+        className="flex items-center divide-x divide-border/70 text-sm"
+        aria-label="Métricas"
+      >
+        <span
+          className="flex items-center gap-2 pr-4"
+          aria-label={`Racha de ${streak} ${streak === 1 ? "día" : "días"}`}
+        >
+          <StreakFlame streak={streak} className="size-4" />
+          <span className="tabular-nums font-semibold text-foreground">
+            <AnimatedNumber value={streak} />
+          </span>
+          <span className="hidden text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:inline">
+            {streak === 1 ? "día" : "días"}
+          </span>
+        </span>
+
+        <span
+          className="flex items-center gap-2 pl-4"
+          aria-label={`${totalXp} XP totales`}
+        >
+          <Zap className="size-4 text-primary" aria-hidden />
+          <span className="tabular-nums font-semibold text-foreground">
+            <AnimatedNumber value={totalXp} />
+          </span>
+          <span className="hidden text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:inline">
+            XP
+          </span>
+        </span>
       </div>
 
-      <div className="ml-1 flex items-center gap-1">
+      <div className="ml-3 flex items-center gap-1">
         <ThemeToggle />
         <UserMenu user={user} />
       </div>
     </header>
-  );
-}
-
-function StatPill({
-  tone,
-  icon,
-  value,
-  unit,
-  ariaLabel,
-}: {
-  tone: "primary" | "warning";
-  icon: React.ReactNode;
-  value: React.ReactNode;
-  unit: string;
-  ariaLabel: string;
-}) {
-  const colors =
-    tone === "warning"
-      ? "bg-warning-soft text-warning-foreground ring-warning/30"
-      : "bg-primary/12 text-primary ring-primary/20";
-  return (
-    <span
-      aria-label={ariaLabel}
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ring-1 ring-inset ${colors}`}
-    >
-      {icon}
-      <span className="tabular-nums">{value}</span>
-      <span className="text-[11px] font-medium uppercase tracking-wider opacity-80">
-        {unit}
-      </span>
-    </span>
   );
 }

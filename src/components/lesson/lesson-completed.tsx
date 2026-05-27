@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, PartyPopper, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,30 +32,18 @@ export function LessonCompleted({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
-        {/* Cabecera con halo de color */}
-        <div className="relative px-8 pb-2 pt-9 text-center">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-10 mx-auto h-40 w-40 rounded-full bg-warning/30 blur-3xl"
-          />
-          <div
-            className="animate-scale-in relative mx-auto flex size-16 items-center justify-center rounded-full border border-warning/30 bg-warning-soft text-warning-foreground"
-            style={{ animationDuration: "500ms" }}
-          >
-            <span
-              aria-hidden
-              className="absolute inset-0 rounded-full ring-2 ring-warning/30 animate-pulse-ring"
-            />
-            <PartyPopper className="size-7 text-warning" aria-hidden />
+        <div className="px-7 pb-2 pt-8 text-center">
+          <div className="animate-scale-in mx-auto grid size-14 place-items-center rounded-full bg-success-soft text-success">
+            <CheckCircle2 className="size-7" aria-hidden />
           </div>
 
-          <DialogTitle className="animate-fade-up mt-5 text-balance text-2xl font-semibold tracking-tight" style={{ animationDelay: "120ms" }}>
-            ¡Lección completada!
+          <DialogTitle className="mt-5 text-balance text-[22px] font-bold tracking-[-0.02em]">
+            Lección completada
           </DialogTitle>
-          <DialogDescription className="animate-fade-up mt-2 text-[15px]" style={{ animationDelay: "200ms" }}>
+          <DialogDescription className="mt-2 text-[15px]">
             Sumaste{" "}
             <span className="inline-flex items-center gap-1 font-semibold text-warning-foreground">
-              <Sparkles className="size-3.5" aria-hidden />
+              <Sparkles className="size-3.5 text-warning" aria-hidden />
               +{xpEarned} XP
             </span>{" "}
             a tu progreso.
@@ -63,17 +51,17 @@ export function LessonCompleted({
         </div>
 
         {nextLessonLink ? (
-          <div className="mx-6 mb-2 mt-4 rounded-[var(--radius-md)] border border-border bg-surface-2/60 p-3 text-left">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="mx-6 mt-4 rounded-[var(--radius-md)] border border-border bg-surface-2/60 p-3.5 text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Siguiente
             </p>
-            <p className="mt-0.5 truncate text-sm font-medium text-foreground">
+            <p className="mt-1 truncate text-sm font-medium text-foreground">
               {nextLessonLink.title}
             </p>
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-2 px-6 pb-6 pt-2">
+        <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
           {nextLessonLink ? (
             <Button
               size="lg"

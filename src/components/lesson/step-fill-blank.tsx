@@ -34,13 +34,12 @@ export function StepFillBlank({
     setFeedbackKey((k) => k + 1);
   }
 
-  // Renderiza el template intercalando inputs en los placeholders {{0}}, {{1}}...
   const parts = renderTemplate(content.template, values, setValues, submitted, content);
 
   return (
     <article className="space-y-7">
-      <header className="space-y-1.5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+      <header className="space-y-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
           Completa el código
         </p>
         <h3 className="text-balance text-xl font-semibold tracking-tight">
@@ -51,14 +50,14 @@ export function StepFillBlank({
       <div
         key={feedbackKey}
         className={cn(
-          "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
+          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
           submitted && !allCorrect && "animate-shake",
           submitted && allCorrect && "animate-correct",
         )}
       >
         <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] text-zinc-400">
           <span className="font-mono">main.cpp</span>
-          <span className="font-mono uppercase tracking-wider">edición</span>
+          <span className="font-mono uppercase tracking-[0.14em]">edición</span>
         </div>
         <pre className="overflow-x-auto whitespace-pre-wrap p-5 font-mono text-[13px] leading-relaxed text-zinc-100">
           {parts}

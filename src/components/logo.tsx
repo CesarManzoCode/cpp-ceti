@@ -7,15 +7,15 @@ interface LogoProps {
 }
 
 /**
- * Logo amigable: placa redondeada con "C++" + wordmark "CETI".
- * Vuelve a una estética cálida y premium tipo curso/app de aprendizaje
- * (estilo Mimo/Duolingo) en vez del lockup terminal anterior.
+ * Logo: placa redondeada con glifo "C++" + wordmark "CETI".
+ * Glifo en font-mono para mantener la afinidad con el oficio,
+ * wordmark en Inter Semibold para calidez editorial.
  */
 export function Logo({ className, size = "default", glyphOnly = false }: LogoProps) {
   const layout = {
-    sm: { glyph: "size-7 text-[10px] rounded-[8px]", word: "text-[14px]" },
-    default: { glyph: "size-8 text-[11px] rounded-[9px]", word: "text-[15px]" },
-    lg: { glyph: "size-10 text-[13px] rounded-[11px]", word: "text-[19px]" },
+    sm: { glyph: "size-7 text-[10px] rounded-[7px]", word: "text-[14px]" },
+    default: { glyph: "size-8 text-[11px] rounded-[8px]", word: "text-[15px]" },
+    lg: { glyph: "size-10 text-[13px] rounded-[10px]", word: "text-[19px]" },
   }[size];
 
   if (glyphOnly) {
@@ -23,7 +23,7 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
       <span
         aria-label="C++ CETI"
         className={cn(
-          "inline-grid place-items-center bg-primary text-primary-foreground font-bold shadow-[0_4px_12px_-4px_var(--primary)]",
+          "inline-grid place-items-center bg-primary text-primary-foreground font-bold",
           layout.glyph,
           className,
         )}
@@ -44,15 +44,13 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
       <span
         aria-hidden
         className={cn(
-          "grid place-items-center bg-primary text-primary-foreground font-bold shadow-[0_4px_12px_-4px_var(--primary)]",
+          "grid place-items-center bg-primary text-primary-foreground font-bold",
           layout.glyph,
         )}
       >
         <span className="font-mono leading-none">C++</span>
       </span>
-      <span className="text-foreground">
-        CETI
-      </span>
+      <span className="text-foreground">CETI</span>
     </div>
   );
 }

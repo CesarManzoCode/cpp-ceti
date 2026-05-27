@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { completeStep } from "@/lib/lessons-actions";
 import type { StepContent } from "@/types/lesson";
@@ -61,7 +61,6 @@ export function LessonViewer({
   unit,
   nextLessonLink,
 }: LessonViewerProps) {
-  // Empezar en el primer paso no completado, o el primero si todos lo están
   const initialIndex = React.useMemo(() => {
     const firstIncomplete = lesson.steps.findIndex((s) => !s.completed);
     return firstIncomplete === -1 ? 0 : firstIncomplete;
@@ -78,6 +77,7 @@ export function LessonViewer({
   const total = lesson.steps.length;
   const currentStep = lesson.steps[currentIndex];
   const progressPercent = ((currentIndex + 1) / total) * 100;
+  const isFirstStep = currentIndex === 0;
 
   function handleNext() {
     if (!currentStep) return;
@@ -93,7 +93,9 @@ export function LessonViewer({
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "No pudimos guardar tu progreso.",
+          err instanceof Error
+            ? err.message
+            : "No pudimos guardar tu progreso.",
         );
       }
     });
@@ -109,7 +111,7 @@ export function LessonViewer({
 
   return (
     <>
-      {/* Header sticky — barra fina y limpia */}
+      {/* Header sticky — fino y discreto */}
       <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
           <Button
@@ -118,10 +120,10 @@ export function LessonViewer({
             variant="ghost"
             className="-ml-2 hidden sm:inline-flex"
           >
-            <LoadingLink href={`/app/u/${unit.slug}`} showHint={false}>
+            <Link href={`/app/u/${unit.slug}`}>
               <ChevronLeft />
-              <span className="max-w-[16ch] truncate">{unit.title}</span>
-            </LoadingLink>
+              <span className="max-w-[20ch] truncate">{unit.title}</span>
+            </Link>
           </Button>
 
           <div className="flex flex-1 items-center gap-3">
@@ -137,28 +139,40 @@ export function LessonViewer({
             variant="ghost"
             aria-label="Salir de la lección"
           >
-            <LoadingLink href="/app" showHint={false}>
+            <Link href="/app">
               <X className="size-4" />
-            </LoadingLink>
+            </Link>
           </Button>
         </div>
       </div>
 
       <div
         key={currentStep.id}
-        className="animate-slide-in-right mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8"
+        className="animate-slide-in-right mx-auto flex max-w-4xl flex-col gap-8 px-5 py-7 sm:px-6 lg:py-9"
       >
-        {/* Title */}
-        <header className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Paso {currentIndex + 1} de {total}
-          </p>
-          <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-[32px]">
-            {lesson.title}
-          </h1>
-        </header>
+        {/* Title — solo en el primer paso para no repetir; resto muestra contexto */}
+        {isFirstStep ? (
+          <header className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+              Unidad {unit.order.toString().padStart(2, "0")}
+            </p>
+            <h1 className="text-balance text-[26px] font-bold leading-tight tracking-[-0.025em] sm:text-[34px]">
+              {lesson.title}
+            </h1>
+            {lesson.description ? (
+              <p className="max-w-2xl text-pretty text-[15px] leading-relaxed text-muted-foreground">
+                {lesson.description}
+              </p>
+            ) : null}
+          </header>
+        ) : (
+          <header>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              Paso {currentIndex + 1} de {total} · {lesson.title}
+            </p>
+          </header>
+        )}
 
-        {/* Step content */}
         <div className="min-h-[400px]">
           <StepRenderer
             step={currentStep}
@@ -205,7 +219,9 @@ function StepRenderer({
     case "code_example":
       return (
         <StepCodeExample
-          content={step.content as Extract<StepContent, { type: "code_example" }>}
+          content={
+            step.content as Extract<StepContent, { type: "code_example" }>
+          }
           onNext={onNext}
           isPending={isPending}
         />
@@ -221,7 +237,9 @@ function StepRenderer({
     case "fill_blank":
       return (
         <StepFillBlank
-          content={step.content as Extract<StepContent, { type: "fill_blank" }>}
+          content={
+            step.content as Extract<StepContent, { type: "fill_blank" }>
+          }
           onNext={onNext}
           isPending={isPending}
         />

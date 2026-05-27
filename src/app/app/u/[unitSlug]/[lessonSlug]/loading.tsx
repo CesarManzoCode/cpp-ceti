@@ -1,25 +1,26 @@
-import { BrandSpinner } from "@/components/ui/brand-spinner";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
- * Mientras carga una lección mostramos un mini-encabezado con
- * "compilando lección…" más un esqueleto de contenido editorial.
- * Se siente intencional, no congelado.
+ * Mientras carga una lección, esqueleto editorial limpio.
  */
 export default function LessonLoading() {
   return (
     <>
       <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
-          <Skeleton className="h-8 w-32 rounded-[var(--radius-md)]" />
+          <Skeleton className="h-8 w-32 rounded-[var(--radius-sm)]" />
           <div className="relative flex-1">
             <Skeleton className="h-1 w-full rounded-full" />
             <span
               aria-hidden
               className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
             >
-              <span className="block h-full w-1/3 origin-left rounded-full bg-primary/60" style={{ animation: "brand-progress-indeterminate 1.4s ease-in-out infinite" }} />
+              <span
+                className="block h-full w-1/3 origin-left rounded-full bg-primary/60"
+                style={{
+                  animation: "brand-progress-indeterminate 1.4s ease-in-out infinite",
+                }}
+              />
             </span>
           </div>
           <Skeleton className="size-8 rounded-full" />
@@ -27,13 +28,8 @@ export default function LessonLoading() {
       </div>
 
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8">
-        <header className="space-y-2.5">
-          <div className="flex items-center gap-2">
-            <ConsoleEyebrow tone="muted" caret>
-              compilando_lección
-            </ConsoleEyebrow>
-            <BrandSpinner size="xs" />
-          </div>
+        <header className="space-y-3">
+          <Skeleton className="h-4 w-32" />
           <Skeleton className="h-9 w-2/3" />
         </header>
 
@@ -47,7 +43,7 @@ export default function LessonLoading() {
         <Skeleton className="h-56 w-full rounded-[var(--radius-lg)]" />
 
         <div className="flex justify-end border-t border-border/70 pt-6">
-          <Skeleton className="h-11 w-32 rounded-[var(--radius-md)]" />
+          <Skeleton className="h-11 w-32 rounded-[var(--radius-sm)]" />
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
-  Award,
   ChevronLeft,
   Lock,
   Sparkles,
@@ -9,10 +9,8 @@ import {
 } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
@@ -140,21 +138,16 @@ export default async function LogrosPage() {
       data-page-enter
       className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <div>
-        <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <LoadingLink href="/app" showHint={false}>
-            <ChevronLeft />
-            Inicio
-          </LoadingLink>
-        </Button>
-      </div>
+      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
+        <Link href="/app">
+          <ChevronLeft />
+          Inicio
+        </Link>
+      </Button>
 
       <header className="space-y-3">
-        <div className="flex items-center gap-3">
-          <ConsoleEyebrow>logros</ConsoleEyebrow>
-          <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-        </div>
-        <h1 className="font-display text-balance text-[34px] leading-[1.05] sm:text-[48px]">
+        <ConsoleEyebrow tone="primary">Logros</ConsoleEyebrow>
+        <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-[40px]">
           Tu colección
         </h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">
@@ -167,21 +160,14 @@ export default async function LogrosPage() {
               )}.`}
         </p>
         <div className="flex items-center gap-3 pt-2">
-          <Progress
-            value={percent}
-            tone="warning"
-            className="max-w-xs"
-          />
+          <Progress value={percent} tone="warning" className="max-w-xs" />
           <span className="font-mono text-xs tabular-nums text-muted-foreground">
             {percent}%
           </span>
         </div>
       </header>
 
-      <section
-        className="grid gap-3 sm:grid-cols-3"
-        aria-label="Resumen"
-      >
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="Resumen">
         <StatTile
           icon={<Zap />}
           label="XP totales"
@@ -189,12 +175,14 @@ export default async function LogrosPage() {
           tone="primary"
         />
         <StatTile
-          icon={<StreakFlame streak={stats.longestStreak} className="size-4" />}
+          icon={<StreakFlame streak={stats.longestStreak} className="size-5" />}
           label="Racha más larga"
           value={
             <>
               <AnimatedNumber value={stats.longestStreak} />{" "}
-              {pluralize(stats.longestStreak, "día", "días")}
+              <span className="text-base font-medium text-muted-foreground">
+                {pluralize(stats.longestStreak, "día", "días")}
+              </span>
             </>
           }
           tone="warning"
@@ -209,15 +197,17 @@ export default async function LogrosPage() {
 
       {unlocked.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
-            Desbloqueados
-            <span className="font-mono text-xs font-medium text-muted-foreground">
-              · {unlocked.length}
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Desbloqueados
+            </h2>
+            <span className="text-sm font-medium text-muted-foreground">
+              {unlocked.length}
             </span>
-          </h2>
+          </div>
           <div
             data-stagger
-            style={{ "--stagger": "55ms" } as CSSProperties}
+            style={{ "--stagger": "40ms" } as CSSProperties}
             className="grid gap-3 sm:grid-cols-2"
           >
             {unlocked.map((b, idx) => (
@@ -235,15 +225,17 @@ export default async function LogrosPage() {
 
       {locked.length > 0 ? (
         <section className="space-y-4">
-          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
-            Por desbloquear
-            <span className="font-mono text-xs font-medium text-muted-foreground">
-              · {locked.length}
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Por desbloquear
+            </h2>
+            <span className="text-sm font-medium text-muted-foreground">
+              {locked.length}
             </span>
-          </h2>
+          </div>
           <div
             data-stagger
-            style={{ "--stagger": "40ms" } as CSSProperties}
+            style={{ "--stagger": "30ms" } as CSSProperties}
             className="grid gap-3 sm:grid-cols-2"
           >
             {locked.map((b, idx) => (
@@ -272,51 +264,34 @@ function BadgeCard({
   return (
     <article
       className={cn(
-        "group relative overflow-hidden rounded-[var(--radius-lg)] border bg-card p-5 transition-[border-color,box-shadow]",
+        "flex items-start gap-4 rounded-[var(--radius-lg)] border bg-card p-5 transition-colors",
         unlocked
-          ? "border-warning/35 hover:border-warning/55 hover:shadow-[var(--shadow-sm)]"
+          ? "border-border hover:border-border-strong"
           : "border-dashed border-border opacity-75 hover:opacity-100",
       )}
     >
-      {unlocked ? (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-warning/20 blur-3xl"
-        />
-      ) : null}
+      <div
+        className={cn(
+          "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)]",
+          unlocked
+            ? "bg-warning-soft text-warning"
+            : "bg-surface-2 text-muted-foreground",
+        )}
+      >
+        {unlocked ? (
+          <Trophy className="size-5" aria-hidden />
+        ) : (
+          <Lock className="size-4" aria-hidden />
+        )}
+      </div>
 
-      <div className="relative flex items-start gap-4">
-        <div
-          className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-[var(--radius-md)] ring-1",
-            unlocked
-              ? "bg-warning-soft text-warning-foreground ring-warning/30"
-              : "bg-surface-2 text-muted-foreground ring-border",
-          )}
-        >
-          {unlocked ? (
-            <Trophy className="size-5" aria-hidden />
-          ) : (
-            <Lock className="size-4" aria-hidden />
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-[15px] font-semibold tracking-tight">
-              {badge.title}
-            </h3>
-            {unlocked ? (
-              <Badge variant="warning" size="sm">
-                <Award className="size-3" aria-hidden />
-                Logrado
-              </Badge>
-            ) : null}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {unlocked ? badge.description : badge.hint}
-          </p>
-        </div>
+      <div className="min-w-0 flex-1 space-y-1">
+        <h3 className="text-[15px] font-semibold tracking-tight">
+          {badge.title}
+        </h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {unlocked ? badge.description : badge.hint}
+        </p>
       </div>
     </article>
   );

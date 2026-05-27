@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils";
 interface SectionRuleProps extends React.ComponentProps<"div"> {
   children: React.ReactNode;
   trailing?: React.ReactNode;
-  tone?: "muted" | "primary";
 }
 
 /**
- * Section heading limpio para listas/grids dentro del app:
- * `Section title          trailing`
- * Tipografía Inter Semibold, sin motivos terminal. Pensado para
- * dar estructura clara sin agregar ruido decorativo.
+ * Encabezado de sección para listas/grids dentro del app:
+ *   `Título                          trailing`
+ * Pensado para dar estructura clara sin ruido decorativo.
  */
 export function SectionRule({
   children,

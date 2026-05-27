@@ -12,10 +12,9 @@ interface SectionHeadingProps
 }
 
 /**
- * Section heading editorial limpio:
- *  • eyebrow tipo "section_label" pequeño y discreto
- *  • title en Inter Bold + tracking-tight (cálido, premium)
- *  • description opcional con leading relaxed
+ * Section heading editorial:
+ *   eyebrow (uppercase 11px) → title (3xl-4xl) → description (15px)
+ *   Tighter stack, more deliberate spacing.
  */
 function SectionHeading({
   eyebrow,
@@ -29,14 +28,14 @@ function SectionHeading({
     <div
       data-slot="section-heading"
       className={cn(
-        "flex flex-col gap-3",
+        "flex flex-col gap-4",
         align === "center" && "items-center text-center",
         className,
       )}
       {...props}
     >
-      {eyebrow ? <ConsoleEyebrow>{eyebrow}</ConsoleEyebrow> : null}
-      <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+      {eyebrow ? <ConsoleEyebrow tone="primary">{eyebrow}</ConsoleEyebrow> : null}
+      <h2 className="text-balance text-[28px] font-bold leading-[1.08] tracking-[-0.03em] sm:text-[40px]">
         {title}
       </h2>
       {description ? (

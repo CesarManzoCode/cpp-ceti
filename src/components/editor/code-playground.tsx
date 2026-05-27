@@ -57,13 +57,18 @@ export function CodePlayground({
             onChange={(e) => setStdin(e.target.value)}
             placeholder="Valores que tu programa leerá con cin..."
             rows={3}
-            className="w-full rounded-[var(--radius-md)] border border-input bg-surface px-3 py-2 font-mono text-sm transition-[border-color,box-shadow] focus-visible:border-primary/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--primary-ring)]"
+            className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 font-mono text-sm transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]"
           />
         </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={handleRun} disabled={state === "running"} loading={state === "running"} size="lg">
+        <Button
+          onClick={handleRun}
+          disabled={state === "running"}
+          loading={state === "running"}
+          size="lg"
+        >
           <Play className="fill-current" />
           {state === "running" ? "Ejecutando…" : "Ejecutar"}
         </Button>

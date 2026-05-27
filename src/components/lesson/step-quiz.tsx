@@ -18,7 +18,6 @@ interface StepQuizProps {
 export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
-  // Trigger one-shot animations: incrementing key re-mounts animated element
   const [feedbackKey, setFeedbackKey] = React.useState(0);
 
   const isCorrect = selected === content.correctIndex;
@@ -29,10 +28,8 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
     setFeedbackKey((k) => k + 1);
   }
 
-  // Keyboard: Enter para verificar / avanzar
   React.useEffect(() => {
     function handler(e: KeyboardEvent) {
-      // Ignorar si está escribiendo en un input
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key !== "Enter") return;
@@ -50,10 +47,10 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
   return (
     <article className="space-y-7">
       <header className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
           Pregunta
         </p>
-        <h3 className="text-balance text-2xl font-semibold leading-snug tracking-tight">
+        <h3 className="text-balance text-[22px] font-semibold leading-snug tracking-tight">
           {content.question}
         </h3>
       </header>
@@ -82,13 +79,13 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
                 onClick={() => !submitted && setSelected(idx)}
                 disabled={submitted}
                 className={cn(
-                  "group flex w-full items-center gap-4 rounded-[var(--radius-lg)] border bg-card p-4 text-left text-[15px] font-medium transition-all",
+                  "group flex w-full items-center gap-4 rounded-[var(--radius-md)] border bg-card p-4 text-left text-[15px] font-medium transition-all",
                   "border-border",
                   !submitted &&
-                    "hover:border-border-strong hover:bg-surface-2",
+                    "hover:border-border-strong hover:bg-surface-2/60",
                   isSelected &&
                     !submitted &&
-                    "border-primary bg-primary-soft/50 ring-1 ring-primary/40",
+                    "border-primary bg-primary-soft/50",
                   showCorrect && "border-success bg-success-soft text-success",
                   showWrong &&
                     "border-destructive bg-destructive-soft text-destructive",
@@ -131,16 +128,15 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
         <div
           key={`fb-${feedbackKey}`}
           className={cn(
-            "rounded-[var(--radius-lg)] border p-5",
+            "rounded-[var(--radius-md)] border p-5 animate-fade-up",
             isCorrect
               ? "border-success/30 bg-success-soft animate-correct"
               : "border-warning/40 bg-warning-soft",
-            "animate-fade-up",
           )}
         >
           <p
             className={cn(
-              "mb-1 flex items-center gap-2 text-sm font-semibold",
+              "mb-1.5 flex items-center gap-2 text-sm font-semibold",
               isCorrect ? "text-success" : "text-warning-foreground",
             )}
           >
@@ -149,7 +145,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
             ) : (
               <XCircle className="size-4" aria-hidden />
             )}
-            {isCorrect ? "¡Correcto!" : "Aún no — repasa esto:"}
+            {isCorrect ? "Correcto" : "Aún no — repasa esto"}
           </p>
           <div className="text-[15px] text-foreground/90">
             <Markdown>{content.explanation}</Markdown>

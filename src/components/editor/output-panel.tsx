@@ -23,13 +23,13 @@ export function OutputPanel({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-sm text-zinc-100",
+        "relative overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-sm text-zinc-100",
         state === "running" && "scan-sweep",
         className,
       )}
     >
       <div className="relative flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-zinc-400">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-zinc-400">
           <Terminal className="size-3.5" aria-hidden />
           Consola
         </div>
@@ -39,9 +39,14 @@ export function OutputPanel({
       <div className="relative max-h-72 min-h-24 overflow-auto p-4">
         {state === "idle" ? (
           <p className="flex items-center gap-1.5 text-xs italic text-zinc-500">
-            Pulsa <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">Ctrl</Kbd>
+            Pulsa{" "}
+            <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">
+              Ctrl
+            </Kbd>
             <span>+</span>
-            <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">Enter</Kbd>
+            <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">
+              Enter
+            </Kbd>
             <span>para ejecutar.</span>
           </p>
         ) : null}
@@ -105,7 +110,7 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   if (result.status === "compile_error") {
     return (
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-400">
           Error de compilación
         </p>
         <pre className="whitespace-pre-wrap text-xs text-amber-100">
@@ -126,7 +131,7 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
       )}
       {result.stderr ? (
         <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-red-400">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-400">
             stderr
           </p>
           <pre className="whitespace-pre-wrap text-xs text-red-300">

@@ -48,19 +48,19 @@ export function Faq() {
           className="mx-auto items-center"
         />
 
-        <div className="mt-14 divide-y divide-border overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card">
+        <div className="mt-14 divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
           {faqs.map((f) => (
             <details
               key={f.q}
-              className="group p-5 sm:p-6 [&_summary::-webkit-details-marker]:hidden"
+              className="group p-5 transition-colors open:bg-surface-2/40 sm:p-6 [&_summary::-webkit-details-marker]:hidden"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-                <h3 className="text-base font-semibold tracking-tight sm:text-[17px]">
+                <h3 className="text-[15px] font-semibold tracking-tight sm:text-[17px]">
                   {f.q}
                 </h3>
                 <span
                   aria-hidden
-                  className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-surface-2 text-muted-foreground transition-transform duration-200 group-open:rotate-45 group-open:border-primary/40 group-open:bg-primary/10 group-open:text-primary"
+                  className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-[transform,background-color,border-color,color] duration-200 group-open:rotate-45 group-open:border-primary group-open:bg-primary group-open:text-primary-foreground"
                 >
                   <Plus className="size-3.5" strokeWidth={2.5} />
                 </span>

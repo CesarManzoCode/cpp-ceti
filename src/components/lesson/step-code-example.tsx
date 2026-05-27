@@ -21,11 +21,9 @@ export function StepCodeExample({
   onNext,
   isPending,
 }: StepCodeExampleProps) {
-  // Enter para continuar (siempre que no esté escribiendo en el editor)
   React.useEffect(() => {
     function handler(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement | null)?.tagName;
-      // Monaco usa textarea internamente; ignoramos
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "Enter" && !isPending) onNext();
     }
@@ -44,8 +42,8 @@ export function StepCodeExample({
       )}
 
       {content.expectedOutput && !content.runnable ? (
-        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-[var(--terminal-bg)]">
-          <div className="flex items-center gap-2 border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] uppercase tracking-wider text-zinc-400">
+        <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-[var(--terminal-bg)]">
+          <div className="flex items-center gap-2 border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-zinc-400">
             <Terminal className="size-3.5" aria-hidden />
             Salida esperada
           </div>

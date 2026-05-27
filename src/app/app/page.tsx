@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Zap } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
@@ -47,21 +47,19 @@ export default async function AppHomePage() {
       data-page-enter
       className="mx-auto max-w-5xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      {/* Saludo cálido */}
       <header className="space-y-1.5">
         <p className="text-sm text-muted-foreground">
-          {greeting}, {firstName} 👋
+          {greeting}, {firstName}.
         </p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-[34px]">
           Vamos a programar un rato.
         </h1>
       </header>
 
-      {/* Continuar — hero card */}
       {nextLesson ? (
         <ContinueHero next={nextLesson} />
       ) : (
-        <div className="rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
           <BookOpen
             className="mx-auto size-8 text-muted-foreground/50"
             aria-hidden
@@ -75,7 +73,6 @@ export default async function AppHomePage() {
         </div>
       )}
 
-      {/* Stats */}
       <section className="grid gap-4 sm:grid-cols-3">
         <StatTile
           icon={<Zap aria-hidden />}
@@ -85,7 +82,7 @@ export default async function AppHomePage() {
           tone="primary"
         />
         <StatTile
-          icon={<StreakFlame streak={stats.currentStreak} className="size-6" />}
+          icon={<StreakFlame streak={stats.currentStreak} className="size-5" />}
           label="Racha actual"
           value={
             <>
@@ -116,7 +113,6 @@ export default async function AppHomePage() {
         />
       </section>
 
-      {/* Tu camino — roadmap del curso */}
       <section className="space-y-4">
         <SectionRule trailing={`${overallPercent}% completado`}>
           Tu camino
@@ -139,29 +135,25 @@ function ContinueHero({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-[var(--radius-2xl)] border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-6 shadow-[var(--shadow-md)] transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-lg)] sm:p-8"
+      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)] sm:p-8"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl transition-transform duration-700 group-hover:scale-110"
-      />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-            <Sparkles className="size-3" aria-hidden />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
-          </div>
-          <h2 className="text-balance text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+          </p>
+          <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.02em] sm:text-[26px]">
             {next.lessonTitle}
           </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
             <span>
               Unidad {next.unitOrder} · {next.unitTitle}
             </span>
-            <span aria-hidden className="text-muted-foreground/40">
-              ·
+            <span aria-hidden className="text-muted-foreground/40">·</span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="size-3.5" aria-hidden />
+              {next.estimatedMinutes} min
             </span>
-            <span>⏱ {next.estimatedMinutes} min</span>
           </div>
         </div>
         <Button size="lg" className="self-start lg:self-auto" tabIndex={-1}>
@@ -228,4 +220,3 @@ async function findNextLesson(userId: string) {
     status: "not_started" as const,
   };
 }
-

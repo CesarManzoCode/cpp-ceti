@@ -13,8 +13,8 @@ const cardVariants = cva(
         elevated: "border-border shadow-[var(--shadow-md)]",
         interactive: [
           "border-border shadow-[var(--shadow-xs)] cursor-pointer",
-          "hover:border-border-strong hover:shadow-[var(--shadow-md)]",
-          "focus-visible:border-primary/40 focus-visible:shadow-[var(--shadow-glow)]",
+          "hover:border-border-strong hover:shadow-[var(--shadow-sm)]",
+          "focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
         ].join(" "),
         muted: "border-border/60 bg-surface-2 shadow-none",
       },
