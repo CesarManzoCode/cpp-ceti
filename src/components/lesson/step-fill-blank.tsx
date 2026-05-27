@@ -4,8 +4,6 @@ import * as React from "react";
 import { ArrowRight, CheckCircle2, Lightbulb } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Markdown } from "@/components/markdown";
 import { cn } from "@/lib/utils";
 import type { FillBlankStepContent } from "@/types/lesson";
 

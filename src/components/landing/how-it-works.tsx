@@ -37,19 +37,22 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
           {steps.map((s) => (
-            <div key={s.n} className="relative">
-              <div className="absolute -left-3 -top-3 font-mono text-6xl font-bold text-primary/10">
-                {s.n}
+            <div
+              key={s.n}
+              className="group rounded-2xl border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+            >
+              <div className="mb-5 flex items-center gap-3">
+                <span className="grid size-9 place-items-center rounded-lg bg-primary/15 font-mono text-sm font-bold text-primary">
+                  {s.n}
+                </span>
+                <s.icon className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
               </div>
-              <div className="relative">
-                <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
-                  <s.icon className="size-6" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">{s.title}</h3>
-                <p className="text-muted-foreground">{s.body}</p>
-              </div>
+              <h3 className="mb-2 text-xl font-semibold leading-snug">
+                {s.title}
+              </h3>
+              <p className="text-muted-foreground">{s.body}</p>
             </div>
           ))}
         </div>
