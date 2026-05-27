@@ -1,0 +1,315 @@
+// =====================================================================
+// C++ CETI — Schema de la base de datos
+// =====================================================================
+//   Stack: PostgreSQL (Supabase) + Prisma + Better Auth
+//   Diseño: Curso → Unidad → Lección → Paso. Progreso por usuario.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// =====================================================================
+//  AUTH (Better Auth — sigue el schema oficial)
+// =====================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones de auth
+  sessions Session[]
+  accounts Account[]
+
+  // Relaciones de progreso
+  courseProgress   UserCourseProgress[]
+  lessonProgress   UserLessonProgress[]
+  stepProgress     UserStepProgress[]
+  exerciseAttempts UserExerciseAttempt[]
+  streak           UserStreak?
+
+  @@index([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// =====================================================================
+//  CONTENIDO: Curso > Unidad > Lección > Paso
+// =====================================================================
+
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  units    Unit[]
+  progress UserCourseProgress[]
+
+  @@map("course")
+}
+
+model Unit {
+  id            String   @id @default(cuid())
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug          String
+  title         String
+  description   String
+  order         Int      @default(0)
+  icon          String? // emoji o nombre de icono lucide
+  colorAccent   String? // hex opcional para card de la unidad
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  lessons Lesson[]
+
+  @@unique([courseId, slug])
+  @@index([courseId, order])
+  @@map("unit")
+}
+
+model Lesson {
+  id               String   @id @default(cuid())
+  unitId           String
+  unit             Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  slug             String
+  title            String
+  description      String
+  order            Int      @default(0)
+  xpReward         Int      @default(20)
+  estimatedMinutes Int      @default(5)
+  published        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  steps    LessonStep[]
+  progress UserLessonProgress[]
+
+  @@unique([unitId, slug])
+  @@index([unitId, order])
+  @@map("lesson")
+}
+
+// Cada paso de una lección. El campo `content` es un JSON cuya estructura
+// depende del `type`. Esto permite añadir tipos nuevos sin migraciones.
+//
+// Tipos soportados (TypeScript valida la forma):
+//  - theory        — { markdown: string, mediaUrl?: string }
+//  - code_example  — { code: string, explanation: string, runnable: boolean }
+//  - quiz          — { question, options[], correctIndex, explanation }
+//  - fill_blank    — { template: string, blanks: {answer, hint?}[] }
+//  - code_challenge — referencia a un Exercise
+model LessonStep {
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  order     Int
+  type      LessonStepType
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  exercise Exercise?
+  progress UserStepProgress[]
+
+  @@unique([lessonId, order])
+  @@index([lessonId, order])
+  @@map("lesson_step")
+}
+
+enum LessonStepType {
+  theory
+  code_example
+  quiz
+  fill_blank
+  code_challenge
+}
+
+model Exercise {
+  id               String      @id @default(cuid())
+  stepId           String      @unique
+  step             LessonStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  prompt           String      // descripción del reto en MD
+  starterCode      String      // código pre-cargado en el editor
+  solutionCode     String      // referencia (no se muestra al user)
+  hints            String[]    // pistas progresivas
+  difficulty       Difficulty  @default(easy)
+  xpReward         Int         @default(15)
+  testCases        TestCase[]
+  attempts         UserExerciseAttempt[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("exercise")
+}
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+model TestCase {
+  id          String   @id @default(cuid())
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  // stdin que se enviará al programa; "" si el ejercicio no lee entrada
+  stdin       String   @default("")
+  // stdout esperado; comparación por strip(==) por defecto
+  expectedStdout String
+  // Si true, el test se ve en la UI antes de enviar (visible). Si false, oculto.
+  visible     Boolean  @default(true)
+  description String?
+  order       Int      @default(0)
+
+  @@index([exerciseId, order])
+  @@map("test_case")
+}
+
+// =====================================================================
+//  PROGRESO DEL USUARIO
+// =====================================================================
+
+model UserCourseProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@unique([userId, courseId])
+  @@map("user_course_progress")
+}
+
+model UserLessonProgress {
+  id          String                @id @default(cuid())
+  userId      String
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson                @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status      LessonProgressStatus  @default(in_progress)
+  xpEarned    Int                   @default(0)
+  startedAt   DateTime              @default(now())
+  completedAt DateTime?
+
+  @@unique([userId, lessonId])
+  @@index([userId, status])
+  @@map("user_lesson_progress")
+}
+
+enum LessonProgressStatus {
+  not_started
+  in_progress
+  completed
+}
+
+model UserStepProgress {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stepId      String
+  step        LessonStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  completedAt DateTime   @default(now())
+  attempts    Int        @default(1)
+
+  @@unique([userId, stepId])
+  @@map("user_step_progress")
+}
+
+model UserExerciseAttempt {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exercise     Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  code         String
+  passed       Boolean
+  feedback     String?  // resumen del por qué pasó o falló
+  testsPassed  Int      @default(0)
+  testsTotal   Int      @default(0)
+  durationMs   Int?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, exerciseId, createdAt])
+  @@map("user_exercise_attempt")
+}
+
+model UserStreak {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastActiveDate  DateTime?
+  totalXp         Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  @@map("user_streak")
+}

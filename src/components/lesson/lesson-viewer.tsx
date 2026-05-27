@@ -1,0 +1,229 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, X } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { completeStep } from "@/lib/lessons-actions";
+import type { StepContent } from "@/types/lesson";
+
+import { StepTheory } from "./step-theory";
+import { StepCodeExample } from "./step-code-example";
+import { StepQuiz } from "./step-quiz";
+import { StepFillBlank } from "./step-fill-blank";
+import { StepCodeChallenge } from "./step-code-challenge";
+import { LessonCompleted } from "./lesson-completed";
+
+export interface ViewerStep {
+  id: string;
+  order: number;
+  type: StepContent["type"];
+  content: StepContent;
+  completed: boolean;
+  exercise?: {
+    id: string;
+    prompt: string;
+    starterCode: string;
+    hints: string[];
+    difficulty: "easy" | "medium" | "hard";
+    xpReward: number;
+    visibleTests: {
+      id: string;
+      stdin: string;
+      expectedStdout: string;
+      description: string | null;
+    }[];
+  };
+}
+
+export interface LessonViewerProps {
+  lesson: {
+    id: string;
+    title: string;
+    description: string;
+    xpReward: number;
+    steps: ViewerStep[];
+  };
+  unit: {
+    slug: string;
+    title: string;
+    order: number;
+  };
+  nextLessonLink: { href: string; title: string } | null;
+}
+
+export function LessonViewer({
+  lesson,
+  unit,
+  nextLessonLink,
+}: LessonViewerProps) {
+  // Empezar en el primer paso no completado, o el primero si todos lo están
+  const initialIndex = React.useMemo(() => {
+    const firstIncomplete = lesson.steps.findIndex((s) => !s.completed);
+    return firstIncomplete === -1 ? 0 : firstIncomplete;
+  }, [lesson.steps]);
+
+  const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
+  const [isPending, startTransition] = React.useTransition();
+  const [completedDialog, setCompletedDialog] = React.useState<{
+    open: boolean;
+    xp: number;
+  }>({ open: false, xp: 0 });
+
+  const router = useRouter();
+  const total = lesson.steps.length;
+  const currentStep = lesson.steps[currentIndex];
+  const progressPercent = ((currentIndex + 1) / total) * 100;
+
+  function handleNext() {
+    if (!currentStep) return;
+
+    startTransition(async () => {
+      try {
+        const res = await completeStep(currentStep.id);
+        if (res.lessonCompleted) {
+          setCompletedDialog({ open: true, xp: res.xpEarned });
+        } else if (currentIndex < total - 1) {
+          setCurrentIndex(currentIndex + 1);
+          // Scroll arriba al cambiar de paso
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : "No pudimos guardar tu progreso.",
+        );
+      }
+    });
+  }
+
+  if (!currentStep) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        Esta lección no tiene contenido todavía.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Button asChild size="sm" variant="ghost" className="-ml-2">
+              <Link href={`/app/u/${unit.slug}`}>
+                <ChevronLeft className="size-4" />
+                {unit.title}
+              </Link>
+            </Button>
+            <span className="ml-auto font-mono text-xs">
+              Paso {currentIndex + 1} de {total}
+            </span>
+            <Button asChild size="icon" variant="ghost" aria-label="Salir">
+              <Link href="/app">
+                <X className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          <Progress value={progressPercent} className="h-1.5" />
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            {lesson.title}
+          </h1>
+        </div>
+
+        {/* Step content */}
+        <div className="min-h-[400px]">
+          <StepRenderer
+            step={currentStep}
+            onNext={handleNext}
+            isPending={isPending}
+          />
+        </div>
+      </div>
+
+      <LessonCompleted
+        open={completedDialog.open}
+        onOpenChange={(open) => {
+          setCompletedDialog({ ...completedDialog, open });
+          if (!open) {
+            router.refresh();
+          }
+        }}
+        xpEarned={completedDialog.xp || lesson.xpReward}
+        nextLessonLink={nextLessonLink}
+        unitHref={`/app/u/${unit.slug}`}
+      />
+    </>
+  );
+}
+
+function StepRenderer({
+  step,
+  onNext,
+  isPending,
+}: {
+  step: ViewerStep;
+  onNext: () => void;
+  isPending: boolean;
+}) {
+  switch (step.type) {
+    case "theory":
+      return (
+        <StepTheory
+          content={step.content as Extract<StepContent, { type: "theory" }>}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    case "code_example":
+      return (
+        <StepCodeExample
+          content={step.content as Extract<StepContent, { type: "code_example" }>}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    case "quiz":
+      return (
+        <StepQuiz
+          content={step.content as Extract<StepContent, { type: "quiz" }>}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    case "fill_blank":
+      return (
+        <StepFillBlank
+          content={step.content as Extract<StepContent, { type: "fill_blank" }>}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    case "code_challenge": {
+      if (!step.exercise) {
+        return (
+          <p className="text-sm text-destructive">
+            Este reto está mal configurado (falta el ejercicio).
+          </p>
+        );
+      }
+      return (
+        <StepCodeChallenge
+          exercise={step.exercise}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    }
+    default:
+      return (
+        <p className="text-sm text-muted-foreground">
+          Tipo de paso desconocido.
+        </p>
+      );
+  }
+}
