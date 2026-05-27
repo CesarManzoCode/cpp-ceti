@@ -3,9 +3,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface ConsoleEyebrowProps extends React.ComponentProps<"span"> {
-  /** Color tone. "primary" by default, "muted" for less weight. */
   tone?: "primary" | "muted" | "warning" | "success";
-  /** Show a blinking caret to the right of the label. */
+  /** Deprecated — kept for backwards compat. */
   caret?: boolean;
   children: React.ReactNode;
 }
@@ -18,35 +17,33 @@ const toneColor = {
 } as const;
 
 /**
- * Eyebrow editorial — el motivo `::` (scope operator de C++) es la firma
- * tipográfica de la marca. Va en cada cabecera de sección para crear
- * identidad reconocible a primer pixel.
+ * Eyebrow sutil para cabeceras de sección. Inter Semibold uppercase
+ * con un círculo de color al inicio — se siente premium y limpio,
+ * sin caer en el motivo terminal ":: foo_bar" que se sentía técnico.
  */
 export function ConsoleEyebrow({
   tone = "primary",
-  caret = false,
+  caret: _caret,
   className,
   children,
   ...props
 }: ConsoleEyebrowProps) {
+  void _caret;
   return (
     <span
-      data-slot="console-eyebrow"
+      data-slot="section-eyebrow"
       className={cn(
-        "inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em]",
+        "inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
         toneColor[tone],
         className,
       )}
       {...props}
     >
-      <span aria-hidden className="opacity-70 tracking-tighter">::</span>
+      <span
+        aria-hidden
+        className="size-1.5 rounded-full bg-current"
+      />
       <span>{children}</span>
-      {caret ? (
-        <span
-          aria-hidden
-          className="ml-0.5 inline-block h-[1em] w-[2px] bg-current animate-blink"
-        />
-      ) : null}
     </span>
   );
 }

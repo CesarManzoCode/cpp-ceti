@@ -6,7 +6,6 @@ import { ChevronLeft, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { completeStep } from "@/lib/lessons-actions";
@@ -151,12 +150,10 @@ export function LessonViewer({
       >
         {/* Title */}
         <header className="space-y-2">
-          <ConsoleEyebrow tone="muted">
-            paso_{(currentIndex + 1).toString().padStart(2, "0")}/{total
-              .toString()
-              .padStart(2, "0")}
-          </ConsoleEyebrow>
-          <h1 className="font-display text-balance text-[28px] leading-[1.05] sm:text-[36px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Paso {currentIndex + 1} de {total}
+          </p>
+          <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-[32px]">
             {lesson.title}
           </h1>
         </header>

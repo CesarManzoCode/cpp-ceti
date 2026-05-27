@@ -16,12 +16,9 @@ export interface SidebarUnit {
   completedCount: number;
 }
 
-// Los enlaces principales viven dentro del client component porque
-// pasar componentes de Lucide (function components) como prop desde un
-// Server Component a un Client Component rompe la serialización RSC.
 const topLinks = [
-  { href: "/app", label: "inicio", icon: Home },
-  { href: "/app/logros", label: "logros", icon: Trophy },
+  { href: "/app", label: "Inicio", icon: Home },
+  { href: "/app/logros", label: "Logros", icon: Trophy },
 ];
 
 export function SidebarNav({
@@ -29,14 +26,13 @@ export function SidebarNav({
   onNavigate,
 }: {
   units: SidebarUnit[];
-  /** Hook para que el mobile sidebar cierre al navegar. */
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
 
   return (
     <nav className="flex flex-col gap-7">
-      <NavGroup label="navegación">
+      <NavGroup>
         {topLinks.map((link) => {
           const active = pathname === link.href;
           return (
@@ -47,66 +43,62 @@ export function SidebarNav({
               onNavigate={onNavigate}
             >
               <link.icon className="size-4 shrink-0" aria-hidden />
-              <span className="font-mono">{link.label}</span>
+              <span>{link.label}</span>
             </NavItem>
           );
         })}
       </NavGroup>
 
-      <NavGroup label="unidades">
-        {units.map((unit) => {
-          const href = `/app/u/${unit.slug}`;
-          const active = pathname.startsWith(href);
-          const percent =
-            unit.lessonCount === 0
-              ? 0
-              : Math.round((unit.completedCount / unit.lessonCount) * 100);
-          const completed =
-            unit.completedCount === unit.lessonCount && unit.lessonCount > 0;
+      <div className="space-y-3">
+        <h3 className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+          Unidades
+        </h3>
+        <NavGroup>
+          {units.map((unit) => {
+            const href = `/app/u/${unit.slug}`;
+            const active = pathname.startsWith(href);
+            const percent =
+              unit.lessonCount === 0
+                ? 0
+                : Math.round((unit.completedCount / unit.lessonCount) * 100);
+            const completed =
+              unit.completedCount === unit.lessonCount && unit.lessonCount > 0;
 
-          return (
-            <NavItem
-              key={unit.slug}
-              href={unit.published ? href : "#"}
-              active={active && unit.published}
-              disabled={!unit.published}
-              onNavigate={unit.published ? onNavigate : undefined}
-            >
-              <UnitStatusIcon
-                completed={completed}
-                locked={!unit.published}
-                percent={percent}
-              />
-              <span className="flex-1 min-w-0 truncate">
-                <span className="font-mono text-[11px] font-bold text-muted-foreground/70 mr-1.5 tabular-nums">
-                  {unit.order.toString().padStart(2, "0")}
+            return (
+              <NavItem
+                key={unit.slug}
+                href={unit.published ? href : "#"}
+                active={active && unit.published}
+                disabled={!unit.published}
+                onNavigate={unit.published ? onNavigate : undefined}
+              >
+                <UnitStatusIcon
+                  completed={completed}
+                  locked={!unit.published}
+                  percent={percent}
+                />
+                <span className="flex-1 min-w-0 truncate font-medium">
+                  {unit.title}
                 </span>
-                <span className="text-primary mr-1 font-mono">::</span>
-                <span className="font-mono">{unit.title.toLowerCase()}</span>
-              </span>
-              {unit.published && unit.lessonCount > 0 && !completed ? (
-                <span className="font-mono text-[10px] tabular-nums text-muted-foreground/80">
-                  {unit.completedCount}/{unit.lessonCount}
-                </span>
-              ) : null}
-            </NavItem>
-          );
-        })}
-      </NavGroup>
+                {unit.published && unit.lessonCount > 0 && !completed ? (
+                  <span className="shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground/80">
+                    {unit.completedCount}/{unit.lessonCount}
+                  </span>
+                ) : null}
+              </NavItem>
+            );
+          })}
+        </NavGroup>
+      </div>
     </nav>
   );
 }
 
 /**
- * Grupo con label editorial arriba y indicador activo deslizante a la izquierda.
+ * Grupo con indicador activo deslizante a la izquierda.
+ * El indicador se mueve animado al item activo (firma visual premium).
  */
-function NavGroup({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function NavGroup({ children }: { children: React.ReactNode }) {
   const groupRef = React.useRef<HTMLUListElement | null>(null);
   const [indicator, setIndicator] = React.useState<{
     top: number;
@@ -121,16 +113,23 @@ function NavGroup({
     const update = () => {
       const active = group.querySelector<HTMLElement>("[data-active='true']");
       if (!active) {
-        setIndicator((prev) => ({ ...prev, visible: false }));
+        setIndicator((prev) => (prev.visible ? { ...prev, visible: false } : prev));
         return;
       }
       const groupRect = group.getBoundingClientRect();
       const itemRect = active.getBoundingClientRect();
-      setIndicator({
+      const next = {
         top: itemRect.top - groupRect.top,
         height: itemRect.height,
         visible: true,
-      });
+      };
+      setIndicator((prev) =>
+        prev.top === next.top &&
+        prev.height === next.height &&
+        prev.visible === next.visible
+          ? prev
+          : next,
+      );
     };
 
     update();
@@ -142,30 +141,24 @@ function NavGroup({
       ro.disconnect();
       window.removeEventListener("resize", update);
     };
-  });
+  }, []);
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-1.5 px-3 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">
-        <span aria-hidden className="text-primary opacity-70">::</span>
-        <span>{label}</span>
-      </div>
-      <ul ref={groupRef} className="relative flex flex-col gap-0.5">
-        <span
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute left-0 w-[3px] rounded-r-full bg-primary",
-            "transition-[transform,height,opacity] duration-[280ms] ease-[var(--ease-spring)]",
-          )}
-          style={{
-            transform: `translateY(${indicator.top}px)`,
-            height: indicator.height,
-            opacity: indicator.visible ? 1 : 0,
-          }}
-        />
-        {children}
-      </ul>
-    </div>
+    <ul ref={groupRef} className="relative flex flex-col gap-0.5">
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute left-0 w-[3px] rounded-r-full bg-primary",
+          "transition-[transform,height,opacity] duration-[280ms] ease-[var(--ease-spring)]",
+        )}
+        style={{
+          transform: `translateY(${indicator.top}px)`,
+          height: indicator.height,
+          opacity: indicator.visible ? 1 : 0,
+        }}
+      />
+      {children}
+    </ul>
   );
 }
 
@@ -190,7 +183,7 @@ function NavItem({
         aria-disabled={disabled}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13px]",
+          "group flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm",
           "transition-[background-color,color] duration-150",
           disabled && "cursor-not-allowed opacity-40",
           active

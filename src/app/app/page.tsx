@@ -2,16 +2,16 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   BookOpen,
+  Check,
+  ChevronRight,
+  Lock,
   Sparkles,
   Zap,
 } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
-import { BracketLabel } from "@/components/ui/bracket-label";
 import { Button } from "@/components/ui/button";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { Progress } from "@/components/ui/progress";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StatTile } from "@/components/ui/stat-tile";
@@ -23,7 +23,6 @@ import {
   getUserStats,
 } from "@/lib/courses";
 import { getSession } from "@/lib/get-session";
-import { formatNumber } from "@/lib/utils";
 
 export const metadata = {
   title: "Mi panel",
@@ -55,99 +54,87 @@ export default async function AppHomePage() {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-5xl space-y-12 px-5 py-8 sm:px-6 lg:px-8 lg:py-12"
+      className="mx-auto max-w-5xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      {/* ───── Greeting block ───── */}
-      <header className="space-y-3">
-        <div className="flex items-center gap-3">
-          <ConsoleEyebrow>
-            {greeting.toLowerCase().replace(" ", "_")}
-          </ConsoleEyebrow>
-          <span aria-hidden className="h-px flex-1 bg-border" />
-          <BracketLabel>{firstName.toLowerCase()}</BracketLabel>
-        </div>
-        <h1 className="font-display text-[40px] leading-[1.02] sm:text-[56px]">
-          Hola, {firstName}<span className="text-primary">.</span>
-        </h1>
-        <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Hagamos avanzar tu C++ un poco más hoy.
+      {/* Saludo cálido */}
+      <header className="space-y-1.5">
+        <p className="text-sm text-muted-foreground">
+          {greeting}, {firstName} 👋
         </p>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          Vamos a programar un rato.
+        </h1>
       </header>
 
-      {/* ───── Now playing ───── */}
+      {/* Continuar — hero card */}
       {nextLesson ? (
-        <section className="space-y-5">
-          <SectionRule trailing={isResume(nextLesson) ? "resuming" : "ready"}>
-            ahora mismo
-          </SectionRule>
-          <ContinueBlock xp={stats.totalXp} next={nextLesson} />
-        </section>
+        <ContinueHero next={nextLesson} />
       ) : (
-        <section className="space-y-5">
-          <SectionRule>ahora mismo</SectionRule>
-          <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-surface-2/40 p-6 text-center text-sm text-muted-foreground">
-            Sin lecciones publicadas todavía. Vuelve pronto.
+        <div className="rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
+          <BookOpen
+            className="mx-auto size-8 text-muted-foreground/50"
+            aria-hidden
+          />
+          <h2 className="mt-3 text-base font-semibold">
+            Sin lecciones publicadas aún
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Estamos preparando más contenido. Vuelve pronto.
           </p>
-        </section>
+        </div>
       )}
 
-      {/* ───── Stats report ───── */}
-      <section className="space-y-5">
-        <SectionRule trailing="day_summary">tu progreso</SectionRule>
-        <div className="grid gap-x-8 gap-y-6 sm:grid-cols-3">
-          <StatTile
-            label="xp totales"
-            value={<AnimatedNumber value={stats.totalXp} />}
-            sub={`Acumulados desde día 1`}
-            tone="primary"
-            icon={<Zap className="size-4" aria-hidden />}
-          />
-          <StatTile
-            label="racha"
-            value={
-              <>
-                <AnimatedNumber value={stats.currentStreak} />
-                <span className="ml-1 text-[0.5em] align-top text-muted-foreground">
-                  d
-                </span>
-              </>
-            }
-            sub={
-              stats.longestStreak > stats.currentStreak
-                ? `Mejor: ${stats.longestStreak} días`
-                : "Mantén el ritmo"
-            }
-            tone="warning"
-            icon={
-              <StreakFlame
-                streak={stats.currentStreak}
-                className="size-4"
-              />
-            }
-          />
-          <StatTile
-            label="lecciones"
-            value={
-              <span>
-                <AnimatedNumber value={totalCompleted} />
-                <span className="text-muted-foreground/50">/{totalLessons}</span>
+      {/* Stats */}
+      <section className="grid gap-4 sm:grid-cols-3">
+        <StatTile
+          icon={<Zap aria-hidden />}
+          label="XP totales"
+          value={<AnimatedNumber value={stats.totalXp} />}
+          sub="Cada lección vale 20–30 XP"
+          tone="primary"
+        />
+        <StatTile
+          icon={<StreakFlame streak={stats.currentStreak} className="size-6" />}
+          label="Racha actual"
+          value={
+            <>
+              <AnimatedNumber value={stats.currentStreak} />
+              <span className="ml-1 text-base font-medium text-muted-foreground">
+                {stats.currentStreak === 1 ? "día" : "días"}
               </span>
-            }
-            sub={`${overallPercent}% completado`}
-            tone="success"
-            icon={<BookOpen className="size-4" aria-hidden />}
-          />
-        </div>
+            </>
+          }
+          sub={
+            stats.longestStreak > stats.currentStreak
+              ? `Tu récord: ${stats.longestStreak} días`
+              : "¡Sigue así!"
+          }
+          tone="warning"
+        />
+        <StatTile
+          icon={<BookOpen aria-hidden />}
+          label="Lecciones"
+          value={
+            <>
+              <AnimatedNumber value={totalCompleted} />
+              <span className="text-muted-foreground/60">/{totalLessons}</span>
+            </>
+          }
+          sub={`${overallPercent}% del curso`}
+          tone="success"
+        />
       </section>
 
-      {/* ───── Path ───── */}
-      <section className="space-y-5">
-        <SectionRule trailing={`${overallPercent}%`}>tu camino</SectionRule>
+      {/* Tu camino */}
+      <section className="space-y-4">
+        <SectionRule trailing={`${overallPercent}% completado`}>
+          Tu camino
+        </SectionRule>
 
         <ul
           data-stagger
-          style={{ "--stagger": "45ms" } as CSSProperties}
-          className="divide-y divide-border border-y border-border"
+          style={{ "--stagger": "55ms" } as CSSProperties}
+          className="grid gap-3 sm:grid-cols-2"
         >
           {units.map((u, idx) => {
             const percent =
@@ -161,34 +148,15 @@ export default async function AppHomePage() {
                 style={{ "--i": idx } as CSSProperties}
                 className="animate-fade-up"
               >
-                {u.published ? (
-                  <Link
-                    href={`/app/u/${u.slug}`}
-                    className="group grid grid-cols-[auto_1fr_auto] items-center gap-4 py-4 transition-colors hover:bg-surface-2/40 sm:gap-6 sm:py-5"
-                  >
-                    <UnitRow
-                      order={u.order}
-                      title={u.title}
-                      percent={percent}
-                      completed={completed}
-                      completedCount={u.completedCount}
-                      lessonCount={u.lessonCount}
-                      published
-                    />
-                  </Link>
-                ) : (
-                  <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 py-4 opacity-50 sm:gap-6 sm:py-5">
-                    <UnitRow
-                      order={u.order}
-                      title={u.title}
-                      percent={0}
-                      completed={false}
-                      completedCount={0}
-                      lessonCount={u.lessonCount}
-                      published={false}
-                    />
-                  </div>
-                )}
+                <UnitCard
+                  href={u.published ? `/app/u/${u.slug}` : undefined}
+                  order={u.order}
+                  title={u.title}
+                  percent={percent}
+                  completed={completed}
+                  completedCount={u.completedCount}
+                  lessonCount={u.lessonCount}
+                />
               </li>
             );
           })}
@@ -198,122 +166,142 @@ export default async function AppHomePage() {
   );
 }
 
-function UnitRow({
+function ContinueHero({
+  next,
+}: {
+  next: NonNullable<Awaited<ReturnType<typeof findNextLesson>>>;
+}) {
+  const resume = next.status === "in_progress";
+  const href = `/app/u/${next.unitSlug}/${next.lessonSlug}`;
+
+  return (
+    <Link
+      href={href}
+      className="group relative block overflow-hidden rounded-[var(--radius-2xl)] border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-6 shadow-[var(--shadow-md)] transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-lg)] sm:p-8"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl transition-transform duration-700 group-hover:scale-110"
+      />
+      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0 space-y-3">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+            <Sparkles className="size-3" aria-hidden />
+            {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
+          </div>
+          <h2 className="text-balance text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+            {next.lessonTitle}
+          </h2>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span>
+              Unidad {next.unitOrder} · {next.unitTitle}
+            </span>
+            <span aria-hidden className="text-muted-foreground/40">
+              ·
+            </span>
+            <span>⏱ {next.estimatedMinutes} min</span>
+          </div>
+        </div>
+        <Button size="lg" className="self-start lg:self-auto" tabIndex={-1}>
+          {resume ? "Continuar" : "Empezar"}
+          <ArrowRight />
+        </Button>
+      </div>
+    </Link>
+  );
+}
+
+function UnitCard({
+  href,
   order,
   title,
   percent,
   completed,
   completedCount,
   lessonCount,
-  published,
 }: {
+  href?: string;
   order: number;
   title: string;
   percent: number;
   completed: boolean;
   completedCount: number;
   lessonCount: number;
-  published: boolean;
 }) {
-  return (
-    <>
-      <span className="font-mono text-[15px] font-bold tabular-nums text-muted-foreground/70 group-hover:text-foreground sm:text-[17px]">
-        {order.toString().padStart(2, "0")}
-      </span>
-
-      <div className="min-w-0">
-        <h3 className="truncate text-[15px] font-semibold tracking-tight sm:text-base">
-          <span className="text-primary mr-1.5 font-mono">::</span>
-          {title}
-        </h3>
-        {published ? (
-          <div className="mt-1.5 flex items-center gap-3">
-            <Progress
-              value={percent}
-              size="xs"
-              tone={completed ? "success" : "primary"}
-              className="max-w-[140px]"
-            />
-            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-              {completedCount}/{lessonCount}
-            </span>
-          </div>
+  const locked = !href;
+  const body = (
+    <div className="flex items-start gap-4">
+      <div
+        className={`grid size-12 shrink-0 place-items-center rounded-2xl ring-1 ring-inset ${
+          completed
+            ? "bg-success-soft text-success ring-success/25"
+            : locked
+              ? "bg-surface-2 text-muted-foreground ring-border"
+              : "bg-primary/12 text-primary ring-primary/20"
+        }`}
+      >
+        {locked ? (
+          <Lock className="size-5" aria-hidden />
+        ) : completed ? (
+          <Check className="size-5" strokeWidth={3} aria-hidden />
         ) : (
-          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground/70">
-            próximo
-          </p>
+          <span className="font-mono text-sm font-bold tabular-nums">
+            {order.toString().padStart(2, "0")}
+          </span>
         )}
       </div>
 
-      {published ? (
-        completed ? (
-          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-success">
-            ✓ done
-          </span>
-        ) : (
-          <ArrowUpRight className="size-4 text-muted-foreground/60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
-        )
-      ) : (
-        <span aria-hidden className="text-muted-foreground/40">
-          ⏿
-        </span>
-      )}
-    </>
-  );
-}
-
-function ContinueBlock({
-  next,
-  xp,
-}: {
-  next: NonNullable<Awaited<ReturnType<typeof findNextLesson>>>;
-  xp: number;
-}) {
-  const resume = isResume(next);
-  return (
-    <div className="group animate-scale-in relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/12 blur-3xl transition-transform duration-700 group-hover:scale-110"
-      />
-      <div className="relative flex flex-col gap-7 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0 space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <BracketLabel tone="primary">
-              {resume ? "resuming" : "next"} :: unidad_
-              {next.unitOrder.toString().padStart(2, "0")}
-            </BracketLabel>
-            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              {next.unitTitle}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Unidad {order}
+          </p>
+          {!locked ? (
+            <ChevronRight
+              className="size-4 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+              aria-hidden
+            />
+          ) : (
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              próximo
             </span>
-          </div>
-          <h2 className="font-display text-balance text-[26px] leading-[1.05] sm:text-[34px]">
-            {next.lessonTitle}
-          </h2>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[12px] uppercase tracking-[0.1em] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <Sparkles className="size-3 text-primary" aria-hidden />
-              acumulas {formatNumber(xp)} xp
-            </span>
-            <span aria-hidden>·</span>
-            <span>{next.estimatedMinutes} min</span>
-          </div>
+          )}
         </div>
-        <Button asChild size="xl" className="self-start lg:self-auto">
-          <Link href={`/app/u/${next.unitSlug}/${next.lessonSlug}`}>
-            {resume ? "Continuar" : "Empezar"}
-            <ArrowRight />
-          </Link>
-        </Button>
+        <h3 className="mt-1 truncate text-base font-semibold leading-snug tracking-tight">
+          {title}
+        </h3>
+        {!locked ? (
+          <div className="mt-3 flex items-center gap-3">
+            <Progress
+              value={percent}
+              size="sm"
+              tone={completed ? "success" : "primary"}
+              className="flex-1"
+            />
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {completedCount}/{lessonCount}
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
-}
 
-function isResume(
-  next: NonNullable<Awaited<ReturnType<typeof findNextLesson>>>,
-): boolean {
-  return next.status === "in_progress";
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="group block rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] transition-[transform,box-shadow,border-color] hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-md)]"
+      >
+        {body}
+      </Link>
+    );
+  }
+  return (
+    <div className="block rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-5 opacity-65">
+      {body}
+    </div>
+  );
 }
 
 function greetingFor(date: Date): string {
@@ -371,3 +359,4 @@ async function findNextLesson(userId: string) {
     status: "not_started" as const,
   };
 }
+

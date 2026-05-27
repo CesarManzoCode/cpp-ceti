@@ -25,14 +25,12 @@ export function Sidebar({ units }: { units: SidebarUnit[] }) {
           href="https://github.com"
           target="_blank"
           rel="noreferrer noopener"
-          className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] px-2 py-1.5 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="flex items-center gap-2 rounded-[var(--radius-md)] px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
-          <span className="inline-flex items-center gap-2">
-            <Bug className="size-3.5" aria-hidden />
-            reportar_bug
-          </span>
-          <span className="font-mono text-[9px] uppercase tracking-wider opacity-60">
-            v0.1 :: beta
+          <Bug className="size-3.5" aria-hidden />
+          Reportar un bug
+          <span className="ml-auto text-[9px] font-medium uppercase tracking-wider opacity-70">
+            v0.1
           </span>
         </a>
       </div>

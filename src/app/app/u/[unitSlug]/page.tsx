@@ -54,20 +54,19 @@ export default async function UnitPage({ params }: PageProps) {
         </Button>
       </div>
 
-      <header className="space-y-4">
+      <header className="space-y-3">
         <div className="flex items-center gap-3">
           <ConsoleEyebrow>
-            unidad_{unit.order.toString().padStart(2, "0")}
+            Unidad {unit.order.toString().padStart(2, "0")}
           </ConsoleEyebrow>
-          <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           {unitComplete ? (
             <Badge variant="success" size="sm">
               <Check className="size-3" strokeWidth={3} aria-hidden />
-              completa
+              Completa
             </Badge>
           ) : null}
         </div>
-        <h1 className="font-display text-balance text-[34px] leading-[1.05] sm:text-[48px]">
+        <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-[40px]">
           {unit.title}
         </h1>
         {unit.description ? (

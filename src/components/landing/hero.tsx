@@ -33,7 +33,7 @@ export function Hero() {
         >
           <div
             style={{ "--i": 0 } as CSSProperties}
-            className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground backdrop-blur"
+            className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur"
           >
             <span className="relative flex size-2 items-center justify-center">
               <span
@@ -42,8 +42,7 @@ export function Hero() {
               />
               <span className="relative size-1.5 rounded-full bg-success" />
             </span>
-            <span className="text-primary">::</span>
-            <span>gdl / ceti / built_for_students</span>
+            Hecho en Guadalajara para estudiantes del CETI
           </div>
 
           <h1

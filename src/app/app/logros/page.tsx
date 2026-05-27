@@ -187,7 +187,6 @@ export default async function LogrosPage() {
           label="XP totales"
           value={<AnimatedNumber value={stats.totalXp} />}
           tone="primary"
-          size="sm"
         />
         <StatTile
           icon={<StreakFlame streak={stats.longestStreak} className="size-4" />}
@@ -199,14 +198,12 @@ export default async function LogrosPage() {
             </>
           }
           tone="warning"
-          size="sm"
         />
         <StatTile
           icon={<Sparkles />}
           label="Retos resueltos"
           value={<AnimatedNumber value={exercisesPassed} />}
           tone="success"
-          size="sm"
         />
       </section>
 

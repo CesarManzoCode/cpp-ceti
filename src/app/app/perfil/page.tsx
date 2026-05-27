@@ -112,7 +112,6 @@ export default async function PerfilPage() {
             label="XP totales"
             value={<AnimatedNumber value={stats.totalXp} />}
             tone="primary"
-            size="sm"
           />
           <StatTile
             icon={<StreakFlame streak={stats.currentStreak} className="size-4" />}
@@ -125,7 +124,6 @@ export default async function PerfilPage() {
             }
             sub={`Mejor: ${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}
             tone="warning"
-            size="sm"
           />
           <StatTile
             icon={<Trophy />}
@@ -133,7 +131,6 @@ export default async function PerfilPage() {
             value={<AnimatedNumber value={lessonsCompleted} />}
             sub={`${attempts} ${pluralize(attempts, "intento", "intentos")} en retos`}
             tone="success"
-            size="sm"
           />
         </div>
       </section>
