@@ -98,15 +98,20 @@ const BADGES: BadgeDef[] = [
 export default async function LogrosPage() {
   const session = await requireSession();
 
-  const [stats, lessonsCompleted, exercisesPassed] = await Promise.all([
+  const [stats, lessonsCompleted, distinctExercisesPassed] = await Promise.all([
     getUserStats(session.user.id),
     db.userLessonProgress.count({
       where: { userId: session.user.id, status: "completed" },
     }),
-    db.userExerciseAttempt.count({
+    // Contamos ejercicios DISTINTOS aprobados (no intentos), para que
+    // múltiples envíos del mismo ejercicio no inflen el contador.
+    db.userExerciseAttempt.findMany({
       where: { userId: session.user.id, passed: true },
+      select: { exerciseId: true },
+      distinct: ["exerciseId"],
     }),
   ]);
+  const exercisesPassed = distinctExercisesPassed.length;
 
   const achievementStats: AchievementStats = {
     totalXp: stats.totalXp,

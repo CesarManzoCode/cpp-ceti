@@ -7,9 +7,11 @@ import { getCodeExecutor } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 
+const MAX_CODE_LENGTH = 50_000;
+
 /**
  * Marca un paso como completado y actualiza el progreso de la lección.
- * Si todos los pasos están completos, marca la lección como completed y suma XP.
+ * Idempotente: re-llamarla con un paso ya completado NO duplica XP ni racha.
  */
 export async function completeStep(stepId: string) {
   const session = await requireSession();
@@ -30,6 +32,14 @@ export async function completeStep(stepId: string) {
     throw new Error("Paso no encontrado");
   }
 
+  // Leemos el estado PREVIO de la lección para detectar la transición
+  // a "completed" (y evitar duplicar XP/racha en reentradas).
+  const previousLessonProgress = await db.userLessonProgress.findUnique({
+    where: { userId_lessonId: { userId, lessonId: step.lessonId } },
+    select: { status: true },
+  });
+  const wasAlreadyCompleted = previousLessonProgress?.status === "completed";
+
   // Upsert del progreso del paso
   await db.userStepProgress.upsert({
     where: { userId_stepId: { userId, stepId } },
@@ -37,7 +47,6 @@ export async function completeStep(stepId: string) {
     create: { userId, stepId },
   });
 
-  // ¿Cuántos pasos completados hay ya?
   const completedCount = await db.userStepProgress.count({
     where: {
       userId,
@@ -46,17 +55,19 @@ export async function completeStep(stepId: string) {
   });
 
   const allDone = completedCount >= step.lesson.steps.length;
+  const justCompleted = allDone && !wasAlreadyCompleted;
 
-  // Upsert del progreso de la lección
-  const lessonProgress = await db.userLessonProgress.upsert({
+  await db.userLessonProgress.upsert({
     where: { userId_lessonId: { userId, lessonId: step.lessonId } },
-    update: allDone
+    update: justCompleted
       ? {
           status: "completed",
           completedAt: new Date(),
           xpEarned: step.lesson.xpReward,
         }
-      : { status: "in_progress" },
+      : allDone
+        ? {} // ya estaba completed, idempotente
+        : { status: "in_progress" },
     create: {
       userId,
       lessonId: step.lessonId,
@@ -66,20 +77,23 @@ export async function completeStep(stepId: string) {
     },
   });
 
-  // Si recién se completó (transición a completed), sumar al streak
-  if (allDone && lessonProgress.completedAt) {
+  if (justCompleted) {
     await updateStreakOnCompletion(userId, step.lesson.xpReward);
   }
 
   revalidatePath(`/app/u/${step.lesson.unit.slug}`);
   revalidatePath("/app");
 
-  return { lessonCompleted: allDone, xpEarned: allDone ? step.lesson.xpReward : 0 };
+  return {
+    lessonCompleted: allDone,
+    lessonJustCompleted: justCompleted,
+    xpEarned: justCompleted ? step.lesson.xpReward : 0,
+  };
 }
 
 /**
  * Envía un intento de un ejercicio. Compila, corre tests, guarda intento.
- * Devuelve resultados de cada test (visibles + hidden).
+ * Solo cuenta XP la PRIMERA vez que se aprueba.
  */
 export async function submitExercise(input: {
   exerciseId: string;
@@ -92,6 +106,17 @@ export async function submitExercise(input: {
 }> {
   const session = await requireSession();
   const userId = session.user.id;
+
+  // Validaciones de input (defensa en runtime, no solo TS).
+  if (!input.exerciseId || typeof input.exerciseId !== "string") {
+    throw new Error("exerciseId es obligatorio");
+  }
+  if (!input.sourceCode || typeof input.sourceCode !== "string" || !input.sourceCode.trim()) {
+    throw new Error("El código no puede estar vacío");
+  }
+  if (input.sourceCode.length > MAX_CODE_LENGTH) {
+    throw new Error(`El código excede ${MAX_CODE_LENGTH.toLocaleString()} caracteres`);
+  }
 
   const exercise = await db.exercise.findUnique({
     where: { id: input.exerciseId },
@@ -110,6 +135,13 @@ export async function submitExercise(input: {
   if (exercise.testCases.length === 0) {
     throw new Error("El ejercicio no tiene test cases configurados");
   }
+
+  // ¿Es la primera vez que el usuario lo aprueba? (para evitar XP duplicado).
+  const previousPass = await db.userExerciseAttempt.findFirst({
+    where: { userId, exerciseId: exercise.id, passed: true },
+    select: { id: true },
+  });
+  const isFirstPass = !previousPass;
 
   const executor = getCodeExecutor();
   const startedAt = Date.now();
@@ -144,19 +176,19 @@ export async function submitExercise(input: {
 
   let xpEarned = 0;
   if (allPassed) {
-    // Marcar el paso del ejercicio como completado (esto puede completar también la lección)
+    // completeStep maneja el XP/racha de la LECCIÓN cuando es la última vez
+    // que se completa. Aquí solo añadimos el XP del EJERCICIO si es la
+    // primera vez que se aprueba.
     const stepResult = await completeStep(exercise.stepId);
-    xpEarned =
-      exercise.xpReward + (stepResult.lessonCompleted ? 0 : 0);
-    // El XP del paso ya se cuenta en el de la lección al completarla.
-    // Aquí solo sumamos el XP del ejercicio al streak (sin duplicar el de la lección).
-    await db.userStreak.update({
-      where: { userId },
-      data: { totalXp: { increment: exercise.xpReward } },
-    });
+
+    if (isFirstPass) {
+      await incrementUserXp(userId, exercise.xpReward);
+      xpEarned = exercise.xpReward + stepResult.xpEarned;
+    } else {
+      xpEarned = stepResult.xpEarned;
+    }
   }
 
-  // Visibles para mostrar al usuario; los hidden se reportan agregados
   return {
     passed: allPassed,
     results,
@@ -188,8 +220,26 @@ function buildFeedback(results: TestCaseResult[]): string {
 }
 
 /**
- * Actualiza la racha del usuario cuando completa una lección.
+ * Suma XP al usuario, creando el `UserStreak` si no existe.
+ * Usado para XP que no se asocia a completar una lección (ej. XP de ejercicio).
+ */
+async function incrementUserXp(userId: string, xp: number) {
+  await db.userStreak.upsert({
+    where: { userId },
+    update: { totalXp: { increment: xp } },
+    create: {
+      userId,
+      currentStreak: 0,
+      longestStreak: 0,
+      totalXp: xp,
+    },
+  });
+}
+
+/**
+ * Actualiza la racha del usuario cuando completa una lección POR PRIMERA VEZ.
  * Si completó algo ayer, +1 a la racha. Si fue hace más, reinicia a 1.
+ * También suma el XP de la lección al total.
  */
 async function updateStreakOnCompletion(userId: string, xpEarned: number) {
   const today = startOfDayUTC(new Date());
@@ -218,7 +268,7 @@ async function updateStreakOnCompletion(userId: string, xpEarned: number) {
   if (!lastActive) {
     newStreak = 1;
   } else if (lastActive.getTime() === today.getTime()) {
-    // Ya activo hoy — no cambia la racha, solo suma XP
+    // Ya activo hoy — no cambia la racha, solo suma XP.
   } else if (lastActive.getTime() === yesterday.getTime()) {
     newStreak = existing.currentStreak + 1;
   } else {
