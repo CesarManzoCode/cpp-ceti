@@ -1,64 +1,148 @@
 "use client";
 
 import * as React from "react";
-
-import { subscribePending } from "@/lib/nav-progress-store";
+import { usePathname } from "next/navigation";
 
 /**
- * Barra fina arriba de la pantalla que se llena progresivamente
- * mientras hay navegaciones pendientes. Estilo YouTube/Linear/Vercel.
+ * Barra fina arriba que se llena durante navegaciones internas.
  *
- * Lógica:
- * - cuando pending pasa a true, arrancamos a "trickle" hasta ~85%
- * - cuando pending pasa a false, completamos a 100% y desvanecemos
- * - todo en JS para mantener animación responsiva al estado real
+ * Estrategia (sin useLinkStatus, para no acoplarnos a su lifecycle):
+ *  - Listener global de clicks → si es un <a> interno con destino
+ *    distinto al actual, arrancamos la barra y guardamos el pathname
+ *    de salida.
+ *  - usePathname() → cuando cambia el pathname respecto al guardado,
+ *    completamos la barra y la desvanecemos.
+ *  - Safety timeout: si la nav nunca completa en 10s, soltamos la barra.
  */
 export function NavigationProgress() {
+  const pathname = usePathname();
   const [active, setActive] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
+
   const trickleRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
   const fadeRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const safetyRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startedAtPathRef = React.useRef<string | null>(null);
 
+  const stopTimers = React.useCallback(() => {
+    if (trickleRef.current) {
+      clearInterval(trickleRef.current);
+      trickleRef.current = null;
+    }
+    if (fadeRef.current) {
+      clearTimeout(fadeRef.current);
+      fadeRef.current = null;
+    }
+    if (safetyRef.current) {
+      clearTimeout(safetyRef.current);
+      safetyRef.current = null;
+    }
+  }, []);
+
+  const finish = React.useCallback(() => {
+    if (trickleRef.current) {
+      clearInterval(trickleRef.current);
+      trickleRef.current = null;
+    }
+    if (safetyRef.current) {
+      clearTimeout(safetyRef.current);
+      safetyRef.current = null;
+    }
+    startedAtPathRef.current = null;
+    setProgress(100);
+    fadeRef.current = setTimeout(() => {
+      setActive(false);
+      // Reset to 0 after the fade so the next nav starts clean
+      setTimeout(() => setProgress(0), 280);
+      fadeRef.current = null;
+    }, 220);
+  }, []);
+
+  // Limpieza al desmontar
   React.useEffect(() => {
-    return subscribePending((pending) => {
-      if (pending) {
-        // Cancel any pending fade-out
-        if (fadeRef.current) {
-          clearTimeout(fadeRef.current);
-          fadeRef.current = null;
-        }
-        setActive(true);
-        setProgress((p) => (p > 0 ? p : 8));
-        if (!trickleRef.current) {
-          trickleRef.current = setInterval(() => {
-            setProgress((p) => {
-              if (p >= 86) return p;
-              // Asymptotic crawl: faster at the start, slower as it approaches 90.
-              const remaining = 90 - p;
-              return p + Math.max(0.5, remaining * 0.08);
-            });
-          }, 180);
-        }
-      } else {
+    return () => stopTimers();
+  }, [stopTimers]);
+
+  // Cuando cambia el pathname y veníamos de un click: cerramos la barra
+  React.useEffect(() => {
+    if (!startedAtPathRef.current) return;
+    if (startedAtPathRef.current === pathname) return; // aún no ha cambiado
+    finish();
+  }, [pathname, finish]);
+
+  // Click handler: arranca la barra al clickear un Link interno
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (e.defaultPrevented) return;
+      if (e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest("a");
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== "_self") return;
+      if (anchor.hasAttribute("download")) return;
+
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      if (
+        href.startsWith("#") ||
+        href.startsWith("mailto:") ||
+        href.startsWith("tel:") ||
+        href.startsWith("javascript:")
+      ) {
+        return;
+      }
+
+      let url: URL;
+      try {
+        url = new URL(href, window.location.origin);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      // Misma URL exacta — no se considera navegación
+      if (
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search
+      ) {
+        return;
+      }
+
+      // Arranca
+      if (fadeRef.current) {
+        clearTimeout(fadeRef.current);
+        fadeRef.current = null;
+      }
+      startedAtPathRef.current = window.location.pathname;
+      setActive(true);
+      setProgress((p) => (p > 0 && p < 90 ? p : 8));
+      if (!trickleRef.current) {
+        trickleRef.current = setInterval(() => {
+          setProgress((p) => {
+            if (p >= 86) return p;
+            const remaining = 90 - p;
+            return p + Math.max(0.5, remaining * 0.08);
+          });
+        }, 180);
+      }
+      if (safetyRef.current) clearTimeout(safetyRef.current);
+      safetyRef.current = setTimeout(() => {
+        // Navegación colgada → soltamos la barra y reseteamos el latch
+        startedAtPathRef.current = null;
         if (trickleRef.current) {
           clearInterval(trickleRef.current);
           trickleRef.current = null;
         }
-        setProgress(100);
-        fadeRef.current = setTimeout(() => {
-          setActive(false);
-          // Reset to 0 after fade so the next nav can start clean
-          setTimeout(() => setProgress(0), 280);
-        }, 220);
-      }
-    });
-  }, []);
+        setActive(false);
+        setProgress(0);
+        safetyRef.current = null;
+      }, 10000);
+    }
 
-  React.useEffect(() => {
-    return () => {
-      if (trickleRef.current) clearInterval(trickleRef.current);
-      if (fadeRef.current) clearTimeout(fadeRef.current);
-    };
+    document.addEventListener("click", handleClick, { capture: true });
+    return () =>
+      document.removeEventListener("click", handleClick, { capture: true });
   }, []);
 
   return (
