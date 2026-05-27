@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -62,60 +63,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="tu@correo.com"
-          required
-          disabled={isPending}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          required
-          minLength={8}
-          disabled={isPending}
-        />
-      </div>
-
-      {error ? (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <Button type="submit" className="w-full" disabled={isPending} size="lg">
-        {isPending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Iniciando sesión…
-          </>
-        ) : (
-          "Iniciar sesión"
-        )}
-      </Button>
-
-      <div className="relative my-2">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">o</span>
-        </div>
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <Button
         type="button"
         variant="outline"
@@ -127,13 +75,87 @@ export function LoginForm() {
         <GoogleIcon />
         Continuar con Google
       </Button>
+
+      <Divider>o con tu correo</Divider>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Correo</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="tu@correo.com"
+          required
+          disabled={isPending}
+          leadingIcon={<Mail />}
+          invalid={Boolean(error)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Contraseña</Label>
+          <Link
+            href="/login"
+            tabIndex={-1}
+            aria-disabled
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          required
+          minLength={8}
+          disabled={isPending}
+          leadingIcon={<Lock />}
+          invalid={Boolean(error)}
+        />
+      </div>
+
+      {error ? (
+        <p
+          className="flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          {error}
+        </p>
+      ) : null}
+
+      <Button
+        type="submit"
+        className="w-full"
+        size="lg"
+        loading={isPending}
+      >
+        {isPending ? "Iniciando sesión…" : "Iniciar sesión"}
+      </Button>
     </form>
+  );
+}
+
+function Divider({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative my-1 flex items-center">
+      <span className="h-px flex-1 bg-border" aria-hidden />
+      <span className="px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        {children}
+      </span>
+      <span className="h-px flex-1 bg-border" aria-hidden />
+    </div>
   );
 }
 
 function GoogleIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"

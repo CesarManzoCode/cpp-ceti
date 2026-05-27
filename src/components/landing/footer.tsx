@@ -1,13 +1,39 @@
+import Link from "next/link";
+
 import { Logo } from "@/components/logo";
+
+const links = [
+  { href: "/login", label: "Iniciar sesión" },
+  { href: "/registro", label: "Crear cuenta" },
+  { href: "#temario", label: "Temario" },
+];
 
 export function LandingFooter() {
   return (
-    <footer className="border-t bg-muted/20">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row">
-        <Logo size="sm" />
+    <footer className="border-t border-border/60 bg-surface-2/40">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-10 sm:px-6 sm:flex-row">
+        <div className="flex flex-col items-center gap-2 sm:items-start">
+          <Logo size="sm" />
+          <p className="text-xs text-muted-foreground">
+            Hecho en Guadalajara · {new Date().getFullYear()}
+          </p>
+        </div>
+
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="transition-colors hover:text-foreground"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
         <p className="text-center text-xs text-muted-foreground sm:text-right">
-          Hecho con ❤️ en Guadalajara · {new Date().getFullYear()} ·{" "}
-          <span className="font-medium text-foreground">No oficial del CETI</span>
+          Proyecto independiente.{" "}
+          <span className="font-medium text-foreground">No oficial del CETI.</span>
         </p>
       </div>
     </footer>

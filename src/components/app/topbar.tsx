@@ -15,26 +15,59 @@ export interface TopbarProps {
 
 export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/70 bg-background/85 px-4 backdrop-blur-xl sm:px-6">
       <MobileSidebar units={units} />
 
       <div className="flex-1" />
 
-      <div className="flex items-center gap-2 rounded-full border bg-card/60 px-3 py-1.5 text-sm">
-        <Flame className="size-4 text-warning" />
-        <span className="font-semibold tabular-nums">{streak}</span>
-        <span className="text-xs text-muted-foreground">días</span>
+      <div className="flex items-center divide-x divide-border/70 overflow-hidden rounded-full border border-border/70 bg-surface text-sm">
+        <Stat
+          icon={<Flame className="size-3.5" aria-hidden />}
+          value={streak}
+          label="días"
+          tone="warning"
+        />
+        <Stat
+          icon={<Zap className="size-3.5" aria-hidden />}
+          value={formatNumber(totalXp)}
+          label="XP"
+          tone="primary"
+        />
       </div>
 
-      <div className="flex items-center gap-2 rounded-full border bg-card/60 px-3 py-1.5 text-sm">
-        <Zap className="size-4 text-primary" />
-        <span className="font-semibold tabular-nums">{formatNumber(totalXp)}</span>
-        <span className="text-xs text-muted-foreground">XP</span>
+      <div className="ml-1 flex items-center gap-1">
+        <ThemeToggle />
+        <UserMenu user={user} />
       </div>
-
-      <ThemeToggle />
-
-      <UserMenu user={user} />
     </header>
+  );
+}
+
+function Stat({
+  icon,
+  value,
+  label,
+  tone,
+}: {
+  icon: React.ReactNode;
+  value: number | string;
+  label: string;
+  tone: "warning" | "primary";
+}) {
+  const colors =
+    tone === "warning"
+      ? "text-warning"
+      : "text-primary";
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-3 py-1.5"
+      title={`${value} ${label}`}
+    >
+      <span className={colors}>{icon}</span>
+      <span className="font-semibold tabular-nums text-foreground">{value}</span>
+      <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+    </span>
   );
 }

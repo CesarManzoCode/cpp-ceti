@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Flame, Sparkles, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  Flame,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { StatTile } from "@/components/ui/stat-tile";
 import { db } from "@/lib/db";
 import {
   getDefaultCourse,
@@ -46,162 +47,203 @@ export default async function AppHomePage() {
       : Math.round((totalCompleted / totalLessons) * 100);
 
   const firstName = session.user.name.split(" ")[0] ?? session.user.name;
+  const greeting = greetingFor(new Date());
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-6 lg:p-8">
+    <div className="mx-auto max-w-5xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
       {/* Saludo */}
-      <header className="space-y-1">
-        <p className="text-sm text-muted-foreground">¡Hola, {firstName}! 👋</p>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Vamos a programar un rato.
+      <header className="space-y-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {greeting}
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-[34px]">
+          Hola, {firstName}.
         </h1>
+        <p className="text-[15px] text-muted-foreground">
+          Hagamos avanzar tu C++ un poco más hoy.
+        </p>
       </header>
 
+      {/* Continuar — pieza heroica */}
+      {nextLesson ? (
+        <ContinueCard
+          xp={stats.totalXp}
+          next={nextLesson}
+        />
+      ) : (
+        <div className="rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-8 text-center">
+          <h2 className="text-base font-semibold">Sin lecciones aún</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            El contenido se está agregando. Vuelve pronto.
+          </p>
+        </div>
+      )}
+
       {/* Stats */}
-      <section className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          icon={<Zap className="size-5" />}
+      <section
+        aria-labelledby="stats-heading"
+        className="grid gap-3 sm:grid-cols-3"
+      >
+        <h2 id="stats-heading" className="sr-only">
+          Tus métricas
+        </h2>
+        <StatTile
+          icon={<Zap />}
           label="XP totales"
           value={formatNumber(stats.totalXp)}
-          accent="primary"
+          tone="primary"
         />
-        <StatCard
-          icon={<Flame className="size-5" />}
+        <StatTile
+          icon={<Flame />}
           label="Racha actual"
           value={`${stats.currentStreak} días`}
-          accent="warning"
+          sub={stats.longestStreak > stats.currentStreak ? `Mejor: ${stats.longestStreak}` : undefined}
+          tone="warning"
         />
-        <StatCard
-          icon={<BookOpen className="size-5" />}
-          label="Lecciones completadas"
-          value={`${totalCompleted} de ${totalLessons}`}
-          accent="success"
+        <StatTile
+          icon={<BookOpen />}
+          label="Lecciones"
+          value={`${totalCompleted} / ${totalLessons}`}
+          sub={`${overallPercent}% completado`}
+          tone="success"
         />
       </section>
 
-      {/* Continuar */}
-      {nextLesson ? (
-        <Card className="overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card">
-          <CardHeader>
-            <Badge variant="default" className="w-fit">
-              <Sparkles className="size-3" />
-              Continúa donde te quedaste
-            </Badge>
-            <CardTitle className="mt-2 text-2xl">{nextLesson.lessonTitle}</CardTitle>
-            <CardDescription>
-              Unidad {nextLesson.unitOrder} · {nextLesson.unitTitle} ·{" "}
-              {nextLesson.estimatedMinutes} min
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild size="lg">
-              <Link
-                href={`/app/u/${nextLesson.unitSlug}/${nextLesson.lessonSlug}`}
-              >
-                {nextLesson.status === "in_progress"
-                  ? "Continuar lección"
-                  : "Empezar lección"}
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Aún no hay lecciones cargadas</CardTitle>
-            <CardDescription>
-              El contenido se está agregando. Vuelve pronto.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
-
       {/* Tu camino */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">Tu camino</h2>
-          <span className="text-sm text-muted-foreground">
-            {overallPercent}% completado
-          </span>
+      <section className="space-y-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">Tu camino</h2>
+            <p className="text-sm text-muted-foreground">
+              Avanza unidad por unidad, a tu ritmo.
+            </p>
+          </div>
+          <div className="hidden items-center gap-3 sm:flex">
+            <span className="text-xs font-medium tabular-nums text-muted-foreground">
+              {overallPercent}%
+            </span>
+            <Progress value={overallPercent} size="sm" className="w-40" />
+          </div>
         </div>
-        <Progress value={overallPercent} />
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {units.map((u) => {
             const percent =
               u.lessonCount === 0
                 ? 0
                 : Math.round((u.completedCount / u.lessonCount) * 100);
+            const completed = percent === 100;
             return (
-              <Link
-                key={u.slug}
-                href={u.published ? `/app/u/${u.slug}` : "#"}
-                aria-disabled={!u.published}
-                className={`group rounded-xl border bg-card p-4 transition-all ${
-                  u.published
-                    ? "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
-                    : "cursor-not-allowed opacity-60"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-mono text-xs text-muted-foreground">
-                      U{u.order.toString().padStart(2, "0")}
-                    </p>
-                    <h3 className="truncate text-base font-semibold">{u.title}</h3>
+              <li key={u.slug}>
+                <Link
+                  href={u.published ? `/app/u/${u.slug}` : "#"}
+                  aria-disabled={!u.published}
+                  className={
+                    u.published
+                      ? "group block rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)]"
+                      : "block rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-5 opacity-70"
+                  }
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Unidad {u.order.toString().padStart(2, "0")}
+                      </p>
+                      <h3 className="mt-1 truncate text-[15px] font-semibold tracking-tight">
+                        {u.title}
+                      </h3>
+                    </div>
+                    {u.published ? (
+                      completed ? (
+                        <Badge variant="success" size="sm">
+                          Completa
+                        </Badge>
+                      ) : (
+                        <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-foreground" />
+                      )
+                    ) : (
+                      <Badge variant="secondary" size="sm">
+                        Próximo
+                      </Badge>
+                    )}
                   </div>
                   {u.published ? (
-                    <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                      {u.completedCount}/{u.lessonCount}
-                    </span>
-                  ) : (
-                    <Badge variant="secondary">Próximo</Badge>
-                  )}
-                </div>
-                {u.published ? (
-                  <Progress value={percent} className="mt-3 h-1.5" />
-                ) : null}
-              </Link>
+                    <div className="mt-4 flex items-center gap-3">
+                      <Progress
+                        value={percent}
+                        size="xs"
+                        tone={completed ? "success" : "primary"}
+                        className="flex-1"
+                      />
+                      <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                        {u.completedCount}/{u.lessonCount}
+                      </span>
+                    </div>
+                  ) : null}
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </section>
     </div>
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-  accent,
+function ContinueCard({
+  next,
+  xp,
 }: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  accent: "primary" | "warning" | "success";
+  next: NonNullable<Awaited<ReturnType<typeof findNextLesson>>>;
+  xp: number;
 }) {
-  const accentClasses = {
-    primary: "bg-primary/15 text-primary",
-    warning: "bg-warning/25 text-warning-foreground",
-    success: "bg-success/15 text-success",
-  };
+  const isResume = next.status === "in_progress";
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-5">
-        <div
-          className={`grid size-12 place-items-center rounded-xl ${accentClasses[accent]}`}
-        >
-          {icon}
+    <div className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl"
+      />
+      <div className="relative flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="default" size="sm">
+              <Sparkles className="size-3" aria-hidden />
+              {isResume ? "Continúa donde te quedaste" : "Tu próxima lección"}
+            </Badge>
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Unidad {next.unitOrder} · {next.unitTitle}
+            </span>
+          </div>
+          <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-[28px]">
+            {next.lessonTitle}
+          </h2>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Zap className="size-3.5 text-primary" aria-hidden />
+              Acumulas {formatNumber(xp)} XP
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              ⏱ {next.estimatedMinutes} min
+            </span>
+          </div>
         </div>
-        <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="truncate text-xl font-semibold tabular-nums">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
+        <Button asChild size="lg" className="self-start lg:self-auto">
+          <Link href={`/app/u/${next.unitSlug}/${next.lessonSlug}`}>
+            {isResume ? "Continuar lección" : "Empezar lección"}
+            <ArrowRight />
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
+}
+
+function greetingFor(date: Date): string {
+  const h = date.getHours();
+  if (h < 12) return "Buenos días";
+  if (h < 19) return "Buenas tardes";
+  return "Buenas noches";
 }
 
 async function findNextLesson(userId: string) {

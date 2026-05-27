@@ -8,28 +8,46 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative grid min-h-dvh lg:grid-cols-2">
-      {/* Panel izquierdo: branding */}
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-primary/15 via-background to-background p-10 lg:flex">
-        <div className="absolute inset-0 grid-pattern opacity-50" />
-        <div className="relative z-10">
-          <Link href="/">
-            <Logo size="lg" />
-          </Link>
-        </div>
-        <div className="relative z-10 max-w-md space-y-6">
-          <blockquote className="text-2xl font-medium leading-relaxed text-foreground">
-            “Programar se aprende programando.
+    <div className="relative grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
+      {/* Panel izquierdo: branding editorial */}
+      <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-border/60 bg-surface-2/40 p-12 lg:flex">
+        <div
+          aria-hidden
+          className="dot-pattern absolute inset-0 opacity-60 dark:opacity-30"
+        />
+        <div
+          aria-hidden
+          className="absolute -left-32 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full bg-primary/15 blur-3xl"
+        />
+
+        <Link href="/" className="relative z-10">
+          <Logo size="lg" />
+        </Link>
+
+        <div className="relative z-10 max-w-md space-y-7">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+            Manifiesto
+          </p>
+          <blockquote className="text-balance text-3xl font-semibold leading-[1.15] tracking-tight text-foreground">
+            Programar se aprende programando.
             <br />
-            No memorizando código del pizarrón.”
+            <span className="text-muted-foreground">
+              No memorizando código del pizarrón.
+            </span>
           </blockquote>
-          <p className="text-sm text-muted-foreground">
-            Lecciones cortas, ejercicios reales, un compilador C++ en tu navegador.
-            Hecho para estudiantes del CETI Guadalajara.
+          <p className="max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+            Lecciones cortas, ejercicios reales y un compilador C++ en tu
+            navegador. Hecho para estudiantes del CETI Guadalajara.
           </p>
         </div>
-        <div className="relative z-10 font-mono text-xs text-muted-foreground">
-          <pre className="rounded-lg border bg-card/60 p-4 backdrop-blur-sm">
+
+        <div className="relative z-10">
+          <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card/90 shadow-[var(--shadow-md)] backdrop-blur">
+            <div className="flex items-center gap-2 border-b border-border/80 bg-surface-2/60 px-4 py-2 text-[11px] text-muted-foreground">
+              <span className="size-2 rounded-full bg-success" aria-hidden />
+              main.cpp
+            </div>
+            <pre className="overflow-x-auto px-4 py-3 font-mono text-[12px] leading-[1.65] text-foreground/85">
 {`#include <iostream>
 using namespace std;
 
@@ -37,13 +55,14 @@ int main() {
   cout << "Hola, CETI!" << endl;
   return 0;
 }`}
-          </pre>
+            </pre>
+          </div>
         </div>
       </aside>
 
       {/* Panel derecho: form */}
-      <main className="flex flex-col px-6 py-10 sm:px-10">
-        <header className="mb-10 flex justify-between lg:hidden">
+      <main className="flex flex-col px-5 py-8 sm:px-10">
+        <header className="mb-10 flex items-center justify-between lg:hidden">
           <Link href="/">
             <Logo />
           </Link>

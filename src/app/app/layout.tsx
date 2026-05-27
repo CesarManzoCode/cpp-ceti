@@ -29,7 +29,7 @@ export default async function AppLayout({
     : [];
 
   return (
-    <div className="flex min-h-dvh">
+    <div className="flex min-h-dvh bg-background">
       <Sidebar units={units} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar

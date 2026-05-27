@@ -1,5 +1,7 @@
 import { BookX, Code2, GraduationCap } from "lucide-react";
 
+import { SectionHeading } from "@/components/ui/section-heading";
+
 const problems = [
   {
     icon: BookX,
@@ -20,33 +22,41 @@ const problems = [
 
 export function Why() {
   return (
-    <section id="por-que" className="border-b py-20 lg:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-wide text-primary">
-            El problema
-          </p>
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-            En el CETI, C++ se reprueba en masa.
-            <br />
-            <span className="text-muted-foreground">Y no es tu culpa.</span>
-          </h2>
-        </div>
+    <section
+      id="por-que"
+      className="border-b border-border/60 py-20 lg:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+        <SectionHeading
+          align="center"
+          eyebrow="El problema"
+          title={
+            <>
+              En el CETI, C++ se reprueba en masa.{" "}
+              <span className="text-muted-foreground">Y no es tu culpa.</span>
+            </>
+          }
+          className="mx-auto max-w-2xl items-center"
+        />
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+        <ul className="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-xl)] border border-border bg-border sm:grid-cols-3">
           {problems.map((p) => (
-            <div
+            <li
               key={p.title}
-              className="group rounded-2xl border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="flex flex-col gap-3 bg-card p-7 transition-colors hover:bg-surface-2"
             >
-              <div className="mb-4 inline-flex size-10 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                <p.icon className="size-5" />
-              </div>
-              <h3 className="mb-2 text-lg font-semibold">{p.title}</h3>
-              <p className="text-sm text-muted-foreground">{p.body}</p>
-            </div>
+              <span className="inline-grid size-9 place-items-center rounded-[var(--radius-md)] border border-border/70 bg-surface-2 text-foreground">
+                <p.icon className="size-4" aria-hidden />
+              </span>
+              <h3 className="text-[17px] font-semibold tracking-tight">
+                {p.title}
+              </h3>
+              <p className="text-[15px] leading-relaxed text-muted-foreground">
+                {p.body}
+              </p>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

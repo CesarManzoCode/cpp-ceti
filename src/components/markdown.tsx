@@ -92,22 +92,24 @@ export function Markdown({ children, className }: MarkdownProps) {
             );
           },
           pre: ({ children }) => (
-            <pre className="my-4 overflow-x-auto rounded-xl border bg-zinc-950 p-4 font-mono text-sm text-zinc-100">
+            <pre className="my-5 overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] p-4 font-mono text-[13px] leading-relaxed text-zinc-100">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-6 w-full overflow-x-auto">
+            <div className="my-6 w-full overflow-x-auto rounded-[var(--radius-md)] border border-border">
               <table className="w-full border-collapse text-sm">{children}</table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b bg-muted/40 px-3 py-2 text-left font-semibold">
+            <th className="border-b border-border bg-surface-2/60 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-border/50 px-3 py-2">{children}</td>
+            <td className="border-b border-border/60 px-3 py-2 text-sm">
+              {children}
+            </td>
           ),
         }}
       >

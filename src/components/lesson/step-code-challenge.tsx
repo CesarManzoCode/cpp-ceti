@@ -6,10 +6,11 @@ import {
   ArrowRight,
   CheckCircle2,
   Lightbulb,
-  Loader2,
   Play,
   Send,
+  Sparkles,
   XCircle,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +44,12 @@ interface StepCodeChallengeProps {
   isPending: boolean;
 }
 
+const difficultyLabel = {
+  easy: "Fácil",
+  medium: "Intermedio",
+  hard: "Difícil",
+} as const;
+
 export function StepCodeChallenge({
   exercise,
   onNext,
@@ -68,7 +75,7 @@ export function StepCodeChallenge({
       });
       setSubmission(res);
       if (res.passed) {
-        toast.success("¡Ejercicio resuelto! +" + exercise.xpReward + " XP");
+        toast.success(`¡Ejercicio resuelto! +${exercise.xpReward} XP`);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falló el envío");
@@ -82,43 +89,49 @@ export function StepCodeChallenge({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+    <article className="grid gap-6 lg:grid-cols-[1fr_1.15fr]">
       {/* Columna izquierda: enunciado */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Badge variant="default">Reto · {exercise.difficulty}</Badge>
-          <Badge variant="warning">+{exercise.xpReward} XP</Badge>
+      <section className="space-y-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="info" size="sm">
+            <Sparkles className="size-3" aria-hidden />
+            Reto · {difficultyLabel[exercise.difficulty]}
+          </Badge>
+          <Badge variant="warning" size="sm">
+            <Zap className="size-3" aria-hidden />
+            +{exercise.xpReward} XP
+          </Badge>
         </div>
 
         <Markdown>{exercise.prompt}</Markdown>
 
         {exercise.visibleTests.length > 0 ? (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Ejemplos
             </h4>
             <div className="space-y-2">
               {exercise.visibleTests.map((t, idx) => (
                 <div
                   key={t.id}
-                  className="rounded-xl border bg-card p-4 text-sm"
+                  className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-card text-sm"
                 >
-                  <p className="mb-2 text-xs font-semibold text-muted-foreground">
+                  <div className="border-b border-border/70 bg-surface-2/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Ejemplo {idx + 1}
-                    {t.description ? ` · ${t.description}` : ""}
-                  </p>
-                  {t.stdin ? (
-                    <>
-                      <p className="text-xs text-muted-foreground">Entrada:</p>
-                      <pre className="my-1 rounded bg-muted p-2 font-mono text-xs">
-                        {t.stdin}
-                      </pre>
-                    </>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">Salida esperada:</p>
-                  <pre className="my-1 rounded bg-muted p-2 font-mono text-xs">
-                    {t.expectedStdout}
-                  </pre>
+                    {t.description ? (
+                      <span className="ml-2 font-normal text-muted-foreground/80 normal-case tracking-normal">
+                        {t.description}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="grid gap-3 p-3 sm:grid-cols-2">
+                    {t.stdin ? (
+                      <IOBlock label="Entrada" value={t.stdin} />
+                    ) : (
+                      <IOBlock label="Entrada" value="(ninguna)" muted />
+                    )}
+                    <IOBlock label="Salida esperada" value={t.expectedStdout} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -126,15 +139,18 @@ export function StepCodeChallenge({
         ) : null}
 
         {exercise.hints.length > 0 ? (
-          <div className="space-y-2 rounded-xl border border-warning/40 bg-warning/10 p-4">
+          <div className="space-y-2 rounded-[var(--radius-md)] border border-warning/30 bg-warning-soft p-4">
             <div className="flex items-center justify-between">
               <p className="flex items-center gap-2 text-sm font-semibold">
-                <Lightbulb className="size-4 text-warning" />
-                Pistas {hintsShown}/{exercise.hints.length}
+                <Lightbulb className="size-4 text-warning" aria-hidden />
+                Pistas
+                <span className="font-mono text-xs font-medium text-muted-foreground">
+                  {hintsShown}/{exercise.hints.length}
+                </span>
               </p>
               {hintsShown < exercise.hints.length ? (
                 <Button
-                  size="sm"
+                  size="xs"
                   variant="ghost"
                   onClick={() => setHintsShown(hintsShown + 1)}
                 >
@@ -143,9 +159,12 @@ export function StepCodeChallenge({
               ) : null}
             </div>
             {hintsShown > 0 ? (
-              <ul className="space-y-2 text-sm text-foreground/80">
+              <ul className="space-y-2 text-sm text-foreground/90">
                 {exercise.hints.slice(0, hintsShown).map((hint, i) => (
-                  <li key={i} className="border-l-2 border-warning/60 pl-3">
+                  <li
+                    key={i}
+                    className="rounded border-l-2 border-warning/60 bg-card/40 px-3 py-1.5"
+                  >
                     {hint}
                   </li>
                 ))}
@@ -153,10 +172,10 @@ export function StepCodeChallenge({
             ) : null}
           </div>
         ) : null}
-      </div>
+      </section>
 
       {/* Columna derecha: editor + tests */}
-      <div className="space-y-3">
+      <section className="space-y-3">
         <CppEditor
           value={code}
           onChange={setCode}
@@ -164,74 +183,76 @@ export function StepCodeChallenge({
           minHeight={360}
         />
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() => playground.run(code)}
             disabled={playground.state === "running" || submitting}
+            loading={playground.state === "running"}
+            size="sm"
           >
-            {playground.state === "running" ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Play className="size-4 fill-current" />
-            )}
+            <Play className="fill-current" />
             Probar
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={submitting || playground.state === "running"}
+            loading={submitting}
+            size="sm"
           >
-            {submitting ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Send className="size-4" />
-            )}
+            <Send />
             Enviar solución
           </Button>
           {submission?.passed ? (
             <Button
               onClick={onNext}
-              disabled={isPending}
+              loading={isPending}
               variant="success"
+              size="sm"
               className="ml-auto"
             >
               Siguiente
-              <ArrowRight className="size-4" />
+              <ArrowRight />
             </Button>
           ) : null}
         </div>
 
         {/* Output del "Probar" */}
         {playground.state !== "idle" && !submission ? (
-          <div className="rounded-xl border bg-zinc-950 p-3 font-mono text-xs text-zinc-100">
-            {playground.state === "running" ? (
-              <p className="text-zinc-400">Ejecutando…</p>
-            ) : null}
-            {playground.error ? (
-              <p className="text-red-400">{playground.error}</p>
-            ) : null}
-            {playground.result ? (
-              <div className="space-y-2">
-                {playground.result.stdout ? (
-                  <pre className="whitespace-pre-wrap">
-                    {playground.result.stdout}
-                  </pre>
-                ) : null}
-                {playground.result.compileOutput ? (
-                  <pre className="whitespace-pre-wrap text-amber-300">
-                    {playground.result.compileOutput}
-                  </pre>
-                ) : null}
-                {playground.result.stderr ? (
-                  <pre className="whitespace-pre-wrap text-red-300">
-                    {playground.result.stderr}
-                  </pre>
-                ) : null}
-                <p className="text-xs text-zinc-500">
-                  {playground.result.message} · {playground.result.durationMs}ms
-                </p>
-              </div>
-            ) : null}
+          <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-[12px] text-zinc-100">
+            <div className="border-b border-[var(--terminal-border)] px-3 py-1.5 text-[10px] uppercase tracking-wider text-zinc-400">
+              Salida
+            </div>
+            <div className="space-y-2 p-3">
+              {playground.state === "running" ? (
+                <p className="text-zinc-400">Ejecutando…</p>
+              ) : null}
+              {playground.error ? (
+                <p className="text-red-400">{playground.error}</p>
+              ) : null}
+              {playground.result ? (
+                <>
+                  {playground.result.stdout ? (
+                    <pre className="whitespace-pre-wrap">
+                      {playground.result.stdout}
+                    </pre>
+                  ) : null}
+                  {playground.result.compileOutput ? (
+                    <pre className="whitespace-pre-wrap text-amber-300">
+                      {playground.result.compileOutput}
+                    </pre>
+                  ) : null}
+                  {playground.result.stderr ? (
+                    <pre className="whitespace-pre-wrap text-red-300">
+                      {playground.result.stderr}
+                    </pre>
+                  ) : null}
+                  <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                    {playground.result.message} · {playground.result.durationMs}ms
+                  </p>
+                </>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -242,7 +263,33 @@ export function StepCodeChallenge({
             onTryAgain={handleTryAgain}
           />
         ) : null}
-      </div>
+      </section>
+    </article>
+  );
+}
+
+function IOBlock({
+  label,
+  value,
+  muted,
+}: {
+  label: string;
+  value: string;
+  muted?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      <pre
+        className={cn(
+          "rounded-md bg-surface-2 px-2.5 py-1.5 font-mono text-[11.5px] leading-relaxed",
+          muted && "text-muted-foreground/70",
+        )}
+      >
+        {value}
+      </pre>
     </div>
   );
 }
@@ -259,27 +306,27 @@ function SubmissionResults({
   return (
     <div
       className={cn(
-        "rounded-xl border p-4",
+        "rounded-[var(--radius-lg)] border p-4",
         submission.passed
-          ? "border-success/40 bg-success/10"
-          : "border-amber-500/40 bg-amber-500/10",
+          ? "border-success/30 bg-success-soft"
+          : "border-warning/40 bg-warning-soft",
       )}
     >
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between gap-3">
         <p
           className={cn(
             "flex items-center gap-2 text-sm font-semibold",
-            submission.passed ? "text-success" : "text-amber-600 dark:text-amber-400",
+            submission.passed ? "text-success" : "text-warning-foreground",
           )}
         >
           {submission.passed ? (
-            <CheckCircle2 className="size-4" />
+            <CheckCircle2 className="size-4" aria-hidden />
           ) : (
-            <AlertTriangle className="size-4" />
+            <AlertTriangle className="size-4" aria-hidden />
           )}
           {submission.feedback}
         </p>
-        <span className="font-mono text-xs">
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
           {passedCount}/{submission.results.length} tests
         </span>
       </div>
@@ -289,47 +336,48 @@ function SubmissionResults({
           <li
             key={r.testId}
             className={cn(
-              "rounded-lg border bg-card p-3 text-xs",
-              !r.passed && "border-destructive/30",
+              "overflow-hidden rounded-[var(--radius-md)] border bg-card text-xs",
+              r.passed ? "border-border" : "border-destructive/40",
             )}
           >
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 font-medium">
+            <div className="flex items-center justify-between gap-2 px-3 py-2">
+              <span className="inline-flex items-center gap-2 font-medium">
                 {r.passed ? (
-                  <CheckCircle2 className="size-3.5 text-success" />
+                  <CheckCircle2
+                    className="size-3.5 text-success"
+                    aria-hidden
+                  />
                 ) : (
-                  <XCircle className="size-3.5 text-destructive" />
+                  <XCircle
+                    className="size-3.5 text-destructive"
+                    aria-hidden
+                  />
                 )}
                 Test {idx + 1}
                 {!r.visible ? (
-                  <Badge variant="secondary" className="text-[10px]">
+                  <Badge variant="secondary" size="sm">
                     Oculto
                   </Badge>
                 ) : null}
               </span>
-              <span className="font-mono text-muted-foreground">
+              <span className="font-mono text-[10.5px] text-muted-foreground">
                 {r.durationMs}ms
               </span>
             </div>
 
             {!r.passed && r.visible ? (
-              <div className="mt-2 space-y-1.5">
-                <div>
-                  <p className="text-[10px] uppercase text-muted-foreground">Esperado</p>
-                  <pre className="rounded bg-zinc-950 p-2 font-mono text-[11px] text-zinc-100">
-                    {r.expectedStdout || "(vacío)"}
-                  </pre>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase text-muted-foreground">Tu salida</p>
-                  <pre className="rounded bg-zinc-950 p-2 font-mono text-[11px] text-zinc-100">
-                    {r.actualStdout || "(vacío)"}
-                  </pre>
-                </div>
+              <div className="grid gap-2 border-t border-border/70 bg-surface-2/40 p-3 sm:grid-cols-2">
+                <IOBlock label="Esperado" value={r.expectedStdout || "(vacío)"} />
+                <IOBlock label="Tu salida" value={r.actualStdout || "(vacío)"} />
                 {r.stderr ? (
-                  <pre className="rounded bg-destructive/10 p-2 font-mono text-[11px] text-destructive">
-                    {r.stderr}
-                  </pre>
+                  <div className="sm:col-span-2">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-destructive/80">
+                      stderr
+                    </p>
+                    <pre className="rounded-md bg-destructive-soft px-2.5 py-1.5 font-mono text-[11.5px] text-destructive">
+                      {r.stderr}
+                    </pre>
+                  </div>
                 ) : null}
               </div>
             ) : null}

@@ -1,15 +1,37 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+const cardVariants = cva(
+  "rounded-[var(--radius-lg)] border bg-card text-card-foreground transition-[border-color,box-shadow,background-color] duration-200",
+  {
+    variants: {
+      variant: {
+        default: "border-border shadow-[var(--shadow-xs)]",
+        flat: "border-border shadow-none",
+        elevated: "border-border shadow-[var(--shadow-md)]",
+        interactive: [
+          "border-border shadow-[var(--shadow-xs)] cursor-pointer",
+          "hover:border-border-strong hover:shadow-[var(--shadow-md)]",
+          "focus-visible:border-primary/40 focus-visible:shadow-[var(--shadow-glow)]",
+        ].join(" "),
+        muted: "border-border/60 bg-surface-2 shadow-none",
+      },
+    },
+    defaultVariants: { variant: "default" },
+  },
+);
+
+interface CardProps
+  extends React.ComponentProps<"div">,
+    VariantProps<typeof cardVariants> {}
+
+function Card({ className, variant, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
-      className={cn(
-        "rounded-xl border bg-card text-card-foreground shadow-sm",
-        className,
-      )}
+      className={cn(cardVariants({ variant }), className)}
       {...props}
     />
   );
@@ -29,7 +51,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("text-lg font-semibold leading-tight tracking-tight", className)}
+      className={cn(
+        "text-base font-semibold leading-tight tracking-tight",
+        className,
+      )}
       {...props}
     />
   );
@@ -39,7 +64,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground leading-relaxed", className)}
       {...props}
     />
   );
@@ -47,7 +72,11 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card-content" className={cn("p-6 pt-0", className)} {...props} />
+    <div
+      data-slot="card-content"
+      className={cn("p-6 pt-0", className)}
+      {...props}
+    />
   );
 }
 
@@ -68,4 +97,6 @@ export {
   CardTitle,
   CardDescription,
   CardContent,
+  cardVariants,
 };
+export type { CardProps };

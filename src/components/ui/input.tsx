@@ -2,18 +2,64 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
+interface InputProps extends React.ComponentProps<"input"> {
+  invalid?: boolean;
+  /** Optional leading icon, rendered inside the input. */
+  leadingIcon?: React.ReactNode;
+  /** Optional trailing element (icon, button, etc). */
+  trailing?: React.ReactNode;
+}
+
+function Input({
+  className,
+  type,
+  invalid,
+  leadingIcon,
+  trailing,
+  ...props
+}: InputProps) {
+  const hasAdornment = Boolean(leadingIcon || trailing);
+
+  const baseInput = (
     <input
       type={type}
       data-slot="input"
+      aria-invalid={invalid || undefined}
       className={cn(
-        "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+        "peer flex h-11 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70",
+        "disabled:cursor-not-allowed disabled:opacity-60",
+        "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+        "outline-none",
+        hasAdornment ? "px-0" : "rounded-[var(--radius-md)] border border-input bg-surface px-3.5 transition-[border-color,box-shadow] focus-visible:border-primary/60 focus-visible:ring-4 focus-visible:ring-[var(--primary-ring)]",
+        invalid && !hasAdornment && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/25",
         className,
       )}
       {...props}
     />
   );
+
+  if (!hasAdornment) return baseInput;
+
+  return (
+    <div
+      data-slot="input-wrapper"
+      className={cn(
+        "flex h-11 w-full items-center gap-2 rounded-[var(--radius-md)] border border-input bg-surface px-3.5 transition-[border-color,box-shadow]",
+        "focus-within:border-primary/60 focus-within:ring-4 focus-within:ring-[var(--primary-ring)]",
+        invalid && "border-destructive focus-within:border-destructive focus-within:ring-destructive/25",
+        props.disabled && "cursor-not-allowed opacity-60",
+      )}
+    >
+      {leadingIcon ? (
+        <span className="shrink-0 text-muted-foreground [&>svg]:size-4">
+          {leadingIcon}
+        </span>
+      ) : null}
+      {baseInput}
+      {trailing ? <span className="shrink-0 text-muted-foreground">{trailing}</span> : null}
+    </div>
+  );
 }
 
 export { Input };
+export type { InputProps };

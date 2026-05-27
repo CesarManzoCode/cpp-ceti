@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { SectionHeading } from "@/components/ui/section-heading";
 
 const units = [
   {
@@ -53,45 +54,57 @@ const units = [
 
 export function Curriculum() {
   return (
-    <section id="temario" className="border-b py-20 lg:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-wide text-primary">
-            Temario
-          </p>
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-            Basado en el plan oficial del CETI
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            8 unidades que van del primer <code className="code-inline">cout</code> hasta POO.
-            Nuevas lecciones cada semana.
-          </p>
-        </div>
+    <section
+      id="temario"
+      className="border-b border-border/60 py-20 lg:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+        <SectionHeading
+          align="center"
+          eyebrow="Temario"
+          title="Basado en el plan oficial del CETI"
+          description={
+            <>
+              8 unidades que van del primer{" "}
+              <code className="code-inline">cout</code> hasta POO. Nuevas
+              lecciones cada semana.
+            </>
+          }
+          className="mx-auto items-center"
+        />
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {units.map((u) => (
-            <div
+            <li
               key={u.n}
-              className="group relative rounded-2xl border bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+              className="group relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)] data-[locked=true]:opacity-70"
+              data-locked={!u.available || undefined}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-mono text-xs font-semibold text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   U{u.n.toString().padStart(2, "0")}
                 </span>
                 {u.available ? (
-                  <Badge variant="success">Disponible</Badge>
+                  <Badge variant="success" size="sm">
+                    Disponible
+                  </Badge>
                 ) : (
-                  <Badge variant="secondary">Próximo</Badge>
+                  <Badge variant="secondary" size="sm">
+                    Próximo
+                  </Badge>
                 )}
               </div>
-              <h3 className="mb-3 text-base font-semibold leading-snug">
+              <h3 className="text-[15px] font-semibold leading-snug tracking-tight">
                 {u.title}
               </h3>
               <ul className="space-y-1 text-xs text-muted-foreground">
                 {u.topics.slice(0, 3).map((t) => (
-                  <li key={t} className="flex items-center gap-1.5">
-                    <span className="size-1 rounded-full bg-muted-foreground/40" />
-                    {t}
+                  <li key={t} className="flex items-center gap-2">
+                    <span
+                      className="size-1 shrink-0 rounded-full bg-muted-foreground/40"
+                      aria-hidden
+                    />
+                    <span className="truncate">{t}</span>
                   </li>
                 ))}
                 {u.topics.length > 3 ? (
@@ -100,9 +113,9 @@ export function Curriculum() {
                   </li>
                 ) : null}
               </ul>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

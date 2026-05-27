@@ -1,73 +1,85 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Play, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const proofPoints = [
+  "Sin instalar nada",
+  "100% en español",
+  "Gratis para CETI",
+];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b">
-      {/* Pattern background */}
-      <div className="absolute inset-0 grid-pattern opacity-40" />
-      <div className="absolute inset-x-0 top-0 -z-10 mx-auto h-[600px] max-w-7xl bg-gradient-to-b from-primary/15 via-transparent to-transparent blur-3xl" />
+    <section className="relative overflow-hidden border-b border-border/60">
+      {/* Soft dot-pattern + radial fade — replaces the heavy grid */}
+      <div
+        aria-hidden
+        className="dot-pattern absolute inset-0 -z-10 opacity-60 dark:opacity-40"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 -top-32 -z-10 mx-auto h-[520px] max-w-5xl bg-gradient-to-b from-primary/15 via-transparent to-transparent blur-3xl"
+      />
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:gap-16 lg:py-32">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-28">
         {/* Texto */}
-        <div className="flex flex-col justify-center space-y-6">
-          <Badge variant="default" className="w-fit">
-            <Sparkles className="size-3" />
+        <div className="flex flex-col gap-7">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+            <span className="size-1.5 rounded-full bg-success" aria-hidden />
             Hecho en Guadalajara para estudiantes del CETI
-          </Badge>
+          </div>
 
-          <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="text-balance text-4xl font-semibold leading-[1.04] tracking-[-0.03em] sm:text-5xl lg:text-[3.5rem]">
             Aprende{" "}
-            <span className="bg-gradient-to-br from-primary via-primary to-blue-700 bg-clip-text text-transparent">
-              C++
+            <span className="relative inline-block">
+              <span className="relative z-10 text-primary">C++</span>
+              <span
+                aria-hidden
+                className="absolute inset-x-0 bottom-1 -z-0 h-3 bg-primary/15"
+              />
             </span>{" "}
             programando,
             <br className="hidden sm:block" />
             no memorizando del pizarrón.
           </h1>
 
-          <p className="max-w-lg text-lg text-muted-foreground">
-            Lecciones cortas, ejercicios reales y un compilador C++ en tu navegador.
-            La plataforma que tus maestros nunca te dieron.
+          <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+            Lecciones cortas, ejercicios reales y un compilador C++ en tu
+            navegador. La plataforma que tus maestros nunca te dieron.
           </p>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="xl" className="text-base">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button asChild size="xl">
               <Link href="/registro">
                 Empezar gratis
-                <ArrowRight className="size-4" />
+                <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="xl" variant="outline" className="text-base">
+            <Button asChild size="xl" variant="ghost">
               <Link href="#como">
-                <Play className="size-4" />
+                <PlayCircle />
                 Ver cómo funciona
               </Link>
             </Button>
           </div>
 
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-4 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-success" />
-              Sin instalar nada
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-success" />
-              100% en español
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-success" />
-              Gratis para CETI
-            </li>
+          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground">
+            {proofPoints.map((p) => (
+              <li key={p} className="flex items-center gap-2">
+                <CheckCircle2 className="size-4 text-success" />
+                {p}
+              </li>
+            ))}
           </ul>
         </div>
 
         {/* Editor mockup */}
         <div className="relative">
-          <div className="absolute -inset-4 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-700/20 blur-2xl" />
+          <div
+            aria-hidden
+            className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/25 via-primary/5 to-transparent blur-2xl"
+          />
           <CodeMockup />
         </div>
       </div>
@@ -77,48 +89,55 @@ export function Hero() {
 
 function CodeMockup() {
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-2xl">
+    <div className="overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card shadow-[var(--shadow-xl)]">
       {/* Title bar */}
-      <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full bg-red-400/80" />
-          <span className="h-3 w-3 rounded-full bg-yellow-400/80" />
-          <span className="h-3 w-3 rounded-full bg-green-400/80" />
+      <div className="flex items-center justify-between border-b border-border/80 bg-surface-2/60 px-4 py-2.5">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="size-2 rounded-full bg-success" aria-hidden />
+          main.cpp
         </div>
-        <span className="font-mono text-xs text-muted-foreground">main.cpp</span>
-        <span className="w-12" />
+        <span className="font-mono text-[11px] text-muted-foreground">
+          C++ · g++17
+        </span>
       </div>
 
       {/* Code area */}
-      <div className="grid grid-cols-[auto_1fr]">
-        <pre className="select-none border-r bg-muted/20 px-3 py-4 text-right font-mono text-xs leading-[1.65] text-muted-foreground">
+      <div className="grid grid-cols-[auto_1fr] bg-card">
+        <pre
+          aria-hidden
+          className="select-none border-r border-border/60 bg-surface-2/40 px-3.5 py-4 text-right font-mono text-[11px] leading-[1.7] text-muted-foreground/70"
+        >
 {`1
 2
 3
 4
 5
 6
-7
-8`}
+7`}
         </pre>
-        <pre className="overflow-x-auto px-4 py-4 font-mono text-sm leading-[1.65]">
-<span className="text-fuchsia-500">#include</span>{" "}<span className="text-emerald-500">{`<iostream>`}</span>{"\n"}
-<span className="text-fuchsia-500">using namespace</span>{" "}<span className="text-foreground">std;</span>{"\n"}
+        <pre className="overflow-x-auto px-4 py-4 font-mono text-[13px] leading-[1.7] text-foreground">
+<span className="text-fuchsia-500 dark:text-fuchsia-400">#include</span>{" "}<span className="text-emerald-600 dark:text-emerald-400">{`<iostream>`}</span>{"\n"}
+<span className="text-fuchsia-500 dark:text-fuchsia-400">using namespace</span>{" "}<span>std;</span>{"\n"}
 {"\n"}
-<span className="text-cyan-500">int</span>{" "}<span className="text-blue-500">main</span>() {"{"}{"\n"}
-{"  "}<span className="text-foreground">cout</span> {"<<"} <span className="text-emerald-500">{`"¡Hola, CETI!"`}</span> {"<<"} <span className="text-foreground">endl;</span>{"\n"}
-{"  "}<span className="text-fuchsia-500">return</span> <span className="text-amber-500">0</span>;{"\n"}
-{"}"}{"\n"}
+<span className="text-sky-600 dark:text-sky-400">int</span>{" "}<span className="text-blue-600 dark:text-blue-400">main</span>() {"{"}{"\n"}
+{"  "}<span>cout</span> {"<<"} <span className="text-emerald-600 dark:text-emerald-400">{`"¡Hola, CETI!"`}</span> {"<<"} <span>endl;</span>{"\n"}
+{"  "}<span className="text-fuchsia-500 dark:text-fuchsia-400">return</span> <span className="text-amber-600 dark:text-amber-400">0</span>;{"\n"}
+{"}"}
         </pre>
       </div>
 
       {/* Output panel */}
-      <div className="border-t bg-zinc-950/95 px-4 py-3 font-mono text-xs">
-        <div className="mb-1 flex items-center gap-2 text-emerald-400">
-          <span className="size-1.5 rounded-full bg-emerald-400" />
-          Compilado · 312ms
+      <div className="border-t border-border/80 bg-[var(--terminal-bg)] px-4 py-3">
+        <div className="mb-1 flex items-center justify-between text-[11px]">
+          <span className="flex items-center gap-2 text-emerald-400">
+            <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden />
+            Compilado · 312 ms
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+            stdout
+          </span>
         </div>
-        <div className="text-zinc-300">¡Hola, CETI!</div>
+        <pre className="font-mono text-[13px] text-zinc-100">¡Hola, CETI!</pre>
       </div>
     </div>
   );

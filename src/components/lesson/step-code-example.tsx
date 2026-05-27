@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/markdown";
@@ -21,7 +20,7 @@ export function StepCodeExample({
   isPending,
 }: StepCodeExampleProps) {
   return (
-    <div className="space-y-6">
+    <article className="space-y-7">
       <Markdown>{content.explanation}</Markdown>
 
       {content.runnable ? (
@@ -31,20 +30,23 @@ export function StepCodeExample({
       )}
 
       {content.expectedOutput && !content.runnable ? (
-        <div className="rounded-xl border bg-zinc-950 p-4 font-mono text-sm text-zinc-100">
-          <p className="mb-2 text-xs uppercase tracking-wider text-zinc-400">
+        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-[var(--terminal-bg)]">
+          <div className="flex items-center gap-2 border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] uppercase tracking-wider text-zinc-400">
+            <Terminal className="size-3.5" aria-hidden />
             Salida esperada
-          </p>
-          <pre className="whitespace-pre-wrap">{content.expectedOutput}</pre>
+          </div>
+          <pre className="whitespace-pre-wrap p-4 font-mono text-[13px] text-zinc-100">
+            {content.expectedOutput}
+          </pre>
         </div>
       ) : null}
 
-      <div className="flex justify-end pt-2">
-        <Button onClick={onNext} disabled={isPending} size="lg">
+      <div className="flex justify-end border-t border-border/70 pt-6">
+        <Button onClick={onNext} loading={isPending} size="lg">
           Continuar
-          <ArrowRight className="size-4" />
+          <ArrowRight />
         </Button>
       </div>
-    </div>
+    </article>
   );
 }

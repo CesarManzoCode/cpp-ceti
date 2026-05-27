@@ -23,8 +23,8 @@ export function SignOutButton() {
   }
 
   return (
-    <Button variant="outline" onClick={handleSignOut}>
-      <LogOut className="size-4" />
+    <Button variant="outline" size="sm" onClick={handleSignOut}>
+      <LogOut />
       Cerrar sesión
     </Button>
   );

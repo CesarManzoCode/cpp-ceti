@@ -5,25 +5,32 @@ import { Button } from "@/components/ui/button";
 
 export function FinalCta() {
   return (
-    <section className="border-b py-20 lg:py-28">
-      <div className="mx-auto max-w-4xl px-6">
-        <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-br from-primary/15 via-card to-card p-10 text-center shadow-xl sm:p-16">
-          <div className="absolute inset-0 grid-pattern opacity-30" />
+    <section className="border-b border-border/60 py-20 lg:py-28">
+      <div className="mx-auto max-w-4xl px-5 sm:px-6">
+        <div className="relative overflow-hidden rounded-[var(--radius-2xl)] border border-border bg-card p-10 text-center sm:p-16">
+          <div
+            aria-hidden
+            className="dot-pattern absolute inset-0 opacity-50 dark:opacity-30"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 -top-24 mx-auto h-64 w-full max-w-2xl bg-gradient-to-b from-primary/25 via-transparent to-transparent blur-3xl"
+          />
+
           <div className="relative">
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="mx-auto max-w-2xl text-balance text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
               Deja de copiar código del pizarrón.
               <br />
-              <span className="bg-gradient-to-br from-primary to-blue-700 bg-clip-text text-transparent">
-                Empieza a programarlo.
-              </span>
+              <span className="text-primary">Empieza a programarlo.</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
-              Gratis. Sin tarjeta. Para todos los estudiantes del CETI Guadalajara.
+            <p className="mx-auto mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+              Gratis. Sin tarjeta. Para todos los estudiantes del CETI
+              Guadalajara.
             </p>
-            <Button asChild size="xl" className="mt-8 text-base">
+            <Button asChild size="xl" className="mt-9">
               <Link href="/registro">
                 Crear mi cuenta
-                <ArrowRight className="size-4" />
+                <ArrowRight />
               </Link>
             </Button>
           </div>

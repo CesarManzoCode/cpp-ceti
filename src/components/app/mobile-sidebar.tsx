@@ -17,30 +17,30 @@ import { SidebarNav, type SidebarUnit } from "@/components/app/sidebar-nav";
 export function MobileSidebar({ units }: { units: SidebarUnit[] }) {
   const [open, setOpen] = React.useState(false);
 
-  // Cerrar al cambiar de ruta (cuando se hace click en un link)
-  React.useEffect(() => {
-    function close() {
-      setOpen(false);
-    }
-    window.addEventListener("popstate", close);
-    return () => window.removeEventListener("popstate", close);
+  const handleNavigate = React.useCallback(() => {
+    setOpen(false);
   }, []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menú">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          aria-label="Abrir menú"
+        >
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="border-b p-4">
-          <SheetTitle className="flex items-center justify-start">
+      <SheetContent side="left" className="flex w-72 flex-col p-0">
+        <SheetHeader className="border-b border-border/70 px-5 py-4">
+          <SheetTitle>
             <Logo />
           </SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto p-4">
-          <SidebarNav units={units} />
+        <div className="flex-1 overflow-y-auto px-3 py-4">
+          <SidebarNav units={units} onNavigate={handleNavigate} />
         </div>
       </SheetContent>
     </Sheet>

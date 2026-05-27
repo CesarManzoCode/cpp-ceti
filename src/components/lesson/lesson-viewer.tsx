@@ -89,7 +89,6 @@ export function LessonViewer({
           setCompletedDialog({ open: true, xp: res.xpEarned });
         } else if (currentIndex < total - 1) {
           setCurrentIndex(currentIndex + 1);
-          // Scroll arriba al cambiar de paso
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       } catch (err) {
@@ -110,30 +109,45 @@ export function LessonViewer({
 
   return (
     <>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Button asChild size="sm" variant="ghost" className="-ml-2">
-              <Link href={`/app/u/${unit.slug}`}>
-                <ChevronLeft className="size-4" />
-                {unit.title}
-              </Link>
-            </Button>
-            <span className="ml-auto font-mono text-xs">
-              Paso {currentIndex + 1} de {total}
+      {/* Header sticky — barra fina y limpia */}
+      <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
+          <Button asChild size="sm" variant="ghost" className="-ml-2 hidden sm:inline-flex">
+            <Link href={`/app/u/${unit.slug}`}>
+              <ChevronLeft />
+              <span className="max-w-[16ch] truncate">{unit.title}</span>
+            </Link>
+          </Button>
+
+          <div className="flex flex-1 items-center gap-3">
+            <Progress
+              value={progressPercent}
+              size="xs"
+              className="flex-1"
+            />
+            <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
+              {currentIndex + 1}/{total}
             </span>
-            <Button asChild size="icon" variant="ghost" aria-label="Salir">
-              <Link href="/app">
-                <X className="size-4" />
-              </Link>
-            </Button>
           </div>
-          <Progress value={progressPercent} className="h-1.5" />
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+
+          <Button asChild size="icon-sm" variant="ghost" aria-label="Salir de la lección">
+            <Link href="/app">
+              <X className="size-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8">
+        {/* Title */}
+        <header className="space-y-1.5">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {unit.title} · Paso {currentIndex + 1}
+          </p>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
             {lesson.title}
           </h1>
-        </div>
+        </header>
 
         {/* Step content */}
         <div className="min-h-[400px]">

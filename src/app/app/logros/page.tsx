@@ -1,9 +1,18 @@
 import Link from "next/link";
-import { ChevronLeft, Flame, Lock, Sparkles, Trophy, Zap } from "lucide-react";
+import {
+  Award,
+  ChevronLeft,
+  Flame,
+  Lock,
+  Sparkles,
+  Trophy,
+  Zap,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { StatTile } from "@/components/ui/stat-tile";
 import { db } from "@/lib/db";
 import { getUserStats } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
@@ -103,8 +112,6 @@ export default async function LogrosPage() {
     db.userLessonProgress.count({
       where: { userId: session.user.id, status: "completed" },
     }),
-    // Contamos ejercicios DISTINTOS aprobados (no intentos), para que
-    // múltiples envíos del mismo ejercicio no inflen el contador.
     db.userExerciseAttempt.findMany({
       where: { userId: session.user.id, passed: true },
       select: { exerciseId: true },
@@ -123,56 +130,81 @@ export default async function LogrosPage() {
 
   const unlocked = BADGES.filter((b) => b.unlockedWhen(achievementStats));
   const locked = BADGES.filter((b) => !b.unlockedWhen(achievementStats));
+  const percent = Math.round((unlocked.length / BADGES.length) * 100);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 p-6 lg:p-8">
+    <div className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div>
-        <Button asChild size="sm" variant="ghost" className="-ml-2">
+        <Button asChild size="sm" variant="ghost" className="-ml-2.5">
           <Link href="/app">
-            <ChevronLeft className="size-4" />
-            Volver al inicio
+            <ChevronLeft />
+            Inicio
           </Link>
         </Button>
       </div>
 
-      <header className="space-y-2">
-        <p className="text-sm font-medium uppercase tracking-wider text-primary">
+      <header className="space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
           Logros
         </p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
           Tu colección
         </h1>
-        <p className="text-muted-foreground">
+        <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {unlocked.length === 0
-            ? "Aún no has desbloqueado logros. ¡Empieza una lección!"
-            : `Tienes ${unlocked.length} ${pluralize(unlocked.length, "logro", "logros")} de ${BADGES.length}.`}
+            ? "Aún no has desbloqueado logros. Empieza una lección para conseguir tu primer trofeo."
+            : `Llevas ${unlocked.length} de ${BADGES.length} ${pluralize(
+                BADGES.length,
+                "logro",
+                "logros",
+              )}.`}
         </p>
+        <div className="flex items-center gap-3 pt-2">
+          <Progress
+            value={percent}
+            tone="warning"
+            className="max-w-xs"
+          />
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">
+            {percent}%
+          </span>
+        </div>
       </header>
 
-      {/* Resumen */}
-      <section className="grid gap-3 sm:grid-cols-3">
-        <SummaryCard
-          icon={<Zap className="size-4 text-primary" />}
+      <section
+        className="grid gap-3 sm:grid-cols-3"
+        aria-label="Resumen"
+      >
+        <StatTile
+          icon={<Zap />}
           label="XP totales"
           value={formatNumber(stats.totalXp)}
+          tone="primary"
+          size="sm"
         />
-        <SummaryCard
-          icon={<Flame className="size-4 text-warning" />}
+        <StatTile
+          icon={<Flame />}
           label="Racha más larga"
           value={`${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}
+          tone="warning"
+          size="sm"
         />
-        <SummaryCard
-          icon={<Sparkles className="size-4 text-success" />}
+        <StatTile
+          icon={<Sparkles />}
           label="Retos resueltos"
           value={String(exercisesPassed)}
+          tone="success"
+          size="sm"
         />
       </section>
 
-      {/* Desbloqueados */}
       {unlocked.length > 0 ? (
-        <section className="space-y-3">
-          <h2 className="text-xl font-semibold tracking-tight">
+        <section className="space-y-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
             Desbloqueados
+            <span className="font-mono text-xs font-medium text-muted-foreground">
+              · {unlocked.length}
+            </span>
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {unlocked.map((b) => (
@@ -182,11 +214,13 @@ export default async function LogrosPage() {
         </section>
       ) : null}
 
-      {/* Bloqueados */}
       {locked.length > 0 ? (
-        <section className="space-y-3">
-          <h2 className="text-xl font-semibold tracking-tight">
+        <section className="space-y-4">
+          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
             Por desbloquear
+            <span className="font-mono text-xs font-medium text-muted-foreground">
+              · {locked.length}
+            </span>
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {locked.map((b) => (
@@ -199,30 +233,6 @@ export default async function LogrosPage() {
   );
 }
 
-function SummaryCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="grid size-9 place-items-center rounded-lg bg-muted">
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="truncate text-base font-semibold tabular-nums">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function BadgeCard({
   badge,
   unlocked,
@@ -231,31 +241,46 @@ function BadgeCard({
   unlocked: boolean;
 }) {
   return (
-    <Card
+    <article
       className={cn(
-        "transition-all",
+        "group relative overflow-hidden rounded-[var(--radius-lg)] border bg-card p-5 transition-[border-color,box-shadow]",
         unlocked
-          ? "border-warning/40 bg-gradient-to-br from-warning/15 via-card to-card"
-          : "opacity-70",
+          ? "border-warning/35 hover:border-warning/55 hover:shadow-[var(--shadow-sm)]"
+          : "border-dashed border-border opacity-75 hover:opacity-100",
       )}
     >
-      <CardContent className="flex items-start gap-4 p-5">
+      {unlocked ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-warning/20 blur-3xl"
+        />
+      ) : null}
+
+      <div className="relative flex items-start gap-4">
         <div
           className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-xl",
+            "grid size-12 shrink-0 place-items-center rounded-[var(--radius-md)] ring-1",
             unlocked
-              ? "bg-gradient-to-br from-warning to-amber-600 text-white shadow-md"
-              : "bg-muted text-muted-foreground",
+              ? "bg-warning-soft text-warning-foreground ring-warning/30"
+              : "bg-surface-2 text-muted-foreground ring-border",
           )}
         >
-          {unlocked ? <Trophy className="size-5" /> : <Lock className="size-4" />}
+          {unlocked ? (
+            <Trophy className="size-5" aria-hidden />
+          ) : (
+            <Lock className="size-4" aria-hidden />
+          )}
         </div>
+
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold">{badge.title}</h3>
+            <h3 className="text-[15px] font-semibold tracking-tight">
+              {badge.title}
+            </h3>
             {unlocked ? (
-              <Badge variant="warning" className="text-[10px]">
-                Desbloqueado
+              <Badge variant="warning" size="sm">
+                <Award className="size-3" aria-hidden />
+                Logrado
               </Badge>
             ) : null}
           </div>
@@ -263,7 +288,7 @@ function BadgeCard({
             {unlocked ? badge.description : badge.hint}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   );
 }

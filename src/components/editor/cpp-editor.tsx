@@ -12,8 +12,8 @@ const MonacoEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-card">
-        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      <div className="flex h-full items-center justify-center bg-[var(--terminal-bg)]">
+        <Loader2 className="size-5 animate-spin text-zinc-500" />
       </div>
     ),
   },
@@ -37,12 +37,13 @@ export function CppEditor({
   minHeight = 280,
 }: CppEditorProps) {
   const { resolvedTheme } = useTheme();
-  const monacoTheme = resolvedTheme === "dark" ? "cpp-ceti-dark" : "cpp-ceti-light";
+  const monacoTheme =
+    resolvedTheme === "dark" ? "cpp-ceti-dark" : "cpp-ceti-light";
 
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border bg-card",
+        "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] shadow-[var(--shadow-xs)]",
         className,
       )}
       style={{ minHeight }}
@@ -66,14 +67,16 @@ export function CppEditor({
               { token: "type", foreground: "60a5fa" },
             ],
             colors: {
-              "editor.background": "#11161f",
+              "editor.background": "#0f141d",
               "editor.foreground": "#e5e7eb",
-              "editorLineNumber.foreground": "#4b5563",
+              "editorLineNumber.foreground": "#3f4754",
               "editorLineNumber.activeForeground": "#9ca3af",
               "editor.selectionBackground": "#3b82f64d",
-              "editor.lineHighlightBackground": "#1f2937",
-              "editorCursor.foreground": "#60a5fa",
+              "editor.lineHighlightBackground": "#1a2230",
+              "editor.lineHighlightBorder": "#1a223000",
+              "editorCursor.foreground": "#7aa2ff",
               "editorIndentGuide.background": "#1f2937",
+              "editorIndentGuide.activeBackground": "#374151",
             },
           });
           monaco.editor.defineTheme("cpp-ceti-light", {
@@ -81,14 +84,18 @@ export function CppEditor({
             inherit: true,
             rules: [
               { token: "comment", foreground: "6b7280", fontStyle: "italic" },
-              { token: "keyword", foreground: "9333ea" },
-              { token: "string", foreground: "16a34a" },
-              { token: "number", foreground: "d97706" },
-              { token: "type", foreground: "2563eb" },
+              { token: "keyword", foreground: "7c3aed" },
+              { token: "string", foreground: "15803d" },
+              { token: "number", foreground: "b45309" },
+              { token: "type", foreground: "1d4ed8" },
             ],
             colors: {
               "editor.background": "#ffffff",
               "editor.foreground": "#0f172a",
+              "editorLineNumber.foreground": "#cbd5e1",
+              "editorLineNumber.activeForeground": "#475569",
+              "editor.lineHighlightBackground": "#f8fafc",
+              "editor.lineHighlightBorder": "#f8fafc00",
             },
           });
         }}
@@ -113,16 +120,22 @@ export function CppEditor({
           insertSpaces: true,
           wordWrap: "on",
           automaticLayout: true,
-          padding: { top: 12, bottom: 12 },
+          padding: { top: 14, bottom: 14 },
           lineNumbersMinChars: 3,
           renderLineHighlight: "line",
           smoothScrolling: true,
           cursorBlinking: "smooth",
+          cursorSmoothCaretAnimation: "on",
           formatOnPaste: true,
           contextmenu: false,
+          guides: {
+            indentation: true,
+            highlightActiveIndentation: true,
+          },
           scrollbar: {
             verticalScrollbarSize: 8,
             horizontalScrollbarSize: 8,
+            useShadows: false,
           },
         }}
       />

@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { LoginForm } from "./login-form";
 
 export const metadata = {
@@ -9,10 +11,12 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Bienvenido de nuevo</h1>
-        <p className="text-sm text-muted-foreground">
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
+          Bienvenido de nuevo
+        </h1>
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Continúa aprendiendo C++ donde lo dejaste.
         </p>
       </div>
@@ -37,9 +41,9 @@ export default function LoginPage() {
 function LoginFormSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-20 animate-pulse rounded-lg bg-muted" />
-      <div className="h-20 animate-pulse rounded-lg bg-muted" />
-      <div className="h-12 animate-pulse rounded-lg bg-muted" />
+      <Skeleton className="h-[68px] w-full" />
+      <Skeleton className="h-[68px] w-full" />
+      <Skeleton className="h-11 w-full" />
     </div>
   );
 }

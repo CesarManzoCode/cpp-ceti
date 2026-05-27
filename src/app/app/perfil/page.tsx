@@ -1,11 +1,19 @@
 import Link from "next/link";
-import { ChevronLeft, Flame, Mail, User as UserIcon, Zap } from "lucide-react";
+import {
+  ChevronLeft,
+  Flame,
+  Mail,
+  Send,
+  Sparkles,
+  Trophy,
+  User as UserIcon,
+  Zap,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { StatTile } from "@/components/ui/stat-tile";
 import { db } from "@/lib/db";
 import { getUserStats } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
@@ -45,110 +53,134 @@ export default async function PerfilPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 p-6 lg:p-8">
+    <div className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div>
-        <Button asChild size="sm" variant="ghost" className="-ml-2">
+        <Button asChild size="sm" variant="ghost" className="-ml-2.5">
           <Link href="/app">
-            <ChevronLeft className="size-4" />
-            Volver al inicio
+            <ChevronLeft />
+            Inicio
           </Link>
         </Button>
       </div>
 
-      <header className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:gap-6 sm:text-left">
-        <Avatar className="size-20">
-          {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-          <AvatarFallback className="bg-primary/15 text-2xl text-primary">
-            {initials || <UserIcon className="size-8" />}
-          </AvatarFallback>
-        </Avatar>
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            {user.name}
-          </h1>
-          <p className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground sm:justify-start">
-            <Mail className="size-3.5" />
-            {user.email}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Miembro desde {memberSince}
-          </p>
+      {/* Hero del perfil */}
+      <header className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
+        />
+        <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+          <Avatar className="size-24 ring-4 ring-background">
+            {user.image ? (
+              <AvatarImage src={user.image} alt={user.name} />
+            ) : null}
+            <AvatarFallback className="bg-primary-soft text-3xl font-semibold text-primary-soft-foreground">
+              {initials || <UserIcon className="size-9" />}
+            </AvatarFallback>
+          </Avatar>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              {user.name}
+            </h1>
+            <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground sm:items-start">
+              <p className="inline-flex items-center gap-1.5">
+                <Mail className="size-3.5" aria-hidden />
+                {user.email}
+              </p>
+              <p className="inline-flex items-center gap-1.5 text-xs">
+                <Sparkles className="size-3" aria-hidden />
+                Miembro desde {memberSince}
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
-      <Separator />
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">Tu actividad</h2>
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Tu actividad
+        </h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <StatBlock
-            icon={<Zap className="size-4 text-primary" />}
+          <StatTile
+            icon={<Zap />}
             label="XP totales"
             value={formatNumber(stats.totalXp)}
+            tone="primary"
+            size="sm"
           />
-          <StatBlock
-            icon={<Flame className="size-4 text-warning" />}
+          <StatTile
+            icon={<Flame />}
             label="Racha actual"
             value={`${stats.currentStreak} ${pluralize(stats.currentStreak, "día", "días")}`}
-            sub={`Más larga: ${stats.longestStreak}`}
+            sub={`Mejor: ${stats.longestStreak} ${pluralize(stats.longestStreak, "día", "días")}`}
+            tone="warning"
+            size="sm"
           />
-          <StatBlock
-            icon={<UserIcon className="size-4 text-success" />}
-            label="Lecciones / intentos"
+          <StatTile
+            icon={<Trophy />}
+            label="Lecciones / retos"
             value={`${lessonsCompleted}`}
             sub={`${attempts} ${pluralize(attempts, "intento", "intentos")} en retos`}
+            tone="success"
+            size="sm"
           />
         </div>
       </section>
 
-      <Separator />
+      <section className="space-y-4">
+        <div className="flex items-end justify-between gap-3">
+          <h2 className="text-lg font-semibold tracking-tight">Cuenta</h2>
+          <Badge variant="secondary" size="sm">
+            Beta
+          </Badge>
+        </div>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">Cuenta</h2>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Cerrar sesión</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              Tu progreso queda guardado y puedes regresar cuando quieras.
-            </p>
+        <ul className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+          <li className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <p className="text-sm font-medium">Cerrar sesión</p>
+              <p className="text-xs text-muted-foreground">
+                Tu progreso queda guardado. Puedes volver cuando quieras.
+              </p>
+            </div>
             <SignOutButton />
-          </CardContent>
-        </Card>
+          </li>
+          <li className="flex items-center justify-between gap-4 border-t border-border/70 p-5 opacity-70">
+            <div>
+              <p className="text-sm font-medium">Cambiar contraseña</p>
+              <p className="text-xs text-muted-foreground">
+                Disponible próximamente.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              Próximo
+            </Button>
+          </li>
+          <li className="flex items-center justify-between gap-4 border-t border-border/70 p-5 opacity-70">
+            <div>
+              <p className="text-sm font-medium">Eliminar cuenta</p>
+              <p className="text-xs text-muted-foreground">
+                Disponible próximamente.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" disabled>
+              Próximo
+            </Button>
+          </li>
+        </ul>
       </section>
 
-      <p className="pt-4 text-center text-xs text-muted-foreground">
-        <Badge variant="secondary" className="mr-2">
-          Beta
-        </Badge>
-        Más opciones (cambiar contraseña, eliminar cuenta, idioma) llegarán pronto.
+      <p className="text-center text-xs text-muted-foreground">
+        ¿Encontraste un bug?{" "}
+        <a
+          href="https://github.com"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4 hover:text-primary"
+        >
+          <Send className="size-3" aria-hidden /> Reporta en GitHub
+        </a>
       </p>
     </div>
-  );
-}
-
-function StatBlock({
-  icon,
-  label,
-  value,
-  sub,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {icon}
-          {label}
-        </div>
-        <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-        {sub ? <p className="text-xs text-muted-foreground">{sub}</p> : null}
-      </CardContent>
-    </Card>
   );
 }

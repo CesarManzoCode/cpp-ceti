@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, PartyPopper, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,36 +31,56 @@ export function LessonCompleted({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-center sm:max-w-md">
-        <div className="mx-auto grid size-20 place-items-center rounded-full bg-gradient-to-br from-warning to-amber-500 shadow-lg">
-          <Trophy className="size-10 text-white" />
-        </div>
-        <DialogTitle className="text-2xl">¡Lección completada!</DialogTitle>
-        <DialogDescription className="text-base">
-          <span className="inline-flex items-center gap-1.5 font-semibold text-warning">
-            <Sparkles className="size-4" />
-            +{xpEarned} XP
-          </span>{" "}
-          añadidos a tu progreso.
-        </DialogDescription>
+      <DialogContent className="overflow-hidden p-0 sm:max-w-md">
+        {/* Cabecera con halo de color */}
+        <div className="relative px-8 pb-2 pt-9 text-center">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-10 mx-auto h-40 w-40 rounded-full bg-warning/30 blur-3xl"
+          />
+          <div className="relative mx-auto flex size-16 items-center justify-center rounded-full border border-warning/30 bg-warning-soft text-warning-foreground">
+            <PartyPopper className="size-7 text-warning" aria-hidden />
+          </div>
 
-        <div className="flex flex-col gap-2 pt-2">
+          <DialogTitle className="mt-5 text-balance text-2xl font-semibold tracking-tight">
+            ¡Lección completada!
+          </DialogTitle>
+          <DialogDescription className="mt-2 text-[15px]">
+            Sumaste{" "}
+            <span className="inline-flex items-center gap-1 font-semibold text-warning-foreground">
+              <Sparkles className="size-3.5" aria-hidden />
+              +{xpEarned} XP
+            </span>{" "}
+            a tu progreso.
+          </DialogDescription>
+        </div>
+
+        {nextLessonLink ? (
+          <div className="mx-6 mb-2 mt-4 rounded-[var(--radius-md)] border border-border bg-surface-2/60 p-3 text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Siguiente
+            </p>
+            <p className="mt-0.5 truncate text-sm font-medium text-foreground">
+              {nextLessonLink.title}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-2 px-6 pb-6 pt-2">
           {nextLessonLink ? (
             <Button
               size="lg"
-              onClick={() => {
-                router.push(nextLessonLink.href);
-              }}
+              onClick={() => router.push(nextLessonLink.href)}
             >
               Siguiente lección
-              <ArrowRight className="size-4" />
+              <ArrowRight />
             </Button>
           ) : (
             <Button asChild size="lg">
               <Link href={unitHref}>Ver mi progreso</Link>
             </Button>
           )}
-          <Button asChild variant="ghost">
+          <Button asChild variant="ghost" size="lg">
             <Link href="/app">Ir al inicio</Link>
           </Button>
         </div>
