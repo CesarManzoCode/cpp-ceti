@@ -18,7 +18,20 @@ import type {
 const DEFAULT_BASE_URL = "https://wandbox.org";
 const DEFAULT_COMPILER = "gcc-13.2.0";
 // Wandbox espera las opciones SEPARADAS POR \n (cada flag en su propia línea).
-const DEFAULT_OPTIONS = "-std=c++17\n-O0\n-Wall";
+const DEFAULT_OPTIONS = ["-std=c++17", "-O0", "-Wall"].join("\n");
+
+/**
+ * Acepta coma, espacio o \n como separador entre flags y normaliza a \n.
+ * Esto permite poner las opciones en una sola línea en envs de Vercel.
+ */
+function normalizeOptions(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  return raw
+    .split(/[\n,]+/)
+    .flatMap((part) => part.trim().split(/\s+/))
+    .filter((flag) => flag.length > 0)
+    .join("\n");
+}
 
 interface WandboxResponse {
   status: string;                // exit code como string ("0", "1", ...)
@@ -45,7 +58,8 @@ export class WandboxExecutor implements CodeExecutor {
     const startedAt = Date.now();
     const payload = {
       compiler: this.options.compiler ?? DEFAULT_COMPILER,
-      "compiler-option-raw": this.options.compilerOptions ?? DEFAULT_OPTIONS,
+      "compiler-option-raw":
+        normalizeOptions(this.options.compilerOptions) ?? DEFAULT_OPTIONS,
       code: req.sourceCode,
       stdin: req.stdin ?? "",
       save: false,
