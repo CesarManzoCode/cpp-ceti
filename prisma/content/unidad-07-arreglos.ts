@@ -3,12 +3,13 @@ import type { UnitDefinition } from "./types";
 /**
  * Unidad 07 — Arreglos
  *
- * En el CETI los arreglos llegan justo después de cin: por fin tenemos
- * dónde guardar muchos datos del mismo tipo (calificaciones, alumnos,
- * mediciones). Cada lección es práctica primero, teoría después.
- * Patrón estable:
- *   code_example → quiz/fill_blank → code_challenge.
- * Ejemplos del CETI: notas, edades de grupo, asistencias, lista de IDs.
+ * Etapa AVANZADA del curso. Curva de autonomía notoria:
+ * starter code mínimo, 2-3 code_challenges por lección
+ * (fácil → medio → difícil). El alumno escribe el `int main()`,
+ * los includes ya están pero todo el cuerpo es suyo.
+ *
+ * Patrón estable: code_example → quiz → fill_blank → challenge × N.
+ * Ejemplos del CETI: notas, edades, asistencias, número de control.
  */
 export const unidad07: UnitDefinition = {
   slug: "arreglos",
@@ -26,8 +27,8 @@ export const unidad07: UnitDefinition = {
       title: "Tu primer arreglo",
       description:
         "Una sola variable que guarda varios valores del mismo tipo, numerados desde 0.",
-      xpReward: 30,
-      estimatedMinutes: 7,
+      xpReward: 35,
+      estimatedMinutes: 10,
       steps: [
         {
           type: "theory",
@@ -95,13 +96,19 @@ cout << edades[2] << endl;`,
           explanation:
             "Los índices van de `0` a `tamaño − 1`. Para `int edades[3];` son `0, 1, 2`.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Las tres notas
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Las tres notas
+            prompt: `## Reto 1 — Las tres notas
 
-Declara un arreglo \`int notas[3];\`. Asigna los valores **7, 9 y 8** en ese
-orden. Imprime cada uno en una línea distinta.
+Escribe un programa que:
+
+1. Declare un arreglo \`int notas[3];\`.
+2. Asigne **7, 9, 8** en orden (a \`notas[0]\`, \`notas[1]\`, \`notas[2]\`).
+3. Imprima cada valor en una línea distinta.
 
 Salida esperada:
 
@@ -116,8 +123,6 @@ Salida esperada:
 using namespace std;
 
 int main() {
-  int notas[3];
-  // asigna 7, 9, 8 en orden e imprime cada uno
 
   return 0;
 }`,
@@ -135,15 +140,146 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Empieza por `notas[0] = 7;` y baja desde ahí.",
+              "Declara `int notas[3];` dentro de main.",
+              "Asigna uno por uno con `notas[0] = 7;` etc.",
               "Tres `cout` distintos, uno por elemento.",
-              "Recuerda: el primer índice es 0, no 1.",
             ],
             testCases: [
               {
                 expectedStdout: "7\n9\n8\n",
                 visible: true,
                 description: "Imprime los tres elementos en orden",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Cambiar el del medio
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Cambiar el del medio
+
+Declara \`int v[5];\` y asigna estos valores:
+
+| Índice | Valor |
+|--------|-------|
+| 0      | 10    |
+| 1      | 20    |
+| 2      | 30    |
+| 3      | 40    |
+| 4      | 50    |
+
+Después, **cambia** \`v[2]\` por el valor **999**. Imprime los 5 elementos del
+arreglo en orden, **uno por línea**.
+
+Salida esperada:
+
+\`\`\`
+10
+20
+999
+40
+50
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 30,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  v[0] = 10;
+  v[1] = 20;
+  v[2] = 30;
+  v[3] = 40;
+  v[4] = 50;
+
+  v[2] = 999;
+
+  cout << v[0] << endl;
+  cout << v[1] << endl;
+  cout << v[2] << endl;
+  cout << v[3] << endl;
+  cout << v[4] << endl;
+  return 0;
+}`,
+            hints: [
+              "Sí, te tocó escribir el `int main() { ... return 0; }` completo.",
+              "Asignas los 5 valores, después sobreescribes `v[2] = 999;`.",
+              "5 `cout` separados — uno por elemento.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "10\n20\n999\n40\n50\n",
+                visible: true,
+                description: "Sustituye el del medio y conserva el resto",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Intercambio
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Intercambia primero y último
+
+Declara \`int a[4];\` con los valores **1, 2, 3, 4** en orden. Después
+**intercambia** \`a[0]\` con \`a[3]\` usando una variable auxiliar. Imprime
+los cuatro elementos en orden, uno por línea.
+
+> Pista: el truco clásico:
+> \`int tmp = a[0]; a[0] = a[3]; a[3] = tmp;\`
+
+Salida esperada:
+
+\`\`\`
+4
+2
+3
+1
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int a[4];
+  a[0] = 1;
+  a[1] = 2;
+  a[2] = 3;
+  a[3] = 4;
+
+  int tmp = a[0];
+  a[0] = a[3];
+  a[3] = tmp;
+
+  cout << a[0] << endl;
+  cout << a[1] << endl;
+  cout << a[2] << endl;
+  cout << a[3] << endl;
+  return 0;
+}`,
+            hints: [
+              "Empieza escribiendo el `int main()` y declarando `int a[4];`.",
+              "Asigna los 4 valores uno por uno.",
+              "El intercambio necesita una variable temporal — si sólo haces `a[0]=a[3]; a[3]=a[0];` pierdes el primer valor.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "4\n2\n3\n1\n",
+                visible: true,
+                description: "Primero y último quedan intercambiados",
               },
             ],
           },
@@ -159,8 +295,8 @@ int main() {
       title: "Inicializar el arreglo al declararlo",
       description:
         "Con llaves `{}` puedes llenar el arreglo en una sola línea.",
-      xpReward: 30,
-      estimatedMinutes: 6,
+      xpReward: 35,
+      estimatedMinutes: 9,
       steps: [
         {
           type: "code_example",
@@ -168,7 +304,6 @@ int main() {
 using namespace std;
 
 int main() {
-  // Inicialización en una línea
   int notas[5] = {7, 9, 8, 10, 6};
 
   cout << notas[0] << endl;
@@ -222,13 +357,16 @@ cout << asistencias[{{1}}] << endl;  // imprime 20`,
           explanation:
             "Cuatro valores → tamaño 4 → índices `0..3`. El último es `[3]`.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Días del fin de semana
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Días del fin de semana
+            prompt: `## Reto 1 — Fin de semana
 
-Declara un arreglo \`string\` con los nombres **Sabado** y **Domingo** (en ese
-orden) y imprímelos cada uno en una línea.
+Declara un arreglo de \`string\` con los nombres **Sabado** y **Domingo** (en
+ese orden, sin acentos) e imprime cada uno en una línea separada.
 
 Salida esperada:
 
@@ -241,12 +379,7 @@ Domingo
             starterCode: `#include <iostream>
 #include <string>
 using namespace std;
-
-int main() {
-  // declara el arreglo de strings e imprime los dos elementos
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <string>
 using namespace std;
@@ -258,8 +391,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "No olvides `#include <string>`.",
-              "Usa `string fin[2] = {\"Sabado\", \"Domingo\"};`.",
+              "Falta el `int main() { ... return 0; }`.",
+              "`string fin[2] = {\"Sabado\", \"Domingo\"};` inicializa todo en una línea.",
               "Dos `cout`, uno por índice.",
             ],
             testCases: [
@@ -267,6 +400,107 @@ int main() {
                 expectedStdout: "Sabado\nDomingo\n",
                 visible: true,
                 description: "Imprime los dos días",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Suma de extremos
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Suma de extremos
+
+Inicializa \`int v[] = {10, 20, 30, 40, 50};\` (sin escribir el tamaño;
+el compilador lo cuenta).
+
+Imprime UNA sola línea con la suma del **primer** y **último** elemento.
+
+Para este arreglo la suma es \`10 + 50 = 60\`.
+
+Salida esperada:
+
+\`\`\`
+60
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 30,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[] = {10, 20, 30, 40, 50};
+  cout << v[0] + v[4] << endl;
+  return 0;
+}`,
+            hints: [
+              "Inicializa con `int v[] = {10, 20, 30, 40, 50};`.",
+              "El último índice es 4 (no 5).",
+              "Imprime `v[0] + v[4]` directamente, sin variable auxiliar.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "60\n",
+                visible: true,
+                description: "10 + 50 = 60",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Tabla del 5
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Tabla del 5
+
+Sin pedirle nada al usuario, crea un arreglo de **5 enteros** que contenga
+los primeros 5 múltiplos de 5: \`5, 10, 15, 20, 25\` (asígnalos como quieras:
+con llaves o uno por uno).
+
+Imprime los 5 elementos, uno por línea.
+
+Salida esperada:
+
+\`\`\`
+5
+10
+15
+20
+25
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 35,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int tabla[5] = {5, 10, 15, 20, 25};
+  cout << tabla[0] << endl;
+  cout << tabla[1] << endl;
+  cout << tabla[2] << endl;
+  cout << tabla[3] << endl;
+  cout << tabla[4] << endl;
+  return 0;
+}`,
+            hints: [
+              "Vía rápida: `int tabla[5] = {5, 10, 15, 20, 25};`.",
+              "5 `cout` separados — uno por índice.",
+              "Mañana lo harás con un for; hoy nos toca a mano para fijar el patrón.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "5\n10\n15\n20\n25\n",
+                visible: true,
+                description: "Múltiplos de 5",
               },
             ],
           },
@@ -282,8 +516,8 @@ int main() {
       title: "Recorrer un arreglo con for",
       description:
         "El verdadero poder de los arreglos: tocarlos todos con UN solo ciclo.",
-      xpReward: 35,
-      estimatedMinutes: 8,
+      xpReward: 40,
+      estimatedMinutes: 11,
       steps: [
         {
           type: "code_example",
@@ -331,13 +565,66 @@ for (int i = 0; i {{0}} 4; i{{1}}) {
           explanation:
             "El for canónico para arreglos: empieza en `0`, condición `i < tamaño`, incremento `i++`.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Imprimir en orden
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Imprimir al revés
+            prompt: `## Reto 1 — Recorrido directo
 
-Tienes un arreglo \`int v[5] = {1, 2, 3, 4, 5};\`. Usa un \`for\` para imprimir
-los elementos **del último al primero**, uno por línea.
+Inicializa \`int v[6] = {2, 4, 6, 8, 10, 12};\`. Usa **un solo for** para
+imprimir los 6 elementos en orden, uno por línea.
+
+Salida esperada:
+
+\`\`\`
+2
+4
+6
+8
+10
+12
+\`\`\``,
+            difficulty: "easy",
+            xpReward: 25,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[6] = {2, 4, 6, 8, 10, 12};
+  for (int i = 0; i < 6; i++) {
+    cout << v[i] << endl;
+  }
+  return 0;
+}`,
+            hints: [
+              "Te toca escribir todo el main desde cero.",
+              "El for es `for (int i = 0; i < 6; i++)`.",
+              "Dentro: `cout << v[i] << endl;`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "2\n4\n6\n8\n10\n12\n",
+                visible: true,
+                description: "Recorrido directo del arreglo",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Imprimir al revés
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Al revés
+
+Inicializa \`int v[5] = {1, 2, 3, 4, 5};\`. Usa un \`for\` para imprimir los
+elementos **del último al primero**, uno por línea.
 
 Salida esperada:
 
@@ -352,13 +639,7 @@ Salida esperada:
             xpReward: 30,
             starterCode: `#include <iostream>
 using namespace std;
-
-int main() {
-  int v[5] = {1, 2, 3, 4, 5};
-  // for que recorra del 4 al 0
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -383,6 +664,59 @@ int main() {
             ],
           },
         },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Solo pares
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Solo posiciones pares
+
+Inicializa \`int v[6] = {10, 11, 20, 21, 30, 31};\`.
+
+Recorre el arreglo con un **único** for e imprime SOLO los elementos cuya
+**posición** (índice) sea par (\`0, 2, 4\`).
+
+Pista: dentro del for, usa un \`if (i % 2 == 0)\` para decidir si imprimes.
+
+Salida esperada:
+
+\`\`\`
+10
+20
+30
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[6] = {10, 11, 20, 21, 30, 31};
+  for (int i = 0; i < 6; i++) {
+    if (i % 2 == 0) {
+      cout << v[i] << endl;
+    }
+  }
+  return 0;
+}`,
+            hints: [
+              "El for sigue recorriendo TODOS los índices (0..5).",
+              "Dentro pones `if (i % 2 == 0)` para imprimir solo cuando el índice es par.",
+              "Otra opción: usar `i += 2` y arrancar en 0 — también vale.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "10\n20\n30\n",
+                visible: true,
+                description: "Solo imprime v[0], v[2], v[4]",
+              },
+            ],
+          },
+        },
       ],
     },
 
@@ -394,8 +728,8 @@ int main() {
       title: "Llenar un arreglo desde el teclado",
       description:
         "Combina `cin` con un `for` para que el usuario meta los datos.",
-      xpReward: 35,
-      estimatedMinutes: 8,
+      xpReward: 40,
+      estimatedMinutes: 11,
       steps: [
         {
           type: "code_example",
@@ -443,13 +777,16 @@ for (int i = 0; i < {{0}}; i++) {
           explanation:
             "El truco está en que `i` cambia en cada vuelta: primero `n[0]`, después `n[1]`, etc. Sin la `i` no funcionaría — siempre escribirías sobre la misma casilla.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Eco del arreglo
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Eco del arreglo
+            prompt: `## Reto 1 — Eco del arreglo
 
-Lee **5 enteros** del usuario y guárdalos en un arreglo. Luego imprímelos en
-el MISMO orden, uno por línea.
+Lee **5 enteros** desde \`cin\` y guárdalos en un arreglo \`int v[5];\`.
+Luego imprímelos en el MISMO orden, uno por línea.
 
 Para el test, el sistema enviará: \`3 1 4 1 5\`.
 
@@ -462,17 +799,11 @@ Salida esperada:
 1
 5
 \`\`\``,
-            difficulty: "medium",
-            xpReward: 35,
+            difficulty: "easy",
+            xpReward: 30,
             starterCode: `#include <iostream>
 using namespace std;
-
-int main() {
-  int v[5];
-  // un for para leer, otro para imprimir
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -498,6 +829,138 @@ int main() {
                 visible: true,
                 description: "Lee 5 valores e imprime cada uno",
               },
+              {
+                stdin: "100 200 300 400 500\n",
+                expectedStdout: "100\n200\n300\n400\n500\n",
+                visible: false,
+                description: "Funciona con valores grandes",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Leer e invertir
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Leer e invertir
+
+Lee **5 enteros** desde \`cin\` y guárdalos en un arreglo. Imprime los valores
+**en orden inverso**, uno por línea.
+
+Para el test, el sistema enviará: \`10 20 30 40 50\`.
+
+Salida esperada:
+
+\`\`\`
+50
+40
+30
+20
+10
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 35,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+  for (int i = 4; i >= 0; i--) {
+    cout << v[i] << endl;
+  }
+  return 0;
+}`,
+            hints: [
+              "Primer for `0..4` para leer.",
+              "Segundo for `4..0` (decreciente) para imprimir invertido.",
+              "No modifiques el arreglo — basta con recorrerlo al revés.",
+            ],
+            testCases: [
+              {
+                stdin: "10 20 30 40 50\n",
+                expectedStdout: "50\n40\n30\n20\n10\n",
+                visible: true,
+                description: "Recorre invertido",
+              },
+              {
+                stdin: "1 2 3 4 5\n",
+                expectedStdout: "5\n4\n3\n2\n1\n",
+                visible: false,
+                description: "Caso de control",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Duplicar cada valor
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Duplicar cada valor
+
+Lee **5 enteros** desde \`cin\`, guárdalos en un arreglo, **multiplícalos por
+2** (modificando el arreglo en su lugar) y después imprime los nuevos valores
+en orden, uno por línea.
+
+Para el test, el sistema enviará: \`1 2 3 4 5\`.
+
+Salida esperada:
+
+\`\`\`
+2
+4
+6
+8
+10
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+  for (int i = 0; i < 5; i++) {
+    v[i] = v[i] * 2;
+  }
+  for (int i = 0; i < 5; i++) {
+    cout << v[i] << endl;
+  }
+  return 0;
+}`,
+            hints: [
+              "Puedes hacerlo con TRES fors (leer, multiplicar, imprimir) o combinar lectura y multiplicación.",
+              "Para modificar en su lugar: `v[i] = v[i] * 2;` o `v[i] *= 2;`.",
+              "Imprime DESPUÉS de multiplicar; si no, mostrarías los originales.",
+            ],
+            testCases: [
+              {
+                stdin: "1 2 3 4 5\n",
+                expectedStdout: "2\n4\n6\n8\n10\n",
+                visible: true,
+                description: "Duplica cada uno",
+              },
+              {
+                stdin: "0 7 13 20 25\n",
+                expectedStdout: "0\n14\n26\n40\n50\n",
+                visible: false,
+                description: "Funciona con valores mixtos",
+              },
             ],
           },
         },
@@ -512,8 +975,8 @@ int main() {
       title: "Sumar y promediar un arreglo",
       description:
         "Acumulador + arreglo = todos los promedios del semestre.",
-      xpReward: 35,
-      estimatedMinutes: 8,
+      xpReward: 45,
+      estimatedMinutes: 12,
       steps: [
         {
           type: "code_example",
@@ -567,10 +1030,74 @@ cout << total << endl;`,
           explanation:
             "Patrón fijo: acumulador en 0, dentro del for `total += v[i];`, cout DESPUÉS del for.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Suma
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Promedio de 5 calificaciones
+            prompt: `## Reto 1 — Suma de 5 enteros
+
+Lee **5 enteros** con \`cin\`, guárdalos en un arreglo y calcula su **suma**.
+Imprime SOLO la suma, sin texto.
+
+Para el test, el sistema enviará: \`2 4 6 8 10\` (suma = 30).
+
+Salida esperada:
+
+\`\`\`
+30
+\`\`\``,
+            difficulty: "easy",
+            xpReward: 30,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+
+  int suma = 0;
+  for (int i = 0; i < 5; i++) {
+    suma += v[i];
+  }
+
+  cout << suma << endl;
+  return 0;
+}`,
+            hints: [
+              "Un for para leer, otro para sumar (o combínalos en uno).",
+              "Acumulador `suma = 0` ANTES del for que suma.",
+              "Solo imprime el total final, sin texto.",
+            ],
+            testCases: [
+              {
+                stdin: "2 4 6 8 10\n",
+                expectedStdout: "30\n",
+                visible: true,
+                description: "Suma básica",
+              },
+              {
+                stdin: "0 0 0 0 0\n",
+                expectedStdout: "0\n",
+                visible: false,
+                description: "Todos ceros",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Promedio
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Promedio de 5 calificaciones
 
 Lee **5 calificaciones enteras** del usuario, guárdalas en un arreglo, y
 imprime el promedio (dividiendo entre \`5.0\`).
@@ -586,15 +1113,7 @@ Salida esperada:
             xpReward: 35,
             starterCode: `#include <iostream>
 using namespace std;
-
-int main() {
-  int notas[5];
-  // 1) lee los 5 valores
-  // 2) súmalos en un acumulador
-  // 3) imprime el promedio
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -623,7 +1142,93 @@ int main() {
                 stdin: "8 9 7 10 6\n",
                 expectedStdout: "8\n",
                 visible: true,
-                description: "Promedio de 8 9 7 10 6 es 8",
+                description: "Promedio entero",
+              },
+              {
+                stdin: "10 10 10 10 5\n",
+                expectedStdout: "9\n",
+                visible: false,
+                description: "Promedio con decimal redondeado por cout",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Contar mayores al promedio
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Cuántos superan el promedio
+
+Lee **5 enteros** del usuario y guárdalos en un arreglo. Calcula el promedio
+(\`suma / 5.0\`). Después cuenta CUÁNTOS de los 5 elementos son
+**estrictamente mayores** que el promedio.
+
+Imprime SOLO ese conteo.
+
+Para el test, el sistema enviará: \`5 10 15 20 25\`.
+
+- Promedio = \`75 / 5.0 = 15\`.
+- Mayores estrictamente: \`20\` y \`25\` → **2**.
+
+Salida esperada:
+
+\`\`\`
+2
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 45,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+
+  int suma = 0;
+  for (int i = 0; i < 5; i++) {
+    suma += v[i];
+  }
+  double promedio = suma / 5.0;
+
+  int cuenta = 0;
+  for (int i = 0; i < 5; i++) {
+    if (v[i] > promedio) {
+      cuenta++;
+    }
+  }
+  cout << cuenta << endl;
+  return 0;
+}`,
+            hints: [
+              "Necesitas 3 fors: leer, sumar (para promedio), contar.",
+              "Compara con `>` (estricto), no con `>=`.",
+              "Imprime SOLO `cuenta`, sin texto.",
+            ],
+            testCases: [
+              {
+                stdin: "5 10 15 20 25\n",
+                expectedStdout: "2\n",
+                visible: true,
+                description: "Caso ejemplo",
+              },
+              {
+                stdin: "10 10 10 10 10\n",
+                expectedStdout: "0\n",
+                visible: false,
+                description: "Todos iguales → 0 mayores",
+              },
+              {
+                stdin: "1 2 3 4 100\n",
+                expectedStdout: "1\n",
+                visible: false,
+                description: "Solo uno por encima",
               },
             ],
           },
@@ -639,8 +1244,8 @@ int main() {
       title: "Encontrar el mayor (y el menor)",
       description:
         "Otro patrón clásico: recorrer el arreglo recordando el mejor candidato.",
-      xpReward: 40,
-      estimatedMinutes: 9,
+      xpReward: 45,
+      estimatedMinutes: 12,
       steps: [
         {
           type: "code_example",
@@ -699,71 +1304,198 @@ cout << menor << endl;`,
           explanation:
             "Misma estructura que el máximo, solo cambias `>` por `<` y el nombre de la variable.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Máximo
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Máximo de calificaciones
+            prompt: `## Reto 1 — Máximo
 
-Lee **5 calificaciones** del usuario y guárdalas en un arreglo. Imprime SOLO
-la calificación más alta.
+Lee **5 enteros** del usuario y guárdalos en un arreglo. Imprime SOLO el
+valor más alto.
 
-Para el test, el sistema enviará: \`7 9 8 10 6\`.
+Para el test, el sistema enviará: \`7 9 8 10 6\` (mayor = 10).
 
 Salida esperada:
 
 \`\`\`
 10
 \`\`\``,
-            difficulty: "medium",
-            xpReward: 35,
+            difficulty: "easy",
+            xpReward: 30,
             starterCode: `#include <iostream>
 using namespace std;
-
-int main() {
-  int notas[5];
-  for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
-  }
-
-  // encuentra el mayor
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
 int main() {
-  int notas[5];
+  int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
+    cin >> v[i];
   }
 
-  int mayor = notas[0];
+  int mayor = v[0];
   for (int i = 1; i < 5; i++) {
-    if (notas[i] > mayor) {
-      mayor = notas[i];
-    }
+    if (v[i] > mayor) mayor = v[i];
   }
   cout << mayor << endl;
   return 0;
 }`,
             hints: [
-              "Inicializa `int mayor = notas[0];`.",
+              "Inicializa `mayor = v[0]` después de leer.",
               "El for arranca en `i = 1` (ya consideraste el 0).",
-              "Dentro: `if (notas[i] > mayor) mayor = notas[i];`",
+              "Solo imprime `mayor`, sin texto.",
             ],
             testCases: [
               {
                 stdin: "7 9 8 10 6\n",
                 expectedStdout: "10\n",
                 visible: true,
-                description: "El máximo de [7,9,8,10,6] es 10",
+                description: "Caso típico",
               },
               {
                 stdin: "1 2 3 4 5\n",
                 expectedStdout: "5\n",
+                visible: false,
+                description: "Creciente",
+              },
+              {
+                stdin: "100 1 1 1 1\n",
+                expectedStdout: "100\n",
+                visible: false,
+                description: "Máximo al inicio",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Mínimo
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Mínimo
+
+Mismo input (5 enteros) que el reto anterior, pero ahora imprime el **menor**
+valor del arreglo.
+
+Para el test, el sistema enviará: \`7 9 3 10 6\`.
+
+Salida esperada:
+
+\`\`\`
+3
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 35,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+
+  int menor = v[0];
+  for (int i = 1; i < 5; i++) {
+    if (v[i] < menor) menor = v[i];
+  }
+  cout << menor << endl;
+  return 0;
+}`,
+            hints: [
+              "Cambia `>` por `<` y el nombre de la variable a `menor`.",
+              "Sigue arrancando con `menor = v[0];`.",
+              "Sin texto, solo el número.",
+            ],
+            testCases: [
+              {
+                stdin: "7 9 3 10 6\n",
+                expectedStdout: "3\n",
                 visible: true,
-                description: "Lista creciente, máximo al final",
+                description: "Mínimo en el medio",
+              },
+              {
+                stdin: "5 5 5 5 5\n",
+                expectedStdout: "5\n",
+                visible: false,
+                description: "Todos iguales",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Posición del máximo
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Posición del máximo
+
+Lee **5 enteros**. En lugar del valor, imprime la **posición (índice, base 0)**
+del elemento más grande. Si hay empates, devuelve el índice de la **primera**
+aparición (la más a la izquierda).
+
+Para el test, el sistema enviará: \`7 9 8 10 6\`. El máximo es \`10\` y está en
+índice **3**.
+
+Salida esperada:
+
+\`\`\`
+3
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 45,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+
+  int idx = 0;
+  for (int i = 1; i < 5; i++) {
+    if (v[i] > v[idx]) {
+      idx = i;
+    }
+  }
+  cout << idx << endl;
+  return 0;
+}`,
+            hints: [
+              "Guarda el ÍNDICE, no el valor: `int idx = 0;`.",
+              "Dentro del for, compara con `v[i] > v[idx]`.",
+              "Para que empate gane el primero, usa `>` estricto, no `>=`.",
+            ],
+            testCases: [
+              {
+                stdin: "7 9 8 10 6\n",
+                expectedStdout: "3\n",
+                visible: true,
+                description: "Máximo en posición 3",
+              },
+              {
+                stdin: "5 5 5 5 5\n",
+                expectedStdout: "0\n",
+                visible: false,
+                description: "Empate total → primera aparición",
+              },
+              {
+                stdin: "1 2 3 4 5\n",
+                expectedStdout: "4\n",
+                visible: false,
+                description: "Creciente, máximo al final",
               },
             ],
           },
@@ -778,9 +1510,9 @@ int main() {
       slug: "integrador-arreglos",
       title: "Integrador: boletín de calificaciones",
       description:
-        "Pides 5 notas y entregas promedio, máximo y cuántas aprobaron.",
-      xpReward: 55,
-      estimatedMinutes: 12,
+        "Pides N notas y entregas promedio, máximo y cuántas aprobaron.",
+      xpReward: 70,
+      estimatedMinutes: 15,
       steps: [
         {
           type: "code_example",
@@ -843,23 +1575,23 @@ for (int i = 0; i < 5; i++) {
           explanation:
             "Mismo patrón que `aprobados`, pero con la condición invertida (`< 7`).",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (medio): Boletín
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Boletín completo
+            prompt: `## Reto 1 — Boletín completo
 
 Lee **5 calificaciones** enteras del 0 al 10. Imprime **tres líneas** en este
 orden:
 
-1. \`Promedio: <p>\` (con \`<p>\` = suma / 5.0)
-2. \`Mayor: <m>\` (la calificación más alta)
+1. \`Promedio: <p>\` con \`<p>\` = suma / 5.0
+2. \`Mayor: <m>\` (la más alta)
 3. \`Aprobados: <a>\` (cuántas son \`>= 7\`)
 
-Para el test, el sistema enviará: \`8 5 10 7 4\`.
-
-- Suma = 34, promedio = 6.8
-- Mayor = 10
-- Aprobados = 3 (8, 10, 7)
+Para el test, el sistema enviará: \`8 5 10 7 4\` (Suma=34, Promedio=6.8,
+Mayor=10, Aprobados=3).
 
 Salida esperada:
 
@@ -868,24 +1600,11 @@ Promedio: 6.8
 Mayor: 10
 Aprobados: 3
 \`\`\``,
-            difficulty: "hard",
+            difficulty: "medium",
             xpReward: 45,
             starterCode: `#include <iostream>
 using namespace std;
-
-int main() {
-  int notas[5];
-  for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
-  }
-
-  // 1 acumulador para la suma
-  // 1 variable para el mayor (inicia en notas[0])
-  // 1 contador para los aprobados
-  // un solo for resuelve todo
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -913,21 +1632,117 @@ int main() {
 }`,
             hints: [
               "Tres acumuladores ANTES del for: `suma`, `mayor` (en `notas[0]`), `aprobados`.",
-              "Dentro del for, los tres se actualizan en la misma pasada.",
-              "Divide entre `5.0` para que el promedio tenga decimales.",
+              "Un solo for hace todo en una pasada.",
+              "Divide entre `5.0` para decimales.",
             ],
             testCases: [
               {
                 stdin: "8 5 10 7 4\n",
                 expectedStdout: "Promedio: 6.8\nMayor: 10\nAprobados: 3\n",
                 visible: true,
-                description: "Caso típico: 3 aprobados, máximo 10",
+                description: "Caso típico",
               },
               {
                 stdin: "10 10 10 10 10\n",
                 expectedStdout: "Promedio: 10\nMayor: 10\nAprobados: 5\n",
+                visible: false,
+                description: "Todos 10",
+              },
+              {
+                stdin: "0 0 0 0 0\n",
+                expectedStdout: "Promedio: 0\nMayor: 0\nAprobados: 0\n",
+                visible: false,
+                description: "Caso vacío de aprobados",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (difícil): Tres líneas con datos derivados del arreglo
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Estadísticas avanzadas
+
+Lee **5 enteros** del usuario. Imprime **CUATRO líneas** exactamente en este
+orden:
+
+1. \`Minimo: <m>\` — el valor más pequeño del arreglo.
+2. \`Maximo: <M>\` — el valor más grande.
+3. \`Rango: <r>\` — diferencia \`Maximo − Minimo\`.
+4. \`Suma sin extremos: <s>\` — suma de los 5 elementos **menos** el mínimo y
+   menos el máximo (efectivamente: la suma de los 3 valores del medio).
+
+Para el test, el sistema enviará: \`8 5 10 7 4\`.
+
+- Mínimo = 4, Máximo = 10, Rango = 6.
+- Suma total = 34. Sin mínimo (4) ni máximo (10) = **20**.
+
+Salida esperada:
+
+\`\`\`
+Minimo: 4
+Maximo: 10
+Rango: 6
+Suma sin extremos: 20
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 55,
+            starterCode: `#include <iostream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    cin >> v[i];
+  }
+
+  int suma = 0;
+  int menor = v[0];
+  int mayor = v[0];
+
+  for (int i = 0; i < 5; i++) {
+    suma += v[i];
+    if (v[i] < menor) menor = v[i];
+    if (v[i] > mayor) mayor = v[i];
+  }
+
+  int rango = mayor - menor;
+  int sinExtremos = suma - menor - mayor;
+
+  cout << "Minimo: " << menor << endl;
+  cout << "Maximo: " << mayor << endl;
+  cout << "Rango: " << rango << endl;
+  cout << "Suma sin extremos: " << sinExtremos << endl;
+  return 0;
+}`,
+            hints: [
+              "Un solo for con tres updates en cada vuelta: suma += v[i], comparar con menor, comparar con mayor.",
+              "Inicializa `menor = v[0]` y `mayor = v[0]` antes del for.",
+              "Rango = mayor − menor. Suma sin extremos = suma − menor − mayor.",
+            ],
+            testCases: [
+              {
+                stdin: "8 5 10 7 4\n",
+                expectedStdout: "Minimo: 4\nMaximo: 10\nRango: 6\nSuma sin extremos: 20\n",
                 visible: true,
-                description: "Todos 10: promedio 10, mayor 10, 5 aprobados",
+                description: "Caso típico",
+              },
+              {
+                stdin: "1 2 3 4 5\n",
+                expectedStdout: "Minimo: 1\nMaximo: 5\nRango: 4\nSuma sin extremos: 9\n",
+                visible: false,
+                description: "Creciente: 2+3+4 = 9",
+              },
+              {
+                stdin: "7 7 7 7 7\n",
+                expectedStdout: "Minimo: 7\nMaximo: 7\nRango: 0\nSuma sin extremos: 21\n",
+                visible: false,
+                description: "Todos iguales: rango 0, sin extremos = 35-7-7",
               },
             ],
           },

@@ -3,14 +3,11 @@ import type { UnitDefinition } from "./types";
 /**
  * Unidad 08 — Archivos (fstream)
  *
- * Cierre del recorrido básico de C++: ahora los datos sobreviven más allá
- * de que se cierre el programa. ofstream para escribir, ifstream para leer,
- * getline para línea por línea, validación con if (!archivo) y un
- * integrador que guarda y recupera un boletín.
- *
- * Patrón estable: code_example → quiz/fill_blank → code_challenge.
- * Como los tests verifican por stdout, los retos siempre siguen el patrón
- * "escribir al archivo → leer del mismo archivo → cout lo leído".
+ * Cierre del recorrido básico. Aquí la curva de autonomía está al máximo:
+ * 2-3 code_challenges por lección, starter mínimo (sólo includes), el
+ * alumno escribe TODO. Los retos siempre siguen el patrón
+ * "escribir al archivo → leer del mismo archivo → cout lo leído" para
+ * que las pruebas puedan validarse desde stdout.
  */
 export const unidad08: UnitDefinition = {
   slug: "archivos",
@@ -26,10 +23,9 @@ export const unidad08: UnitDefinition = {
     {
       slug: "escribir-archivo",
       title: "Escribir a un archivo con ofstream",
-      description:
-        "Tu primer programa que deja huella en el disco.",
-      xpReward: 30,
-      estimatedMinutes: 7,
+      description: "Tu primer programa que deja huella en el disco.",
+      xpReward: 35,
+      estimatedMinutes: 10,
       steps: [
         {
           type: "theory",
@@ -100,10 +96,13 @@ int main() {
           explanation:
             "Para escribir un archivo: `#include <fstream>` + `ofstream nombre(\"archivo.txt\");`",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Crear y confirmar
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Crear un archivo y confirmarlo
+            prompt: `## Reto 1 — Crear un archivo y confirmar
 
 Escribe un programa que:
 
@@ -121,15 +120,7 @@ Archivo creado
             starterCode: `#include <iostream>
 #include <fstream>
 using namespace std;
-
-int main() {
-  // 1) abre saludo.txt con ofstream
-  // 2) escríbele "Hola CETI" con endl
-  // 3) ciérralo
-  // 4) imprime "Archivo creado"
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 using namespace std;
@@ -143,9 +134,9 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Declara `ofstream archivo(\"saludo.txt\");`.",
-              "Para escribir usas el mismo `<<` que con cout.",
-              "Después `archivo.close();` y por último el `cout << \"Archivo creado\"`.",
+              "Falta todo el `int main()`.",
+              "`ofstream archivo(\"saludo.txt\");` + `archivo << \"Hola CETI\" << endl;` + `archivo.close();`.",
+              "Por último `cout << \"Archivo creado\" << endl;`.",
             ],
             testCases: [
               {
@@ -156,19 +147,156 @@ int main() {
             ],
           },
         },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Tres líneas + verificación
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Tres líneas
+
+Crea el archivo \`materias.txt\` con estas tres líneas en orden:
+
+1. \`Programacion\`
+2. \`Calculo\`
+3. \`Fisica\`
+
+Cierra el archivo. Después abre el mismo archivo con \`ifstream\` y léelo
+**línea por línea** con \`getline\`, imprimiendo cada línea en consola.
+
+Salida esperada:
+
+\`\`\`
+Programacion
+Calculo
+Fisica
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  ofstream salida("materias.txt");
+  salida << "Programacion" << endl;
+  salida << "Calculo"      << endl;
+  salida << "Fisica"       << endl;
+  salida.close();
+
+  ifstream entrada("materias.txt");
+  string linea;
+  while (getline(entrada, linea)) {
+    cout << linea << endl;
+  }
+  entrada.close();
+  return 0;
+}`,
+            hints: [
+              "Primero el bloque de escritura: 3 `salida << \"...\" << endl;`.",
+              "Después, abrir con `ifstream`, leer con `while (getline(...))` e imprimir.",
+              "Recuerda `#include <string>` (ya viene en el starter).",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Programacion\nCalculo\nFisica\n",
+                visible: true,
+                description: "Tres materias en orden",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): cin → archivo → archivo → cout
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Eco vía disco
+
+Lee desde \`cin\` el **número de control** del alumno (una palabra, sin
+espacios). Guárdalo en \`control.txt\` (una sola línea). Cierra el archivo.
+Vuelve a abrirlo con \`ifstream\`, léelo, y respóndele:
+
+\`\`\`
+Guardado: <numero>
+\`\`\`
+
+Para el test, el sistema enviará: \`23110567\`.
+
+Salida esperada:
+
+\`\`\`
+Guardado: 23110567
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 50,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  string control;
+  cin >> control;
+
+  ofstream salida("control.txt");
+  salida << control << endl;
+  salida.close();
+
+  ifstream entrada("control.txt");
+  string leido;
+  entrada >> leido;
+  entrada.close();
+
+  cout << "Guardado: " << leido << endl;
+  return 0;
+}`,
+            hints: [
+              "Tres pasos claros: cin → ofstream → ifstream → cout.",
+              "Para leer una palabra del archivo, `entrada >> leido;` basta.",
+              "El cout va con el prefijo `Guardado: ` (incluye el espacio).",
+            ],
+            testCases: [
+              {
+                stdin: "23110567\n",
+                expectedStdout: "Guardado: 23110567\n",
+                visible: true,
+                description: "Número de control",
+              },
+              {
+                stdin: "ABCxyz999\n",
+                expectedStdout: "Guardado: ABCxyz999\n",
+                visible: false,
+                description: "Cualquier palabra alfanumérica",
+              },
+            ],
+          },
+        },
       ],
     },
 
     // =====================================================================
-    // Lección 2: Leer un archivo con ifstream
+    // Lección 2: Leer con ifstream
     // =====================================================================
     {
       slug: "leer-archivo",
       title: "Leer un archivo con ifstream",
       description:
         "Abre un archivo que ya existe y trae los datos a una variable.",
-      xpReward: 35,
-      estimatedMinutes: 8,
+      xpReward: 40,
+      estimatedMinutes: 11,
       steps: [
         {
           type: "code_example",
@@ -224,36 +352,28 @@ cout << x << endl;`,
           explanation:
             "Patrón clásico de lectura: `ifstream` + `>>` para cada valor + `close()`.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Round-trip
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Ciclo escribir → leer
+            prompt: `## Reto 1 — Ciclo escribir → leer
 
-Tu programa debe:
-
-1. Crear el archivo \`numero.txt\` con el entero **77** dentro.
-2. Cerrar el archivo.
-3. Volver a abrirlo con \`ifstream\` y leer ese entero.
-4. Imprimir el número leído (sin texto, solo el número).
+Crea el archivo \`numero.txt\` con el entero **77** dentro, ciérralo, vuelve a
+abrirlo con \`ifstream\` y léelo. Imprime SOLO el número leído.
 
 Salida esperada:
 
 \`\`\`
 77
 \`\`\``,
-            difficulty: "medium",
-            xpReward: 35,
+            difficulty: "easy",
+            xpReward: 30,
             starterCode: `#include <iostream>
 #include <fstream>
 using namespace std;
-
-int main() {
-  // 1) escribe 77 en numero.txt
-  // 2) ábrelo con ifstream y léelo a una variable
-  // 3) imprime esa variable
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 using namespace std;
@@ -272,15 +392,145 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Primero `ofstream salida(...)` + `<<` para escribir.",
-              "Después `ifstream entrada(...)` + `>>` para leer en una variable.",
-              "Imprime con `cout << n << endl;` (sin texto extra).",
+              "Bloque 1: `ofstream` + `<<` para escribir 77.",
+              "Bloque 2: `ifstream` + `>>` para leer en `int n;`.",
+              "Imprime solo `n`, sin texto.",
             ],
             testCases: [
               {
                 expectedStdout: "77\n",
                 visible: true,
-                description: "Lee y reimprime 77",
+                description: "Reimprime 77 tras pasar por archivo",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Dos enteros, sumarlos
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Suma vía archivo
+
+Crea el archivo \`pareja.txt\` con los enteros **15** y **27** (en el mismo
+orden, separados por espacio o salto de línea — cualquiera de las dos).
+Cierra el archivo. Vuelve a abrirlo con \`ifstream\`, lee los DOS enteros con
+dos \`>>\` y muestra la **suma** en una sola línea (sin texto).
+
+\`15 + 27 = 42\`.
+
+Salida esperada:
+
+\`\`\`
+42
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+  ofstream salida("pareja.txt");
+  salida << 15 << " " << 27 << endl;
+  salida.close();
+
+  ifstream entrada("pareja.txt");
+  int a, b;
+  entrada >> a >> b;
+  entrada.close();
+
+  cout << a + b << endl;
+  return 0;
+}`,
+            hints: [
+              "Al escribir, separa los dos valores con un espacio o un endl.",
+              "Al leer, `entrada >> a >> b;` toma los dos en una línea.",
+              "Imprime `a + b` directo.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "42\n",
+                visible: true,
+                description: "15 + 27 = 42",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): cin → archivo → producto
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Tres enteros vía archivo
+
+Lee con \`cin\` **3 enteros** del usuario. Guárdalos en \`numeros.txt\`
+(separados por espacio o salto de línea). Cierra el archivo. Reabre, lee los
+3 enteros y muestra su **producto** (multiplicación de los tres) en una sola
+línea.
+
+Para el test, el sistema enviará: \`2 3 4\` (producto = 24).
+
+Salida esperada:
+
+\`\`\`
+24
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 50,
+            starterCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+  int a, b, c;
+  cin >> a >> b >> c;
+
+  ofstream salida("numeros.txt");
+  salida << a << " " << b << " " << c << endl;
+  salida.close();
+
+  ifstream entrada("numeros.txt");
+  int x, y, z;
+  entrada >> x >> y >> z;
+  entrada.close();
+
+  cout << x * y * z << endl;
+  return 0;
+}`,
+            hints: [
+              "Cuatro pasos: cin → ofstream → ifstream → cout.",
+              "Al escribir, separa los 3 con espacios.",
+              "Producto = `x * y * z`.",
+            ],
+            testCases: [
+              {
+                stdin: "2 3 4\n",
+                expectedStdout: "24\n",
+                visible: true,
+                description: "2 × 3 × 4 = 24",
+              },
+              {
+                stdin: "5 5 5\n",
+                expectedStdout: "125\n",
+                visible: false,
+                description: "5³ = 125",
+              },
+              {
+                stdin: "0 100 200\n",
+                expectedStdout: "0\n",
+                visible: false,
+                description: "Cualquier cero anula el producto",
               },
             ],
           },
@@ -289,15 +539,15 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 3: Validar que el archivo abrió
+    // Lección 3: Validar apertura
     // =====================================================================
     {
       slug: "validar-archivo",
       title: "Verificar que el archivo se abrió",
       description:
         "Si el archivo no existe `ifstream` no truena, solo falla en silencio. Hay que checarlo.",
-      xpReward: 35,
-      estimatedMinutes: 8,
+      xpReward: 40,
+      estimatedMinutes: 10,
       steps: [
         {
           type: "code_example",
@@ -353,55 +603,105 @@ if ({{0}}archivo) {
           explanation:
             "Convención: `return 0;` = todo bien, `return 1;` (o cualquier no-cero) = hubo error.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Reporte simple
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Doble intento
+            prompt: `## Reto 1 — Intento fallido
+
+Intenta abrir el archivo \`fantasma.txt\` con \`ifstream\`. Como no existe,
+imprime en consola:
+
+\`\`\`
+No existe
+\`\`\`
+
+Y termina con \`return 1;\`.
+
+(El archivo NO debe ser creado: solo intentas leer y reportar la falla.)
+
+Salida esperada:
+
+\`\`\`
+No existe
+\`\`\``,
+            difficulty: "easy",
+            xpReward: 30,
+            starterCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+  ifstream archivo("fantasma.txt");
+  if (!archivo) {
+    cout << "No existe" << endl;
+    return 1;
+  }
+  return 0;
+}`,
+            hints: [
+              "Sólo intenta abrir con `ifstream`.",
+              "`if (!archivo)` detecta que falló.",
+              "Dentro: cout + `return 1;`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "No existe\n",
+                visible: true,
+                description: "Reporta el archivo faltante",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Doble intento
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Auto-reparación
 
 Tu programa debe:
 
-1. Intentar abrir \`fantasma.txt\` (que no existe) con \`ifstream\`.
-2. Si NO abre, imprimir \`Archivo no encontrado\` y crear ese archivo escribiéndole el número **123**.
-3. Volver a leerlo y, si ahora SÍ abre, imprimir el número.
+1. Intentar abrir \`config.txt\` con \`ifstream\`.
+2. Si NO abre: imprimir \`Creando default\`, **crearlo** escribiendo el número
+   **42**, y cerrarlo.
+3. Volver a abrirlo con \`ifstream\` (ahora SÍ existe), leer el número y
+   imprimirlo.
 
-Como el archivo NO existe la primera vez, salida esperada:
+Como el archivo no existe la primera vez:
 
 \`\`\`
-Archivo no encontrado
-123
+Creando default
+42
 \`\`\``,
             difficulty: "medium",
             xpReward: 40,
             starterCode: `#include <iostream>
 #include <fstream>
 using namespace std;
-
-int main() {
-  ifstream primer("fantasma.txt");
-  if (!primer) {
-    // imprime el aviso, crea el archivo con 123, ciérralo
-  }
-  primer.close();
-
-  // ahora vuelve a abrirlo con ifstream y lee el número
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 using namespace std;
 
 int main() {
-  ifstream primer("fantasma.txt");
+  ifstream primer("config.txt");
   if (!primer) {
-    cout << "Archivo no encontrado" << endl;
-    ofstream nuevo("fantasma.txt");
-    nuevo << 123 << endl;
+    cout << "Creando default" << endl;
+    ofstream nuevo("config.txt");
+    nuevo << 42 << endl;
     nuevo.close();
   }
   primer.close();
 
-  ifstream segundo("fantasma.txt");
+  ifstream segundo("config.txt");
   int n;
   segundo >> n;
   segundo.close();
@@ -409,15 +709,94 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Dentro del `if (!primer)`: cout del aviso + abrir con `ofstream` para crearlo + escribir 123 + cerrar.",
-              "Después del if, abre un segundo `ifstream` (puedes reusar el nombre o crear `segundo`).",
-              "Lee a `int n;` y `cout << n << endl;`.",
+              "Dentro del `if (!primer)` ve TODO el bloque de creación.",
+              "Después del if, ABRE otra vez con un nuevo `ifstream` (no reuses el primero).",
+              "Lee con `>>` a un `int n;` y `cout << n << endl;`.",
             ],
             testCases: [
               {
-                expectedStdout: "Archivo no encontrado\n123\n",
+                expectedStdout: "Creando default\n42\n",
                 visible: true,
-                description: "Primer intento falla, segundo lee 123",
+                description: "Caída + creación + lectura exitosa",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Validación en dos archivos
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Dos archivos en cadena
+
+Tu programa debe:
+
+1. Crear \`origen.txt\` con la línea \`Hola CETI\` y cerrarlo.
+2. Abrir \`origen.txt\` con \`ifstream\` y leer su línea con \`getline\`.
+3. Si NO se pudo abrir, imprimir \`Fallo lectura\` y \`return 1;\`.
+4. Si sí se abrió, escribir esa línea en otro archivo \`copia.txt\` y cerrarlo.
+5. Abrir \`copia.txt\` y leer su única línea con \`getline\`. Si falla,
+   imprimir \`Fallo copia\` y \`return 1;\`.
+6. Si todo salió bien, imprimir la línea leída de \`copia.txt\`.
+
+En condiciones normales el archivo SÍ se va a crear, así que la salida es:
+
+\`\`\`
+Hola CETI
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 55,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  ofstream o1("origen.txt");
+  o1 << "Hola CETI" << endl;
+  o1.close();
+
+  ifstream i1("origen.txt");
+  if (!i1) {
+    cout << "Fallo lectura" << endl;
+    return 1;
+  }
+  string linea;
+  getline(i1, linea);
+  i1.close();
+
+  ofstream o2("copia.txt");
+  o2 << linea << endl;
+  o2.close();
+
+  ifstream i2("copia.txt");
+  if (!i2) {
+    cout << "Fallo copia" << endl;
+    return 1;
+  }
+  string final;
+  getline(i2, final);
+  i2.close();
+
+  cout << final << endl;
+  return 0;
+}`,
+            hints: [
+              "Bloque 1: ofstream para crear origen.txt.",
+              "Bloque 2: ifstream + validación + getline + close.",
+              "Bloque 3: ofstream para copia.txt + ifstream + validación + getline + close + cout.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Hola CETI\n",
+                visible: true,
+                description: "Camino feliz: copia la línea de un archivo a otro",
               },
             ],
           },
@@ -426,15 +805,15 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 4: Leer línea por línea con getline
+    // Lección 4: Línea por línea con getline
     // =====================================================================
     {
       slug: "leer-linea",
       title: "Leer línea por línea con getline",
       description:
         "Cuando cada línea del archivo es un dato completo (un nombre, una dirección, una frase).",
-      xpReward: 40,
-      estimatedMinutes: 9,
+      xpReward: 45,
+      estimatedMinutes: 12,
       steps: [
         {
           type: "code_example",
@@ -494,20 +873,22 @@ f.close();`,
           explanation:
             "Sintaxis fija: `while (getline(stream, variable_string)) { ... }`.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Eco de líneas
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Eco de líneas
+            prompt: `## Reto 1 — Eco de líneas
 
-Tu programa debe:
+Crea \`materias.txt\` con estas 3 líneas en orden:
 
-1. Crear \`materias.txt\` con estas 3 líneas (en este orden):
-   - \`Programacion\`
-   - \`Calculo\`
-   - \`Electronica\`
-2. Cerrar el archivo.
-3. Abrirlo con \`ifstream\` y leerlo línea por línea con \`getline\`.
-4. Imprimir cada línea (en el MISMO orden).
+- \`Programacion\`
+- \`Calculo\`
+- \`Electronica\`
+
+Reábrelo con \`ifstream\` y léelo línea por línea con \`getline\`,
+imprimiendo cada línea en consola.
 
 Salida esperada:
 
@@ -516,20 +897,13 @@ Programacion
 Calculo
 Electronica
 \`\`\``,
-            difficulty: "medium",
-            xpReward: 40,
+            difficulty: "easy",
+            xpReward: 35,
             starterCode: `#include <iostream>
 #include <fstream>
 #include <string>
 using namespace std;
-
-int main() {
-  // 1) escribe las 3 materias en materias.txt
-  // 2) léelas con getline en un while
-  // 3) imprime cada una
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 #include <string>
@@ -551,15 +925,161 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Tres `salida << \"...\" << endl;` para escribir las materias.",
-              "El patrón de lectura es `while (getline(entrada, linea)) { cout << linea << endl; }`.",
-              "No olvides `#include <string>`.",
+              "Bloque de escritura: 3 `salida << \"...\" << endl;`.",
+              "Bloque de lectura: `while (getline(entrada, linea)) cout << linea << endl;`.",
+              "Acuérdate de cerrar ambos streams.",
             ],
             testCases: [
               {
                 expectedStdout: "Programacion\nCalculo\nElectronica\n",
                 visible: true,
-                description: "Lee las 3 materias en orden",
+                description: "Tres materias en orden",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Contar líneas
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Conteo de líneas
+
+Crea \`registro.txt\` con estas 4 líneas:
+
+\`\`\`
+Alumno1
+Alumno2
+Alumno3
+Alumno4
+\`\`\`
+
+Reábrelo, recorre todas las líneas con \`getline\` y CUENTA cuántas hay.
+Imprime SOLO el conteo (sin texto).
+
+Salida esperada:
+
+\`\`\`
+4
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 40,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  ofstream salida("registro.txt");
+  salida << "Alumno1" << endl;
+  salida << "Alumno2" << endl;
+  salida << "Alumno3" << endl;
+  salida << "Alumno4" << endl;
+  salida.close();
+
+  ifstream entrada("registro.txt");
+  string linea;
+  int cuenta = 0;
+  while (getline(entrada, linea)) {
+    cuenta++;
+  }
+  entrada.close();
+
+  cout << cuenta << endl;
+  return 0;
+}`,
+            hints: [
+              "Después de escribir las 4 líneas, abre con `ifstream`.",
+              "Acumulador `int cuenta = 0;` FUERA del while.",
+              "Dentro del while solo `cuenta++;` (no imprimas en cada vuelta).",
+            ],
+            testCases: [
+              {
+                expectedStdout: "4\n",
+                visible: true,
+                description: "Cuatro líneas",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Solo líneas con A inicial
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Filtrar por inicial
+
+Crea \`lista.txt\` con estas 5 líneas:
+
+\`\`\`
+Aurora
+Mario
+Andres
+Sofia
+Adriana
+\`\`\`
+
+Reábrelo y recórrelo con \`getline\`. **Imprime SOLO las líneas que comienzan
+con la letra \`A\`** (mayúscula).
+
+Pista: para checar el primer caracter de un string \`s\`, usa \`s[0]\` y
+compáralo con \`'A'\`.
+
+Salida esperada:
+
+\`\`\`
+Aurora
+Andres
+Adriana
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 55,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  ofstream salida("lista.txt");
+  salida << "Aurora"  << endl;
+  salida << "Mario"   << endl;
+  salida << "Andres"  << endl;
+  salida << "Sofia"   << endl;
+  salida << "Adriana" << endl;
+  salida.close();
+
+  ifstream entrada("lista.txt");
+  string linea;
+  while (getline(entrada, linea)) {
+    if (linea[0] == 'A') {
+      cout << linea << endl;
+    }
+  }
+  entrada.close();
+  return 0;
+}`,
+            hints: [
+              "Las comillas simples `'A'` se usan para un solo caracter.",
+              "`if (linea[0] == 'A') { cout << linea << endl; }` dentro del while.",
+              "No imprimas las que no empiezan con A.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Aurora\nAndres\nAdriana\n",
+                visible: true,
+                description: "Tres nombres con A inicial",
               },
             ],
           },
@@ -568,15 +1088,15 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 5: Modo append (no borrar lo anterior)
+    // Lección 5: Modo append
     // =====================================================================
     {
       slug: "modo-append",
       title: "Agregar al final sin borrar (modo append)",
       description:
         "Por defecto, abrir un archivo para escritura BORRA su contenido. Para agregar al final usas `ios::app`.",
-      xpReward: 40,
-      estimatedMinutes: 9,
+      xpReward: 45,
+      estimatedMinutes: 12,
       steps: [
         {
           type: "code_example",
@@ -635,43 +1155,101 @@ archivo.close();`,
           explanation:
             "El segundo argumento `ios::app` activa el modo append.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (fácil): Una sola apendida
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Bitácora de 3 entradas
+            prompt: `## Reto 1 — Primera apendida
 
-Tu programa debe construir el archivo \`bitacora.txt\` con TRES líneas
-agregadas en orden, **cada una con una apertura distinta** del archivo:
+Tu programa debe:
 
-1. Primera apertura (modo normal): escribe \`Inicio\`.
-2. Segunda apertura (modo append): agrega \`Avance\`.
-3. Tercera apertura (modo append): agrega \`Fin\`.
-
-Después, abre el archivo con \`ifstream\` y lo lees con \`getline\`, imprimiendo
-cada línea.
+1. Crear \`historial.txt\` (modo normal) con la línea \`Inicio\`.
+2. Reabrir el archivo en modo \`ios::app\` y agregar \`Fin\`.
+3. Reabrir con \`ifstream\` y leer todo con \`getline\` para verificar.
 
 Salida esperada:
 
 \`\`\`
 Inicio
-Avance
 Fin
 \`\`\``,
-            difficulty: "hard",
-            xpReward: 45,
+            difficulty: "easy",
+            xpReward: 35,
             starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
 #include <fstream>
 #include <string>
 using namespace std;
 
 int main() {
-  // 1) escribe Inicio (modo normal)
-  // 2) abre en modo append y escribe Avance
-  // 3) abre en modo append y escribe Fin
-  // 4) lee con getline e imprime
+  ofstream a("historial.txt");
+  a << "Inicio" << endl;
+  a.close();
 
+  ofstream b("historial.txt", ios::app);
+  b << "Fin" << endl;
+  b.close();
+
+  ifstream c("historial.txt");
+  string linea;
+  while (getline(c, linea)) {
+    cout << linea << endl;
+  }
+  c.close();
   return 0;
 }`,
+            hints: [
+              "Primera apertura: SIN segundo argumento (trunca o crea).",
+              "Segunda apertura: CON `ios::app`.",
+              "Tercera apertura: `ifstream` + `while (getline(...))`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Inicio\nFin\n",
+                visible: true,
+                description: "Dos líneas en orden, sin pérdida",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (medio): Append múltiple
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Bitácora de 4 entradas
+
+Construye \`bitacora.txt\` así, **abriendo el archivo 4 veces**:
+
+1. Primera apertura (modo normal): escribe \`Encendido\`.
+2. Segunda apertura (modo append): agrega \`Inicio sesion\`.
+3. Tercera apertura (modo append): agrega \`Operacion\`.
+4. Cuarta apertura (modo append): agrega \`Apagado\`.
+
+Después abre con \`ifstream\` y leerlo con \`getline\`, imprimiendo cada línea.
+
+Salida esperada:
+
+\`\`\`
+Encendido
+Inicio sesion
+Operacion
+Apagado
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 45,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 #include <string>
@@ -679,16 +1257,20 @@ using namespace std;
 
 int main() {
   ofstream a("bitacora.txt");
-  a << "Inicio" << endl;
+  a << "Encendido" << endl;
   a.close();
 
   ofstream b("bitacora.txt", ios::app);
-  b << "Avance" << endl;
+  b << "Inicio sesion" << endl;
   b.close();
 
   ofstream c("bitacora.txt", ios::app);
-  c << "Fin" << endl;
+  c << "Operacion" << endl;
   c.close();
+
+  ofstream d("bitacora.txt", ios::app);
+  d << "Apagado" << endl;
+  d.close();
 
   ifstream lector("bitacora.txt");
   string linea;
@@ -699,15 +1281,93 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Primera apertura SIN segundo argumento (borra si existía).",
-              "Segunda y tercera CON `ios::app`.",
-              "Al final, el bloque de lectura `while (getline(...))`.",
+              "Sólo la PRIMERA apertura va sin `ios::app`.",
+              "Las otras 3 SÍ llevan `ios::app`.",
+              "Al final, un solo bloque `ifstream` + `while (getline(...))`.",
             ],
             testCases: [
               {
-                expectedStdout: "Inicio\nAvance\nFin\n",
+                expectedStdout: "Encendido\nInicio sesion\nOperacion\nApagado\n",
                 visible: true,
-                description: "Tres líneas en orden, sin pérdida",
+                description: "Cuatro líneas en orden",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 3 (difícil): Append desde cin en for
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 3 — Append en bucle
+
+Lee con \`cin\` **3 palabras** del usuario (separadas por espacio o línea).
+Crea \`palabras.txt\` vacío (modo normal). Después, en un \`for\`, abre el
+archivo **3 veces** en modo \`ios::app\` y escribe una palabra por apertura.
+
+Cuando hayas terminado, abre con \`ifstream\` y léelo línea por línea para
+verificar.
+
+Para el test, el sistema enviará: \`Hola Mundo CETI\`.
+
+Salida esperada:
+
+\`\`\`
+Hola
+Mundo
+CETI
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 55,
+            starterCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+  // archivo vacío
+  ofstream limpio("palabras.txt");
+  limpio.close();
+
+  for (int i = 0; i < 3; i++) {
+    string palabra;
+    cin >> palabra;
+    ofstream app("palabras.txt", ios::app);
+    app << palabra << endl;
+    app.close();
+  }
+
+  ifstream lector("palabras.txt");
+  string linea;
+  while (getline(lector, linea)) {
+    cout << linea << endl;
+  }
+  lector.close();
+  return 0;
+}`,
+            hints: [
+              "Primera apertura SIN segundo argumento, solo para limpiar/crear.",
+              "Dentro del for: lee con `cin >> palabra;`, abre con `ios::app`, escribe, cierra.",
+              "Al final, lectura completa con `while (getline(...))`.",
+            ],
+            testCases: [
+              {
+                stdin: "Hola Mundo CETI\n",
+                expectedStdout: "Hola\nMundo\nCETI\n",
+                visible: true,
+                description: "Tres palabras leídas y agregadas",
+              },
+              {
+                stdin: "uno dos tres\n",
+                expectedStdout: "uno\ndos\ntres\n",
+                visible: false,
+                description: "Cualquier triada funciona",
               },
             ],
           },
@@ -716,15 +1376,15 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 6: Integrador (boletín en archivo)
+    // Lección 6: Integrador
     // =====================================================================
     {
       slug: "integrador-archivos",
       title: "Integrador: boletín guardado en archivo",
       description:
-        "Pide N calificaciones, guárdalas en un archivo y léelas para calcular el promedio.",
-      xpReward: 60,
-      estimatedMinutes: 12,
+        "Pide N calificaciones, guárdalas en un archivo y léelas para calcular estadísticas.",
+      xpReward: 80,
+      estimatedMinutes: 18,
       steps: [
         {
           type: "code_example",
@@ -791,40 +1451,36 @@ f.close();`,
           explanation:
             "Patrón: `while (stream >> variable)` para leer todos los valores que haya, sin saber cuántos son.",
         },
+        // -----------------------------------------------------------------
+        // Reto 1 (medio): Promedio en disco
+        // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Boletín en disco
+            prompt: `## Reto 1 — Promedio en disco
 
 Tu programa debe:
 
-1. Leer con \`cin\` **5 calificaciones enteras** del usuario.
+1. Leer con \`cin\` **5 calificaciones** enteras.
 2. Guardarlas en \`boletin.txt\`, una por línea, en el orden recibido.
 3. Cerrar el archivo.
 4. Reabrirlo con \`ifstream\`, recorrerlo con \`while (entrada >> valor)\` y
-   calcular la suma.
+   sumar.
 5. Imprimir UNA sola línea: \`Promedio: <p>\` con \`<p>\` = suma / 5.0.
 
-Para el test, el sistema enviará: \`8 9 7 10 6\` (suma = 40 → promedio = 8).
+Para el test, el sistema enviará: \`8 9 7 10 6\` (promedio = 8).
 
 Salida esperada:
 
 \`\`\`
 Promedio: 8
 \`\`\``,
-            difficulty: "hard",
+            difficulty: "medium",
             xpReward: 50,
             starterCode: `#include <iostream>
 #include <fstream>
 using namespace std;
-
-int main() {
-  // 1) cin de 5 enteros → ofstream a boletin.txt
-  // 2) ifstream + while(entrada >> valor) → suma
-  // 3) cout << "Promedio: " << suma / 5.0 << endl;
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <fstream>
 using namespace std;
@@ -850,22 +1506,132 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Primero un for que lee con `cin` y escribe con `salida <<` (5 veces).",
-              "Después un `while (entrada >> valor) suma += valor;`.",
-              "Divide entre `5.0` (con punto) para obtener decimales.",
+              "Bloque 1: for de 5 vueltas, `cin >> n; salida << n << endl;`.",
+              "Bloque 2: `while (entrada >> valor) suma += valor;`.",
+              "Divide entre `5.0` para decimales.",
             ],
             testCases: [
               {
                 stdin: "8 9 7 10 6\n",
                 expectedStdout: "Promedio: 8\n",
                 visible: true,
-                description: "Caso 8,9,7,10,6 → promedio 8",
+                description: "Promedio entero",
               },
               {
                 stdin: "10 10 10 10 10\n",
                 expectedStdout: "Promedio: 10\n",
+                visible: false,
+                description: "Todos 10",
+              },
+            ],
+          },
+        },
+        // -----------------------------------------------------------------
+        // Reto 2 (difícil): Reporte completo
+        // -----------------------------------------------------------------
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reto 2 — Reporte completo en disco
+
+Construye un mini sistema:
+
+1. Lee con \`cin\` **5 calificaciones** enteras.
+2. Escríbelas en \`reporte.txt\`, una por línea.
+3. Cierra el archivo.
+4. Reábrelo y, en una sola pasada con \`while (entrada >> valor)\`, calcula:
+   - **suma**
+   - **máximo** (arranca con el primer valor leído)
+   - **cuántas son** \`>= 7\` (aprobados)
+5. Imprime **TRES** líneas exactamente:
+
+\`\`\`
+Promedio: <suma/5.0>
+Mayor: <máximo>
+Aprobados: <conteo>
+\`\`\`
+
+Para el test, el sistema enviará: \`8 5 10 7 4\`.
+
+- Suma = 34, promedio = 6.8.
+- Mayor = 10.
+- Aprobados (≥7) = 3 (8, 10, 7).
+
+Salida esperada:
+
+\`\`\`
+Promedio: 6.8
+Mayor: 10
+Aprobados: 3
+\`\`\``,
+            difficulty: "hard",
+            xpReward: 70,
+            starterCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+`,
+            solutionCode: `#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+  // Bloque 1: cin + escribir archivo
+  ofstream salida("reporte.txt");
+  for (int i = 0; i < 5; i++) {
+    int n;
+    cin >> n;
+    salida << n << endl;
+  }
+  salida.close();
+
+  // Bloque 2: releer y agregar estadísticas
+  ifstream entrada("reporte.txt");
+  int valor;
+  int suma = 0;
+  int mayor = 0;
+  int aprobados = 0;
+  bool primero = true;
+
+  while (entrada >> valor) {
+    suma += valor;
+    if (primero) {
+      mayor = valor;
+      primero = false;
+    } else if (valor > mayor) {
+      mayor = valor;
+    }
+    if (valor >= 7) aprobados++;
+  }
+  entrada.close();
+
+  cout << "Promedio: " << suma / 5.0 << endl;
+  cout << "Mayor: " << mayor << endl;
+  cout << "Aprobados: " << aprobados << endl;
+  return 0;
+}`,
+            hints: [
+              "Para el máximo dentro del while, usa una bandera `bool primero = true;` que inicialice `mayor` con la PRIMERA lectura. Después del primer valor, sigues comparando normal.",
+              "Suma y aprobados son acumuladores normales que arrancan en 0.",
+              "Tres `cout` distintos al final, en el orden EXACTO Promedio → Mayor → Aprobados.",
+            ],
+            testCases: [
+              {
+                stdin: "8 5 10 7 4\n",
+                expectedStdout: "Promedio: 6.8\nMayor: 10\nAprobados: 3\n",
                 visible: true,
-                description: "Todos 10 → promedio 10",
+                description: "Caso ejemplo",
+              },
+              {
+                stdin: "10 10 10 10 10\n",
+                expectedStdout: "Promedio: 10\nMayor: 10\nAprobados: 5\n",
+                visible: false,
+                description: "Todos perfectos",
+              },
+              {
+                stdin: "0 0 0 0 0\n",
+                expectedStdout: "Promedio: 0\nMayor: 0\nAprobados: 0\n",
+                visible: false,
+                description: "Caso vacío de aprobados",
               },
             ],
           },
