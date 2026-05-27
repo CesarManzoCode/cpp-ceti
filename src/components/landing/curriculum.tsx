@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { Check, Lock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -7,13 +8,13 @@ const units = [
   {
     n: 1,
     title: "Tu primer programa en C++",
-    topics: ["Hola Mundo", "Estructura de un programa", "Compilar y ejecutar", "Comentarios"],
+    topics: ["Hola Mundo", "Estructura", "Compilar", "Comentarios"],
     available: true,
   },
   {
     n: 2,
     title: "Variables y tipos de datos",
-    topics: ["int, float, double", "char y string", "bool", "Constantes", "Operadores"],
+    topics: ["int, float, double", "char y string", "bool", "Operadores"],
     available: true,
   },
   {
@@ -25,13 +26,13 @@ const units = [
   {
     n: 4,
     title: "Estructuras de control",
-    topics: ["if / else", "switch", "while", "for", "do-while"],
+    topics: ["if / else", "switch", "while", "for"],
     available: false,
   },
   {
     n: 5,
     title: "Funciones",
-    topics: ["Definición", "Parámetros", "Retorno", "Sobrecarga", "Recursión"],
+    topics: ["Definición", "Parámetros", "Retorno", "Recursión"],
     available: false,
   },
   {
@@ -43,13 +44,13 @@ const units = [
   {
     n: 7,
     title: "Punteros y referencias",
-    topics: ["* y &", "Paso por valor vs referencia", "Aritmética de punteros"],
+    topics: ["* y &", "Paso por referencia", "Aritmética"],
     available: false,
   },
   {
     n: 8,
-    title: "Programación orientada a objetos",
-    topics: ["Clases", "Objetos", "Constructores", "Herencia", "Polimorfismo"],
+    title: "POO en C++",
+    topics: ["Clases", "Objetos", "Herencia", "Polimorfismo"],
     available: false,
   },
 ];
@@ -64,65 +65,96 @@ export function Curriculum() {
         <SectionHeading
           align="center"
           eyebrow="temario"
-          title="Basado en el plan oficial del CETI"
+          title="8 unidades, del primer cout hasta POO."
           description={
             <>
-              8 unidades que van del primer{" "}
-              <code className="code-inline">cout</code> hasta POO. Nuevas
-              lecciones cada semana.
+              Construidas sobre el plan oficial del CETI. Nuevas lecciones
+              llegan cada semana.
             </>
           }
           className="mx-auto items-center"
         />
 
-        <ul
-          data-stagger
-          style={{ "--stagger": "55ms" } as CSSProperties}
-          className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          {units.map((u, idx) => (
-            <li
-              key={u.n}
-              style={{ "--i": idx } as CSSProperties}
-              className="group animate-fade-up hover-lift relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-md)] data-[locked=true]:opacity-70"
-              data-locked={!u.available || undefined}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  U{u.n.toString().padStart(2, "0")}
-                </span>
-                {u.available ? (
-                  <Badge variant="success" size="sm">
-                    Disponible
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" size="sm">
-                    Próximo
-                  </Badge>
-                )}
-              </div>
-              <h3 className="text-[15px] font-semibold leading-snug tracking-tight">
-                {u.title}
-              </h3>
-              <ul className="space-y-1 text-xs text-muted-foreground">
-                {u.topics.slice(0, 3).map((t) => (
-                  <li key={t} className="flex items-center gap-2">
-                    <span
-                      className="size-1 shrink-0 rounded-full bg-muted-foreground/40"
-                      aria-hidden
-                    />
-                    <span className="truncate">{t}</span>
-                  </li>
-                ))}
-                {u.topics.length > 3 ? (
-                  <li className="text-muted-foreground/60">
-                    + {u.topics.length - 3} más
-                  </li>
-                ) : null}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        {/* Path */}
+        <div className="relative mt-14">
+          {/* Vertical line backbone (desktop) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-[27px] top-0 hidden h-full w-px bg-gradient-to-b from-border via-border to-transparent sm:block"
+          />
+
+          <ol
+            data-stagger
+            style={{ "--stagger": "60ms" } as CSSProperties}
+            className="space-y-3"
+          >
+            {units.map((u, idx) => {
+              const isAvailable = u.available;
+              return (
+                <li
+                  key={u.n}
+                  style={{ "--i": idx } as CSSProperties}
+                  className="animate-fade-up relative flex items-stretch gap-4 sm:gap-6"
+                >
+                  {/* Node */}
+                  <div
+                    className={`relative z-10 grid size-[54px] shrink-0 place-items-center rounded-2xl font-mono text-lg font-bold ring-1 ring-inset ${
+                      isAvailable
+                        ? "bg-primary text-primary-foreground ring-primary/40 shadow-[0_6px_16px_-4px_var(--primary)]"
+                        : "bg-surface-2 text-muted-foreground/70 ring-border"
+                    }`}
+                  >
+                    {isAvailable ? (
+                      <span>{u.n.toString().padStart(2, "0")}</span>
+                    ) : (
+                      <Lock className="size-4" aria-hidden />
+                    )}
+                  </div>
+
+                  {/* Card */}
+                  <article
+                    className={`group flex-1 rounded-[var(--radius-xl)] border bg-card p-5 transition-[transform,box-shadow,border-color] ${
+                      isAvailable
+                        ? "border-border shadow-[var(--shadow-xs)] hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-md)]"
+                        : "border-dashed border-border opacity-70"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                          Unidad {u.n}
+                        </p>
+                        <h3 className="mt-0.5 text-lg font-semibold tracking-tight">
+                          {u.title}
+                        </h3>
+                      </div>
+                      {isAvailable ? (
+                        <Badge variant="success" size="sm">
+                          <Check className="size-3" strokeWidth={3} />
+                          Disponible
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" size="sm">
+                          Próximo
+                        </Badge>
+                      )}
+                    </div>
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {u.topics.map((t) => (
+                        <li
+                          key={t}
+                          className="inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs text-muted-foreground"
+                        >
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </div>
     </section>
   );

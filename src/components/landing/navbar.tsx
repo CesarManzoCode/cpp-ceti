@@ -9,6 +9,7 @@ const navLinks = [
   { href: "#por-que", label: "Por qué" },
   { href: "#como", label: "Cómo funciona" },
   { href: "#temario", label: "Temario" },
+  { href: "#preguntas", label: "Preguntas" },
 ];
 
 export function LandingNavbar() {
