@@ -1,63 +1,102 @@
 import type { UnitDefinition } from "./types";
 
+/**
+ * Unidad 01 — Tu primer programa en C++
+ *
+ * Filosofía: 90% práctica, 10% teoría. Cada lección sigue el patrón
+ *   ejemplo ejecutable → llenar espacios → escribir desde cero.
+ * Sin contenido histórico/biográfico. Solo código que el alumno
+ * lee, modifica, completa y escribe. Estilo CETI: directo al grano.
+ */
 export const unidad01: UnitDefinition = {
   slug: "primer-programa",
   title: "Tu primer programa en C++",
   description:
-    "De cero a tu primer 'Hola Mundo'. Aprende qué es C++, cómo se ve un programa y por qué se compila antes de correr.",
+    "De cero a escribir, compilar y correr tu primer programa. Pura práctica en el navegador.",
   icon: "🚀",
   published: true,
   lessons: [
     // =====================================================================
-    // Lección 1: Bienvenido a C++
+    // Lección 1: Tu primer cout (reemplaza "Bienvenido a C++")
     // =====================================================================
     {
       slug: "bienvenido-a-cpp",
-      title: "Bienvenido a C++",
-      description: "Qué es C++, para qué sirve y por qué lo aprendes.",
+      title: "Tu primer cout",
+      description: "Imprime texto en la consola con cout.",
       xpReward: 20,
       estimatedMinutes: 4,
       steps: [
         {
-          type: "theory",
-          markdown: `## ¿Qué es C++?
+          type: "code_example",
+          code: `#include <iostream>
+using namespace std;
 
-**C++** es un lenguaje de programación creado en los 80s por **Bjarne Stroustrup** que sigue siendo de los más usados del mundo.
-
-¿Por qué importa que TÚ lo aprendas?
-
-- **Google, Facebook, Netflix, Microsoft** lo usan para sus partes más críticas.
-- Los **videojuegos** (Unreal Engine, gran parte de Unity) corren sobre C++.
-- Los **navegadores** que usas todos los días — Chrome, Firefox, Safari — están escritos en C++.
-- En el **CETI**, C++ es la puerta a entender cómo funciona una computadora *de verdad*.
-
-> En esta plataforma vas a *programar* C++, no a memorizarlo. Cada cosa que aprendas la vas a escribir tú mismo.`,
-        },
-        {
-          type: "quiz",
-          question: "¿Quién creó C++?",
-          options: [
-            "Linus Torvalds",
-            "Bjarne Stroustrup",
-            "Dennis Ritchie",
-            "Guido van Rossum",
-          ],
-          correctIndex: 1,
+int main() {
+  cout << "Hola desde el CETI";
+  return 0;
+}`,
           explanation:
-            "Bjarne Stroustrup creó C++ en los Bell Labs a principios de los 80s. Dennis Ritchie creó C (su antecesor), Linus Torvalds creó Linux y Guido van Rossum creó Python.",
+            "`cout` imprime texto entre comillas en la consola. Pulsa **Ejecutar** y mira el resultado.",
+          runnable: true,
+          expectedOutput: "Hola desde el CETI",
         },
         {
-          type: "theory",
-          markdown: `## ¿Cómo aprenderás aquí?
+          type: "fill_blank",
+          template: `#include <iostream>
+using namespace std;
 
-1. **Lees un concepto corto** (lo que estás haciendo ahora).
-2. **Ves un ejemplo** y lo puedes correr en el navegador.
-3. **Lo intentas tú** — con quizzes, completar código, y retos de programación.
-4. **La plataforma te da feedback inmediato.**
+int main() {
+  {{0}} << {{1}};
+  return 0;
+}`,
+          blanks: [
+            { answer: "cout", hint: "Es el objeto que envía texto a la consola." },
+            { answer: '"Hola"', hint: "Cualquier texto, entre comillas dobles." },
+          ],
+          explanation:
+            "`cout << \"...\"` envía un texto a la consola. El texto siempre va entre comillas dobles.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Imprime tu nombre
 
-No necesitas instalar nada. No necesitas un compilador en tu compu. **Todo corre aquí**.
+Escribe un programa que imprima tu nombre. Para los tests usa exactamente \`Aurora\`.
 
-Cuando termines una lección, ganas **XP** y tu **racha de días** aumenta. Es ridículamente satisfactorio.`,
+Salida esperada:
+\`\`\`
+Aurora
+\`\`\``,
+            difficulty: "easy",
+            xpReward: 15,
+            starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  // Imprime "Aurora" aquí
+
+  return 0;
+}`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  cout << "Aurora";
+  return 0;
+}`,
+            hints: [
+              "Usa `cout << \"...\";` para imprimir.",
+              "El texto va entre comillas dobles.",
+              "No olvides el `;` al final de la línea.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Aurora",
+                visible: true,
+                description: "Imprime el nombre exacto",
+              },
+            ],
+          },
         },
       ],
     },
@@ -67,24 +106,11 @@ Cuando termines una lección, ganas **XP** y tu **racha de días** aumenta. Es r
     // =====================================================================
     {
       slug: "hola-mundo",
-      title: "Hola, Mundo!",
-      description: "El clásico primer programa. Vamos a hacerlo correr.",
-      xpReward: 30,
-      estimatedMinutes: 6,
+      title: "Hola, Mundo! con salto de línea",
+      description: "El clásico programa, ahora con endl para dejar el cursor en una nueva línea.",
+      xpReward: 25,
+      estimatedMinutes: 5,
       steps: [
-        {
-          type: "theory",
-          markdown: `## El programa más famoso del mundo
-
-Por tradición, el primer programa que se escribe en cualquier lenguaje imprime el texto **"Hola, Mundo!"** en pantalla.
-
-Suena tonto. Pero hacer esto te demuestra que:
-1. Sabes escribir código C++ que **compila**.
-2. Tu computadora puede **correr** ese código.
-3. El programa **hace algo visible**.
-
-Vamos a verlo y luego lo escribes tú.`,
-        },
         {
           type: "code_example",
           code: `#include <iostream>
@@ -94,48 +120,40 @@ int main() {
   cout << "Hola, Mundo!" << endl;
   return 0;
 }`,
-          explanation: `Este programa imprime el texto **\`Hola, Mundo!\`** y luego termina.
-
-No te preocupes si no entiendes cada línea — la siguiente lección te explica cada pedacito. Por ahora, **pulsa "Ejecutar"** y mira la salida en la consola de abajo.`,
+          explanation:
+            "`<< endl` agrega un salto de línea al final. Lo necesitas cuando vas a imprimir más de una línea seguida.",
           runnable: true,
+          expectedOutput: "Hola, Mundo!",
         },
         {
           type: "fill_blank",
-          template: `#include <iostream>
-using namespace std;
-
-int main() {
-  {{0}} << "Hola, Mundo!" << endl;
-  return 0;
-}`,
+          template: `cout << "Hola, Mundo!" {{0}} {{1}};`,
           blanks: [
-            {
-              answer: "cout",
-              hint: "Es la abreviación de 'console output' — lo que imprime en pantalla.",
-            },
+            { answer: "<<", hint: "El mismo operador para encadenar." },
+            { answer: "endl", hint: "Sin comillas: es un identificador." },
           ],
           explanation:
-            "`cout` (console output) es el objeto que envía texto a la pantalla.",
+            "`endl` se manda a `cout` con `<<`, igual que cualquier otro texto. Pero `endl` NO lleva comillas.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Tu primer programa
+            prompt: `## Tu primer Hola Mundo
 
-Escribe un programa que imprima exactamente:
+Imprime exactamente:
 
 \`\`\`
 Hola, Mundo!
 \`\`\`
 
-Te dejamos el esqueleto. Solo necesitas completar la línea del \`cout\`.`,
+Acuérdate de incluir el salto de línea al final.`,
             difficulty: "easy",
             xpReward: 15,
             starterCode: `#include <iostream>
 using namespace std;
 
 int main() {
-  // Escribe tu cout aquí
+  // Tu cout aquí
 
   return 0;
 }`,
@@ -147,15 +165,15 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Usa `cout << \"...\" << endl;` para imprimir y dar salto de línea.",
-              "El texto va entre comillas dobles: `\"Hola, Mundo!\"`.",
-              "No olvides el `;` al final de la línea.",
+              "Usa `cout << \"...\" << endl;`.",
+              "El texto exacto es `Hola, Mundo!` (con la coma y el signo de admiración).",
+              "Termina con `endl` para el salto de línea.",
             ],
             testCases: [
               {
                 expectedStdout: "Hola, Mundo!\n",
                 visible: true,
-                description: "Imprime el saludo exacto",
+                description: "Imprime el saludo exacto con salto de línea",
               },
             ],
           },
@@ -164,74 +182,29 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 3: Anatomía de un programa C++
+    // Lección 3: Cada línea hace algo
     // =====================================================================
     {
       slug: "anatomia",
-      title: "La anatomía de un programa C++",
+      title: "Cada línea hace algo",
       description:
-        "¿Qué hace cada línea de un programa? Vamos a diseccionarlo.",
+        "Identifica el propósito de cada línea de un programa C++.",
       xpReward: 30,
-      estimatedMinutes: 8,
+      estimatedMinutes: 7,
       steps: [
         {
-          type: "theory",
-          markdown: `## Línea por línea
+          type: "code_example",
+          code: `#include <iostream>     // herramientas de entrada/salida
+using namespace std;    // permite usar cout sin std::
 
-Mira otra vez nuestro Hola Mundo:
-
-\`\`\`cpp
-#include <iostream>     // 1. Incluir herramientas
-using namespace std;    // 2. Usar el "namespace" estándar
-                        //
-int main() {            // 3. Aquí EMPIEZA el programa
-  cout << "Hola!";      // 4. Imprime un mensaje
-  return 0;             // 5. Termina sin errores
-}                       // 6. Cierra el main
-\`\`\`
-
-Cada línea tiene una razón de ser. Vamos a ver una a una.`,
-        },
-        {
-          type: "theory",
-          markdown: `### 1. \`#include <iostream>\`
-
-Le dice al compilador: *"voy a usar las herramientas de entrada/salida"*.
-
-\`iostream\` significa **"input/output stream"** (flujos de entrada/salida).
-Sin ese \`#include\`, **\`cout\` no existiría** y tu programa no compilaría.
-
-### 2. \`using namespace std;\`
-
-Significa *"asumir que cuando diga \`cout\`, me refiero a \`std::cout\`"*.
-
-Sin esto, tendrías que escribir todo con prefijo:
-
-\`\`\`cpp
-std::cout << "Hola!" << std::endl;
-\`\`\`
-
-### 3. \`int main() { ... }\`
-
-Es **la puerta de entrada** del programa. C++ siempre empieza ejecutando lo que está adentro de \`main\`. Si tu programa no tiene un \`main\`, no compila.
-
-### 4. \`return 0;\`
-
-Le avisa al sistema operativo: *"terminé y todo salió bien"*. Por convención, \`0\` significa éxito.`,
-        },
-        {
-          type: "quiz",
-          question:
-            "¿Qué pasa si quitas la línea `#include <iostream>` de un programa que usa `cout`?",
-          options: [
-            "El programa corre pero no imprime nada.",
-            "El programa no compila — el compilador no reconoce `cout`.",
-            "Imprime un error en rojo y luego corre.",
-            "C++ asume `iostream` automáticamente.",
-          ],
-          correctIndex: 1,
+int main() {            // punto de entrada del programa
+  cout << "Listo";      // imprime un mensaje
+  return 0;             // termina sin errores
+}`,
           explanation:
-            "`cout` está declarado dentro de `<iostream>`. Sin el `#include`, el compilador no sabe qué es `cout` y da un error de compilación.",
+            "Cada línea del programa tiene una función específica. Lee los comentarios a la derecha y luego corre el código para ver el resultado.",
+          runnable: true,
+          expectedOutput: "Listo",
         },
         {
           type: "quiz",
@@ -245,7 +218,7 @@ Le avisa al sistema operativo: *"terminé y todo salió bien"*. Por convención,
           ],
           correctIndex: 2,
           explanation:
-            "Sin importar cuántas funciones tengas, C++ siempre arranca en `main`. Es la única función que el sistema operativo sabe cómo llamar.",
+            "C++ siempre arranca dentro de `main`. Si tu programa no tiene `main`, no compila.",
         },
         {
           type: "fill_blank",
@@ -253,15 +226,52 @@ Le avisa al sistema operativo: *"terminé y todo salió bien"*. Por convención,
 using namespace std;
 
 {{0}} main() {
-  cout << "Listo" << endl;
+  cout << "Hola";
   {{1}} 0;
 }`,
           blanks: [
             { answer: "int", hint: "Es el tipo de dato que devuelve la función." },
-            { answer: "return", hint: "Le dice al sistema operativo que terminamos bien." },
+            { answer: "return", hint: "Marca el fin del programa." },
           ],
           explanation:
-            "`int main()` indica que la función devuelve un entero, y `return 0;` es ese entero (cero = éxito).",
+            "`int main()` significa que `main` devuelve un entero. `return 0;` es ese entero y significa “terminé bien”.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Reconstruye el programa
+
+Escribe un programa C++ **completo** que imprima:
+
+\`\`\`
+Curso de C++
+\`\`\`
+
+Necesitas incluir TODAS las partes: \`#include\`, \`using namespace\`, \`int main()\` y \`return 0;\`.`,
+            difficulty: "easy",
+            xpReward: 20,
+            starterCode: `// Escribe el programa completo desde aquí
+`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  cout << "Curso de C++" << endl;
+  return 0;
+}`,
+            hints: [
+              "Empieza con `#include <iostream>` y `using namespace std;`.",
+              "Después declara `int main() { ... }`.",
+              "Dentro del main: `cout << \"Curso de C++\" << endl;` y `return 0;`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Curso de C++\n",
+                visible: true,
+                description: "Programa C++ completo y compilable",
+              },
+            ],
+          },
         },
       ],
     },
@@ -271,61 +281,90 @@ using namespace std;
     // =====================================================================
     {
       slug: "comentarios",
-      title: "Comentarios: hablar con el código",
+      title: "Comentarios",
       description:
-        "Cómo dejar notas en tu código para tu yo del futuro (y para tus compañeros).",
+        "Cómo dejar notas en tu código sin afectar la ejecución.",
       xpReward: 20,
       estimatedMinutes: 4,
       steps: [
-        {
-          type: "theory",
-          markdown: `## Comentarios
-
-Un **comentario** es texto que el compilador **ignora**. Sirve para explicarte a ti mismo (o a otra persona) **por qué** el código hace lo que hace.
-
-En C++ hay dos formas:
-
-\`\`\`cpp
-// Esto es un comentario de UNA línea
-
-/* Esto es un comentario
-   que puede ocupar
-   varias líneas */
-\`\`\`
-
-> ⚠️ Un buen comentario explica el **por qué**, no el *qué*. Si tu código necesita explicar *qué* hace, mejor renombra tus variables.`,
-        },
         {
           type: "code_example",
           code: `#include <iostream>
 using namespace std;
 
 int main() {
-  // Saludamos al usuario
-  cout << "Hola!" << endl;
+  // Comentario de UNA línea (el compilador lo ignora)
+  cout << "Hola" << endl;
 
-  /* Próximamente:
-     pedirle su nombre */
+  /* Comentario
+     de varias
+     líneas */
   return 0;
 }`,
           explanation:
-            "Compila y corre este código. Verás que los comentarios **no afectan** la salida — solo te ayudan a entender el código.",
+            "Hay dos formas: `//` para una línea y `/* ... */` para varias. El compilador los ignora — solo sirven para ti y para tus compañeros.",
           runnable: true,
-          expectedOutput: "Hola!",
+          expectedOutput: "Hola",
         },
         {
-          type: "quiz",
-          question:
-            "¿Cuál de estos comentarios es válido en C++?",
-          options: [
-            "# este es un comentario",
-            "<!-- comentario -->",
-            "// comentario de una línea",
-            "## comentario en bloque ##",
+          type: "fill_blank",
+          template: `#include <iostream>
+using namespace std;
+
+int main() {
+  {{0}} Imprimimos un saludo
+  cout << "Hola CETI" << endl;
+  return 0;
+}`,
+          blanks: [
+            { answer: "//", hint: "Dos barras inclinadas inician un comentario de una línea." },
           ],
-          correctIndex: 2,
           explanation:
-            "C++ usa `//` para comentarios de una línea y `/* ... */` para varias líneas. `#` se usa al inicio para directivas como `#include`, no para comentarios. `<!-- -->` es de HTML.",
+            "`//` convierte el resto de la línea en comentario. El compilador lo ignora.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Programa documentado
+
+Escribe un programa que imprima:
+
+\`\`\`
+Aurora · 5to semestre
+\`\`\`
+
+**Requisito:** incluye al menos **un comentario** explicando qué hace el \`cout\`. El comentario no afecta el output, solo tiene que estar en el código.`,
+            difficulty: "easy",
+            xpReward: 20,
+            starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  // Tu programa aquí (con al menos un comentario)
+
+  return 0;
+}`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  // Imprime el nombre y semestre del alumno
+  cout << "Aurora · 5to semestre" << endl;
+  return 0;
+}`,
+            hints: [
+              "Agrega un comentario con `//` antes o después de tu `cout`.",
+              "El texto exacto es `Aurora · 5to semestre` (con el separador `·`).",
+              "Recuerda el salto de línea con `endl`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Aurora · 5to semestre\n",
+                visible: true,
+                description: "Output exacto",
+              },
+            ],
+          },
         },
       ],
     },
@@ -336,24 +375,11 @@ int main() {
     {
       slug: "imprimir-varias-cosas",
       title: "Imprimir varias cosas",
-      description: "Cómo encadenar texto con `<<` y mostrar más de un mensaje.",
+      description:
+        "Encadena texto y números en un solo cout con el operador <<.",
       xpReward: 25,
       estimatedMinutes: 5,
       steps: [
-        {
-          type: "theory",
-          markdown: `## El operador \`<<\`
-
-Pensar en \`<<\` como una **flecha que empuja datos hacia \`cout\`**:
-
-\`\`\`cpp
-cout << "Hola" << " " << "mundo!";
-\`\`\`
-
-Eso imprime: \`Hola mundo!\`
-
-Puedes encadenar todo lo que quieras con \`<<\`. Cada \`<<\` empuja la siguiente cosa a la consola.`,
-        },
         {
           type: "code_example",
           code: `#include <iostream>
@@ -361,22 +387,66 @@ using namespace std;
 
 int main() {
   cout << "Mi nombre es " << "Aurora" << ".";
-  cout << " Tengo " << 19 << " años.";
+  cout << " Tengo " << 19 << " anios.";
   return 0;
 }`,
           explanation:
-            "Fíjate cómo encadenamos texto y número en la misma línea. **No necesitas comillas alrededor de los números**.",
+            "Cada `<<` empuja la siguiente cosa a la consola. Los números NO llevan comillas; el texto sí.",
           runnable: true,
-          expectedOutput: "Mi nombre es Aurora. Tengo 19 años.",
+          expectedOutput: "Mi nombre es Aurora. Tengo 19 anios.",
         },
         {
           type: "fill_blank",
-          template: `cout << "Hola, " {{0}} "soy" {{1}} " Aurora.";`,
+          template: `cout << "Tengo " {{0}} 8 {{1}} " materias" << endl;`,
           blanks: [
-            { answer: "<<", hint: "Necesitas el operador de flujo dos veces más." },
-            { answer: "<<", hint: "Es el mismo operador." },
+            { answer: "<<", hint: "Necesitas el operador entre cada cosa." },
+            { answer: "<<", hint: "El mismo operador." },
           ],
-          explanation: "`<<` se usa entre CADA pedazo que mandes a `cout`.",
+          explanation:
+            "`<<` va entre CADA pedazo que mandes a `cout`. Sin él, no compila.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Tu ficha de alumno
+
+Usando un solo \`cout\`, imprime exactamente:
+
+\`\`\`
+Aurora · 19 anios · 8.7 de promedio
+\`\`\`
+
+Combina texto con los números **19** y **8.7** dentro del mismo \`cout\` (no en variables — directo en el cout).`,
+            difficulty: "easy",
+            xpReward: 25,
+            starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  // Un solo cout encadenado
+
+  return 0;
+}`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  cout << "Aurora · " << 19 << " anios · " << 8.7 << " de promedio" << endl;
+  return 0;
+}`,
+            hints: [
+              "Encadena con `<<`: texto, número, texto, número, etc.",
+              "Los números van SIN comillas: `<< 19 <<` no `<< \"19\" <<`.",
+              "Cuida los espacios DENTRO de las comillas: `\" anios · \"`.",
+            ],
+            testCases: [
+              {
+                expectedStdout: "Aurora · 19 anios · 8.7 de promedio\n",
+                visible: true,
+                description: "Output con texto + números encadenados",
+              },
+            ],
+          },
         },
       ],
     },
@@ -388,80 +458,60 @@ int main() {
       slug: "saltos-de-linea",
       title: "Saltos de línea: endl vs \\n",
       description:
-        "Dos formas de hacer un salto de línea. Cuándo usar cada una.",
+        "Dos formas de pasar a la siguiente línea. Cuándo usar cada una.",
       xpReward: 25,
       estimatedMinutes: 5,
       steps: [
-        {
-          type: "theory",
-          markdown: `## Dos formas, mismo resultado (casi)
-
-Para hacer un salto de línea en la salida tienes dos opciones:
-
-### Opción 1: \`endl\`
-\`\`\`cpp
-cout << "Línea 1" << endl;
-cout << "Línea 2" << endl;
-\`\`\`
-
-### Opción 2: \`"\\n"\`
-\`\`\`cpp
-cout << "Línea 1\\n";
-cout << "Línea 2\\n";
-\`\`\`
-
-**Las dos producen la misma salida.** La diferencia técnica es que \`endl\` además vacía el "buffer" (lo verás más adelante). Para empezar, **usa la que prefieras**.`,
-        },
         {
           type: "code_example",
           code: `#include <iostream>
 using namespace std;
 
 int main() {
-  cout << "Hola," << endl;
-  cout << "Esto es" << "\\n" << "otra línea.";
+  cout << "Linea 1" << endl;
+  cout << "Linea 2" << "\\n";
+  cout << "Linea 3" << endl;
   return 0;
 }`,
           explanation:
-            "Mira la salida: hay un salto de línea entre \"Hola,\" y \"Esto es\", y otro entre \"Esto es\" y \"otra línea.\".",
+            "`endl` y `\"\\n\"` hacen lo mismo visualmente: saltar de línea. Para empezar, usa la que prefieras.",
           runnable: true,
-          expectedOutput: `Hola,
-Esto es
-otra línea.`,
+          expectedOutput: `Linea 1
+Linea 2
+Linea 3`,
         },
         {
-          type: "quiz",
-          question:
-            "¿Qué imprime esto?\n```cpp\ncout << \"a\" << endl << \"b\";\n```",
-          options: [
-            "ab",
-            "a b",
-            "a\\nb (en dos líneas)",
-            "a endl b",
+          type: "fill_blank",
+          template: `cout << "Alumno: Aurora" {{0}};
+cout << "Grupo: 5DSM" {{1}};`,
+          blanks: [
+            { answer: "<< endl", hint: "Salto de línea con endl." },
+            { answer: '<< "\\n"', hint: "Salto de línea con \\n entre comillas." },
           ],
-          correctIndex: 2,
           explanation:
-            "`endl` inserta un salto de línea. La salida es:\n```\na\nb\n```",
+            "Las dos formas dan el mismo resultado visual. `endl` es un identificador, `\"\\n\"` es texto con un caracter especial.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Un poema de 3 líneas
+            prompt: `## Datos del alumno
 
-Imprime exactamente este poema, con los saltos de línea correctos:
+Imprime exactamente estas 3 líneas:
 
 \`\`\`
-Rosas son rojas,
-violetas azules,
-C++ es genial!
-\`\`\``,
+Nombre: Aurora
+Carrera: Desarrollo de Software
+CETI Colomos
+\`\`\`
+
+Usa el salto de línea que quieras (endl o \\n).`,
             difficulty: "easy",
-            xpReward: 20,
+            xpReward: 25,
             starterCode: `#include <iostream>
 using namespace std;
 
 int main() {
-  // Escribe los 3 couts aquí
+  // 3 líneas exactas
 
   return 0;
 }`,
@@ -469,21 +519,22 @@ int main() {
 using namespace std;
 
 int main() {
-  cout << "Rosas son rojas," << endl;
-  cout << "violetas azules," << endl;
-  cout << "C++ es genial!" << endl;
+  cout << "Nombre: Aurora" << endl;
+  cout << "Carrera: Desarrollo de Software" << endl;
+  cout << "CETI Colomos" << endl;
   return 0;
 }`,
             hints: [
-              "Usa tres `cout` distintos, uno por línea.",
-              "Termina cada uno con `<< endl;` para que haya salto de línea.",
-              "Cuida la puntuación exacta: las comas en las primeras dos líneas y el signo de admiración al final.",
+              "Usa tres `cout` separados, uno por línea.",
+              "Termina cada uno con `<< endl;` o `<< \"\\n\";`.",
+              "Cuida los espacios después de los `:`.",
             ],
             testCases: [
               {
-                expectedStdout: "Rosas son rojas,\nvioletas azules,\nC++ es genial!\n",
+                expectedStdout:
+                  "Nombre: Aurora\nCarrera: Desarrollo de Software\nCETI Colomos\n",
                 visible: true,
-                description: "Imprime las 3 líneas exactas del poema",
+                description: "Las 3 líneas exactas",
               },
             ],
           },
