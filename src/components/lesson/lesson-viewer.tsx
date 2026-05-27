@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
+import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { completeStep } from "@/lib/lessons-actions";
 import type { StepContent } from "@/types/lesson";
@@ -112,38 +113,50 @@ export function LessonViewer({
       {/* Header sticky — barra fina y limpia */}
       <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
-          <Button asChild size="sm" variant="ghost" className="-ml-2 hidden sm:inline-flex">
-            <Link href={`/app/u/${unit.slug}`}>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="-ml-2 hidden sm:inline-flex"
+          >
+            <LoadingLink href={`/app/u/${unit.slug}`} showHint={false}>
               <ChevronLeft />
               <span className="max-w-[16ch] truncate">{unit.title}</span>
-            </Link>
+            </LoadingLink>
           </Button>
 
           <div className="flex flex-1 items-center gap-3">
-            <Progress
-              value={progressPercent}
-              size="xs"
-              className="flex-1"
-            />
+            <Progress value={progressPercent} size="xs" className="flex-1" />
             <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
               {currentIndex + 1}/{total}
             </span>
           </div>
 
-          <Button asChild size="icon-sm" variant="ghost" aria-label="Salir de la lección">
-            <Link href="/app">
+          <Button
+            asChild
+            size="icon-sm"
+            variant="ghost"
+            aria-label="Salir de la lección"
+          >
+            <LoadingLink href="/app" showHint={false}>
               <X className="size-4" />
-            </Link>
+            </LoadingLink>
           </Button>
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8">
+      <div
+        key={currentStep.id}
+        data-page-enter
+        className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8"
+      >
         {/* Title */}
         <header className="space-y-1.5">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {unit.title} · Paso {currentIndex + 1}
-          </p>
+          <ConsoleEyebrow tone="muted">
+            paso_{(currentIndex + 1).toString().padStart(2, "0")}/{total
+              .toString()
+              .padStart(2, "0")}
+          </ConsoleEyebrow>
           <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
             {lesson.title}
           </h1>

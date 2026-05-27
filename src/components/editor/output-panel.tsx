@@ -1,8 +1,9 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Loader2, Terminal } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Terminal } from "lucide-react";
 
 import { Kbd } from "@/components/ui/kbd";
+import { TypingDots } from "@/components/ui/brand-spinner";
 import type { ExecutionResult } from "@/lib/executor";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +47,7 @@ export function OutputPanel({
 
         {state === "running" ? (
           <p className="flex items-center gap-2 text-xs text-zinc-400">
-            <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            <TypingDots className="text-emerald-400" />
             Compilando y ejecutando…
           </p>
         ) : null}

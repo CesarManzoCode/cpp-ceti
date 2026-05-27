@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { LoadingLink } from "@/components/ui/loading-link";
 
 const proofPoints = [
   "Sin instalar nada",
@@ -24,13 +26,29 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-28">
         {/* Texto */}
-        <div className="flex flex-col gap-7">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-            <span className="size-1.5 rounded-full bg-success" aria-hidden />
+        <div
+          data-stagger
+          style={{ "--stagger": "70ms" } as CSSProperties}
+          className="flex flex-col gap-7"
+        >
+          <div
+            style={{ "--i": 0 } as CSSProperties}
+            className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur"
+          >
+            <span className="relative flex size-2 items-center justify-center">
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-full bg-success animate-pulse-ring"
+              />
+              <span className="relative size-1.5 rounded-full bg-success" />
+            </span>
             Hecho en Guadalajara para estudiantes del CETI
           </div>
 
-          <h1 className="text-balance text-4xl font-semibold leading-[1.04] tracking-[-0.03em] sm:text-5xl lg:text-[3.5rem]">
+          <h1
+            style={{ "--i": 1 } as CSSProperties}
+            className="animate-fade-up text-balance text-4xl font-semibold leading-[1.04] tracking-[-0.03em] sm:text-5xl lg:text-[3.5rem]"
+          >
             Aprende{" "}
             <span className="relative inline-block">
               <span className="relative z-10 text-primary">C++</span>
@@ -44,17 +62,26 @@ export function Hero() {
             no memorizando del pizarrón.
           </h1>
 
-          <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+          <p
+            style={{ "--i": 2 } as CSSProperties}
+            className="animate-fade-up max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground"
+          >
             Lecciones cortas, ejercicios reales y un compilador C++ en tu
             navegador. La plataforma que tus maestros nunca te dieron.
           </p>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div
+            style={{ "--i": 3 } as CSSProperties}
+            className="animate-fade-up flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
             <Button asChild size="xl">
-              <Link href="/registro">
+              <LoadingLink
+                href="/registro"
+                hintClassName="bg-primary-foreground"
+              >
                 Empezar gratis
                 <ArrowRight />
-              </Link>
+              </LoadingLink>
             </Button>
             <Button asChild size="xl" variant="ghost">
               <Link href="#como">
@@ -64,7 +91,10 @@ export function Hero() {
             </Button>
           </div>
 
-          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground">
+          <ul
+            style={{ "--i": 4 } as CSSProperties}
+            className="animate-fade-up flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground"
+          >
             {proofPoints.map((p) => (
               <li key={p} className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-success" />
@@ -75,7 +105,7 @@ export function Hero() {
         </div>
 
         {/* Editor mockup */}
-        <div className="relative">
+        <div className="animate-scale-in relative">
           <div
             aria-hidden
             className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/25 via-primary/5 to-transparent blur-2xl"
@@ -137,7 +167,13 @@ function CodeMockup() {
             stdout
           </span>
         </div>
-        <pre className="font-mono text-[13px] text-zinc-100">¡Hola, CETI!</pre>
+        <pre className="font-mono text-[13px] text-zinc-100">
+          ¡Hola, CETI!
+          <span
+            aria-hidden
+            className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px] bg-zinc-100 animate-blink"
+          />
+        </pre>
       </div>
     </div>
   );

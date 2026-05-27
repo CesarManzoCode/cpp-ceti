@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { LoadingLink } from "@/components/ui/loading-link";
 
 export function FinalCta() {
   return (
@@ -28,10 +28,13 @@ export function FinalCta() {
               Guadalajara.
             </p>
             <Button asChild size="xl" className="mt-9">
-              <Link href="/registro">
+              <LoadingLink
+                href="/registro"
+                hintClassName="bg-primary-foreground"
+              >
                 Crear mi cuenta
                 <ArrowRight />
-              </Link>
+              </LoadingLink>
             </Button>
           </div>
         </div>

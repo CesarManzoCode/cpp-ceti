@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -61,7 +63,7 @@ export function Curriculum() {
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
-          eyebrow="Temario"
+          eyebrow="temario"
           title="Basado en el plan oficial del CETI"
           description={
             <>
@@ -73,11 +75,16 @@ export function Curriculum() {
           className="mx-auto items-center"
         />
 
-        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {units.map((u) => (
+        <ul
+          data-stagger
+          style={{ "--stagger": "55ms" } as CSSProperties}
+          className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {units.map((u, idx) => (
             <li
               key={u.n}
-              className="group relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)] data-[locked=true]:opacity-70"
+              style={{ "--i": idx } as CSSProperties}
+              className="group animate-fade-up hover-lift relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-md)] data-[locked=true]:opacity-70"
               data-locked={!u.available || undefined}
             >
               <div className="flex items-center justify-between">

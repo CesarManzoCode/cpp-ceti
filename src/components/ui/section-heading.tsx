@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 
 interface SectionHeadingProps
   extends Omit<React.ComponentProps<"div">, "title"> {
@@ -12,7 +13,8 @@ interface SectionHeadingProps
 
 /**
  * Editorial section heading used across landing/app screens for consistent
- * typographic rhythm (eyebrow → title → description).
+ * typographic rhythm (eyebrow → title → description). The eyebrow uses
+ * the brand console motif (>_) for identity.
  */
 function SectionHeading({
   eyebrow,
@@ -32,12 +34,7 @@ function SectionHeading({
       )}
       {...props}
     >
-      {eyebrow ? (
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-          <span className="size-1 rounded-full bg-primary" aria-hidden />
-          {eyebrow}
-        </span>
-      ) : null}
+      {eyebrow ? <ConsoleEyebrow>{eyebrow}</ConsoleEyebrow> : null}
       <h2
         className={cn(
           "text-balance text-2xl font-semibold tracking-tight sm:text-3xl",

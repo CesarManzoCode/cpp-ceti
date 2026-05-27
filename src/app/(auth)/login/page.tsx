@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import Link from "next/link";
 
+import { LoadingLink } from "@/components/ui/loading-link";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { LoginForm } from "./login-form";
@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="space-y-8">
+    <div data-page-enter className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
           Bienvenido de nuevo
@@ -27,12 +27,13 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         ¿No tienes cuenta?{" "}
-        <Link
+        <LoadingLink
           href="/registro"
+          hintClassName="bg-primary"
           className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
         >
           Regístrate gratis
-        </Link>
+        </LoadingLink>
       </p>
     </div>
   );

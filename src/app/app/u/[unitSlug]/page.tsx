@@ -1,16 +1,17 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 import {
   ArrowRight,
   ChevronLeft,
   Check,
-  Circle,
   Clock,
   Zap,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
+import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { getDefaultCourse } from "@/lib/courses";
 import { getUnitBySlug } from "@/lib/lessons";
@@ -40,21 +41,24 @@ export default async function UnitPage({ params }: PageProps) {
   const unitComplete = totalLessons > 0 && percent === 100;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div
+      data-page-enter
+      className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+    >
       <div>
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <Link href="/app">
+          <LoadingLink href="/app" showHint={false}>
             <ChevronLeft />
             Inicio
-          </Link>
+          </LoadingLink>
         </Button>
       </div>
 
       <header className="space-y-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-            Unidad {unit.order.toString().padStart(2, "0")}
-          </span>
+          <ConsoleEyebrow>
+            unidad_{unit.order.toString().padStart(2, "0")}
+          </ConsoleEyebrow>
           {unitComplete ? (
             <Badge variant="success" size="sm">
               <Check className="size-3" strokeWidth={3} aria-hidden />
@@ -82,19 +86,26 @@ export default async function UnitPage({ params }: PageProps) {
         </div>
       </header>
 
-      <ol className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+      <ol
+        data-stagger
+        style={{ "--stagger": "45ms" } as CSSProperties}
+        className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
+      >
         {unit.lessons.map((lesson, idx) => {
           const isCompleted = lesson.status === "completed";
           const isInProgress = lesson.status === "in_progress";
           return (
             <li
               key={lesson.id}
+              style={{ "--i": idx } as CSSProperties}
               className={cn(
+                "animate-fade-up",
                 idx > 0 && "border-t border-border/70",
               )}
             >
-              <Link
+              <LoadingLink
                 href={`/app/u/${unit.slug}/${lesson.slug}`}
+                showHint={false}
                 className="group flex items-center gap-4 p-4 transition-colors hover:bg-surface-2/60 sm:gap-5 sm:p-5"
               >
                 <LessonStatusBadge
@@ -123,7 +134,9 @@ export default async function UnitPage({ params }: PageProps) {
                       <Clock className="size-3" aria-hidden />
                       {lesson.estimatedMinutes} min
                     </span>
-                    <span aria-hidden className="text-muted-foreground/50">·</span>
+                    <span aria-hidden className="text-muted-foreground/50">
+                      ·
+                    </span>
                     <span className="inline-flex items-center gap-1">
                       <Zap className="size-3 text-primary" aria-hidden />
                       +{lesson.xpReward} XP
@@ -134,7 +147,7 @@ export default async function UnitPage({ params }: PageProps) {
                   className="hidden size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
                   aria-hidden
                 />
-              </Link>
+              </LoadingLink>
             </li>
           );
         })}
@@ -168,15 +181,18 @@ function LessonStatusBadge({
   }
   if (inProgress) {
     return (
-      <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-primary text-primary font-mono text-xs font-bold">
-        {index.toString().padStart(2, "0")}
+      <span className="relative grid size-9 shrink-0 place-items-center rounded-full border-2 border-primary font-mono text-xs font-bold text-primary">
+        <span
+          aria-hidden
+          className="absolute inset-0 rounded-full bg-primary/15 animate-pulse-soft"
+        />
+        <span className="relative">{index.toString().padStart(2, "0")}</span>
       </span>
     );
   }
   return (
     <span className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-surface-2 text-muted-foreground font-mono text-xs font-medium tabular-nums">
       {index.toString().padStart(2, "0")}
-      <Circle className="hidden" aria-hidden />
     </span>
   );
 }

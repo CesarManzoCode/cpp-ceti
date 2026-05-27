@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ChevronLeft,
   Flame,
@@ -13,6 +12,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
+import { LoadingLink } from "@/components/ui/loading-link";
 import { StatTile } from "@/components/ui/stat-tile";
 import { db } from "@/lib/db";
 import { getUserStats } from "@/lib/courses";
@@ -53,18 +54,21 @@ export default async function PerfilPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div
+      data-page-enter
+      className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+    >
       <div>
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <Link href="/app">
+          <LoadingLink href="/app" showHint={false}>
             <ChevronLeft />
             Inicio
-          </Link>
+          </LoadingLink>
         </Button>
       </div>
 
       {/* Hero del perfil */}
-      <header className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
+      <header className="animate-scale-in relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
         <div
           aria-hidden
           className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
@@ -79,6 +83,7 @@ export default async function PerfilPage() {
             </AvatarFallback>
           </Avatar>
           <div className="space-y-2">
+            <ConsoleEyebrow tone="muted">perfil</ConsoleEyebrow>
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               {user.name}
             </h1>

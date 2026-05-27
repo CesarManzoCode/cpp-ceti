@@ -1,4 +1,4 @@
-import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
   Award,
   ChevronLeft,
@@ -11,6 +11,8 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
+import { LoadingLink } from "@/components/ui/loading-link";
 import { Progress } from "@/components/ui/progress";
 import { StatTile } from "@/components/ui/stat-tile";
 import { db } from "@/lib/db";
@@ -133,20 +135,21 @@ export default async function LogrosPage() {
   const percent = Math.round((unlocked.length / BADGES.length) * 100);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div
+      data-page-enter
+      className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+    >
       <div>
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <Link href="/app">
+          <LoadingLink href="/app" showHint={false}>
             <ChevronLeft />
             Inicio
-          </Link>
+          </LoadingLink>
         </Button>
       </div>
 
       <header className="space-y-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-          Logros
-        </p>
+        <ConsoleEyebrow>logros</ConsoleEyebrow>
         <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
           Tu colección
         </h1>
@@ -206,9 +209,19 @@ export default async function LogrosPage() {
               · {unlocked.length}
             </span>
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {unlocked.map((b) => (
-              <BadgeCard key={b.id} badge={b} unlocked />
+          <div
+            data-stagger
+            style={{ "--stagger": "55ms" } as CSSProperties}
+            className="grid gap-3 sm:grid-cols-2"
+          >
+            {unlocked.map((b, idx) => (
+              <div
+                key={b.id}
+                style={{ "--i": idx } as CSSProperties}
+                className="animate-fade-up"
+              >
+                <BadgeCard badge={b} unlocked />
+              </div>
             ))}
           </div>
         </section>
@@ -222,9 +235,19 @@ export default async function LogrosPage() {
               · {locked.length}
             </span>
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {locked.map((b) => (
-              <BadgeCard key={b.id} badge={b} unlocked={false} />
+          <div
+            data-stagger
+            style={{ "--stagger": "40ms" } as CSSProperties}
+            className="grid gap-3 sm:grid-cols-2"
+          >
+            {locked.map((b, idx) => (
+              <div
+                key={b.id}
+                style={{ "--i": idx } as CSSProperties}
+                className="animate-fade-up"
+              >
+                <BadgeCard badge={b} unlocked={false} />
+              </div>
             ))}
           </div>
         </section>

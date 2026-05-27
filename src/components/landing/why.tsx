@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { BookX, Code2, GraduationCap } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -29,7 +30,7 @@ export function Why() {
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
-          eyebrow="El problema"
+          eyebrow="el_problema"
           title={
             <>
               En el CETI, C++ se reprueba en masa.{" "}
@@ -39,11 +40,16 @@ export function Why() {
           className="mx-auto max-w-2xl items-center"
         />
 
-        <ul className="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-xl)] border border-border bg-border sm:grid-cols-3">
-          {problems.map((p) => (
+        <ul
+          data-stagger
+          style={{ "--stagger": "70ms" } as CSSProperties}
+          className="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-xl)] border border-border bg-border sm:grid-cols-3"
+        >
+          {problems.map((p, idx) => (
             <li
               key={p.title}
-              className="flex flex-col gap-3 bg-card p-7 transition-colors hover:bg-surface-2"
+              style={{ "--i": idx } as CSSProperties}
+              className="animate-fade-up flex flex-col gap-3 bg-card p-7 transition-colors hover:bg-surface-2"
             >
               <span className="inline-grid size-9 place-items-center rounded-[var(--radius-md)] border border-border/70 bg-surface-2 text-foreground">
                 <p.icon className="size-4" aria-hidden />

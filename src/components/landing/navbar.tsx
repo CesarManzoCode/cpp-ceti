@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { LoadingLink } from "@/components/ui/loading-link";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -41,10 +42,17 @@ export function LandingNavbar() {
             size="sm"
             className="hidden sm:inline-flex"
           >
-            <Link href="/login">Iniciar sesión</Link>
+            <LoadingLink href="/login" showHint={false}>
+              Iniciar sesión
+            </LoadingLink>
           </Button>
           <Button asChild size="sm">
-            <Link href="/registro">Empezar gratis</Link>
+            <LoadingLink
+              href="/registro"
+              hintClassName="bg-primary-foreground"
+            >
+              Empezar gratis
+            </LoadingLink>
           </Button>
         </div>
       </div>

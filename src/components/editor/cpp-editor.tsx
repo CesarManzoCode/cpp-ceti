@@ -2,18 +2,21 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
+import { BrandSpinner } from "@/components/ui/brand-spinner";
 
 const MonacoEditor = dynamic(
   () => import("@monaco-editor/react").then((m) => m.default),
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-[var(--terminal-bg)]">
-        <Loader2 className="size-5 animate-spin text-zinc-500" />
+      <div className="flex h-full items-center justify-center gap-3 bg-[var(--terminal-bg)] text-zinc-400">
+        <BrandSpinner size="sm" />
+        <span className="font-mono text-xs uppercase tracking-wider">
+          inicializando editor
+        </span>
       </div>
     ),
   },

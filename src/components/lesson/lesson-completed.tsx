@@ -38,14 +38,21 @@ export function LessonCompleted({
             aria-hidden
             className="pointer-events-none absolute inset-x-0 -top-10 mx-auto h-40 w-40 rounded-full bg-warning/30 blur-3xl"
           />
-          <div className="relative mx-auto flex size-16 items-center justify-center rounded-full border border-warning/30 bg-warning-soft text-warning-foreground">
+          <div
+            className="animate-scale-in relative mx-auto flex size-16 items-center justify-center rounded-full border border-warning/30 bg-warning-soft text-warning-foreground"
+            style={{ animationDuration: "500ms" }}
+          >
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full ring-2 ring-warning/30 animate-pulse-ring"
+            />
             <PartyPopper className="size-7 text-warning" aria-hidden />
           </div>
 
-          <DialogTitle className="mt-5 text-balance text-2xl font-semibold tracking-tight">
+          <DialogTitle className="animate-fade-up mt-5 text-balance text-2xl font-semibold tracking-tight" style={{ animationDelay: "120ms" }}>
             ¡Lección completada!
           </DialogTitle>
-          <DialogDescription className="mt-2 text-[15px]">
+          <DialogDescription className="animate-fade-up mt-2 text-[15px]" style={{ animationDelay: "200ms" }}>
             Sumaste{" "}
             <span className="inline-flex items-center gap-1 font-semibold text-warning-foreground">
               <Sparkles className="size-3.5" aria-hidden />

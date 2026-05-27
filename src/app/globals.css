@@ -324,7 +324,155 @@ kbd {
 }
 
 /* ============================================================
-   Motion tokens
+   Motion tokens & easing
+   ============================================================ */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   Brand keyframes
+   ============================================================ */
+@keyframes brand-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+@keyframes brand-arc {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes brand-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes brand-progress-indeterminate {
+  0% { transform: translateX(-100%) scaleX(0.6); }
+  40% { transform: translateX(0%) scaleX(0.5); }
+  100% { transform: translateX(110%) scaleX(0.2); }
+}
+
+@keyframes brand-progress-finish {
+  from { transform: scaleX(var(--p, 0.7)); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes brand-progress-fade {
+  to { opacity: 0; }
+}
+
+@keyframes enter-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes enter-scale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 45%, transparent); }
+  70% { box-shadow: 0 0 0 8px color-mix(in oklch, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 0%, transparent); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes dot-typing {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50% { transform: translateY(-2px); opacity: 1; }
+}
+
+@keyframes spinner-track {
+  0% { stroke-dashoffset: 80; transform: rotate(0deg); }
+  50% { stroke-dashoffset: 20; }
+  100% { stroke-dashoffset: 80; transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Motion utility classes
+   ============================================================ */
+.animate-fade-up {
+  animation: enter-fade-up 360ms var(--ease-out-quart) both;
+}
+.animate-fade-in {
+  animation: enter-fade 240ms var(--ease-out-quart) both;
+}
+.animate-scale-in {
+  animation: enter-scale 260ms var(--ease-spring) both;
+}
+.animate-blink {
+  animation: brand-caret 1s steps(2, start) infinite;
+}
+.animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--foreground) 8%, transparent),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: brand-shimmer 1.6s linear infinite;
+}
+.animate-pulse-ring {
+  animation: pulse-ring 1.6s ease-out infinite;
+}
+.animate-pulse-soft {
+  animation: pulse-soft 1.8s var(--ease-out-quart) infinite;
+}
+.animate-dot-typing > * {
+  animation: dot-typing 1.2s var(--ease-out-quart) infinite both;
+}
+.animate-dot-typing > *:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.animate-dot-typing > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Stagger helper — set inline `style={{ '--stagger': '60ms' }}` on parent,
+   children animate-fade-up with --i index for cascading delay. */
+[data-stagger] > * {
+  animation-delay: calc(var(--i, 0) * var(--stagger, 50ms));
+}
+
+/* Generic hover-lift used by interactive cards — accessible (no scale) */
+.hover-lift {
+  transition: transform 220ms var(--ease-out-quart),
+    box-shadow 220ms var(--ease-out-quart),
+    border-color 200ms var(--ease-out-quart);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+.hover-lift:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+
+/* ============================================================
+   Page enter — applies subtle entrance animation when the
+   main content of a route mounts. The wrapper around <main>
+   activates this via the `data-page-enter` attribute.
+   ============================================================ */
+[data-page-enter] {
+  animation: enter-fade-up 380ms var(--ease-out-quart) both;
+}
+
+/* ============================================================
+   Reduced motion — honor user preference everywhere
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

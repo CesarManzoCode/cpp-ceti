@@ -1,36 +1,37 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   [
     "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--radius-md)] transition-[background,color,border-color,box-shadow,transform] duration-150",
+    "rounded-[var(--radius-md)]",
+    "transition-[background,color,border-color,box-shadow,transform] duration-150 ease-out",
     "disabled:pointer-events-none disabled:opacity-50",
     "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0",
-    "select-none",
+    "[&_svg]:transition-transform [&_svg]:duration-200",
+    "select-none active:scale-[0.97] active:transition-transform active:duration-75",
   ].join(" "),
   {
     variants: {
       variant: {
         default: [
           "bg-primary text-primary-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-primary/92 hover:shadow-[var(--shadow-sm)]",
-          "active:bg-primary active:shadow-none active:translate-y-[0.5px]",
+          "hover:bg-primary/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
+          "active:translate-y-0 active:shadow-[var(--shadow-xs)]",
         ].join(" "),
         destructive: [
           "bg-destructive text-destructive-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-destructive/92",
-          "active:translate-y-[0.5px]",
+          "hover:bg-destructive/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
+          "active:translate-y-0",
         ].join(" "),
         success: [
           "bg-success text-success-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-success/92",
-          "active:translate-y-[0.5px]",
+          "hover:bg-success/92 hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]",
+          "active:translate-y-0",
         ].join(" "),
         outline: [
           "border border-border bg-transparent text-foreground",
@@ -40,7 +41,7 @@ const buttonVariants = cva(
         secondary: [
           "bg-secondary text-secondary-foreground border border-border/60",
           "hover:bg-accent hover:border-border",
-          "active:translate-y-[0.5px]",
+          "active:bg-accent",
         ].join(" "),
         soft: [
           "bg-primary-soft text-primary-soft-foreground",
@@ -49,7 +50,7 @@ const buttonVariants = cva(
         ghost: [
           "text-muted-foreground hover:bg-accent hover:text-foreground",
         ].join(" "),
-        link: "text-primary underline-offset-4 hover:underline px-0 h-auto",
+        link: "text-primary underline-offset-4 hover:underline px-0 h-auto active:scale-100",
       },
       size: {
         xs: "h-7 px-2.5 text-xs gap-1.5 [&_svg:not([class*='size-'])]:size-3.5",
@@ -93,7 +94,7 @@ function Button({
     children
   ) : (
     <>
-      {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+      {loading ? <ButtonSpinner /> : null}
       {children}
     </>
   );
@@ -109,6 +110,33 @@ function Button({
     >
       {content}
     </Comp>
+  );
+}
+
+/**
+ * Tiny brand-aligned spinner used inside buttons. Lives here (not a
+ * separate file) to keep the Button import surface clean.
+ */
+function ButtonSpinner() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4 shrink-0"
+      aria-hidden
+      style={{ animation: "brand-arc 0.9s linear infinite" }}
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeDasharray="32 28"
+        opacity="0.9"
+      />
+    </svg>
   );
 }
 

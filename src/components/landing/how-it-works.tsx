@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { CircleDot, PlayCircle, Trophy } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
@@ -32,22 +33,27 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
-          eyebrow="Cómo funciona"
+          eyebrow="cómo_funciona"
           title="90% práctica · 10% teoría"
           description="Porque programar se aprende programando — no escuchando."
           className="mx-auto items-center"
         />
 
-        <ol className="relative mt-14 grid gap-6 md:grid-cols-3">
+        <ol
+          data-stagger
+          style={{ "--stagger": "90ms" } as CSSProperties}
+          className="relative mt-14 grid gap-6 md:grid-cols-3"
+        >
           {/* Decorative connecting line on desktop */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
           />
-          {steps.map((s) => (
+          {steps.map((s, idx) => (
             <li
               key={s.n}
-              className="relative flex flex-col gap-4 rounded-[var(--radius-xl)] border border-border bg-card p-7 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)]"
+              style={{ "--i": idx } as CSSProperties}
+              className="animate-fade-up hover-lift relative flex flex-col gap-4 rounded-[var(--radius-xl)] border border-border bg-card p-7 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-md)]"
             >
               <div className="flex items-center justify-between">
                 <span className="inline-grid size-9 place-items-center rounded-full border border-primary/30 bg-primary-soft font-mono text-xs font-bold text-primary-soft-foreground">

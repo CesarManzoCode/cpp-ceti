@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LoadingLink } from "@/components/ui/loading-link";
 
 import { RegisterForm } from "./register-form";
 
@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="space-y-8">
+    <div data-page-enter className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
           Crea tu cuenta
@@ -23,12 +23,13 @@ export default function RegisterPage() {
       <div className="space-y-3 border-t border-border/70 pt-5 text-center">
         <p className="text-sm text-muted-foreground">
           ¿Ya tienes cuenta?{" "}
-          <Link
+          <LoadingLink
             href="/login"
+            hintClassName="bg-primary"
             className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
           >
             Inicia sesión
-          </Link>
+          </LoadingLink>
         </p>
         <p className="text-xs text-muted-foreground/80">
           Al registrarte aceptas que tus datos se usen únicamente para tu progreso académico.

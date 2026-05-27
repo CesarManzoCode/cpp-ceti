@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Check, Circle, Home, Lock, Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { LoadingLink } from "@/components/ui/loading-link";
 
 export interface SidebarUnit {
   slug: string;
@@ -40,10 +40,11 @@ export function SidebarNav({
           const active = pathname === link.href;
           return (
             <li key={link.href}>
-              <Link
+              <LoadingLink
                 href={link.href}
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
+                showHint={false}
                 className={cn(
                   "group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium",
                   "transition-[background-color,color]",
@@ -54,7 +55,7 @@ export function SidebarNav({
               >
                 <link.icon className="size-4" aria-hidden />
                 {link.label}
-              </Link>
+              </LoadingLink>
             </li>
           );
         })}
@@ -77,11 +78,12 @@ export function SidebarNav({
 
             return (
               <li key={unit.slug}>
-                <Link
+                <LoadingLink
                   href={unit.published ? href : "#"}
                   onClick={unit.published ? onNavigate : undefined}
                   aria-disabled={!unit.published}
                   aria-current={active ? "page" : undefined}
+                  showHint={false}
                   className={cn(
                     "group flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-sm",
                     "transition-[background-color,color]",
@@ -107,7 +109,7 @@ export function SidebarNav({
                       {unit.completedCount}/{unit.lessonCount}
                     </span>
                   ) : null}
-                </Link>
+                </LoadingLink>
               </li>
             );
           })}
