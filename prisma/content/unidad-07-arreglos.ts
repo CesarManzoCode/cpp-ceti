@@ -84,17 +84,27 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int edades[3];
-edades[{{0}}] = 18;
-edades[1] = 19;
-edades[{{1}}] = 20;
-cout << edades[2] << endl;`,
+          template: `// Boletín de 4 calificaciones
+int notas[{{0}}];
+
+notas[{{1}}] = 8;       // primer indice
+notas[1] = {{2}};       // valor 9
+{{3}} = 7;              // asigna 7 a la posicion 2
+notas[3] = {{4}};       // valor 10
+
+cout << "Primera: " << notas[{{5}}] << endl;
+cout << "Ultima:   " << notas[{{6}}] << endl;`,
           blanks: [
+            { answer: "4", hint: "El arreglo guarda 4 calificaciones." },
             { answer: "0", hint: "El PRIMER índice." },
-            { answer: "2", hint: "El ÚLTIMO índice de un arreglo de tamaño 3." },
+            { answer: "9", hint: "El valor que indica el comentario." },
+            { answer: "notas[2]", hint: "Lado izquierdo: arreglo + corchete con el índice 2." },
+            { answer: "10", hint: "El valor que indica el comentario." },
+            { answer: "0", hint: "Primer índice del arreglo." },
+            { answer: "3", hint: "Último índice de un arreglo de tamaño 4." },
           ],
           explanation:
-            "Los índices van de `0` a `tamaño − 1`. Para `int edades[3];` son `0, 1, 2`.",
+            "Para asignar usas `notas[i] = valor;` — el lado izquierdo es el arreglo con el índice entre corchetes. Los índices van de `0` a `tamaño − 1`.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Las tres notas
@@ -348,14 +358,23 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int asistencias[{{0}}] = {15, 18, 12, 20};
-cout << asistencias[{{1}}] << endl;  // imprime 20`,
+          template: `// Inicializa días del mes para enero, febrero, marzo, abril, mayo
+{{0}} dias[5] = { {{1}}, {{2}}, 31, {{3}}, {{4}} };
+
+cout << "Enero:   " << dias[0] << endl;
+cout << "Febrero: " << dias[{{5}}] << endl;
+cout << "Mayo:    " << dias[{{6}}] << endl;`,
           blanks: [
-            { answer: "4", hint: "Hay 4 valores entre llaves." },
-            { answer: "3", hint: "El ÚLTIMO índice del arreglo." },
+            { answer: "int", hint: "Tipo de cada elemento (enteros)." },
+            { answer: "31", hint: "Días que tiene enero." },
+            { answer: "28", hint: "Días que tiene febrero (año no bisiesto)." },
+            { answer: "30", hint: "Días que tiene abril." },
+            { answer: "31", hint: "Días que tiene mayo." },
+            { answer: "1", hint: "Índice de febrero (segundo del arreglo)." },
+            { answer: "4", hint: "Índice de mayo (quinto del arreglo)." },
           ],
           explanation:
-            "Cuatro valores → tamaño 4 → índices `0..3`. El último es `[3]`.",
+            "Con `{}` defines TODOS los valores al declarar. La cantidad de valores debe coincidir con el tamaño entre `[]` (o dejar `[]` vacíos para que el compilador cuente).",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Días del fin de semana
@@ -554,16 +573,26 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int v[4] = {10, 20, 30, 40};
-for (int i = 0; i {{0}} 4; i{{1}}) {
+          template: `int v[5] = {10, 20, 30, 40, 50};
+int suma = {{0}};
+
+{{1}} (int i = {{2}}; i {{3}} 5; i{{4}}) {
   cout << v[i] << endl;
-}`,
+  suma {{5}} v[i];
+}
+
+cout << "Total: " << {{6}} << endl;`,
           blanks: [
+            { answer: "0", hint: "El acumulador empieza en cero." },
+            { answer: "for", hint: "El ciclo que recorre arreglos por índice." },
+            { answer: "0", hint: "Primer índice del arreglo." },
             { answer: "<", hint: "Estrictamente menor que el tamaño." },
-            { answer: "++", hint: "Avanza uno en cada vuelta." },
+            { answer: "++", hint: "Incrementa el contador en uno por vuelta." },
+            { answer: "+=", hint: "Atajo de `suma = suma + v[i]`." },
+            { answer: "suma", hint: "La variable acumulada que declaraste arriba." },
           ],
           explanation:
-            "El for canónico para arreglos: empieza en `0`, condición `i < tamaño`, incremento `i++`.",
+            "El for canónico recorre desde 0 hasta tamaño − 1. Dentro puedes hacer varias cosas a la vez: imprimir, sumar, comparar... siempre con `v[i]` (el `i` cambia en cada vuelta).",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Imprimir en orden
@@ -766,16 +795,29 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int n[4];
-for (int i = 0; i < {{0}}; i++) {
-  cin >> n[{{1}}];
+          template: `// Lee 5 calificaciones y luego imprímelas en orden inverso
+int notas[{{0}}];
+
+// Lectura
+for ({{1}} i = 0; i < 5; i++) {
+  {{2}} >> notas[{{3}}];
+}
+
+// Impresión invertida
+for (int i = {{4}}; i {{5}} 0; i--) {
+  cout << notas[{{6}}] << endl;
 }`,
           blanks: [
-            { answer: "4", hint: "Tamaño del arreglo." },
-            { answer: "i", hint: "El índice que va cambiando con el for." },
+            { answer: "5", hint: "Tamaño del arreglo." },
+            { answer: "int", hint: "Tipo del contador del for." },
+            { answer: "cin", hint: "Stream de entrada del teclado." },
+            { answer: "i", hint: "El índice variable que cambia en cada vuelta." },
+            { answer: "4", hint: "Último índice (tamaño − 1)." },
+            { answer: ">=", hint: "Sigue mientras el índice siga siendo válido (incluye 0)." },
+            { answer: "i", hint: "El índice variable, igual que arriba." },
           ],
           explanation:
-            "El truco está en que `i` cambia en cada vuelta: primero `n[0]`, después `n[1]`, etc. Sin la `i` no funcionaría — siempre escribirías sobre la misma casilla.",
+            "Dos `for` distintos: uno para leer (0 → 4) y otro para imprimir invertido (4 → 0). Lo único que cambia entre patrones es el inicio, la condición y el operador (`++` vs `--`).",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Eco del arreglo
@@ -1017,18 +1059,34 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int v[4] = {2, 4, 6, 8};
-int total = {{0}};
-for (int i = 0; i < 4; i++) {
-  total {{1}} v[i];
+          template: `int notas[5];
+for (int i = 0; i < 5; i++) {
+  cin >> notas[i];
 }
-cout << total << endl;`,
+
+// Acumulador para la suma
+int suma = {{0}};
+
+for (int i = 0; i {{1}} 5; i{{2}}) {
+  suma {{3}} notas[i];
+}
+
+// Promedio con decimales
+{{4}} promedio = suma / {{5}};
+
+cout << "Suma: "     << {{6}} << endl;
+cout << "Promedio: " << promedio << endl;`,
           blanks: [
             { answer: "0", hint: "Acumulador empieza en cero." },
-            { answer: "+=", hint: "Atajo de `total = total + v[i]`." },
+            { answer: "<", hint: "Estrictamente menor que el tamaño." },
+            { answer: "++", hint: "Incremento de uno por vuelta." },
+            { answer: "+=", hint: "Atajo de `suma = suma + notas[i]`." },
+            { answer: "double", hint: "Tipo con decimales para el promedio." },
+            { answer: "5.0", hint: "Forza división con decimales (no entero)." },
+            { answer: "suma", hint: "La variable acumulada que declaraste arriba." },
           ],
           explanation:
-            "Patrón fijo: acumulador en 0, dentro del for `total += v[i];`, cout DESPUÉS del for.",
+            "Acumulador FUERA del for, `+=` DENTRO del for, división entre `5.0` (con punto) para conservar decimales. Es el mismo patrón que ya viste para 5 calificaciones sueltas, pero ahora vienen del arreglo.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Suma
@@ -1289,20 +1347,38 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int v[4] = {3, 8, 5, 1};
-int menor = v[{{0}}];
-for (int i = 1; i < 4; i++) {
-  if (v[i] {{1}} menor) {
+          template: `int v[5];
+for (int i = 0; i < 5; i++) {
+  cin >> v[i];
+}
+
+// Inicializa AMBAS con el primer elemento
+int mayor = v[{{0}}];
+int menor = v[{{1}}];
+
+// Arranca del SEGUNDO (ya consideraste el primero)
+for (int i = {{2}}; i < 5; i++) {
+  if (v[i] {{3}} mayor) {
+    {{4}} = v[i];
+  }
+  if (v[i] {{5}} menor) {
     menor = v[i];
   }
 }
-cout << menor << endl;`,
+
+cout << "Mayor: " << {{6}} << endl;
+cout << "Menor: " << menor << endl;`,
           blanks: [
-            { answer: "0", hint: "Arranca asumiendo que el primer elemento es el menor." },
-            { answer: "<", hint: "Para MENOR, comparas si el actual es estrictamente más pequeño." },
+            { answer: "0", hint: "Primer índice." },
+            { answer: "0", hint: "Primer índice (mismo que mayor)." },
+            { answer: "1", hint: "El segundo elemento; el primero ya está considerado." },
+            { answer: ">", hint: "Para MAYOR, estrictamente mayor." },
+            { answer: "mayor", hint: "La variable que va guardando el máximo." },
+            { answer: "<", hint: "Para MENOR, estrictamente menor." },
+            { answer: "mayor", hint: "Variable del máximo, para el cout." },
           ],
           explanation:
-            "Misma estructura que el máximo, solo cambias `>` por `<` y el nombre de la variable.",
+            "Truco: una sola pasada calcula el máximo Y el mínimo. Cada `if` actualiza una variable independiente. Inicializa AMBAS con `v[0]` para que funcionen aunque todos los valores sean negativos.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Máximo
@@ -1562,18 +1638,46 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int reprobados = {{0}};
+          template: `int notas[5];
 for (int i = 0; i < 5; i++) {
-  if (notas[i] {{1}} 7) {
+  cin >> notas[{{0}}];
+}
+
+int suma      = 0;
+int mayor     = notas[0];
+int aprobados = {{1}};
+int reprobados = 0;
+
+// UNA sola pasada calcula 4 cosas
+for (int i = 0; i < 5; i++) {
+  suma {{2}} notas[i];
+
+  if (notas[i] > {{3}}) {
+    mayor = notas[i];
+  }
+
+  if (notas[i] {{4}} 7) {
+    aprobados{{5}};
+  } else {
     reprobados++;
   }
-}`,
+}
+
+cout << "Promedio: "   << suma / {{6}} << endl;
+cout << "Mayor: "      << mayor << endl;
+cout << "Aprobados: "  << aprobados << endl;
+cout << "Reprobados: " << reprobados << endl;`,
           blanks: [
+            { answer: "i", hint: "Índice variable que cambia con el for." },
             { answer: "0", hint: "El contador parte de cero." },
-            { answer: "<", hint: "Reprueba si la calificación es MENOR que 7." },
+            { answer: "+=", hint: "Atajo de acumulación." },
+            { answer: "mayor", hint: "El candidato actual al máximo." },
+            { answer: ">=", hint: "Aprueba con 7 o más (incluye el 7)." },
+            { answer: "++", hint: "Sube el contador en uno." },
+            { answer: "5.0", hint: "Para conservar decimales en el promedio." },
           ],
           explanation:
-            "Mismo patrón que `aprobados`, pero con la condición invertida (`< 7`).",
+            "Patrón profesional: declarar TODOS los acumuladores fuera del for, hacer una sola pasada que actualice todos. Aprobados (`>= 7`) y reprobados (`< 7`) se cuentan en un solo `if/else`.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (medio): Boletín

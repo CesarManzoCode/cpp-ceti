@@ -84,17 +84,32 @@ int main() {
 using namespace std;
 
 int main() {
-  {{1}} salida("hola.txt");
-  salida << "Hola disco" << endl;
-  salida.close();
-  return 0;
+  // Abre (o crea) el archivo
+  {{1}} archivo({{2}});
+
+  // Escribe 3 líneas
+  archivo {{3}} "Linea A" << endl;
+  archivo << "Linea B" {{4}} endl;
+  archivo << "Linea C" << endl;
+
+  // Cierra
+  archivo.{{5}}();
+
+  cout << {{6}} << endl;
+  return {{7}};
 }`,
           blanks: [
-            { answer: "<fstream>", hint: "El header de archivos." },
-            { answer: "ofstream", hint: "Tipo para escribir (output)." },
+            { answer: "<fstream>", hint: "Header de archivos." },
+            { answer: "ofstream", hint: "Tipo para ESCRIBIR (output)." },
+            { answer: "\"hola.txt\"", hint: "Nombre del archivo entre comillas dobles." },
+            { answer: "<<", hint: "Operador de salida (sale de aquí hacia el archivo)." },
+            { answer: "<<", hint: "Mismo operador en cadena." },
+            { answer: "close", hint: "Método para cerrar el stream." },
+            { answer: "\"Listo\"", hint: "Confirmación entre comillas." },
+            { answer: "0", hint: "Código de salida correcto." },
           ],
           explanation:
-            "Para escribir un archivo: `#include <fstream>` + `ofstream nombre(\"archivo.txt\");`",
+            "Patrón fijo de escritura: `#include <fstream>` + `ofstream nombre(\"archivo\");` + escrituras con `<<` + `nombre.close();`. El `return 0;` confirma que todo terminó bien.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Crear y confirmar
@@ -340,17 +355,29 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `{{0}} entrada("datos.txt");
-int x;
-entrada {{1}} x;
-entrada.close();
-cout << x << endl;`,
+          template: `// Escribir 3 enteros, releer y mostrar el producto
+
+{{0}} salida("trio.txt");
+salida {{1}} 4 << " " << 5 << " " << 6 << endl;
+salida.{{2}}();
+
+{{3}} entrada("trio.txt");
+int a, b, c;
+entrada {{4}} a >> b >> c;
+entrada.{{5}}();
+
+cout << "Producto: " << {{6}} << endl;`,
           blanks: [
-            { answer: "ifstream", hint: "El tipo para leer." },
-            { answer: ">>", hint: "El operador que SACA datos del stream." },
+            { answer: "ofstream", hint: "Tipo para ESCRIBIR." },
+            { answer: "<<", hint: "Operador de salida." },
+            { answer: "close", hint: "Método de cierre del stream de salida." },
+            { answer: "ifstream", hint: "Tipo para LEER." },
+            { answer: ">>", hint: "Operador de entrada (encadenado con los otros >>)." },
+            { answer: "close", hint: "Método de cierre del stream de entrada." },
+            { answer: "a * b * c", hint: "Multiplicación de los tres valores leídos." },
           ],
           explanation:
-            "Patrón clásico de lectura: `ifstream` + `>>` para cada valor + `close()`.",
+            "Mismo operador `>>` que con `cin`, ahora aplicado a un `ifstream`. Lo puedes encadenar para leer varios valores en una sola línea: `entrada >> a >> b >> c;`.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Round-trip
@@ -591,17 +618,33 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `ifstream archivo("notas.txt");
-if ({{0}}archivo) {
+          template: `// Lee un entero del archivo SI existe; si no, reporta y sale.
+ifstream archivo({{0}});
+
+{{1}} ({{2}}archivo) {
   cout << "Error al abrir" << endl;
-  return {{1}};
-}`,
+  return {{3}};
+}
+
+// si llegamos aqui, el archivo SI abrio
+int valor;
+archivo {{4}} valor;
+archivo.{{5}}();
+
+cout << "Lei: " << {{6}} << endl;
+return {{7}};`,
           blanks: [
-            { answer: "!", hint: "Operador de negación." },
-            { answer: "1", hint: "Código de salida de error (distinto de 0)." },
+            { answer: "\"config.txt\"", hint: "Nombre del archivo entre comillas." },
+            { answer: "if", hint: "Condicional para validar." },
+            { answer: "!", hint: "Operador de negación lógica." },
+            { answer: "1", hint: "Código de salida con error (no cero)." },
+            { answer: ">>", hint: "Operador de lectura." },
+            { answer: "close", hint: "Método para cerrar el stream." },
+            { answer: "valor", hint: "La variable que recibió el dato." },
+            { answer: "0", hint: "Código de salida exitoso." },
           ],
           explanation:
-            "Convención: `return 0;` = todo bien, `return 1;` (o cualquier no-cero) = hubo error.",
+            "Patrón fijo: abrir → `if (!stream)` para detectar falla → si abrió, leer normal. `return 0` confirma éxito; `return 1` (o cualquier no-cero) indica error.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Reporte simple
@@ -860,18 +903,37 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `ifstream f("datos.txt");
-string s;
-while ({{0}}(f, {{1}})) {
-  cout << s << endl;
+          template: `// Construye un archivo de 3 líneas, después léelo y cuéntalas
+
+ofstream salida({{0}});
+salida << "Linea A" << endl;
+salida << "Linea B" << endl;
+salida << "Linea C" << endl;
+salida.close();
+
+{{1}} f("notas.txt");
+{{2}} linea;
+int cuenta = {{3}};
+
+{{4}} ({{5}}(f, {{6}})) {
+  cout << linea << endl;
+  cuenta{{7}};
 }
-f.close();`,
+f.close();
+
+cout << "Total: " << cuenta << endl;`,
           blanks: [
-            { answer: "getline", hint: "Función que lee una línea completa." },
-            { answer: "s", hint: "La variable string donde se guarda." },
+            { answer: "\"notas.txt\"", hint: "Nombre del archivo entre comillas." },
+            { answer: "ifstream", hint: "Stream para LEER." },
+            { answer: "string", hint: "Tipo para guardar una línea de texto." },
+            { answer: "0", hint: "El contador parte de cero." },
+            { answer: "while", hint: "Ciclo que sigue mientras la lectura tenga éxito." },
+            { answer: "getline", hint: "Función que lee una línea completa (con espacios)." },
+            { answer: "linea", hint: "Variable string donde se guarda cada línea." },
+            { answer: "++", hint: "Incrementa el contador en uno por vuelta." },
           ],
           explanation:
-            "Sintaxis fija: `while (getline(stream, variable_string)) { ... }`.",
+            "Sintaxis fija: `while (getline(stream, variable_string)) { ... }`. Cuando ya no hay más líneas, `getline` devuelve `false` y el while termina solo — no tienes que saber cuántas líneas hay de antemano.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Eco de líneas
@@ -1146,14 +1208,41 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `ofstream archivo("registro.txt", ios::{{0}});
-archivo << "nueva linea" << endl;
-archivo.close();`,
+          template: `// Construye un log de 3 entradas SIN perder lo anterior
+
+// 1) Primera apertura: modo normal (crea o trunca)
+ofstream a({{0}});
+a << "Inicio" << endl;
+a.{{1}}();
+
+// 2) Segunda apertura: APPEND
+ofstream b("log.txt", ios::{{2}});
+b << "Avance" << endl;
+b.close();
+
+// 3) Tercera apertura: APPEND otra vez
+{{3}} c("log.txt", ios::{{4}});
+c << "Fin" << endl;
+c.close();
+
+// 4) Verificación leyendo todo
+ifstream lector("log.txt");
+{{5}} s;
+{{6}} (getline(lector, s)) {
+  cout << s << endl;
+}
+lector.close();`,
           blanks: [
-            { answer: "app", hint: "Modo APPEND, del inglés *append*." },
+            { answer: "\"log.txt\"", hint: "Nombre del archivo entre comillas." },
+            { answer: "close", hint: "Método para cerrar el primer stream." },
+            { answer: "app", hint: "Modo APPEND (sigue al final)." },
+            { answer: "ofstream", hint: "Tipo del tercer stream (también escribe)." },
+            { answer: "app", hint: "Mismo modo append." },
+            { answer: "string", hint: "Tipo para leer una línea." },
+            { answer: "while", hint: "Ciclo de lectura línea por línea." },
           ],
           explanation:
-            "El segundo argumento `ios::app` activa el modo append.",
+            "Sin `ios::app` el archivo se TRUNCA en cada apertura — pierdes lo anterior. Con `ios::app` las escrituras nuevas se pegan al final. La primera apertura va sin `ios::app` para empezar limpio.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Una sola apendida
@@ -1437,19 +1526,44 @@ int main() {
         },
         {
           type: "fill_blank",
-          template: `int valor, suma = 0, cuenta = 0;
-ifstream f("datos.txt");
-while (f {{0}} valor) {
-  suma += valor;
-  cuenta{{1}};
+          template: `// Pipeline completo: cin → archivo → archivo → estadísticas
+
+// 1) Pide N enteros y guárdalos en el archivo
+ofstream salida("datos.txt");
+for (int i = 0; i < 5; i++) {
+  int n;
+  cin {{0}} n;
+  salida << n {{1}} endl;
 }
-f.close();`,
+salida.{{2}}();
+
+// 2) Releer y calcular suma + cuenta
+ifstream entrada("datos.txt");
+int valor;
+int suma   = {{3}};
+int cuenta = 0;
+
+{{4}} (entrada {{5}} valor) {
+  suma {{6}} valor;
+  cuenta{{7}};
+}
+entrada.close();
+
+// 3) Imprime el promedio con decimales
+cout << "Promedio: " << suma / ({{8}})cuenta << endl;`,
           blanks: [
-            { answer: ">>", hint: "Mismo operador que con `cin`." },
-            { answer: "++", hint: "Sube el contador 1 cada vuelta." },
+            { answer: ">>", hint: "Lee del stream cin." },
+            { answer: "<<", hint: "Escribe al stream del archivo." },
+            { answer: "close", hint: "Cierra el stream de escritura." },
+            { answer: "0", hint: "Acumulador empieza en cero." },
+            { answer: "while", hint: "Ciclo que se detiene cuando la lectura falla." },
+            { answer: ">>", hint: "Lee siguiente valor del archivo." },
+            { answer: "+=", hint: "Atajo de acumulación." },
+            { answer: "++", hint: "Incrementa el contador en uno." },
+            { answer: "double", hint: "Cast a tipo con decimales para forzar división no entera." },
           ],
           explanation:
-            "Patrón: `while (stream >> variable)` para leer todos los valores que haya, sin saber cuántos son.",
+            "Pipeline `cin → ofstream → ifstream → cout`. `while (entrada >> valor)` es el equivalente de `getline` pero para valores sueltos: corre hasta que la lectura falla porque el stream se acabó.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (medio): Promedio en disco
