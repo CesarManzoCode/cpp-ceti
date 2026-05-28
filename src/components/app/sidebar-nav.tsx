@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, Circle, Home, Lock, Trophy } from "lucide-react";
+import { Check, Circle, Dumbbell, Home, Lock, Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -16,8 +16,14 @@ export interface SidebarUnit {
   completedCount: number;
 }
 
-const topLinks = [
-  { href: "/app", label: "Inicio", icon: Home },
+const topLinks: {
+  href: string;
+  label: string;
+  icon: typeof Home;
+  exact?: boolean;
+}[] = [
+  { href: "/app", label: "Inicio", icon: Home, exact: true },
+  { href: "/app/ejercicios", label: "Ejercicios", icon: Dumbbell },
   { href: "/app/logros", label: "Logros", icon: Trophy },
 ];
 
@@ -34,7 +40,9 @@ export function SidebarNav({
     <nav className="flex flex-col gap-7">
       <NavGroup>
         {topLinks.map((link) => {
-          const active = pathname === link.href;
+          const active = link.exact
+            ? pathname === link.href
+            : pathname.startsWith(link.href);
           return (
             <NavItem
               key={link.href}

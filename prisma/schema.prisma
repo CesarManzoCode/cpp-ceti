@@ -34,11 +34,12 @@ model User {
   accounts Account[]
 
   // Relaciones de progreso
-  courseProgress   UserCourseProgress[]
-  lessonProgress   UserLessonProgress[]
-  stepProgress     UserStepProgress[]
-  exerciseAttempts UserExerciseAttempt[]
-  streak           UserStreak?
+  courseProgress    UserCourseProgress[]
+  lessonProgress    UserLessonProgress[]
+  stepProgress      UserStepProgress[]
+  exerciseAttempts  UserExerciseAttempt[]
+  practiceAttempts  UserPracticeAttempt[]
+  streak            UserStreak?
 
   @@index([email])
   @@map("user")
@@ -299,6 +300,72 @@ model UserExerciseAttempt {
 
   @@index([userId, exerciseId, createdAt])
   @@map("user_exercise_attempt")
+}
+
+// =====================================================================
+//  EJERCICIOS DE PRÁCTICA (independientes de lecciones)
+// =====================================================================
+//  Ejercicios sueltos que el alumno puede resolver para reforzar o
+//  consolidar lo que vio en las unidades. NO están atados a un step ni
+//  desbloquean nada — son práctica abierta.
+//  La dificultad es RELATIVA a su unidad: un ejercicio "hard" de
+//  arreglos no es comparable a un "hard" de cout; cada uno se mide
+//  contra el material de su unidad.
+
+model PracticeExercise {
+  id           String     @id @default(cuid())
+  unitSlug     String     // contexto pedagógico: "primer-programa", "arreglos", etc.
+  slug         String     @unique
+  title        String
+  description  String
+  prompt       String     // markdown
+  starterCode  String
+  solutionCode String
+  hints        String[]
+  difficulty   Difficulty @default(easy)
+  xpReward     Int        @default(15)
+  position     Int        @default(0)
+  published    Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  testCases PracticeTestCase[]
+  attempts  UserPracticeAttempt[]
+
+  @@index([unitSlug, position])
+  @@map("practice_exercise")
+}
+
+model PracticeTestCase {
+  id             String           @id @default(cuid())
+  exerciseId     String
+  exercise       PracticeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  stdin          String           @default("")
+  expectedStdout String
+  visible        Boolean          @default(true)
+  description    String?
+  order          Int              @default(0)
+
+  @@index([exerciseId, order])
+  @@map("practice_test_case")
+}
+
+model UserPracticeAttempt {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    PracticeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  code        String
+  passed      Boolean
+  feedback    String?
+  testsPassed Int              @default(0)
+  testsTotal  Int              @default(0)
+  durationMs  Int?
+  createdAt   DateTime         @default(now())
+
+  @@index([userId, exerciseId, createdAt])
+  @@map("user_practice_attempt")
 }
 
 model UserStreak {

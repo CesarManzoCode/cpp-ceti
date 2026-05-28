@@ -9,6 +9,7 @@ import { unidad06 } from "./unidad-06-funciones";
 import { unidad07 } from "./unidad-07-printf-scanf";
 import { unidad08 } from "./unidad-08-arreglos";
 import { unidad09 } from "./unidad-09-archivos";
+import { unidad10 } from "./unidad-10-matrices";
 
 export const cursoCpp: CourseDefinition = {
   slug: "cpp-desde-cero",
@@ -26,6 +27,7 @@ export const cursoCpp: CourseDefinition = {
     unidad07,
     unidad08,
     unidad09,
+    unidad10,
   ],
 };
 
