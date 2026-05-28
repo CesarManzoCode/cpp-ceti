@@ -93,13 +93,25 @@ int main() {
     },
     {
       slug: "u05-tabla-multiplicar",
-      title: "Tabla de multiplicar",
-      description: "Imprime la tabla del 7, del 1 al 10.",
+      title: "Tabla de multiplicar del N",
+      description: "Lee N y imprime su tabla del 1 al 10.",
       difficulty: "easy",
-      xpReward: 14,
-      prompt: `## Tabla del 7
+      xpReward: 16,
+      prompt: `## Tabla del N
 
-Imprime EXACTAMENTE la tabla del 7 del 1 al 10:
+Lee \`int n\` del usuario. Imprime la tabla de multiplicar del \`n\` del 1 al
+10, formato:
+
+\`\`\`
+<n> x 1 = <n*1>
+<n> x 2 = <n*2>
+...
+<n> x 10 = <n*10>
+\`\`\`
+
+Para el test, el sistema enviará: \`7\`.
+
+Salida esperada:
 
 \`\`\`
 7 x 1 = 7
@@ -112,14 +124,14 @@ Imprime EXACTAMENTE la tabla del 7 del 1 al 10:
 7 x 8 = 56
 7 x 9 = 63
 7 x 10 = 70
-\`\`\`
-
-Sin pedirle nada al usuario — todo va dentro de un for.`,
+\`\`\``,
       starterCode: `#include <iostream>
 using namespace std;
 
 int main() {
-  // for de 1 a 10 que imprime "7 x i = 7*i"
+  int n;
+  cin >> n;
+  // for de 1 a 10 que imprime "n x i = n*i"
 
   return 0;
 }`,
@@ -127,22 +139,39 @@ int main() {
 using namespace std;
 
 int main() {
+  int n;
+  cin >> n;
   for (int i = 1; i <= 10; i++) {
-    cout << "7 x " << i << " = " << 7 * i << endl;
+    cout << n << " x " << i << " = " << n * i << endl;
   }
   return 0;
 }`,
       hints: [
-        "Un solo for de 1 a 10.",
-        "Dentro: encadena texto y `i` y `7 * i` en un solo `cout`.",
-        "El espacio en `\"7 x \"` y `\" = \"` importa.",
+        "Lee `n` con `cin >> n;` antes del for.",
+        "Un solo for de 1 a 10; encadena `n`, `i` y `n * i` en el cout.",
+        "El espacio en `\" x \"` y `\" = \"` importa.",
       ],
       testCases: [
         {
+          stdin: "7\n",
           expectedStdout:
             "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70\n",
           visible: true,
-          description: "Tabla del 7 completa",
+          description: "Tabla del 7",
+        },
+        {
+          stdin: "3\n",
+          expectedStdout:
+            "3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15\n3 x 6 = 18\n3 x 7 = 21\n3 x 8 = 24\n3 x 9 = 27\n3 x 10 = 30\n",
+          visible: false,
+          description: "Tabla del 3",
+        },
+        {
+          stdin: "1\n",
+          expectedStdout:
+            "1 x 1 = 1\n1 x 2 = 2\n1 x 3 = 3\n1 x 4 = 4\n1 x 5 = 5\n1 x 6 = 6\n1 x 7 = 7\n1 x 8 = 8\n1 x 9 = 9\n1 x 10 = 10\n",
+          visible: false,
+          description: "Tabla del 1",
         },
       ],
     },

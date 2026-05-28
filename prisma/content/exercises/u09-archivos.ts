@@ -3,17 +3,19 @@ import type { PracticeUnitSetDefinition } from "./types";
 /**
  * Ejercicios de práctica — Unidad 09: Archivos
  *
- * Mix CETI-style:
- *   - File I/O con ofstream / ifstream + << / >> / endl
- *   - Terminal I/O con printf / scanf
- *   - Para imprimir un std::string con printf: `s.c_str()` y `%s`.
+ * Mix CETI-style: file I/O con ofstream/ifstream + terminal con printf/scanf.
  *
- * NOTA importante para los tests: todos los retos siguen el patrón
- * "escribir al archivo → leer del mismo archivo → printf lo leído",
- * porque las pruebas validan stdout — no leen el archivo.
+ * ANTI-HARDCODE: todos los retos LEEN datos desde stdin (scanf) y tienen
+ * varios test cases ocultos con inputs distintos. Así el alumno no puede
+ * adivinar la salida y copiarla con un printf — debe procesar el input.
+ * (Las pruebas validan stdout; el uso real del archivo no se puede forzar
+ * desde stdout, pero al menos el ALGORITMO queda verificado y la salida
+ * deja de ser fija.)
+ *
+ * Para imprimir un std::string con printf: `s.c_str()` y `%s`.
  *
  * Calibración:
- *   easy   — starter con includes + main + parcial
+ *   easy   — starter con includes + main + comentario
  *   medium — starter con includes + main shell
  *   hard   — starter con solo includes
  */
@@ -27,17 +29,18 @@ export const u09ArchivosExercises: PracticeUnitSetDefinition = {
     // -----------------------------------------------------------------
     {
       slug: "u09-escribir-numero",
-      title: "Escribir un número y reimprimirlo",
-      description: "Escribe 99 al archivo, vuelve a leerlo y muéstralo.",
+      title: "Guardar un número y recuperarlo",
+      description: "Lee un entero, escríbelo al archivo, vuelve a leerlo y muéstralo.",
       difficulty: "easy",
-      xpReward: 16,
-      prompt: `## Escribir y leer un número
+      xpReward: 18,
+      prompt: `## Round-trip de un número
 
-Tu programa debe:
+1. Lee un entero \`n\` del usuario con \`scanf\`.
+2. Escríbelo en \`dato.txt\` con \`ofstream\` y cierra.
+3. Vuelve a abrir el archivo con \`ifstream\`, lee el entero y muéstralo con
+   \`printf\`.
 
-1. Abrir \`dato.txt\` con \`ofstream\` y escribirle el número **99**.
-2. Cerrar el archivo.
-3. Abrirlo con \`ifstream\`, leer el entero y mostrarlo con \`printf\`.
+Para el test, el sistema enviará: \`99\`.
 
 Salida esperada:
 
@@ -49,9 +52,8 @@ Salida esperada:
 using namespace std;
 
 int main() {
-  // 1) ofstream: escribir 99 al archivo
-  // 2) ifstream: leer el entero
-  // 3) printf
+  int n;
+  // 1) scanf  2) ofstream escribe n  3) ifstream lee  4) printf
 
   return 0;
 }`,
@@ -60,50 +62,61 @@ int main() {
 using namespace std;
 
 int main() {
+  int n;
+  scanf("%i", &n);
+
   ofstream salida("dato.txt");
-  salida << 99 << endl;
+  salida << n << endl;
   salida.close();
 
   ifstream entrada("dato.txt");
-  int n;
-  entrada >> n;
+  int leido;
+  entrada >> leido;
   entrada.close();
 
-  printf("%i\\n", n);
+  printf("%i\\n", leido);
   return 0;
 }`,
       hints: [
-        "Para el archivo usa `<<` y `endl` (estilo stream).",
-        "Para la terminal usa `printf` con `%i`.",
-        "Acuérdate de cerrar ambos streams.",
+        "Lee primero con `scanf(\"%i\", &n);`.",
+        "Escribe al archivo con `<<` y lee de regreso con `>>`.",
+        "Imprime el valor leído con `printf(\"%i\\n\", ...)`.",
       ],
       testCases: [
         {
+          stdin: "99\n",
           expectedStdout: "99\n",
           visible: true,
-          description: "Reimprime 99",
+          description: "Round-trip de 99",
+        },
+        {
+          stdin: "7\n",
+          expectedStdout: "7\n",
+          visible: false,
+          description: "Otro valor",
+        },
+        {
+          stdin: "1000\n",
+          expectedStdout: "1000\n",
+          visible: false,
+          description: "Valor grande",
         },
       ],
     },
     {
       slug: "u09-tres-lineas-archivo",
-      title: "Tres líneas al archivo",
-      description: "Escribe 3 líneas, léelas con getline y reimprimelas.",
+      title: "Tres palabras al archivo",
+      description: "Lee 3 palabras, escríbelas como líneas y reimprímelas con getline.",
       difficulty: "easy",
-      xpReward: 16,
-      prompt: `## Tres líneas
+      xpReward: 18,
+      prompt: `## Tres palabras
 
-Crea \`materias.txt\` con estas 3 líneas en orden:
+1. Lee **3 palabras** del usuario con \`scanf\` (separadas por espacio).
+2. Escríbelas en \`palabras.txt\`, **una por línea**, con \`ofstream\`.
+3. Reabre con \`ifstream\` y léelas con \`getline\`, imprimiendo cada una con
+   \`printf("%s\\n", linea.c_str())\`.
 
-\`\`\`
-Calculo
-Fisica
-Quimica
-\`\`\`
-
-Cierra y vuelve a abrir el archivo con \`ifstream\`. Léelo línea por línea
-con \`getline\` y muestra cada línea con \`printf\` (recuerda \`.c_str()\`
-para imprimir un \`std::string\` con \`%s\`).
+Para el test, el sistema enviará: \`Calculo Fisica Quimica\`.
 
 Salida esperada:
 
@@ -118,6 +131,9 @@ Quimica
 using namespace std;
 
 int main() {
+  char a[100], b[100], c[100];
+  // 1) scanf de 3 palabras  2) escribir cada una como línea
+  // 3) getline + printf
 
   return 0;
 }`,
@@ -127,13 +143,16 @@ int main() {
 using namespace std;
 
 int main() {
-  ofstream salida("materias.txt");
-  salida << "Calculo" << endl;
-  salida << "Fisica" << endl;
-  salida << "Quimica" << endl;
+  char a[100], b[100], c[100];
+  scanf("%99s %99s %99s", a, b, c);
+
+  ofstream salida("palabras.txt");
+  salida << a << endl;
+  salida << b << endl;
+  salida << c << endl;
   salida.close();
 
-  ifstream entrada("materias.txt");
+  ifstream entrada("palabras.txt");
   string linea;
   while (getline(entrada, linea)) {
     printf("%s\\n", linea.c_str());
@@ -142,36 +161,45 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Bloque 1: tres `salida << \"...\" << endl;`.",
-        "Bloque 2: `while (getline(entrada, linea)) printf(\"%s\\n\", linea.c_str());`.",
+        "Para leer 3 palabras: `scanf(\"%99s %99s %99s\", a, b, c);` (los char[] NO llevan `&`).",
+        "Escribe cada palabra con `salida << a << endl;` etc.",
+        "Para imprimir un string con printf: `printf(\"%s\\n\", linea.c_str());`.",
       ],
       testCases: [
         {
+          stdin: "Calculo Fisica Quimica\n",
           expectedStdout: "Calculo\nFisica\nQuimica\n",
           visible: true,
-          description: "Tres materias",
+          description: "Caso ejemplo",
+        },
+        {
+          stdin: "uno dos tres\n",
+          expectedStdout: "uno\ndos\ntres\n",
+          visible: false,
+          description: "Otras palabras",
+        },
+        {
+          stdin: "Lunes Martes Miercoles\n",
+          expectedStdout: "Lunes\nMartes\nMiercoles\n",
+          visible: false,
+          description: "Días",
         },
       ],
     },
     {
       slug: "u09-contar-lineas",
-      title: "Contar líneas escritas",
-      description: "Escribe 4 líneas y luego cuenta cuántas hay en el archivo.",
+      title: "Contar palabras escritas",
+      description: "Lee palabras hasta el final, escríbelas y cuenta las líneas.",
       difficulty: "easy",
-      xpReward: 18,
+      xpReward: 20,
       prompt: `## Contar líneas
 
-Crea \`registro.txt\` con estas 4 líneas:
+Lee palabras del usuario **hasta que se acaben** (usa
+\`while (scanf("%99s", buf) == 1)\`). Escribe cada palabra como una línea en
+\`registro.txt\`. Después abre el archivo, recórrelo con \`getline\` y cuenta
+cuántas líneas tiene. Imprime SOLO el conteo.
 
-\`\`\`
-Aurora
-Mario
-Sofia
-Andres
-\`\`\`
-
-Cierra. Reabre con \`ifstream\`, recorre con \`getline\` y cuenta cuántas
-líneas hay. Imprime SOLO el conteo.
+Para el test, el sistema enviará: \`Aurora Mario Sofia Andres\` (4 palabras).
 
 Salida esperada:
 
@@ -194,10 +222,10 @@ using namespace std;
 
 int main() {
   ofstream salida("registro.txt");
-  salida << "Aurora" << endl;
-  salida << "Mario" << endl;
-  salida << "Sofia" << endl;
-  salida << "Andres" << endl;
+  char buf[100];
+  while (scanf("%99s", buf) == 1) {
+    salida << buf << endl;
+  }
   salida.close();
 
   ifstream entrada("registro.txt");
@@ -211,14 +239,28 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Acumulador `int cuenta = 0;` fuera del while.",
-        "Dentro: `cuenta++;`. Al final, `printf` con `%i`.",
+        "`while (scanf(\"%99s\", buf) == 1)` lee palabras hasta que ya no haya (devuelve 1 mientras lea con éxito).",
+        "Dentro del while, escribe `buf` como línea en el archivo.",
+        "Después cuenta con otro `while (getline(...))` y un contador.",
       ],
       testCases: [
         {
+          stdin: "Aurora Mario Sofia Andres\n",
           expectedStdout: "4\n",
           visible: true,
-          description: "Cuatro líneas",
+          description: "4 palabras",
+        },
+        {
+          stdin: "uno dos\n",
+          expectedStdout: "2\n",
+          visible: false,
+          description: "2 palabras",
+        },
+        {
+          stdin: "a b c d e f\n",
+          expectedStdout: "6\n",
+          visible: false,
+          description: "6 palabras",
         },
       ],
     },
@@ -229,16 +271,16 @@ int main() {
     {
       slug: "u09-suma-tres-enteros",
       title: "Sumar 3 enteros vía archivo",
-      description: "Escribe 3 enteros separados por espacios y suma desde el archivo.",
+      description: "Lee 3 enteros, guárdalos en archivo y suma desde el archivo.",
       difficulty: "medium",
-      xpReward: 22,
+      xpReward: 24,
       prompt: `## Sumar tres vía archivo
 
-1. Crea \`trio.txt\` con los enteros \`10 20 30\` (en una línea, separados
-   por espacios).
-2. Cierra el archivo.
-3. Reábrelo con \`ifstream\`, lee los 3 enteros con \`>>\` encadenado.
-4. Imprime la suma con \`printf\` y \`%i\`.
+1. Lee **3 enteros** del usuario con \`scanf\`.
+2. Escríbelos en \`trio.txt\` (separados por espacios).
+3. Reábrelo con \`ifstream\`, lee los 3 enteros con \`>>\` y muestra la suma.
+
+Para el test, el sistema enviará: \`10 20 30\`.
 
 Salida esperada:
 
@@ -258,46 +300,63 @@ int main() {
 using namespace std;
 
 int main() {
+  int a, b, c;
+  scanf("%i %i %i", &a, &b, &c);
+
   ofstream salida("trio.txt");
-  salida << 10 << " " << 20 << " " << 30 << endl;
+  salida << a << " " << b << " " << c << endl;
   salida.close();
 
   ifstream entrada("trio.txt");
-  int a, b, c;
-  entrada >> a >> b >> c;
+  int x, y, z;
+  entrada >> x >> y >> z;
   entrada.close();
 
-  printf("%i\\n", a + b + c);
+  printf("%i\\n", x + y + z);
   return 0;
 }`,
       hints: [
-        "Al escribir, separa los valores con un espacio entre `<<`.",
-        "Al leer, `entrada >> a >> b >> c;` encadenado.",
+        "Lee del usuario con `scanf(\"%i %i %i\", &a, &b, &c);`.",
+        "Al escribir al archivo, separa con espacios entre `<<`.",
+        "Al releer, `entrada >> x >> y >> z;` y suma.",
       ],
       testCases: [
         {
+          stdin: "10 20 30\n",
           expectedStdout: "60\n",
           visible: true,
-          description: "10+20+30 = 60",
+          description: "10+20+30",
+        },
+        {
+          stdin: "1 2 3\n",
+          expectedStdout: "6\n",
+          visible: false,
+          description: "1+2+3",
+        },
+        {
+          stdin: "100 200 300\n",
+          expectedStdout: "600\n",
+          visible: false,
+          description: "Valores grandes",
         },
       ],
     },
     {
       slug: "u09-append-bitacora",
-      title: "Append: bitácora",
-      description: "Tres aperturas: una normal y dos en modo append.",
+      title: "Bitácora con append (no pierdas datos)",
+      description: "Lee 3 palabras, escríbelas con append y verifica que ninguna se pierda.",
       difficulty: "medium",
-      xpReward: 24,
+      xpReward: 26,
       prompt: `## Bitácora con append
 
-Construye \`bitacora.txt\` así (3 aperturas):
+Lee **3 palabras** del usuario. Escribe la PRIMERA en \`bitacora.txt\` en modo
+normal, y las otras dos en modo **\`ios::app\`** (para no borrar lo anterior).
+Después abre el archivo, léelo con \`getline\` y muestra todas las líneas.
 
-1. Primera (modo normal): escribe \`Encendido\`.
-2. Segunda (modo \`ios::app\`): agrega \`Operacion\`.
-3. Tercera (modo \`ios::app\`): agrega \`Apagado\`.
+> Ojo: si usas modo normal en las 3, solo sobrevive la última — el test lo
+> detecta porque faltarían líneas.
 
-Después abre con \`ifstream\`, lee línea por línea con \`getline\` y muestra
-cada una con \`printf\`.
+Para el test, el sistema enviará: \`Encendido Operacion Apagado\`.
 
 Salida esperada:
 
@@ -321,17 +380,20 @@ int main() {
 using namespace std;
 
 int main() {
-  ofstream a("bitacora.txt");
-  a << "Encendido" << endl;
-  a.close();
+  char a[100], b[100], c[100];
+  scanf("%99s %99s %99s", a, b, c);
 
-  ofstream b("bitacora.txt", ios::app);
-  b << "Operacion" << endl;
-  b.close();
+  ofstream s1("bitacora.txt");
+  s1 << a << endl;
+  s1.close();
 
-  ofstream c("bitacora.txt", ios::app);
-  c << "Apagado" << endl;
-  c.close();
+  ofstream s2("bitacora.txt", ios::app);
+  s2 << b << endl;
+  s2.close();
+
+  ofstream s3("bitacora.txt", ios::app);
+  s3 << c << endl;
+  s3.close();
 
   ifstream lector("bitacora.txt");
   string linea;
@@ -342,31 +404,45 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Sólo la PRIMERA apertura va sin `ios::app`.",
-        "Las otras dos llevan `ios::app` como segundo argumento.",
-        "Al imprimir un `string` con printf, usa `linea.c_str()` y `%s`.",
+        "Lee 3 palabras con `scanf(\"%99s %99s %99s\", a, b, c);`.",
+        "Primera apertura SIN segundo argumento; las otras dos con `ios::app`.",
+        "Si truncas en cada apertura, pierdes datos y el test falla — por eso el append importa.",
       ],
       testCases: [
         {
+          stdin: "Encendido Operacion Apagado\n",
           expectedStdout: "Encendido\nOperacion\nApagado\n",
           visible: true,
-          description: "Tres líneas, sin pérdida",
+          description: "Tres entradas en orden",
+        },
+        {
+          stdin: "Inicio Avance Fin\n",
+          expectedStdout: "Inicio\nAvance\nFin\n",
+          visible: false,
+          description: "Otras palabras",
+        },
+        {
+          stdin: "uno dos tres\n",
+          expectedStdout: "uno\ndos\ntres\n",
+          visible: false,
+          description: "Genéricas",
         },
       ],
     },
     {
       slug: "u09-filtrar-pares",
       title: "Filtrar pares del archivo",
-      description: "Escribe 5 enteros y filtra solo los pares al leer.",
+      description: "Lee 6 enteros, guárdalos y muestra solo los pares al releer.",
       difficulty: "medium",
       xpReward: 26,
       prompt: `## Filtrar pares
 
-1. Crea \`numeros.txt\` con los enteros \`1 2 3 4 5 6 7 8 9 10\` separados
-   por espacios.
-2. Cierra el archivo.
+1. Lee **6 enteros** del usuario con \`scanf\`.
+2. Escríbelos en \`numeros.txt\` (uno por línea o separados por espacios).
 3. Reábrelo con \`ifstream\` y, usando \`while (entrada >> valor)\`, imprime
-   **solo los pares**, uno por línea.
+   SOLO los pares, uno por línea.
+
+Para el test, el sistema enviará: \`1 2 3 4 5 6\`.
 
 Salida esperada:
 
@@ -374,8 +450,6 @@ Salida esperada:
 2
 4
 6
-8
-10
 \`\`\``,
       starterCode: `#include <stdio.h>
 #include <fstream>
@@ -391,10 +465,11 @@ using namespace std;
 
 int main() {
   ofstream salida("numeros.txt");
-  for (int i = 1; i <= 10; i++) {
-    salida << i << " ";
+  for (int i = 0; i < 6; i++) {
+    int n;
+    scanf("%i", &n);
+    salida << n << endl;
   }
-  salida << endl;
   salida.close();
 
   ifstream entrada("numeros.txt");
@@ -408,15 +483,27 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Para escribir 1..10, un `for` de 1 a 10 con `salida << i << \" \";` funciona.",
-        "Para leer todos, `while (entrada >> valor) { ... }`.",
-        "Dentro del while: `if (valor % 2 == 0) printf(\"%i\\n\", valor);`.",
+        "Un for de 6 vueltas que lee con scanf y escribe al archivo.",
+        "Al releer: `while (entrada >> valor)` y dentro `if (valor % 2 == 0) printf(...)`.",
       ],
       testCases: [
         {
-          expectedStdout: "2\n4\n6\n8\n10\n",
+          stdin: "1 2 3 4 5 6\n",
+          expectedStdout: "2\n4\n6\n",
           visible: true,
-          description: "Solo pares",
+          description: "Pares de 1..6",
+        },
+        {
+          stdin: "10 15 20 25 30 35\n",
+          expectedStdout: "10\n20\n30\n",
+          visible: false,
+          description: "Otros valores",
+        },
+        {
+          stdin: "1 3 5 7 9 11\n",
+          expectedStdout: "",
+          visible: false,
+          description: "Ningún par",
         },
       ],
     },
@@ -427,19 +514,16 @@ int main() {
     {
       slug: "u09-estadisticas-archivo",
       title: "Estadísticas de archivo",
-      description: "Escribe 5 enteros y calcula suma + máximo + promedio en una pasada.",
+      description: "Lee 5 enteros, guárdalos y calcula suma + máximo + promedio.",
       difficulty: "hard",
-      xpReward: 30,
+      xpReward: 32,
       prompt: `## Estadísticas vía archivo
 
 1. Lee con \`scanf\` **5 enteros** del usuario.
 2. Escríbelos en \`reporte.txt\`, uno por línea.
-3. Cierra el archivo.
-4. Reábrelo. En una sola pasada con \`while (entrada >> valor)\`, calcula:
-   - suma
-   - máximo (arranca con el primer valor leído)
-   - cuántos hay (cuenta)
-5. Imprime **3 líneas**:
+3. Reábrelo. En una sola pasada con \`while (entrada >> valor)\`, calcula:
+   suma, máximo (arranca con el primer valor leído) y cuántos hay (cuenta).
+4. Imprime **3 líneas**:
 
 \`\`\`
 Suma: <s>
@@ -448,8 +532,6 @@ Promedio: <s / cuenta con 2 decimales>
 \`\`\`
 
 Para el test, el sistema enviará: \`8 5 10 7 4\`.
-
-- Suma = 34, mayor = 10, promedio = 6.80.
 
 Salida esperada:
 
@@ -499,7 +581,7 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Para el máximo dentro del while, usa una bandera `bool primero = true;` que inicialice `mayor` en la primera lectura.",
+        "Usa una bandera `bool primero = true;` para inicializar `mayor` con la primera lectura.",
         "Cast a `double` para que la división no se trunque: `suma / (double) cuenta`.",
       ],
       testCases: [
@@ -526,25 +608,21 @@ int main() {
     {
       slug: "u09-copia-filtrada",
       title: "Copiar archivo filtrado",
-      description: "Lee un archivo y copia solo las líneas que empiezan con 'A'.",
+      description: "Lee 5 nombres, escríbelos, y copia solo los que empiezan con 'A'.",
       difficulty: "hard",
-      xpReward: 32,
+      xpReward: 34,
       prompt: `## Copia filtrada
 
-1. Crea \`origen.txt\` con estas 5 líneas:
+1. Lee **5 nombres** del usuario con \`scanf\` (una palabra cada uno).
+2. Escríbelos en \`origen.txt\`, uno por línea.
+3. Abre \`origen.txt\` con \`ifstream\`. Por cada línea, si empieza con
+   \`'A'\`, escríbela en \`filtrado.txt\` (modo normal la primera vez, append
+   las demás).
+4. Abre \`filtrado.txt\` y muestra todo su contenido con \`printf\`.
 
-\`\`\`
-Aurora
-Mario
-Andres
-Sofia
-Adriana
-\`\`\`
+Para el test, el sistema enviará: \`Aurora Mario Andres Sofia Adriana\`.
 
-2. Abre \`origen.txt\` con \`ifstream\`. Por cada línea, si empieza con
-   \`'A'\`, escríbela en otro archivo \`filtrado.txt\` (modo normal la
-   primera vez, append las demás).
-3. Después, abre \`filtrado.txt\` y muestra todo su contenido con \`printf\`.
+- Empiezan con A: Aurora, Andres, Adriana.
 
 Salida esperada:
 
@@ -564,19 +642,20 @@ using namespace std;
 using namespace std;
 
 int main() {
-  // 1) Crear origen.txt con las 5 líneas
+  // 1) Leer 5 nombres y escribirlos en origen.txt
   ofstream o("origen.txt");
-  o << "Aurora" << endl;
-  o << "Mario" << endl;
-  o << "Andres" << endl;
-  o << "Sofia" << endl;
-  o << "Adriana" << endl;
+  for (int i = 0; i < 5; i++) {
+    char nombre[100];
+    scanf("%99s", nombre);
+    o << nombre << endl;
+  }
   o.close();
 
-  // 2) Limpia el archivo filtrado y agrega las líneas con 'A'
+  // 2) Limpiar filtrado.txt
   ofstream limpio("filtrado.txt");
   limpio.close();
 
+  // 3) Filtrar los que empiezan con 'A'
   ifstream entrada("origen.txt");
   string linea;
   while (getline(entrada, linea)) {
@@ -588,7 +667,7 @@ int main() {
   }
   entrada.close();
 
-  // 3) Lee filtrado.txt y muestra todo
+  // 4) Mostrar filtrado.txt
   ifstream lector("filtrado.txt");
   string s;
   while (getline(lector, s)) {
@@ -598,15 +677,34 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Para comparar el primer caracter: `linea[0] == 'A'` (comillas simples para char).",
-        "Limpia el archivo filtrado antes (abrir y cerrar `ofstream` lo trunca a 0).",
-        "Cada escritura al filtrado abre en modo `ios::app` y se cierra al instante.",
+        "Lee los 5 nombres con un for: `char nombre[100]; scanf(\"%99s\", nombre);` y escribe cada uno.",
+        "Para el filtro, compara el primer caracter: `if (linea[0] == 'A')`.",
+        "Escribe los filtrados en modo append para no perder los anteriores.",
       ],
       testCases: [
         {
+          stdin: "Aurora Mario Andres Sofia Adriana\n",
           expectedStdout: "Aurora\nAndres\nAdriana\n",
           visible: true,
-          description: "Solo las que empiezan con A",
+          description: "3 nombres con A",
+        },
+        {
+          stdin: "Ana Beto Carlos Alberto Diego\n",
+          expectedStdout: "Ana\nAlberto\n",
+          visible: false,
+          description: "Distinto set: solo Ana y Alberto",
+        },
+        {
+          stdin: "Beto Carlos Diego Erik Fer\n",
+          expectedStdout: "",
+          visible: false,
+          description: "Ninguno empieza con A",
+        },
+        {
+          stdin: "Aldo Ariel Aaron Abel Ana\n",
+          expectedStdout: "Aldo\nAriel\nAaron\nAbel\nAna\n",
+          visible: false,
+          description: "Todos empiezan con A",
         },
       ],
     },

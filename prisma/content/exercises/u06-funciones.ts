@@ -24,19 +24,18 @@ export const u06FuncionesExercises: PracticeUnitSetDefinition = {
     // -----------------------------------------------------------------
     {
       slug: "u06-saludar",
-      title: "Función saludar()",
-      description: "Define una función void que imprime un saludo, llámala dos veces.",
+      title: "Función saludar() N veces",
+      description: "Define una función void y llámala N veces (N leído del usuario).",
       difficulty: "easy",
-      xpReward: 14,
-      prompt: `## Función saludar()
+      xpReward: 16,
+      prompt: `## Función saludar() N veces
 
-Define una función \`void saludar()\` que imprima exactamente:
+Define una función \`void saludar()\` que imprima exactamente \`Hola CETI\`.
 
-\`\`\`
-Hola CETI
-\`\`\`
+Lee un entero \`n\` del usuario y, desde \`main\`, llama a \`saludar()\`
+**exactamente \`n\` veces** (usa un for).
 
-Desde \`main\`, llámala **tres veces seguidas**.
+Para el test, el sistema enviará: \`3\`.
 
 Salida esperada:
 
@@ -51,7 +50,9 @@ using namespace std;
 // Define saludar aquí
 
 int main() {
-  // Llama saludar() tres veces
+  int n;
+  cin >> n;
+  // Llama saludar() n veces con un for
 
   return 0;
 }`,
@@ -63,21 +64,36 @@ void saludar() {
 }
 
 int main() {
-  saludar();
-  saludar();
-  saludar();
+  int n;
+  cin >> n;
+  for (int i = 0; i < n; i++) {
+    saludar();
+  }
   return 0;
 }`,
       hints: [
-        "Define la función ANTES de `main`: `void saludar() { ... }`.",
-        "Dentro: un `cout` con el texto.",
-        "En main: `saludar();` con paréntesis y `;`, repetido 3 veces.",
+        "Define `void saludar() { cout << \"Hola CETI\" << endl; }` antes de main.",
+        "Lee `n` con `cin >> n;`.",
+        "Un for de 0 a n-1 que llama `saludar();` en cada vuelta.",
       ],
       testCases: [
         {
+          stdin: "3\n",
           expectedStdout: "Hola CETI\nHola CETI\nHola CETI\n",
           visible: true,
-          description: "Saludo 3 veces",
+          description: "3 veces",
+        },
+        {
+          stdin: "1\n",
+          expectedStdout: "Hola CETI\n",
+          visible: false,
+          description: "Una vez",
+        },
+        {
+          stdin: "5\n",
+          expectedStdout: "Hola CETI\nHola CETI\nHola CETI\nHola CETI\nHola CETI\n",
+          visible: false,
+          description: "5 veces",
         },
       ],
     },
@@ -388,9 +404,9 @@ double calcular_total(double precio, double iva = 0.16);
 
 Que devuelve \`precio + precio * iva\`.
 
-Desde \`main\`, **llámala dos veces**:
-1. Con un solo argumento (\`precio = 100\`) — usa el default 16 %.
-2. Con dos argumentos (\`precio = 100, iva = 0.08\`).
+Lee un \`double precio\` del usuario. Desde \`main\`, **llámala dos veces**:
+1. Con un solo argumento (\`calcular_total(precio)\`) — usa el default 16 %.
+2. Con dos argumentos (\`calcular_total(precio, 0.08)\`) — 8 %.
 
 Imprime cada resultado en una línea:
 
@@ -398,6 +414,8 @@ Imprime cada resultado en una línea:
 Con default: <t1>
 Con 8%: <t2>
 \`\`\`
+
+Para el test, el sistema enviará: \`100\`.
 
 Salida esperada:
 
@@ -420,19 +438,35 @@ double calcular_total(double precio, double iva = 0.16) {
 }
 
 int main() {
-  cout << "Con default: " << calcular_total(100) << endl;
-  cout << "Con 8%: " << calcular_total(100, 0.08) << endl;
+  double precio;
+  cin >> precio;
+  cout << "Con default: " << calcular_total(precio) << endl;
+  cout << "Con 8%: " << calcular_total(precio, 0.08) << endl;
   return 0;
 }`,
       hints: [
         "El default va en la firma: `double iva = 0.16`.",
-        "Primera llamada con 1 arg, segunda con 2 args.",
+        "Lee `precio` con `cin >> precio;`.",
+        "Primera llamada con 1 arg (usa default), segunda con 2 args.",
       ],
       testCases: [
         {
+          stdin: "100\n",
           expectedStdout: "Con default: 116\nCon 8%: 108\n",
           visible: true,
-          description: "Default vs explícito",
+          description: "$100 con default vs 8%",
+        },
+        {
+          stdin: "200\n",
+          expectedStdout: "Con default: 232\nCon 8%: 216\n",
+          visible: false,
+          description: "$200",
+        },
+        {
+          stdin: "50\n",
+          expectedStdout: "Con default: 58\nCon 8%: 54\n",
+          visible: false,
+          description: "$50",
         },
       ],
     },

@@ -27,14 +27,16 @@ export const u10MatricesExercises: PracticeUnitSetDefinition = {
     // -----------------------------------------------------------------
     {
       slug: "u10-imprimir-3x3",
-      title: "Imprimir matriz 3×3 fija",
-      description: "Recorre una matriz inicializada con doble for.",
+      title: "Leer y mostrar una matriz 3×3",
+      description: "Lee 9 enteros con scanf y recórrelos con doble for.",
       difficulty: "easy",
-      xpReward: 15,
-      prompt: `## Imprimir 3×3
+      xpReward: 18,
+      prompt: `## Leer e imprimir 3×3
 
-Inicializa \`int m[3][3] = {{1,2,3},{4,5,6},{7,8,9}};\`. Imprime los 9
-elementos en orden de lectura (fila por fila), UNO POR LÍNEA.
+Lee **9 enteros** del usuario con \`scanf\` y guárdalos en \`int m[3][3];\`
+(fila por fila). Imprime los 9 elementos en orden de lectura, UNO POR LÍNEA.
+
+Para el test, el sistema enviará: \`1 2 3 4 5 6 7 8 9\`.
 
 Salida esperada:
 
@@ -52,15 +54,20 @@ Salida esperada:
       starterCode: `#include <stdio.h>
 
 int main() {
-  int m[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-  // Doble for con printf por celda
+  int m[3][3];
+  // Un doble for para leer con scanf, otro para imprimir
 
   return 0;
 }`,
       solutionCode: `#include <stdio.h>
 
 int main() {
-  int m[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+  int m[3][3];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      scanf("%i", &m[i][j]);
+    }
+  }
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {
       printf("%i\\n", m[i][j]);
@@ -69,27 +76,42 @@ int main() {
   return 0;
 }`,
       hints: [
-        "El for externo recorre filas, el interno columnas.",
-        "Dentro del for interno: `printf(\"%i\\n\", m[i][j]);`.",
+        "Lectura: doble for con `scanf(\"%i\", &m[i][j]);`.",
+        "Impresión: otro doble for con `printf(\"%i\\n\", m[i][j]);`.",
       ],
       testCases: [
         {
+          stdin: "1 2 3 4 5 6 7 8 9\n",
           expectedStdout: "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
           visible: true,
           description: "9 elementos en orden",
+        },
+        {
+          stdin: "10 20 30 40 50 60 70 80 90\n",
+          expectedStdout: "10\n20\n30\n40\n50\n60\n70\n80\n90\n",
+          visible: false,
+          description: "Otros valores",
+        },
+        {
+          stdin: "9 8 7 6 5 4 3 2 1\n",
+          expectedStdout: "9\n8\n7\n6\n5\n4\n3\n2\n1\n",
+          visible: false,
+          description: "Orden inverso",
         },
       ],
     },
     {
       slug: "u10-suma-2x2",
-      title: "Suma de matriz 2×2",
-      description: "Acumulador + doble for sobre una matriz inicializada.",
+      title: "Suma de matriz 2×2 leída",
+      description: "Lee 4 enteros en una matriz y suma todas las celdas.",
       difficulty: "easy",
-      xpReward: 16,
+      xpReward: 18,
       prompt: `## Suma de 2×2
 
-Inicializa \`int m[2][2] = {{10, 20}, {30, 40}};\`. Calcula la suma de las
-4 celdas (= 100) e imprímela SOLA (sin texto).
+Lee **4 enteros** con \`scanf\` en una matriz \`int m[2][2];\`. Calcula la
+suma de las 4 celdas e imprímela SOLA (sin texto).
+
+Para el test, el sistema enviará: \`10 20 30 40\` → 100.
 
 Salida esperada:
 
@@ -99,15 +121,20 @@ Salida esperada:
       starterCode: `#include <stdio.h>
 
 int main() {
-  int m[2][2] = {{10, 20}, {30, 40}};
-  // acumulador + doble for + printf
+  int m[2][2];
+  // leer con doble for + acumulador + printf
 
   return 0;
 }`,
       solutionCode: `#include <stdio.h>
 
 int main() {
-  int m[2][2] = {{10, 20}, {30, 40}};
+  int m[2][2];
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      scanf("%i", &m[i][j]);
+    }
+  }
   int suma = 0;
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
@@ -118,14 +145,27 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Acumulador `int suma = 0;` antes del doble for.",
-        "Dentro: `suma += m[i][j];`. printf después del for externo.",
+        "Lee con doble for + `scanf(\"%i\", &m[i][j]);`.",
+        "Acumulador `int suma = 0;`, suma en otro doble for, printf al final.",
       ],
       testCases: [
         {
+          stdin: "10 20 30 40\n",
           expectedStdout: "100\n",
           visible: true,
-          description: "10+20+30+40 = 100",
+          description: "Suma = 100",
+        },
+        {
+          stdin: "1 1 1 1\n",
+          expectedStdout: "4\n",
+          visible: false,
+          description: "Cuatro unos",
+        },
+        {
+          stdin: "5 10 15 20\n",
+          expectedStdout: "50\n",
+          visible: false,
+          description: "Otra suma",
         },
       ],
     },

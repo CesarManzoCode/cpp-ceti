@@ -9,6 +9,18 @@
 // = escribir un Hola Mundo desde cero. "hard" en `arreglos` = un
 // programa con búsqueda + estadísticas desde cero. Cada uno se mide
 // contra el material de su unidad.
+//
+// REGLA ANTI-HARDCODE (importante):
+//   Las pruebas validan solo stdout. Si un ejercicio NO lee de stdin,
+//   su salida es FIJA y el alumno puede copiarla con un `printf` sin
+//   resolver nada. Por eso, todo ejercicio que enseñe una TÉCNICA
+//   (loops, arreglos, matrices, archivos, funciones) DEBE:
+//     1. Leer sus datos desde stdin (scanf/cin).
+//     2. Tener >=2 test cases ocultos con inputs DISTINTOS (incluye
+//        edge cases). Así un output hardcodeado falla los ocultos.
+//   Única excepción: ejercicios cuyo objetivo ES producir un texto
+//   fijo (ej. "imprime Hola Mundo" en la unidad 1) — ahí imprimir es
+//   el ejercicio y no hay algoritmo que saltarse.
 // =====================================================================
 
 export type Difficulty = "easy" | "medium" | "hard";

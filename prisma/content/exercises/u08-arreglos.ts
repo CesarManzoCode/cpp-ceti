@@ -25,65 +25,90 @@ export const u08ArreglosExercises: PracticeUnitSetDefinition = {
     // -----------------------------------------------------------------
     {
       slug: "u08-imprimir-arreglo",
-      title: "Imprimir arreglo en orden",
-      description: "Recorre un arreglo fijo con for + printf.",
+      title: "Imprimir arreglo con índice",
+      description: "Lee 5 enteros y muéstralos etiquetados con su índice.",
       difficulty: "easy",
-      xpReward: 14,
-      prompt: `## Imprimir arreglo
+      xpReward: 16,
+      prompt: `## Imprimir con índice
 
-Inicializa \`int v[5] = {10, 20, 30, 40, 50};\`. Imprime los 5 elementos en
-orden, uno por línea, usando un \`for\`.
+Lee **5 enteros** con \`scanf\` en \`int v[5];\`. Imprime cada elemento
+etiquetado con su índice, así:
+
+\`\`\`
+v[0] = <v0>
+v[1] = <v1>
+...
+v[4] = <v4>
+\`\`\`
+
+Para el test, el sistema enviará: \`10 20 30 40 50\`.
 
 Salida esperada:
 
 \`\`\`
-10
-20
-30
-40
-50
+v[0] = 10
+v[1] = 20
+v[2] = 30
+v[3] = 40
+v[4] = 50
 \`\`\``,
       starterCode: `#include <stdio.h>
 
 int main() {
-  int v[5] = {10, 20, 30, 40, 50};
-  // for que imprima cada elemento
+  int v[5];
+  // un for para leer, otro (o el mismo) para imprimir con índice
 
   return 0;
 }`,
       solutionCode: `#include <stdio.h>
 
 int main() {
-  int v[5] = {10, 20, 30, 40, 50};
+  int v[5];
   for (int i = 0; i < 5; i++) {
-    printf("%i\\n", v[i]);
+    scanf("%i", &v[i]);
+  }
+  for (int i = 0; i < 5; i++) {
+    printf("v[%i] = %i\\n", i, v[i]);
   }
   return 0;
 }`,
       hints: [
-        "El for clásico: `for (int i = 0; i < 5; i++)`.",
-        "Dentro: `printf(\"%i\\n\", v[i]);`.",
+        "Lee con `scanf(\"%i\", &v[i]);` en un for.",
+        "Imprime con DOS `%i`: el índice `i` y el valor `v[i]`.",
       ],
       testCases: [
         {
-          expectedStdout: "10\n20\n30\n40\n50\n",
+          stdin: "10 20 30 40 50\n",
+          expectedStdout: "v[0] = 10\nv[1] = 20\nv[2] = 30\nv[3] = 40\nv[4] = 50\n",
           visible: true,
-          description: "Cinco valores en orden",
+          description: "Etiquetado con índice",
+        },
+        {
+          stdin: "7 7 7 7 7\n",
+          expectedStdout: "v[0] = 7\nv[1] = 7\nv[2] = 7\nv[3] = 7\nv[4] = 7\n",
+          visible: false,
+          description: "Todos iguales",
+        },
+        {
+          stdin: "-1 -2 -3 -4 -5\n",
+          expectedStdout: "v[0] = -1\nv[1] = -2\nv[2] = -3\nv[3] = -4\nv[4] = -5\n",
+          visible: false,
+          description: "Negativos",
         },
       ],
     },
     {
       slug: "u08-suma-fija",
-      title: "Suma de arreglo fijo",
-      description: "Suma los 5 elementos de un arreglo predefinido.",
+      title: "Suma de 5 enteros",
+      description: "Lee 5 enteros en un arreglo y suma todos.",
       difficulty: "easy",
       xpReward: 16,
       prompt: `## Suma de arreglo
 
-Inicializa \`int v[5] = {2, 4, 6, 8, 10};\`. Calcula la suma de todos y
+Lee **5 enteros** con \`scanf\` en \`int v[5];\`. Calcula la suma de todos y
 muéstrala en una sola línea (sin texto, solo el número).
 
-Suma = 30.
+Para el test, el sistema enviará: \`2 4 6 8 10\` → 30.
 
 Salida esperada:
 
@@ -93,15 +118,18 @@ Salida esperada:
       starterCode: `#include <stdio.h>
 
 int main() {
-  int v[5] = {2, 4, 6, 8, 10};
-  // acumulador + for
+  int v[5];
+  // leer con for + acumulador + printf
 
   return 0;
 }`,
       solutionCode: `#include <stdio.h>
 
 int main() {
-  int v[5] = {2, 4, 6, 8, 10};
+  int v[5];
+  for (int i = 0; i < 5; i++) {
+    scanf("%i", &v[i]);
+  }
   int suma = 0;
   for (int i = 0; i < 5; i++) {
     suma += v[i];
@@ -110,14 +138,27 @@ int main() {
   return 0;
 }`,
       hints: [
-        "Acumulador `int suma = 0;` ANTES del for.",
-        "Dentro: `suma += v[i];`. printf DESPUÉS del for.",
+        "Lee con `scanf(\"%i\", &v[i]);`.",
+        "Acumulador `int suma = 0;`, `suma += v[i];` en el for, printf al final.",
       ],
       testCases: [
         {
+          stdin: "2 4 6 8 10\n",
           expectedStdout: "30\n",
           visible: true,
           description: "Suma 2+4+6+8+10",
+        },
+        {
+          stdin: "1 1 1 1 1\n",
+          expectedStdout: "5\n",
+          visible: false,
+          description: "Cinco unos",
+        },
+        {
+          stdin: "100 200 300 400 500\n",
+          expectedStdout: "1500\n",
+          visible: false,
+          description: "Valores grandes",
         },
       ],
     },
