@@ -548,12 +548,13 @@ int main() {
         {
           type: "fill_blank",
           template: `{{0}} double IVA = 0.16;
-{{0}} int DIAS_PARCIAL = 28;`,
+{{1}} int DIAS_PARCIAL = 28;`,
           blanks: [
             { answer: "const", hint: "Palabra clave que marca la variable como inmutable." },
+            { answer: "const", hint: "La misma palabra clave; cada constante se declara con su propio `const`." },
           ],
           explanation:
-            "`const` se pone ANTES del tipo. Después de declararla, no puedes cambiar su valor.",
+            "`const` se pone ANTES del tipo. Cada variable lleva su propio `const`. Después de declararla, no puedes cambiar su valor.",
         },
         {
           type: "code_challenge",

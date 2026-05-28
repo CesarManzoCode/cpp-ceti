@@ -166,10 +166,11 @@ int main() {
         {
           type: "fill_blank",
           template: `int a, b;
-cin {{0}} a {{0}} b;
+cin {{0}} a {{1}} b;
 cout << "Suma: " << a + b << endl;`,
           blanks: [
-            { answer: ">>", hint: "Mismo operador que para una sola variable, pero encadenado." },
+            { answer: ">>", hint: "Mismo operador que para una sola variable." },
+            { answer: ">>", hint: "El mismo operador, encadenado para la segunda variable." },
           ],
           explanation:
             "Cada `>>` lee una variable más. El usuario puede separar los valores con espacio o enter.",
@@ -463,13 +464,13 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 5: Validar entrada con if
+    // Lección 5: cin con operaciones (sin if — eso se ve en U4)
     // =====================================================================
     {
-      slug: "validar-entrada",
-      title: "Validar lo que el usuario escribió",
+      slug: "cin-operaciones",
+      title: "Hacer cuentas con los datos leídos",
       description:
-        "Combina cin con un if para responder distinto según el valor.",
+        "Lee números del usuario y haz cálculos antes de imprimir el resultado.",
       xpReward: 35,
       estimatedMinutes: 7,
       steps: [
@@ -479,64 +480,64 @@ int main() {
 using namespace std;
 
 int main() {
-  int edad;
-  cin >> edad;
+  int a, b;
+  cin >> a >> b;
 
-  if (edad >= 18) {
-    cout << "Mayor de edad" << endl;
-  } else {
-    cout << "Menor de edad" << endl;
-  }
+  // Imprime varias operaciones sobre los datos leídos
+  cout << "Suma: " << a + b << endl;
+  cout << "Resta: " << a - b << endl;
+  cout << "Producto: " << a * b << endl;
   return 0;
 }`,
           explanation:
-            "Lo más útil de leer datos es **decidir** algo con ellos. Lee primero, decide después con un `if/else`.",
+            "Después de leer con `cin`, puedes meter los valores en cualquier operación. Aquí `a + b`, `a - b`, `a * b` se calculan en el momento, sin guardarlos en otra variable.",
           runnable: true,
           expectedOutput: "",
         },
         {
           type: "fill_blank",
-          template: `int calificacion;
-cin >> calificacion;
+          template: `int base, altura;
+cin {{0}} base {{1}} altura;
 
-if (calificacion {{0}} 7) {
-  cout << "Aprobado" << endl;
-} else {
-  cout << "Reprobado" << endl;
-}`,
+// Área del rectángulo = base * altura
+cout << "Area: " << base {{2}} altura << endl;`,
           blanks: [
-            { answer: ">=", hint: "Mayor o igual a 7 para aprobar." },
+            { answer: ">>", hint: "Operador para leer del usuario." },
+            { answer: ">>", hint: "Mismo operador encadenado." },
+            { answer: "*", hint: "Operador de multiplicación." },
           ],
           explanation:
-            "Lees la variable y la comparas con `>=` en el `if`. Patrón clásico: input → decisión.",
+            "Lees dos valores y los multiplicas directo dentro del `cout`, sin necesidad de variable auxiliar.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Diagnóstico de calificación
+            prompt: `## Promedio de tres calificaciones
 
-Lee una calificación entera del 0 al 10. Imprime:
+Lee **tres calificaciones enteras** en una sola línea (con \`cin >> a >> b >> c;\`).
+Calcula el promedio dividiendo entre **3.0** (con punto, para que dé decimales)
+e imprime:
 
-- \`Excelente\` si \`>= 9\`
-- \`Aprobado\` si \`>= 7\` (pero menor a 9)
-- \`Reprobado\` en otro caso
+\`\`\`
+Promedio: <p>
+\`\`\`
 
-Para el test, el sistema enviará: \`8\`.
+Para el test, el sistema enviará: \`8 9 10\` (promedio = 9).
 
 Salida esperada:
 
 \`\`\`
-Aprobado
+Promedio: 9
 \`\`\``,
-            difficulty: "medium",
+            difficulty: "easy",
             xpReward: 30,
             starterCode: `#include <iostream>
 using namespace std;
 
 int main() {
-  int cal;
-  cin >> cal;
-  // if / else if / else
+  int a, b, c;
+  // Lee a, b, c
+  // Imprime "Promedio: " seguido de (a+b+c)/3.0
 
   return 0;
 }`,
@@ -544,28 +545,93 @@ int main() {
 using namespace std;
 
 int main() {
-  int cal;
-  cin >> cal;
-  if (cal >= 9) {
-    cout << "Excelente" << endl;
-  } else if (cal >= 7) {
-    cout << "Aprobado" << endl;
-  } else {
-    cout << "Reprobado" << endl;
-  }
+  int a, b, c;
+  cin >> a >> b >> c;
+  cout << "Promedio: " << (a + b + c) / 3.0 << endl;
   return 0;
 }`,
             hints: [
-              "Empieza con la condición MÁS estricta (`>= 9`).",
-              "Después `>= 7` para el rango aprobado.",
-              "El `else` final atrapa los reprobados.",
+              "Lee con `cin >> a >> b >> c;`.",
+              "Para el cálculo: `(a + b + c) / 3.0` — los paréntesis y el `3.0` son importantes.",
+              "Un solo `cout`: `cout << \"Promedio: \" << (a + b + c) / 3.0 << endl;`.",
             ],
             testCases: [
               {
-                stdin: "8\n",
-                expectedStdout: "Aprobado\n",
+                stdin: "8 9 10\n",
+                expectedStdout: "Promedio: 9\n",
                 visible: true,
-                description: "8 cae en Aprobado",
+                description: "Promedio entero",
+              },
+              {
+                stdin: "10 10 10\n",
+                expectedStdout: "Promedio: 10\n",
+                visible: false,
+                description: "Todos perfectos",
+              },
+            ],
+          },
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Ticket de cafetería
+
+Lee dos valores en una sola línea con \`cin\`:
+- Un **entero** \`cantidad\` (cuántos cafés).
+- Un **double** \`precio\` (precio unitario).
+
+Imprime EXACTAMENTE:
+
+\`\`\`
+Subtotal: <cantidad*precio>
+\`\`\`
+
+Para el test, el sistema enviará: \`3 25.5\` (subtotal = 76.5).
+
+Salida esperada:
+
+\`\`\`
+Subtotal: 76.5
+\`\`\``,
+            difficulty: "medium",
+            xpReward: 30,
+            starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int cantidad;
+  double precio;
+  // Lee cantidad y precio, imprime el subtotal
+
+  return 0;
+}`,
+            solutionCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int cantidad;
+  double precio;
+  cin >> cantidad >> precio;
+  cout << "Subtotal: " << cantidad * precio << endl;
+  return 0;
+}`,
+            hints: [
+              "Encadena dos lecturas: `cin >> cantidad >> precio;`.",
+              "Multiplica directo dentro del cout: `cantidad * precio`.",
+              "Cuida el espacio después de `Subtotal:`.",
+            ],
+            testCases: [
+              {
+                stdin: "3 25.5\n",
+                expectedStdout: "Subtotal: 76.5\n",
+                visible: true,
+                description: "Caso típico",
+              },
+              {
+                stdin: "10 9.99\n",
+                expectedStdout: "Subtotal: 99.9\n",
+                visible: false,
+                description: "Otro caso",
               },
             ],
           },
@@ -574,126 +640,152 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 6: Integrador
+    // Lección 6: Integrador (sin funciones — eso se ve en U6)
     // =====================================================================
     {
       slug: "integrador-cin",
-      title: "Integrador: calculadora de promedio",
+      title: "Integrador: ficha del alumno",
       description:
-        "Junta cin + funciones + control de flujo en un programa real.",
-      xpReward: 50,
+        "Combina cin, getline y cout para armar un programa con varios tipos de datos.",
+      xpReward: 45,
       estimatedMinutes: 10,
       steps: [
         {
           type: "code_example",
           code: `#include <iostream>
+#include <string>
 using namespace std;
 
-double promedio(int a, int b, int c) {
-  return (a + b + c) / 3.0;
-}
-
 int main() {
-  int x, y, z;
-  cin >> x >> y >> z;
-  double p = promedio(x, y, z);
-  cout << "Promedio: " << p << endl;
+  string nombre;
+  int edad;
+  double promedio;
+
+  // 1) Nombre completo (puede llevar espacios)
+  getline(cin, nombre);
+
+  // 2) Edad y promedio en la misma línea
+  cin >> edad >> promedio;
+
+  // 3) Imprime la ficha
+  cout << "Alumno: " << nombre << endl;
+  cout << "Edad: " << edad << " anios" << endl;
+  cout << "Promedio: " << promedio << endl;
   return 0;
 }`,
           explanation:
-            "Patrón completo: una función pura que calcula + `cin` que recibe los datos + `cout` que entrega la respuesta. Es la estructura de la mayoría de programas reales.",
+            "Patrón completo: una variable por dato (string, int, double), una lectura por tipo (`getline` para texto con espacios, `cin >>` para números), y `cout` con texto fijo + valores para el reporte final.",
           runnable: true,
           expectedOutput: "",
         },
         {
           type: "fill_blank",
-          template: `int leer_calificacion() {
-  int cal;
-  {{0}} >> cal;
-  return cal;
-}
+          template: `#include <iostream>
+#include {{0}}
+using namespace std;
 
 int main() {
-  int c = {{1}}();
-  cout << c << endl;
+  {{1}} carrera;       // texto que puede tener espacios
+  int semestre;
+
+  {{2}}(cin, carrera);  // línea completa
+  cin {{3}} semestre;   // solo un número
+
+  cout << "Carrera: " << carrera << endl;
+  cout << "Semestre: " << semestre << endl;
   return 0;
 }`,
           blanks: [
-            { answer: "cin", hint: "El stream de entrada." },
-            { answer: "leer_calificacion", hint: "El nombre de la función definida arriba." },
+            { answer: "<string>", hint: "Header necesario para usar `string`." },
+            { answer: "string", hint: "Tipo de texto." },
+            { answer: "getline", hint: "Función para leer la línea completa (con espacios)." },
+            { answer: ">>", hint: "Operador para leer un número del teclado." },
           ],
           explanation:
-            "Una función puede contener un `cin` y devolver lo que leyó. Útil cuando vas a pedir el mismo tipo de dato varias veces.",
+            "Para texto con espacios usa `getline`. Para números usa `cin >> variable`.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Promedio + diagnóstico
+            prompt: `## Ficha del alumno
 
-Lee **tres** calificaciones enteras (una sola línea, separadas por espacios). Calcula el promedio (dividiendo entre \`3.0\`) e imprime DOS líneas:
+Lee del usuario (en este orden):
+1. El **nombre completo** (puede tener espacios) → \`getline(cin, ...)\`.
+2. La **edad** (entero) y el **promedio** (double) en la misma línea → \`cin >> ... >> ...;\`.
+
+Imprime exactamente:
 
 \`\`\`
-Promedio: <p>
-<estado>
+Alumno: <nombre>
+Edad: <edad>
+Promedio: <promedio>
 \`\`\`
 
-Donde \`<estado>\` es:
-- \`Aprobado\` si el promedio es \`>= 7\`
-- \`Reprobado\` en otro caso
+Para el test, el sistema enviará:
 
-Para el test, el sistema enviará: \`8 9 7\` (promedio = 8 → Aprobado).
+\`\`\`
+Aurora Garcia Lopez
+19 8.7
+\`\`\`
 
 Salida esperada:
 
 \`\`\`
-Promedio: 8
-Aprobado
+Alumno: Aurora Garcia Lopez
+Edad: 19
+Promedio: 8.7
 \`\`\``,
             difficulty: "hard",
             xpReward: 40,
             starterCode: `#include <iostream>
+#include <string>
 using namespace std;
 
-// Puedes definir una función promedio o calcularlo directo en main
-
 int main() {
-  int a, b, c;
-  cin >> a >> b >> c;
+  string nombre;
+  int edad;
+  double promedio;
 
-  // calcula promedio e imprime el diagnóstico
+  // 1) Lee el nombre completo (con espacios) usando getline.
+  // 2) Lee edad y promedio en una sola línea con cin.
+  // 3) Imprime las 3 líneas de la ficha en orden.
 
   return 0;
 }`,
             solutionCode: `#include <iostream>
+#include <string>
 using namespace std;
 
-double promedio(int a, int b, int c) {
-  return (a + b + c) / 3.0;
-}
-
 int main() {
-  int a, b, c;
-  cin >> a >> b >> c;
-  double p = promedio(a, b, c);
-  cout << "Promedio: " << p << endl;
-  if (p >= 7) {
-    cout << "Aprobado" << endl;
-  } else {
-    cout << "Reprobado" << endl;
-  }
+  string nombre;
+  int edad;
+  double promedio;
+
+  getline(cin, nombre);
+  cin >> edad >> promedio;
+
+  cout << "Alumno: " << nombre << endl;
+  cout << "Edad: " << edad << endl;
+  cout << "Promedio: " << promedio << endl;
   return 0;
 }`,
             hints: [
-              "Lee con `cin >> a >> b >> c;`.",
-              "Calcula con `(a + b + c) / 3.0` (con `3.0`, no `3`).",
-              "Dos `cout`: uno con el promedio, otro con el estado dentro del if/else.",
+              "Para el nombre con espacios: `getline(cin, nombre);`.",
+              "Para edad y promedio juntos: `cin >> edad >> promedio;`.",
+              "Tres `cout` distintos, uno por línea, con los prefijos exactos.",
             ],
             testCases: [
               {
-                stdin: "8 9 7\n",
-                expectedStdout: "Promedio: 8\nAprobado\n",
+                stdin: "Aurora Garcia Lopez\n19 8.7\n",
+                expectedStdout: "Alumno: Aurora Garcia Lopez\nEdad: 19\nPromedio: 8.7\n",
                 visible: true,
-                description: "Promedio 8 → Aprobado",
+                description: "Ficha completa",
+              },
+              {
+                stdin: "Mario Lopez\n20 7.5\n",
+                expectedStdout: "Alumno: Mario Lopez\nEdad: 20\nPromedio: 7.5\n",
+                visible: false,
+                description: "Otro caso",
               },
             ],
           },

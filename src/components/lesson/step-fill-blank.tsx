@@ -34,7 +34,13 @@ export function StepFillBlank({
     setFeedbackKey((k) => k + 1);
   }
 
-  const parts = renderTemplate(content.template, values, setValues, submitted, content);
+  const lines = renderTemplateLines(
+    content.template,
+    values,
+    setValues,
+    submitted,
+    content,
+  );
 
   return (
     <article className="space-y-7">
@@ -50,18 +56,37 @@ export function StepFillBlank({
       <div
         key={feedbackKey}
         className={cn(
-          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
+          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset]",
           submitted && !allCorrect && "animate-shake",
           submitted && allCorrect && "animate-correct",
         )}
       >
-        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] text-zinc-400">
-          <span className="font-mono">main.cpp</span>
+        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-[#11161f] px-4 py-2 text-[11px] text-zinc-400">
+          <span className="flex items-center gap-2 font-mono">
+            <span className="flex gap-1.5">
+              <span className="size-2.5 rounded-full bg-[#ff5f56]" />
+              <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+              <span className="size-2.5 rounded-full bg-[#27c93f]" />
+            </span>
+            main.cpp
+          </span>
           <span className="font-mono uppercase tracking-[0.14em]">edición</span>
         </div>
-        <pre className="overflow-x-auto whitespace-pre-wrap p-5 font-mono text-[13px] leading-relaxed text-zinc-100">
-          {parts}
-        </pre>
+        <div className="overflow-x-auto py-4 font-mono text-[13px] leading-[1.7] text-zinc-100">
+          {lines.map((nodes, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-[3.25rem_1fr] hover:bg-white/[0.02]"
+            >
+              <span className="select-none border-r border-zinc-800/70 pr-3 text-right font-mono text-zinc-600 tabular-nums">
+                {idx + 1}
+              </span>
+              <div className="whitespace-pre pl-4">
+                {nodes.length === 0 ? " " : nodes}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {content.blanks.some((b) => b.hint) ? (
@@ -85,7 +110,9 @@ export function StepFillBlank({
 
       {showHint !== null && content.blanks[showHint]?.hint ? (
         <div className="rounded-[var(--radius-md)] border border-warning/40 bg-warning-soft p-3 text-sm">
-          <strong className="font-semibold text-warning-foreground">Pista:</strong>{" "}
+          <strong className="font-semibold text-warning-foreground">
+            Pista:
+          </strong>{" "}
           <span className="text-foreground/90">
             {content.blanks[showHint].hint}
           </span>
@@ -104,7 +131,10 @@ export function StepFillBlank({
           <span>
             ¡Perfecto! Eso es justo lo que faltaba.
             {content.explanation ? (
-              <span className="text-foreground/85"> — {content.explanation}</span>
+              <span className="text-foreground/85">
+                {" "}
+                — {content.explanation}
+              </span>
             ) : null}
           </span>
         </div>
@@ -142,31 +172,235 @@ export function StepFillBlank({
   );
 }
 
-function renderTemplate(
+// =====================================================================
+// C++ syntax highlighting — minimal tokenizer
+// =====================================================================
+
+type TokenKind =
+  | "keyword"
+  | "type"
+  | "string"
+  | "number"
+  | "comment"
+  | "preprocessor"
+  | "operator"
+  | "text";
+
+interface Token {
+  text: string;
+  kind: TokenKind;
+}
+
+const CPP_KEYWORDS = new Set([
+  "int", "double", "char", "void", "bool", "float", "long", "short",
+  "unsigned", "signed", "auto",
+  "return", "if", "else", "for", "while", "do", "switch", "case", "default",
+  "break", "continue", "true", "false",
+  "const", "static", "extern", "struct", "class",
+  "public", "private", "protected", "using", "namespace", "sizeof",
+  "new", "delete", "this", "nullptr",
+]);
+
+// Common stdlib types/identifiers that we want highlighted as "type"
+const CPP_TYPES = new Set([
+  "std", "string", "cout", "cin", "endl", "cerr",
+  "ofstream", "ifstream", "fstream", "ios",
+  "printf", "scanf", "sprintf", "fprintf", "fscanf", "getline",
+  "fopen", "fclose", "fgets", "fputs",
+  "size_t", "FILE", "NULL",
+]);
+
+const TOKEN_CLASSES: Record<TokenKind, string> = {
+  keyword: "text-[#c084fc]",
+  type: "text-[#60a5fa]",
+  string: "text-[#86efac]",
+  number: "text-[#fbbf24]",
+  comment: "italic text-zinc-500",
+  preprocessor: "text-[#c084fc]",
+  operator: "text-zinc-400",
+  text: "text-zinc-100",
+};
+
+function tokenizeCpp(code: string): Token[] {
+  const tokens: Token[] = [];
+  let i = 0;
+  while (i < code.length) {
+    const c = code[i];
+
+    // Single-line comment
+    if (c === "/" && code[i + 1] === "/") {
+      const end = code.length;
+      tokens.push({ text: code.slice(i, end), kind: "comment" });
+      i = end;
+      continue;
+    }
+
+    // String literal
+    if (c === '"') {
+      let end = i + 1;
+      while (end < code.length && code[end] !== '"') {
+        if (code[end] === "\\" && end + 1 < code.length) end++;
+        end++;
+      }
+      end = Math.min(end + 1, code.length);
+      tokens.push({ text: code.slice(i, end), kind: "string" });
+      i = end;
+      continue;
+    }
+
+    // Char literal
+    if (c === "'") {
+      let end = i + 1;
+      while (end < code.length && code[end] !== "'") {
+        if (code[end] === "\\" && end + 1 < code.length) end++;
+        end++;
+      }
+      end = Math.min(end + 1, code.length);
+      tokens.push({ text: code.slice(i, end), kind: "string" });
+      i = end;
+      continue;
+    }
+
+    // Preprocessor directive: #include, #define, etc.
+    if (c === "#") {
+      let end = i + 1;
+      while (end < code.length && /[a-zA-Z_]/.test(code[end])) end++;
+      tokens.push({ text: code.slice(i, end), kind: "preprocessor" });
+      i = end;
+      continue;
+    }
+
+    // Number
+    if (/\d/.test(c)) {
+      let end = i;
+      while (end < code.length && /[\d.]/.test(code[end])) end++;
+      tokens.push({ text: code.slice(i, end), kind: "number" });
+      i = end;
+      continue;
+    }
+
+    // Identifier or keyword
+    if (/[a-zA-Z_]/.test(c)) {
+      let end = i;
+      while (end < code.length && /[a-zA-Z_0-9]/.test(code[end])) end++;
+      const word = code.slice(i, end);
+      let kind: TokenKind = "text";
+      if (CPP_KEYWORDS.has(word)) kind = "keyword";
+      else if (CPP_TYPES.has(word)) kind = "type";
+      tokens.push({ text: word, kind });
+      i = end;
+      continue;
+    }
+
+    // Multi-char operators
+    const twoChar = code.slice(i, i + 2);
+    if (
+      ["<<", ">>", "==", "!=", "<=", ">=", "++", "--", "+=", "-=", "*=", "/=",
+       "||", "&&", "->"].includes(twoChar)
+    ) {
+      tokens.push({ text: twoChar, kind: "operator" });
+      i += 2;
+      continue;
+    }
+
+    // Single-char operators
+    if (/[+\-*/%=<>!&|]/.test(c)) {
+      tokens.push({ text: c, kind: "operator" });
+      i++;
+      continue;
+    }
+
+    // Whitespace and punctuation: emit as plain text token (preserve as-is)
+    let end = i;
+    while (
+      end < code.length &&
+      !/[a-zA-Z_0-9"'#+\-*/%=<>!&|]/.test(code[end]) &&
+      !(code[end] === "/" && code[end + 1] === "/")
+    ) {
+      end++;
+    }
+    if (end > i) {
+      tokens.push({ text: code.slice(i, end), kind: "text" });
+      i = end;
+    } else {
+      tokens.push({ text: c, kind: "text" });
+      i++;
+    }
+  }
+  return tokens;
+}
+
+function renderTokens(tokens: Token[], baseKey: string): React.ReactNode[] {
+  return tokens.map((tok, idx) => (
+    <span key={`${baseKey}-${idx}`} className={TOKEN_CLASSES[tok.kind]}>
+      {tok.text}
+    </span>
+  ));
+}
+
+// =====================================================================
+// Template renderer
+// =====================================================================
+
+type Segment =
+  | { type: "text"; text: string }
+  | { type: "newline" }
+  | { type: "input"; idx: number };
+
+function parseTemplate(template: string): Segment[] {
+  const segments: Segment[] = [];
+  const re = /\{\{(\d+)\}\}|\n/g;
+  let lastIdx = 0;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(template)) !== null) {
+    if (match.index > lastIdx) {
+      segments.push({
+        type: "text",
+        text: template.slice(lastIdx, match.index),
+      });
+    }
+    if (match[0] === "\n") {
+      segments.push({ type: "newline" });
+    } else {
+      segments.push({ type: "input", idx: Number(match[1]) });
+    }
+    lastIdx = re.lastIndex;
+  }
+  if (lastIdx < template.length) {
+    segments.push({ type: "text", text: template.slice(lastIdx) });
+  }
+  return segments;
+}
+
+function renderTemplateLines(
   template: string,
   values: string[],
   setValues: React.Dispatch<React.SetStateAction<string[]>>,
   submitted: boolean,
   content: FillBlankStepContent,
-): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const regex = /\{\{(\d+)\}\}/g;
-  let lastIdx = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
+): React.ReactNode[][] {
+  const segments = parseTemplate(template);
+  const lines: React.ReactNode[][] = [[]];
+  let textKey = 0;
 
-  while ((match = regex.exec(template)) !== null) {
-    if (match.index > lastIdx) {
-      parts.push(
-        <span key={`t-${key++}`}>{template.slice(lastIdx, match.index)}</span>,
-      );
+  for (const seg of segments) {
+    if (seg.type === "newline") {
+      lines.push([]);
+      continue;
     }
-    const blankIdx = Number(match[1]);
+    if (seg.type === "text") {
+      const tokens = tokenizeCpp(seg.text);
+      const rendered = renderTokens(tokens, `t${textKey++}`);
+      lines[lines.length - 1].push(...rendered);
+      continue;
+    }
+    // input
+    const blankIdx = seg.idx;
     const value = values[blankIdx] ?? "";
     const expected = content.blanks[blankIdx]?.answer ?? "";
     const isWrong = submitted && value.trim() !== expected.trim();
     const isRight = submitted && !isWrong;
-    parts.push(
+    lines[lines.length - 1].push(
       <input
         key={`b-${blankIdx}`}
         value={value}
@@ -181,20 +415,18 @@ function renderTemplate(
         autoCapitalize="off"
         autoComplete="off"
         className={cn(
-          "mx-1 inline-block min-w-20 rounded-md border-b-2 bg-transparent px-1.5 font-mono text-[13px] outline-none transition-colors",
+          "mx-[2px] inline-block min-w-16 rounded border px-1.5 py-[1px] align-baseline font-mono text-[13px] outline-none transition-colors",
           isWrong
-            ? "border-destructive text-destructive"
+            ? "border-destructive/70 bg-destructive/15 text-destructive"
             : isRight
-              ? "border-success text-success"
-              : "border-zinc-500 text-cyan-300 focus:border-cyan-300",
+              ? "border-success/70 bg-success/15 text-success"
+              : "border-zinc-700 bg-[#1a2230] text-[#7dd3fc] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] focus:border-cyan-500 focus:bg-[#1d2c43]",
         )}
-        style={{ width: `${Math.max(value.length, expected.length, 4) + 1}ch` }}
+        style={{
+          width: `${Math.max(value.length, expected.length, 6) + 1}ch`,
+        }}
       />,
     );
-    lastIdx = regex.lastIndex;
   }
-  if (lastIdx < template.length) {
-    parts.push(<span key={`t-${key++}`}>{template.slice(lastIdx)}</span>);
-  }
-  return parts;
+  return lines;
 }

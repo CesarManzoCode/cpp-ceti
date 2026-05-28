@@ -96,8 +96,6 @@ Pista: en lugar de \`++\` usa \`--\` para restar.`,
 using namespace std;
 
 int main() {
-  int n = 5;
-  // while que imprima 5..1
 
   return 0;
 }`,
@@ -113,9 +111,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Empieza con `n = 5` y la condición `n >= 1`.",
-              "Dentro del while: `cout << n` y luego `n--`.",
-              "`n--` resta 1 (lo opuesto a `n++`).",
+              "Arranca con `n = 5` y condición `n >= 1`.",
+              "Usa `n--` para ir bajando.",
             ],
             testCases: [
               {
@@ -203,7 +200,6 @@ Materia 6
 using namespace std;
 
 int main() {
-  // for de 1 a 6
 
   return 0;
 }`,
@@ -217,9 +213,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Empieza con `int i = 1` y termina con `i <= 6`.",
-              "Dentro del for: `cout << \"Materia \" << i << endl;`.",
-              "Cuida el espacio antes del número (después de ‘Materia ’).",
+              "`for (int i = 1; i <= 6; i++)` recorre del 1 al 6.",
+              "Cuida el espacio en `\"Materia \"`.",
             ],
             testCases: [
               {
@@ -309,8 +304,6 @@ Usa un \`do-while\` para imprimir del 1 al 5:
 using namespace std;
 
 int main() {
-  int i = 1;
-  // do-while aquí
 
   return 0;
 }`,
@@ -326,9 +319,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Estructura: `do { ... } while (cond);`.",
-              "Dentro: imprime `i` y luego `i++`.",
-              "La condición es `i <= 5`. No olvides el `;` al final.",
+              "Estructura: `do { ... } while (cond);` — el `;` final es clave.",
+              "Empieza con `i = 1` y avanza hasta `i <= 5`.",
             ],
             testCases: [
               {
@@ -437,7 +429,6 @@ Salida esperada:
 using namespace std;
 
 int main() {
-  // for con continue cuando i == 4
 
   return 0;
 }`,
@@ -452,9 +443,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Dentro del for, primero el `if (i == 4) continue;`.",
-              "Después imprime `cout << i << endl;`.",
-              "Con `continue` saltas al `i++` sin imprimir.",
+              "`continue` salta al siguiente paso del for sin ejecutar lo que sigue.",
+              "El `if (i == 4) continue;` va ANTES del cout.",
             ],
             testCases: [
               {
@@ -545,7 +535,6 @@ Usa dos \`for\` anidados (o uno solo con multiplicación, como prefieras) para i
 using namespace std;
 
 int main() {
-  // for que imprima la tabla del 2, multiplicaciones 1 a 5
 
   return 0;
 }`,
@@ -559,9 +548,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Con un solo `for` de 1 a 5 te basta.",
-              "Encadena en el cout: texto, número, texto, multiplicación.",
-              "La multiplicación es `2 * i` (sin comillas).",
+              "Un solo `for` de 1 a 5 con un cout encadenado adentro.",
+              "La operación se calcula DENTRO del cout, sin variable extra.",
             ],
             testCases: [
               {
@@ -651,10 +639,7 @@ La suma de 1+2+3+4+5 es 15, así que la salida esperada es:
 using namespace std;
 
 int main() {
-  int suma = 0;
-  // for que sume 1..5 en suma
 
-  cout << suma << endl;
   return 0;
 }`,
             solutionCode: `#include <iostream>
@@ -669,9 +654,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "`suma` ya está declarada fuera con valor 0.",
-              "Dentro del for: `suma += i;` (o `suma = suma + i;`).",
-              "El cout va DESPUÉS del for, no dentro.",
+              "Patrón acumulador: variable en 0 ANTES del for, `+=` DENTRO del for.",
+              "El cout va DESPUÉS del for, con el total ya calculado.",
             ],
             testCases: [
               {

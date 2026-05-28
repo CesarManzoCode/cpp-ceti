@@ -99,14 +99,7 @@ Y desde \`main\`, llámala **dos veces**. Salida esperada:
             xpReward: 25,
             starterCode: `#include <iostream>
 using namespace std;
-
-// Define encabezado aquí
-
-int main() {
-  // Llámala dos veces
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -120,9 +113,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Define la función ANTES de main: `void encabezado() { ... }`.",
-              "Dentro: un solo `cout` con el texto exacto.",
-              "En main: `encabezado();` dos veces (con el `;` cada vez).",
+              "Define la función antes de `main`.",
+              "Cada llamada lleva su propio `;`.",
             ],
             testCases: [
               {
@@ -223,14 +215,7 @@ Materia: Programacion
             starterCode: `#include <iostream>
 #include <string>
 using namespace std;
-
-// Define imprimir_materia aquí
-
-int main() {
-  // Dos llamadas con strings distintos
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <string>
 using namespace std;
@@ -245,9 +230,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "El parámetro va como `string nombre` dentro de los paréntesis.",
-              "Dentro: `cout << \"Materia: \" << nombre << endl;`.",
-              "En main: pasa el string entre comillas dobles en cada llamada.",
+              "El parámetro de tipo `string` se declara en los paréntesis de la función.",
+              "Recuerda el patrón: define la función arriba, llámala desde `main`.",
             ],
             testCases: [
               {
@@ -343,8 +327,6 @@ Salida esperada:
             starterCode: `#include <iostream>
 using namespace std;
 
-// Define promedio aquí
-
 int main() {
   cout << promedio(8, 10) << endl;
   return 0;
@@ -361,9 +343,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Tipo de retorno: `double` porque el promedio puede tener decimales.",
-              "Dentro: `return (a + b) / 2.0;` con `2.0` (no `2`) para no truncar.",
-              "Los paréntesis aseguran que primero se suma y luego se divide.",
+              "Tipo de retorno con decimales para que `(8+10)/2` no se trunque.",
+              "Divide entre `2.0` para conservar decimales.",
             ],
             testCases: [
               {
@@ -465,15 +446,7 @@ Salida esperada:
             xpReward: 30,
             starterCode: `#include <iostream>
 using namespace std;
-
-// Prototipo aquí
-
-int main() {
-  // Imprime triple(5)
-  return 0;
-}
-
-// Definición aquí`,
+`,
             solutionCode: `#include <iostream>
 using namespace std;
 
@@ -488,9 +461,8 @@ int triple(int n) {
   return n * 3;
 }`,
             hints: [
-              "El prototipo es `int triple(int n);` (con `;` al final, sin llaves).",
-              "En main: `cout << triple(5) << endl;`.",
-              "La definición debajo es `int triple(int n) { return n * 3; }`.",
+              "El prototipo va antes de `main`; la definición después.",
+              "El prototipo lleva `;` al final, sin llaves.",
             ],
             testCases: [
               {
@@ -597,14 +569,7 @@ Fisica: 8
             starterCode: `#include <iostream>
 #include <string>
 using namespace std;
-
-// Define imprimir_nota con default aquí
-
-int main() {
-  // Dos llamadas: una sin nota, otra con nota
-
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <string>
 using namespace std;
@@ -619,9 +584,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Firma: `void imprimir_nota(string materia, int nota = 10)`.",
-              "Dentro: `cout << materia << \": \" << nota << endl;`.",
-              "En main: una llamada con un solo argumento, otra con dos.",
+              "El default va en la firma de la función: `int nota = 10`.",
+              "Una llamada sin nota, otra pasándola explícita.",
             ],
             testCases: [
               {
@@ -714,15 +678,7 @@ R
             starterCode: `#include <iostream>
 #include <string>
 using namespace std;
-
-// Define letra aquí
-
-int main() {
-  cout << letra(10) << endl;
-  cout << letra(8) << endl;
-  cout << letra(5) << endl;
-  return 0;
-}`,
+`,
             solutionCode: `#include <iostream>
 #include <string>
 using namespace std;
@@ -746,9 +702,8 @@ int main() {
   return 0;
 }`,
             hints: [
-              "Tipo de retorno: `string` (no `int`).",
-              "Empieza por la condición MÁS estricta: `>= 9` para A.",
-              "Cada rama del if tiene su `return \"...\";`.",
+              "El tipo de retorno tiene que coincidir con lo que devuelves.",
+              "Empieza por la condición más estricta para que el `else if` filtre lo demás.",
             ],
             testCases: [
               {
