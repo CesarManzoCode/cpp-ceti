@@ -48,10 +48,33 @@ export default async function EjerciciosPage() {
         </h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
           Retos sueltos por unidad. Úsalos para consolidar lo que viste en una
-          lección o para retarte si te atoraste. La dificultad es{" "}
-          <strong className="text-foreground">relativa a la unidad</strong>:
-          fácil = pocas piezas que completar, difícil = casi todo desde cero.
+          lección o para retarte si te atoraste.
         </p>
+
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground/70">
+            Dificultad, relativa a la unidad:
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Badge variant="success" size="sm">
+              Fácil
+            </Badge>
+            pocas piezas por completar
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Badge variant="info" size="sm">
+              Intermedio
+            </Badge>
+            medio camino hecho
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Badge variant="warning" size="sm">
+              Difícil
+            </Badge>
+            casi todo desde cero
+          </span>
+        </div>
+
         {totalExercises > 0 ? (
           <p className="text-sm text-muted-foreground">
             Llevas{" "}
@@ -122,19 +145,19 @@ export default async function EjerciciosPage() {
                       <p className="text-sm leading-relaxed text-muted-foreground">
                         {ex.description}
                       </p>
-                      <div className="mt-auto flex items-center gap-2 pt-2">
+                      <div className="mt-auto flex items-center gap-2.5 pt-2 text-[11px] text-muted-foreground">
                         <Badge
                           variant={difficultyMeta[ex.difficulty].variant}
                           size="sm"
                         >
                           {difficultyMeta[ex.difficulty].label}
                         </Badge>
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 font-medium">
                           <Zap className="size-3 text-warning" aria-hidden />
                           {ex.xpReward} XP
                         </span>
                         {ex.attempts > 0 && !ex.passed ? (
-                          <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                          <span className="ml-auto tabular-nums">
                             {ex.attempts}{" "}
                             {pluralize(ex.attempts, "intento", "intentos")}
                           </span>

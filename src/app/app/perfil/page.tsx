@@ -138,35 +138,17 @@ export default async function PerfilPage() {
             </div>
             <SignOutButton />
           </li>
-          <li className="flex items-center justify-between gap-4 border-t border-border/70 p-5 opacity-70">
-            <div>
-              <p className="text-sm font-medium">Cambiar contraseña</p>
-              <p className="text-xs text-muted-foreground">
-                Disponible próximamente.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" disabled>
-              Próximo
-            </Button>
-          </li>
-          <li className="flex items-center justify-between gap-4 border-t border-border/70 p-5 opacity-70">
-            <div>
-              <p className="text-sm font-medium">Eliminar cuenta</p>
-              <p className="text-xs text-muted-foreground">
-                Disponible próximamente.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" disabled>
-              Próximo
-            </Button>
-          </li>
         </ul>
+
+        <p className="px-1 text-xs text-muted-foreground">
+          Cambiar contraseña y eliminar cuenta llegarán pronto.
+        </p>
       </section>
 
       <p className="text-center text-xs text-muted-foreground">
         ¿Encontraste un bug?{" "}
         <a
-          href="https://github.com"
+          href="https://github.com/CesarManzoCode/cpp-ceti/issues"
           target="_blank"
           rel="noreferrer noopener"
           className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4 hover:text-primary"

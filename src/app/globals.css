@@ -70,11 +70,28 @@
   --shadow-lg: 0 12px 28px -8px hsl(var(--shadow-color) / 0.12), 0 4px 8px -4px hsl(var(--shadow-color) / 0.05);
   --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.18), 0 8px 16px -8px hsl(var(--shadow-color) / 0.08);
 
-  /* Editor / terminal — keep dark for code clarity */
+  /* Editor / terminal — always dark for code clarity, in both themes */
   --terminal-bg: oklch(0.16 0.015 252);
-  --terminal-fg: oklch(0.94 0.005 250);
-  --terminal-muted: oklch(0.6 0.01 250);
+  --terminal-elevated: oklch(0.205 0.016 252);
+  --terminal-fg: oklch(0.93 0.006 250);
+  --terminal-muted: oklch(0.64 0.012 250);
+  --terminal-faint: oklch(0.48 0.012 252);
   --terminal-border: oklch(0.24 0.012 252);
+
+  /* Status colors tuned for the always-dark terminal (theme-independent) */
+  --terminal-success: oklch(0.82 0.15 159);
+  --terminal-danger: oklch(0.74 0.16 22);
+  --terminal-warning: oklch(0.85 0.14 82);
+
+  /* C++ syntax palette — mirrors the Monaco dark theme in cpp-editor.tsx.
+     Always rendered on the dark terminal, so defined once (not per theme).
+     If you change these, update the Monaco theme in cpp-editor.tsx to match. */
+  --syntax-keyword: oklch(0.74 0.16 305);
+  --syntax-type: oklch(0.7 0.14 256);
+  --syntax-string: oklch(0.86 0.15 152);
+  --syntax-number: oklch(0.85 0.14 82);
+  --syntax-comment: oklch(0.58 0.02 256);
+  --syntax-operator: oklch(0.74 0.025 256);
 }
 
 .dark {
@@ -134,8 +151,10 @@
   --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.65), 0 8px 16px -8px hsl(var(--shadow-color) / 0.45);
 
   --terminal-bg: oklch(0.115 0.013 252);
+  --terminal-elevated: oklch(0.17 0.015 252);
   --terminal-fg: oklch(0.95 0.005 250);
-  --terminal-muted: oklch(0.55 0.01 250);
+  --terminal-muted: oklch(0.62 0.012 250);
+  --terminal-faint: oklch(0.45 0.012 252);
   --terminal-border: oklch(0.22 0.014 252);
 }
 
@@ -183,7 +202,21 @@
   --color-ring: var(--ring);
 
   --color-terminal: var(--terminal-bg);
+  --color-terminal-elevated: var(--terminal-elevated);
   --color-terminal-fg: var(--terminal-fg);
+  --color-terminal-muted: var(--terminal-muted);
+  --color-terminal-faint: var(--terminal-faint);
+  --color-terminal-border: var(--terminal-border);
+  --color-terminal-success: var(--terminal-success);
+  --color-terminal-danger: var(--terminal-danger);
+  --color-terminal-warning: var(--terminal-warning);
+
+  --color-syntax-keyword: var(--syntax-keyword);
+  --color-syntax-type: var(--syntax-type);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-number: var(--syntax-number);
+  --color-syntax-comment: var(--syntax-comment);
+  --color-syntax-operator: var(--syntax-operator);
 
   /* Compact button radii (xs/sm), card radii (md/lg), modal radii (xl/2xl) */
   --radius-xs: calc(var(--radius) - 6px);

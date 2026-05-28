@@ -55,6 +55,9 @@ export function CppEditor({
         theme={monacoTheme}
         onChange={(v) => onChange?.(v ?? "")}
         beforeMount={(monaco) => {
+          // Monaco needs raw hex; keep these in sync with the --syntax-* and
+          // --terminal-* tokens in globals.css (used by the non-Monaco code
+          // surfaces: fill-blank, output panel, markdown code blocks).
           monaco.editor.defineTheme("cpp-ceti-dark", {
             base: "vs-dark",
             inherit: true,

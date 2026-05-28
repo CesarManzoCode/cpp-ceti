@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, Lightbulb, RotateCcw } from "lucide-react";
+import { ArrowRight, CheckCircle2, Lightbulb, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -56,29 +56,29 @@ export function StepFillBlank({
       <div
         key={feedbackKey}
         className={cn(
-          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset]",
+          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal",
           submitted && !allCorrect && "animate-shake",
           submitted && allCorrect && "animate-correct",
         )}
       >
-        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-[#11161f] px-4 py-2 text-[11px] text-zinc-400">
+        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-terminal-elevated px-4 py-2 text-[11px] text-terminal-muted">
           <span className="flex items-center gap-2 font-mono">
-            <span className="flex gap-1.5">
-              <span className="size-2.5 rounded-full bg-[#ff5f56]" />
-              <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
-              <span className="size-2.5 rounded-full bg-[#27c93f]" />
+            <span className="flex gap-1.5" aria-hidden>
+              <span className="size-2.5 rounded-full bg-terminal-danger/90" />
+              <span className="size-2.5 rounded-full bg-terminal-warning/90" />
+              <span className="size-2.5 rounded-full bg-terminal-success/90" />
             </span>
             main.cpp
           </span>
           <span className="font-mono uppercase tracking-[0.14em]">edición</span>
         </div>
-        <div className="overflow-x-auto py-4 font-mono text-[13px] leading-[1.7] text-zinc-100">
+        <div className="overflow-x-auto py-4 font-mono text-[13px] leading-[1.7] text-terminal-fg">
           {lines.map((nodes, idx) => (
             <div
               key={idx}
-              className="grid grid-cols-[3.25rem_1fr] hover:bg-white/[0.02]"
+              className="grid grid-cols-[3.25rem_1fr] hover:bg-terminal-elevated/50"
             >
-              <span className="select-none border-r border-zinc-800/70 pr-3 text-right font-mono text-zinc-600 tabular-nums">
+              <span className="select-none border-r border-[var(--terminal-border)] pr-3 text-right font-mono text-terminal-faint tabular-nums">
                 {idx + 1}
               </span>
               <div className="whitespace-pre pl-4">
@@ -149,8 +149,8 @@ export function StepFillBlank({
                 variant="ghost"
                 size="lg"
               >
-                <RotateCcw />
-                Limpiar
+                <Pencil />
+                Corregir
               </Button>
             ) : null}
             <Button
@@ -211,14 +211,14 @@ const CPP_TYPES = new Set([
 ]);
 
 const TOKEN_CLASSES: Record<TokenKind, string> = {
-  keyword: "text-[#c084fc]",
-  type: "text-[#60a5fa]",
-  string: "text-[#86efac]",
-  number: "text-[#fbbf24]",
-  comment: "italic text-zinc-500",
-  preprocessor: "text-[#c084fc]",
-  operator: "text-zinc-400",
-  text: "text-zinc-100",
+  keyword: "text-syntax-keyword",
+  type: "text-syntax-type",
+  string: "text-syntax-string",
+  number: "text-syntax-number",
+  comment: "italic text-syntax-comment",
+  preprocessor: "text-syntax-keyword",
+  operator: "text-syntax-operator",
+  text: "text-terminal-fg",
 };
 
 function tokenizeCpp(code: string): Token[] {
@@ -411,6 +411,7 @@ function renderTemplateLines(
         }}
         disabled={isRight}
         aria-invalid={isWrong || undefined}
+        aria-label={`Espacio ${blankIdx + 1}`}
         spellCheck={false}
         autoCapitalize="off"
         autoComplete="off"
@@ -420,7 +421,7 @@ function renderTemplateLines(
             ? "border-destructive/70 bg-destructive/15 text-destructive"
             : isRight
               ? "border-success/70 bg-success/15 text-success"
-              : "border-zinc-700 bg-[#1a2230] text-[#7dd3fc] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] focus:border-cyan-500 focus:bg-[#1d2c43]",
+              : "border-[var(--terminal-border)] bg-terminal-elevated text-syntax-type focus:border-syntax-type focus:ring-2 focus:ring-syntax-type/30",
         )}
         style={{
           width: `${Math.max(value.length, expected.length, 6) + 1}ch`,

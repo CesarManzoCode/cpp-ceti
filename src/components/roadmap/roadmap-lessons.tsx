@@ -117,14 +117,13 @@ function LessonRow({
   isCurrent,
   isLocked,
 }: RowProps) {
-  return (
-    <Link
-      href={href}
+  const inner = (
+    <div
       className={cn(
-        "group flex items-center gap-4 p-5 transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:gap-5",
+        "group flex items-center gap-4 p-5 transition-colors sm:gap-5",
+        !isLocked && "hover:bg-surface-2/60",
         isLocked && "opacity-70",
       )}
-      aria-label={`Lección ${order}: ${title}`}
     >
       <LessonBadge status={status} isLocked={isLocked} order={order} />
 
@@ -145,7 +144,7 @@ function LessonRow({
           ) : null}
           {status === "completed" ? (
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">
-              · Resuelta
+              · Completada
             </span>
           ) : null}
           {status === "in_progress" ? (
@@ -176,10 +175,35 @@ function LessonRow({
         </div>
       </div>
 
-      <ArrowRight
-        className="hidden size-4 shrink-0 text-muted-foreground/60 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
-        aria-hidden
-      />
+      {!isLocked ? (
+        <ArrowRight
+          className="hidden size-4 shrink-0 text-muted-foreground/60 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
+          aria-hidden
+        />
+      ) : null}
+    </div>
+  );
+
+  if (isLocked) {
+    return (
+      <div
+        className="cursor-not-allowed"
+        aria-disabled="true"
+        aria-label={`Lección ${order}: ${title} (bloqueada — termina la anterior)`}
+        title="Termina la lección anterior para desbloquear"
+      >
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+      aria-label={`Lección ${order}: ${title}`}
+    >
+      {inner}
     </Link>
   );
 }

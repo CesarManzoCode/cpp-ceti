@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -89,22 +88,11 @@ export function LoginForm() {
           required
           disabled={isPending}
           leadingIcon={<Mail />}
-          invalid={Boolean(error)}
         />
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">Contraseña</Label>
-          <Link
-            href="/login"
-            tabIndex={-1}
-            aria-disabled
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            ¿Olvidaste tu contraseña?
-          </Link>
-        </div>
+        <Label htmlFor="password">Contraseña</Label>
         <Input
           id="password"
           name="password"
@@ -115,7 +103,6 @@ export function LoginForm() {
           minLength={8}
           disabled={isPending}
           leadingIcon={<Lock />}
-          invalid={Boolean(error)}
         />
       </div>
 

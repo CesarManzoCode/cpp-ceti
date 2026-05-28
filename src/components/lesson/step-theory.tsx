@@ -32,7 +32,11 @@ export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
       {content.mediaUrl ? (
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={content.mediaUrl} alt="" className="w-full" />
+          <img
+            src={content.mediaUrl}
+            alt="Ilustración de apoyo de la lección"
+            className="w-full"
+          />
         </div>
       ) : null}
 

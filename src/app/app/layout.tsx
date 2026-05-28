@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { Sidebar } from "@/components/app/sidebar";
 import { Topbar } from "@/components/app/topbar";
+import { TopbarSlot } from "@/components/app/topbar-slot";
 import {
   getDefaultCourse,
   getSidebarUnits,
@@ -32,16 +33,18 @@ export default async function AppLayout({
     <div className="flex min-h-dvh bg-background">
       <Sidebar units={units} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar
-          user={{
-            name: session.user.name,
-            email: session.user.email,
-            image: session.user.image,
-          }}
-          totalXp={stats.totalXp}
-          streak={stats.currentStreak}
-          units={units}
-        />
+        <TopbarSlot>
+          <Topbar
+            user={{
+              name: session.user.name,
+              email: session.user.email,
+              image: session.user.image,
+            }}
+            totalXp={stats.totalXp}
+            streak={stats.currentStreak}
+            units={units}
+          />
+        </TopbarSlot>
         <main className="flex-1">{children}</main>
       </div>
     </div>

@@ -143,7 +143,7 @@ function UnitRow({
           ) : null}
           {status === "completed" ? (
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">
-              · Completa
+              · Completada
             </span>
           ) : null}
           {!published ? (

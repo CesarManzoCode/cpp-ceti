@@ -25,7 +25,7 @@ export function Sidebar({ units }: { units: SidebarUnit[] }) {
 
       <div className="border-t border-border/70 px-4 py-3">
         <a
-          href="https://github.com"
+          href="https://github.com/CesarManzoCode/cpp-ceti/issues"
           target="_blank"
           rel="noreferrer noopener"
           className="flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"

@@ -53,7 +53,7 @@ export default async function UnitPage({ params }: PageProps) {
           {unitComplete ? (
             <Badge variant="success" size="sm">
               <Check className="size-3" strokeWidth={3} aria-hidden />
-              Completa
+              Completada
             </Badge>
           ) : null}
         </div>

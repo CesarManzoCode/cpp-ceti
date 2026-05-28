@@ -3,6 +3,7 @@
 import { AlertTriangle, CheckCircle2, Terminal } from "lucide-react";
 
 import { Kbd } from "@/components/ui/kbd";
+import { TerminalSurface } from "@/components/ui/terminal-surface";
 import { TypingDots } from "@/components/ui/brand-spinner";
 import type { ExecutionResult } from "@/lib/executor";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,9 @@ interface OutputPanelProps {
   className?: string;
 }
 
+const darkKbd =
+  "border-[var(--terminal-border)] bg-terminal-elevated text-terminal-fg";
+
 export function OutputPanel({
   state,
   result,
@@ -21,45 +25,33 @@ export function OutputPanel({
   className,
 }: OutputPanelProps) {
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] font-mono text-sm text-zinc-100",
-        state === "running" && "scan-sweep",
-        className,
-      )}
+    <TerminalSurface
+      title="Consola"
+      icon={Terminal}
+      running={state === "running"}
+      trailing={<StatusBadge state={state} result={result} />}
+      className={cn("text-sm", className)}
+      bodyClassName="max-h-72 min-h-24 overflow-auto p-4"
     >
-      <div className="relative flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-zinc-400">
-          <Terminal className="size-3.5" aria-hidden />
-          Consola
-        </div>
-        <StatusBadge state={state} result={result} />
-      </div>
-
-      <div className="relative max-h-72 min-h-24 overflow-auto p-4">
+      <div aria-live="polite" role="status">
         {state === "idle" ? (
-          <p className="flex items-center gap-1.5 text-xs italic text-zinc-500">
-            Pulsa{" "}
-            <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">
-              Ctrl
-            </Kbd>
+          <p className="flex items-center gap-1.5 text-xs italic text-terminal-faint">
+            Pulsa <Kbd className={darkKbd}>Ctrl</Kbd>
             <span>+</span>
-            <Kbd className="border-zinc-700 bg-zinc-800 text-zinc-200">
-              Enter
-            </Kbd>
+            <Kbd className={darkKbd}>Enter</Kbd>
             <span>para ejecutar.</span>
           </p>
         ) : null}
 
         {state === "running" ? (
-          <p className="flex items-center gap-2 text-xs text-zinc-400">
-            <TypingDots className="text-emerald-400" />
+          <p className="flex items-center gap-2 text-xs text-terminal-muted">
+            <TypingDots className="text-terminal-success" />
             Compilando y ejecutando…
           </p>
         ) : null}
 
         {state === "error" ? (
-          <p className="flex items-start gap-2 text-xs text-red-400">
+          <p className="flex items-start gap-2 text-xs text-terminal-danger">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span className="whitespace-pre-wrap">{error}</span>
           </p>
@@ -67,7 +59,7 @@ export function OutputPanel({
 
         {state === "done" && result ? <ResultDisplay result={result} /> : null}
       </div>
-    </div>
+    </TerminalSurface>
   );
 }
 
@@ -80,18 +72,18 @@ function StatusBadge({
 }) {
   if (state === "idle") return null;
   if (state === "running") {
-    return <span className="text-xs text-zinc-400">Ejecutando…</span>;
+    return <span className="text-terminal-muted">Ejecutando…</span>;
   }
   if (state === "error") {
-    return <span className="text-xs text-red-400">Error</span>;
+    return <span className="text-terminal-danger">Error</span>;
   }
   if (state === "done" && result) {
     const isOk = result.status === "accepted";
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 text-xs",
-          isOk ? "text-emerald-400" : "text-amber-400",
+          "inline-flex items-center gap-1.5",
+          isOk ? "text-terminal-success" : "text-terminal-warning",
         )}
       >
         {isOk ? (
@@ -110,11 +102,13 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   if (result.status === "compile_error") {
     return (
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-400">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-terminal-warning">
           Error de compilación
         </p>
-        <pre className="whitespace-pre-wrap text-xs text-amber-100">
-          {result.compileOutput || result.stderr || "Compilación falló sin detalle."}
+        <pre className="whitespace-pre-wrap text-xs text-terminal-warning">
+          {result.compileOutput ||
+            result.stderr ||
+            "Compilación falló sin detalle."}
         </pre>
       </div>
     );
@@ -123,18 +117,20 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   return (
     <div className="space-y-3">
       {result.stdout ? (
-        <pre className="whitespace-pre-wrap text-zinc-100">{result.stdout}</pre>
+        <pre className="whitespace-pre-wrap text-terminal-fg">
+          {result.stdout}
+        </pre>
       ) : (
-        <p className="text-xs italic text-zinc-500">
+        <p className="text-xs italic text-terminal-faint">
           (programa ejecutado sin salida estándar)
         </p>
       )}
       {result.stderr ? (
         <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-400">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-terminal-danger">
             stderr
           </p>
-          <pre className="whitespace-pre-wrap text-xs text-red-300">
+          <pre className="whitespace-pre-wrap text-xs text-terminal-danger">
             {result.stderr}
           </pre>
         </div>

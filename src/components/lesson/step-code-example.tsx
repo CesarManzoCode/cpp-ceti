@@ -5,6 +5,7 @@ import { ArrowRight, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
+import { TerminalSurface } from "@/components/ui/terminal-surface";
 import { Markdown } from "@/components/markdown";
 import { CodePlayground } from "@/components/editor/code-playground";
 import { CppEditor } from "@/components/editor/cpp-editor";
@@ -42,15 +43,11 @@ export function StepCodeExample({
       )}
 
       {content.expectedOutput && !content.runnable ? (
-        <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-[var(--terminal-bg)]">
-          <div className="flex items-center gap-2 border-b border-[var(--terminal-border)] px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-zinc-400">
-            <Terminal className="size-3.5" aria-hidden />
-            Salida esperada
-          </div>
-          <pre className="whitespace-pre-wrap p-4 font-mono text-[13px] text-zinc-100">
+        <TerminalSurface title="Salida esperada" icon={Terminal}>
+          <pre className="whitespace-pre-wrap p-4 text-[13px] text-terminal-fg">
             {content.expectedOutput}
           </pre>
-        </div>
+        </TerminalSurface>
       ) : null}
 
       <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">

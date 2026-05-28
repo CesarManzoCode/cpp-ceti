@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { completeStep } from "@/lib/lessons-actions";
+import { cn } from "@/lib/utils";
 import type { StepContent } from "@/types/lesson";
 
 import { StepTheory } from "./step-theory";
@@ -78,6 +79,15 @@ export function LessonViewer({
   const currentStep = lesson.steps[currentIndex];
   const progressPercent = ((currentIndex + 1) / total) * 100;
   const isFirstStep = currentIndex === 0;
+  // Los retos de código necesitan más ancho para el editor que la lectura.
+  const isWideStep = currentStep?.type === "code_challenge";
+  const containerMax = isWideStep ? "max-w-6xl" : "max-w-4xl";
+
+  function handlePrev() {
+    if (currentIndex === 0) return;
+    setCurrentIndex(currentIndex - 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   function handleNext() {
     if (!currentStep) return;
@@ -111,20 +121,39 @@ export function LessonViewer({
 
   return (
     <>
-      {/* Header sticky — fino y discreto */}
-      <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
-          <Button
-            asChild
-            size="sm"
-            variant="ghost"
-            className="-ml-2 hidden sm:inline-flex"
-          >
-            <Link href={`/app/u/${unit.slug}`}>
+      {/* Header sticky — fino y discreto (el Topbar global se oculta aquí) */}
+      <div className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+        <div
+          className={cn(
+            "mx-auto flex items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6",
+            containerMax,
+          )}
+        >
+          {isFirstStep ? (
+            <Button
+              asChild
+              size="sm"
+              variant="ghost"
+              className="-ml-2 hidden sm:inline-flex"
+            >
+              <Link href={`/app/u/${unit.slug}`}>
+                <ChevronLeft />
+                <span className="max-w-[20ch] truncate">{unit.title}</span>
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={handlePrev}
+              disabled={isPending}
+              className="-ml-2"
+            >
               <ChevronLeft />
-              <span className="max-w-[20ch] truncate">{unit.title}</span>
-            </Link>
-          </Button>
+              <span className="hidden sm:inline">Anterior</span>
+            </Button>
+          )}
 
           <div className="flex flex-1 items-center gap-3">
             <Progress value={progressPercent} size="xs" className="flex-1" />
@@ -148,7 +177,10 @@ export function LessonViewer({
 
       <div
         key={currentStep.id}
-        className="animate-slide-in-right mx-auto flex max-w-4xl flex-col gap-8 px-5 py-7 sm:px-6 lg:py-9"
+        className={cn(
+          "animate-slide-in-right mx-auto flex flex-col gap-8 px-5 py-7 sm:px-6 lg:py-9",
+          containerMax,
+        )}
       >
         {/* Title — solo en el primer paso para no repetir; resto muestra contexto */}
         {isFirstStep ? (

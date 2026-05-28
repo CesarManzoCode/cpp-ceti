@@ -92,7 +92,7 @@ export function Markdown({ children, className }: MarkdownProps) {
             );
           },
           pre: ({ children }) => (
-            <pre className="my-5 overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] p-4 font-mono text-[13px] leading-relaxed text-zinc-100">
+            <pre className="my-5 overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal p-4 font-mono text-[13px] leading-relaxed text-terminal-fg">
               {children}
             </pre>
           ),

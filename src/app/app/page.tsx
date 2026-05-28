@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Clock, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Sparkles, Zap } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,8 @@ export default async function AppHomePage() {
 
       {nextLesson ? (
         <ContinueHero next={nextLesson} />
+      ) : totalLessons > 0 ? (
+        <AllDoneHero />
       ) : (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
           <BookOpen
@@ -67,9 +69,16 @@ export default async function AppHomePage() {
           <h2 className="mt-3 text-base font-semibold">
             Sin lecciones publicadas aún
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Estamos preparando más contenido. Vuelve pronto.
+          <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+            Estamos preparando más contenido. Mientras tanto, puedes practicar
+            con los ejercicios.
           </p>
+          <Button asChild variant="outline" size="sm" className="mt-4">
+            <Link href="/app/ejercicios">
+              Ver ejercicios
+              <ArrowRight />
+            </Link>
+          </Button>
         </div>
       )}
 
@@ -135,8 +144,12 @@ function ContinueHero({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-[var(--shadow-sm)] sm:p-8"
+      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/15 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] sm:p-8"
     >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-primary/10 blur-3xl"
+      />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
@@ -156,12 +169,48 @@ function ContinueHero({
             </span>
           </div>
         </div>
-        <Button size="lg" className="self-start lg:self-auto" tabIndex={-1}>
+        <Button
+          size="lg"
+          className="self-start shadow-[var(--shadow-sm)] lg:self-auto"
+          tabIndex={-1}
+        >
           {resume ? "Continuar" : "Empezar"}
           <ArrowRight />
         </Button>
       </div>
     </Link>
+  );
+}
+
+function AllDoneHero() {
+  return (
+    <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-success/20 bg-card p-6 shadow-[var(--shadow-sm)] sm:p-8">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-success/10 blur-3xl"
+      />
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-2">
+          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-success">
+            <Sparkles className="size-3.5" aria-hidden />
+            Curso al día
+          </p>
+          <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.02em] sm:text-[26px]">
+            Completaste todas las lecciones disponibles.
+          </h2>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Sigue afilando lo aprendido con ejercicios de práctica mientras
+            llega contenido nuevo.
+          </p>
+        </div>
+        <Button asChild size="lg" variant="outline" className="self-start">
+          <Link href="/app/ejercicios">
+            Practicar
+            <ArrowRight />
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 

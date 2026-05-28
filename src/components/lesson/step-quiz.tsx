@@ -174,10 +174,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
           </Button>
         ) : (
           <Button
-            onClick={() => {
-              setSubmitted(false);
-              setSelected(null);
-            }}
+            onClick={() => setSubmitted(false)}
             variant="outline"
             size="lg"
             className="ml-auto"
