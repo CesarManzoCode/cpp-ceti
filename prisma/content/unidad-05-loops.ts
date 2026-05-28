@@ -1,14 +1,14 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 04 — Ciclos (loops)
+ * Unidad 05 — Ciclos (loops)
  *
  * Por qué importa: repetir tareas es el verdadero salto del estudiante
  * que “sabe imprimir” al que “sabe programar”. Cada lección es
  *   code_example → fill_blank → (quiz) → code_challenge.
  * Ejemplos del CETI: pasar lista, sumar calificaciones, contar materias.
  */
-export const unidad04: UnitDefinition = {
+export const unidad05: UnitDefinition = {
   slug: "loops",
   title: "Ciclos: repetir sin escribir cien veces",
   description:

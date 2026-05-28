@@ -1,15 +1,14 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 06 — Leer datos con cin
+ * Unidad 02 — Leer datos con cin
  *
- * En el CETI cin se enseña inmediatamente después de cout, así que la
- * Unidad 06 entra como el contraparte: ahora el programa NO solo habla,
- * también escucha. Patrón estable:
+ * En el CETI cin se enseña inmediatamente después de cout — el programa
+ * deja de solo hablar y empieza a escuchar. Patrón estable:
  *   code_example → fill_blank → (quiz) → code_challenge.
  * Ejemplos del CETI: pedir nombre, edad, calificación, número de control.
  */
-export const unidad06: UnitDefinition = {
+export const unidad02: UnitDefinition = {
   slug: "leer-datos",
   title: "Leer datos del usuario con cin",
   description:

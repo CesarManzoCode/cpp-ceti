@@ -1,17 +1,19 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 07 — Arreglos
+ * Unidad 08 — Arreglos
  *
  * Etapa AVANZADA del curso. Curva de autonomía notoria:
  * starter code mínimo, 2-3 code_challenges por lección
  * (fácil → medio → difícil). El alumno escribe el `int main()`,
  * los includes ya están pero todo el cuerpo es suyo.
  *
+ * I/O con printf/scanf (esta unidad va después de la 07 de printf/scanf,
+ * a partir de la cual el CETI deja de usar cout/cin). Doubles con %.2f.
  * Patrón estable: code_example → quiz → fill_blank → challenge × N.
  * Ejemplos del CETI: notas, edades, asistencias, número de control.
  */
-export const unidad07: UnitDefinition = {
+export const unidad08: UnitDefinition = {
   slug: "arreglos",
   title: "Arreglos: muchos valores en una sola variable",
   description:
@@ -53,8 +55,7 @@ Los compartimentos se numeran **empezando en 0**. Para acceder a uno usas
         },
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5];      // declara un arreglo de 5 enteros
@@ -64,8 +65,8 @@ int main() {
   notas[3] = 10;
   notas[4] = 6;
 
-  cout << "Primera: " << notas[0] << endl;
-  cout << "Ultima: "  << notas[4] << endl;
+  printf("Primera: %i\\n", notas[0]);
+  printf("Ultima: %i\\n", notas[4]);
   return 0;
 }`,
           explanation:
@@ -87,24 +88,24 @@ int main() {
           template: `// Boletín de 4 calificaciones
 int notas[{{0}}];
 
-notas[{{1}}] = 8;       // primer indice
-notas[1] = {{2}};       // valor 9
-{{3}} = 7;              // asigna 7 a la posicion 2
-notas[3] = {{4}};       // valor 10
+notas[{{1}}] = 8;        // primer indice
+notas[1] = {{2}};        // valor 9
+notas[{{3}}] = 7;        // tercera posicion
+notas[3] = {{4}};        // valor 10
 
-cout << "Primera: " << notas[{{5}}] << endl;
-cout << "Ultima:   " << notas[{{6}}] << endl;`,
+printf("Primera: %i\\n", notas[{{5}}]);
+printf("Ultima:   %i\\n", notas[{{6}}]);`,
           blanks: [
             { answer: "4", hint: "El arreglo guarda 4 calificaciones." },
             { answer: "0", hint: "El PRIMER índice." },
             { answer: "9", hint: "El valor que indica el comentario." },
-            { answer: "notas[2]", hint: "Lado izquierdo: arreglo + corchete con el índice 2." },
+            { answer: "2", hint: "Tercera posición — índice 2 (recuerda: empieza en 0)." },
             { answer: "10", hint: "El valor que indica el comentario." },
             { answer: "0", hint: "Primer índice del arreglo." },
             { answer: "3", hint: "Último índice de un arreglo de tamaño 4." },
           ],
           explanation:
-            "Para asignar usas `notas[i] = valor;` — el lado izquierdo es el arreglo con el índice entre corchetes. Los índices van de `0` a `tamaño − 1`.",
+            "Para asignar usas `notas[i] = valor;` — el corchete es el índice (0 a tamaño − 1).",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Las tres notas
@@ -118,7 +119,7 @@ Escribe un programa que:
 
 1. Declare un arreglo \`int notas[3];\`.
 2. Asigne **7, 9, 8** en orden (a \`notas[0]\`, \`notas[1]\`, \`notas[2]\`).
-3. Imprima cada valor en una línea distinta.
+3. Imprima cada valor en una línea distinta (con \`printf\` y \`%i\`).
 
 Salida esperada:
 
@@ -129,30 +130,24 @@ Salida esperada:
 \`\`\``,
             difficulty: "easy",
             xpReward: 25,
-            starterCode: `#include <iostream>
-using namespace std;
-
-int main() {
-
-  return 0;
-}`,
-            solutionCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
+`,
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int notas[3];
   notas[0] = 7;
   notas[1] = 9;
   notas[2] = 8;
-  cout << notas[0] << endl;
-  cout << notas[1] << endl;
-  cout << notas[2] << endl;
+  printf("%i\\n", notas[0]);
+  printf("%i\\n", notas[1]);
+  printf("%i\\n", notas[2]);
   return 0;
 }`,
             hints: [
               "Declara `int notas[3];` dentro de main.",
               "Asigna uno por uno con `notas[0] = 7;` etc.",
-              "Tres `cout` distintos, uno por elemento.",
+              "Tres `printf(\"%i\\n\", notas[i]);` — uno por elemento.",
             ],
             testCases: [
               {
@@ -195,11 +190,9 @@ Salida esperada:
 \`\`\``,
             difficulty: "medium",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
@@ -211,17 +204,17 @@ int main() {
 
   v[2] = 999;
 
-  cout << v[0] << endl;
-  cout << v[1] << endl;
-  cout << v[2] << endl;
-  cout << v[3] << endl;
-  cout << v[4] << endl;
+  printf("%i\\n", v[0]);
+  printf("%i\\n", v[1]);
+  printf("%i\\n", v[2]);
+  printf("%i\\n", v[3]);
+  printf("%i\\n", v[4]);
   return 0;
 }`,
             hints: [
               "Sí, te tocó escribir el `int main() { ... return 0; }` completo.",
               "Asignas los 5 valores, después sobreescribes `v[2] = 999;`.",
-              "5 `cout` separados — uno por elemento.",
+              "5 `printf` separados — uno por elemento, todos con `%i`.",
             ],
             testCases: [
               {
@@ -257,11 +250,9 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 40,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int a[4];
@@ -274,10 +265,10 @@ int main() {
   a[0] = a[3];
   a[3] = tmp;
 
-  cout << a[0] << endl;
-  cout << a[1] << endl;
-  cout << a[2] << endl;
-  cout << a[3] << endl;
+  printf("%i\\n", a[0]);
+  printf("%i\\n", a[1]);
+  printf("%i\\n", a[2]);
+  printf("%i\\n", a[3]);
   return 0;
 }`,
             hints: [
@@ -310,14 +301,13 @@ int main() {
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5] = {7, 9, 8, 10, 6};
 
-  cout << notas[0] << endl;
-  cout << notas[3] << endl;
+  printf("%i\\n", notas[0]);
+  printf("%i\\n", notas[3]);
   return 0;
 }`,
           explanation:
@@ -327,14 +317,13 @@ int main() {
         },
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   // Si dejas [] vacíos, el compilador cuenta los elementos
   int dias[] = {31, 28, 31, 30, 31, 30, 31};
 
-  cout << dias[6] << endl;  // ultimo elemento, julio
+  printf("%i\\n", dias[6]);   // ultimo elemento, julio
   return 0;
 }`,
           explanation:
@@ -361,9 +350,9 @@ int main() {
           template: `// Inicializa días del mes para enero, febrero, marzo, abril, mayo
 {{0}} dias[5] = { {{1}}, {{2}}, 31, {{3}}, {{4}} };
 
-cout << "Enero:   " << dias[0] << endl;
-cout << "Febrero: " << dias[{{5}}] << endl;
-cout << "Mayo:    " << dias[{{6}}] << endl;`,
+printf("Enero:   %i\\n", dias[0]);
+printf("Febrero: %i\\n", dias[{{5}}]);
+printf("Mayo:    %i\\n", dias[{{6}}]);`,
           blanks: [
             { answer: "int", hint: "Tipo de cada elemento (enteros)." },
             { answer: "31", hint: "Días que tiene enero." },
@@ -377,15 +366,16 @@ cout << "Mayo:    " << dias[{{6}}] << endl;`,
             "Con `{}` defines TODOS los valores al declarar. La cantidad de valores debe coincidir con el tamaño entre `[]` (o dejar `[]` vacíos para que el compilador cuente).",
         },
         // -----------------------------------------------------------------
-        // Reto 1 (fácil): Días del fin de semana
+        // Reto 1 (fácil): Arreglo de strings con %s
         // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
             prompt: `## Reto 1 — Fin de semana
 
-Declara un arreglo de \`string\` con los nombres **Sabado** y **Domingo** (en
-ese orden, sin acentos) e imprime cada uno en una línea separada.
+Declara un arreglo de cadenas con \`const char* fin[2] = {"Sabado", "Domingo"};\`
+e imprime cada elemento en una línea separada usando \`printf\` con el
+especificador **\`%s\`** (para cadenas).
 
 Salida esperada:
 
@@ -395,24 +385,20 @@ Domingo
 \`\`\``,
             difficulty: "easy",
             xpReward: 25,
-            starterCode: `#include <iostream>
-#include <string>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-#include <string>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
-  string fin[2] = {"Sabado", "Domingo"};
-  cout << fin[0] << endl;
-  cout << fin[1] << endl;
+  const char* fin[2] = {"Sabado", "Domingo"};
+  printf("%s\\n", fin[0]);
+  printf("%s\\n", fin[1]);
   return 0;
 }`,
             hints: [
               "Falta el `int main() { ... return 0; }`.",
-              "`string fin[2] = {\"Sabado\", \"Domingo\"};` inicializa todo en una línea.",
-              "Dos `cout`, uno por índice.",
+              "Para arreglos de cadenas en estilo C usa `const char*` (no `string`).",
+              "`%s` es el especificador para imprimir cadenas con `printf`.",
             ],
             testCases: [
               {
@@ -445,21 +431,19 @@ Salida esperada:
 \`\`\``,
             difficulty: "medium",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[] = {10, 20, 30, 40, 50};
-  cout << v[0] + v[4] << endl;
+  printf("%i\\n", v[0] + v[4]);
   return 0;
 }`,
             hints: [
               "Inicializa con `int v[] = {10, 20, 30, 40, 50};`.",
               "El último índice es 4 (no 5).",
-              "Imprime `v[0] + v[4]` directamente, sin variable auxiliar.",
+              "Imprime `v[0] + v[4]` con `printf(\"%i\\n\", v[0] + v[4]);`.",
             ],
             testCases: [
               {
@@ -495,24 +479,22 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 35,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int tabla[5] = {5, 10, 15, 20, 25};
-  cout << tabla[0] << endl;
-  cout << tabla[1] << endl;
-  cout << tabla[2] << endl;
-  cout << tabla[3] << endl;
-  cout << tabla[4] << endl;
+  printf("%i\\n", tabla[0]);
+  printf("%i\\n", tabla[1]);
+  printf("%i\\n", tabla[2]);
+  printf("%i\\n", tabla[3]);
+  printf("%i\\n", tabla[4]);
   return 0;
 }`,
             hints: [
               "Vía rápida: `int tabla[5] = {5, 10, 15, 20, 25};`.",
-              "5 `cout` separados — uno por índice.",
+              "5 `printf` separados — uno por índice.",
               "Mañana lo harás con un for; hoy nos toca a mano para fijar el patrón.",
             ],
             testCases: [
@@ -540,15 +522,14 @@ int main() {
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5] = {7, 9, 8, 10, 6};
 
   // Recorre los 5 elementos
   for (int i = 0; i < 5; i++) {
-    cout << notas[i] << endl;
+    printf("%i\\n", notas[i]);
   }
   return 0;
 }`,
@@ -577,11 +558,11 @@ int main() {
 int suma = {{0}};
 
 {{1}} (int i = {{2}}; i {{3}} 5; i{{4}}) {
-  cout << v[i] << endl;
+  printf("%i\\n", v[i]);
   suma {{5}} v[i];
 }
 
-cout << "Total: " << {{6}} << endl;`,
+printf("Total: %i\\n", {{6}});`,
           blanks: [
             { answer: "0", hint: "El acumulador empieza en cero." },
             { answer: "for", hint: "El ciclo que recorre arreglos por índice." },
@@ -617,23 +598,21 @@ Salida esperada:
 \`\`\``,
             difficulty: "easy",
             xpReward: 25,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[6] = {2, 4, 6, 8, 10, 12};
   for (int i = 0; i < 6; i++) {
-    cout << v[i] << endl;
+    printf("%i\\n", v[i]);
   }
   return 0;
 }`,
             hints: [
               "Te toca escribir todo el main desde cero.",
               "El for es `for (int i = 0; i < 6; i++)`.",
-              "Dentro: `cout << v[i] << endl;`.",
+              "Dentro: `printf(\"%i\\n\", v[i]);`.",
             ],
             testCases: [
               {
@@ -666,16 +645,14 @@ Salida esperada:
 \`\`\``,
             difficulty: "medium",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5] = {1, 2, 3, 4, 5};
   for (int i = 4; i >= 0; i--) {
-    cout << v[i] << endl;
+    printf("%i\\n", v[i]);
   }
   return 0;
 }`,
@@ -717,17 +694,15 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 40,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[6] = {10, 11, 20, 21, 30, 31};
   for (int i = 0; i < 6; i++) {
     if (i % 2 == 0) {
-      cout << v[i] << endl;
+      printf("%i\\n", v[i]);
     }
   }
   return 0;
@@ -750,48 +725,47 @@ int main() {
     },
 
     // =====================================================================
-    // Lección 4: Llenar arreglo con cin
+    // Lección 4: Llenar arreglo con scanf
     // =====================================================================
     {
       slug: "leer-arreglo",
       title: "Llenar un arreglo desde el teclado",
       description:
-        "Combina `cin` con un `for` para que el usuario meta los datos.",
+        "Combina `scanf` con un `for` para que el usuario meta los datos.",
       xpReward: 40,
       estimatedMinutes: 11,
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[3];
 
   // Pide los 3 valores
   for (int i = 0; i < 3; i++) {
-    cin >> notas[i];
+    scanf("%i", &notas[i]);
   }
 
   // Imprime los 3
   for (int i = 0; i < 3; i++) {
-    cout << notas[i] << endl;
+    printf("%i\\n", notas[i]);
   }
   return 0;
 }`,
           explanation:
-            "Dos `for` separados: uno para leer, otro para imprimir. `cin >> notas[i]` mete el siguiente número en la casilla `i`.",
+            "Dos `for` separados: uno para leer, otro para imprimir. `scanf(\"%i\", &notas[i])` mete el siguiente número en la casilla `i`. NO olvides el `&` antes de `notas[i]`.",
           runnable: true,
           expectedOutput: "",
         },
         {
           type: "quiz",
           question:
-            "Si el usuario escribe `10 20 30` y haces `cin >> v[i]` en un for de 0 a 2, ¿qué guarda `v[1]`?",
+            "Si el usuario escribe `10 20 30` y haces `scanf(\"%i\", &v[i])` en un for de 0 a 2, ¿qué guarda `v[1]`?",
           options: ["10", "20", "30", "Nada"],
           correctIndex: 1,
           explanation:
-            "El primer `cin` se lleva `10` a `v[0]`, el segundo se lleva `20` a `v[1]`, el tercero `30` a `v[2]`. Los espacios separan los valores.",
+            "El primer `scanf` se lleva `10` a `v[0]`, el segundo se lleva `20` a `v[1]`, el tercero `30` a `v[2]`. Los espacios y saltos de línea separan los valores.",
         },
         {
           type: "fill_blank",
@@ -800,24 +774,24 @@ int notas[{{0}}];
 
 // Lectura
 for ({{1}} i = 0; i < 5; i++) {
-  {{2}} >> notas[{{3}}];
+  scanf("%i", {{2}}notas[{{3}}]);
 }
 
 // Impresión invertida
 for (int i = {{4}}; i {{5}} 0; i--) {
-  cout << notas[{{6}}] << endl;
+  printf("%i\\n", notas[{{6}}]);
 }`,
           blanks: [
             { answer: "5", hint: "Tamaño del arreglo." },
             { answer: "int", hint: "Tipo del contador del for." },
-            { answer: "cin", hint: "Stream de entrada del teclado." },
+            { answer: "&", hint: "Símbolo OBLIGATORIO antes del lugar donde guardar." },
             { answer: "i", hint: "El índice variable que cambia en cada vuelta." },
             { answer: "4", hint: "Último índice (tamaño − 1)." },
             { answer: ">=", hint: "Sigue mientras el índice siga siendo válido (incluye 0)." },
             { answer: "i", hint: "El índice variable, igual que arriba." },
           ],
           explanation:
-            "Dos `for` distintos: uno para leer (0 → 4) y otro para imprimir invertido (4 → 0). Lo único que cambia entre patrones es el inicio, la condición y el operador (`++` vs `--`).",
+            "Dos `for` distintos: uno para leer (0 → 4) y otro para imprimir invertido (4 → 0). El `&notas[i]` en scanf es indispensable — sin el `&` el programa crashea.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Eco del arreglo
@@ -827,8 +801,8 @@ for (int i = {{4}}; i {{5}} 0; i--) {
           exercise: {
             prompt: `## Reto 1 — Eco del arreglo
 
-Lee **5 enteros** desde \`cin\` y guárdalos en un arreglo \`int v[5];\`.
-Luego imprímelos en el MISMO orden, uno por línea.
+Lee **5 enteros** desde \`scanf\` y guárdalos en un arreglo \`int v[5];\`.
+Luego imprímelos con \`printf\` en el MISMO orden, uno por línea.
 
 Para el test, el sistema enviará: \`3 1 4 1 5\`.
 
@@ -843,25 +817,23 @@ Salida esperada:
 \`\`\``,
             difficulty: "easy",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
   for (int i = 0; i < 5; i++) {
-    cout << v[i] << endl;
+    printf("%i\\n", v[i]);
   }
   return 0;
 }`,
             hints: [
-              "Primer for: `cin >> v[i];`",
-              "Segundo for (igualito): `cout << v[i] << endl;`",
+              "Primer for: `scanf(\"%i\", &v[i]);` — no olvides el `&`.",
+              "Segundo for (igualito): `printf(\"%i\\n\", v[i]);`.",
               "No combines en un solo for o se desordena la salida.",
             ],
             testCases: [
@@ -888,8 +860,8 @@ int main() {
           exercise: {
             prompt: `## Reto 2 — Leer e invertir
 
-Lee **5 enteros** desde \`cin\` y guárdalos en un arreglo. Imprime los valores
-**en orden inverso**, uno por línea.
+Lee **5 enteros** desde \`scanf\` y guárdalos en un arreglo. Imprime los
+valores **en orden inverso**, uno por línea.
 
 Para el test, el sistema enviará: \`10 20 30 40 50\`.
 
@@ -904,24 +876,22 @@ Salida esperada:
 \`\`\``,
             difficulty: "medium",
             xpReward: 35,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
   for (int i = 4; i >= 0; i--) {
-    cout << v[i] << endl;
+    printf("%i\\n", v[i]);
   }
   return 0;
 }`,
             hints: [
-              "Primer for `0..4` para leer.",
+              "Primer for `0..4` para leer con `&v[i]`.",
               "Segundo for `4..0` (decreciente) para imprimir invertido.",
               "No modifiques el arreglo — basta con recorrerlo al revés.",
             ],
@@ -949,9 +919,9 @@ int main() {
           exercise: {
             prompt: `## Reto 3 — Duplicar cada valor
 
-Lee **5 enteros** desde \`cin\`, guárdalos en un arreglo, **multiplícalos por
-2** (modificando el arreglo en su lugar) y después imprime los nuevos valores
-en orden, uno por línea.
+Lee **5 enteros** desde \`scanf\`, guárdalos en un arreglo, **multiplícalos
+por 2** (modificando el arreglo en su lugar) y después imprime los nuevos
+valores en orden, uno por línea.
 
 Para el test, el sistema enviará: \`1 2 3 4 5\`.
 
@@ -966,22 +936,20 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 40,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
   for (int i = 0; i < 5; i++) {
     v[i] = v[i] * 2;
   }
   for (int i = 0; i < 5; i++) {
-    cout << v[i] << endl;
+    printf("%i\\n", v[i]);
   }
   return 0;
 }`,
@@ -1022,8 +990,7 @@ int main() {
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5] = {8, 9, 7, 10, 6};
@@ -1034,14 +1001,14 @@ int main() {
   }
 
   double promedio = suma / 5.0;
-  cout << "Suma: " << suma << endl;
-  cout << "Promedio: " << promedio << endl;
+  printf("Suma: %i\\n", suma);
+  printf("Promedio: %.2f\\n", promedio);
   return 0;
 }`,
           explanation:
-            "Combinas dos patrones que ya conoces: **acumulador** (suma = 0 antes, += dentro) + **recorrido** del arreglo. Para el promedio divides entre `5.0` (con punto), no entre `5`, para que dé decimales.",
+            "Combinas dos patrones que ya conoces: **acumulador** (suma = 0 antes, += dentro) + **recorrido** del arreglo. Para el promedio divides entre `5.0` (con punto), no entre `5`, para que dé decimales. Lo imprimes con `%.2f` (2 decimales).",
           runnable: true,
-          expectedOutput: "Suma: 40\nPromedio: 8",
+          expectedOutput: "Suma: 40\nPromedio: 8.00",
         },
         {
           type: "quiz",
@@ -1061,7 +1028,7 @@ int main() {
           type: "fill_blank",
           template: `int notas[5];
 for (int i = 0; i < 5; i++) {
-  cin >> notas[i];
+  scanf("%i", &notas[i]);
 }
 
 // Acumulador para la suma
@@ -1074,8 +1041,8 @@ for (int i = 0; i {{1}} 5; i{{2}}) {
 // Promedio con decimales
 {{4}} promedio = suma / {{5}};
 
-cout << "Suma: "     << {{6}} << endl;
-cout << "Promedio: " << promedio << endl;`,
+printf("Suma: %i\\n", {{6}});
+printf("Promedio: %.2f\\n", promedio);`,
           blanks: [
             { answer: "0", hint: "Acumulador empieza en cero." },
             { answer: "<", hint: "Estrictamente menor que el tamaño." },
@@ -1086,7 +1053,7 @@ cout << "Promedio: " << promedio << endl;`,
             { answer: "suma", hint: "La variable acumulada que declaraste arriba." },
           ],
           explanation:
-            "Acumulador FUERA del for, `+=` DENTRO del for, división entre `5.0` (con punto) para conservar decimales. Es el mismo patrón que ya viste para 5 calificaciones sueltas, pero ahora vienen del arreglo.",
+            "Acumulador FUERA del for, `+=` DENTRO del for, división entre `5.0` (con punto) para conservar decimales. Para imprimir int → `%i`, para double → `%.2f`.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Suma
@@ -1096,8 +1063,8 @@ cout << "Promedio: " << promedio << endl;`,
           exercise: {
             prompt: `## Reto 1 — Suma de 5 enteros
 
-Lee **5 enteros** con \`cin\`, guárdalos en un arreglo y calcula su **suma**.
-Imprime SOLO la suma, sin texto.
+Lee **5 enteros** con \`scanf\`, guárdalos en un arreglo y calcula su
+**suma**. Imprime SOLO la suma, sin texto.
 
 Para el test, el sistema enviará: \`2 4 6 8 10\` (suma = 30).
 
@@ -1108,16 +1075,14 @@ Salida esperada:
 \`\`\``,
             difficulty: "easy",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int suma = 0;
@@ -1125,13 +1090,13 @@ int main() {
     suma += v[i];
   }
 
-  cout << suma << endl;
+  printf("%i\\n", suma);
   return 0;
 }`,
             hints: [
-              "Un for para leer, otro para sumar (o combínalos en uno).",
+              "Un for para leer con `scanf`, otro para sumar (o combínalos en uno).",
               "Acumulador `suma = 0` ANTES del for que suma.",
-              "Solo imprime el total final, sin texto.",
+              "Solo imprime el total final con `printf(\"%i\\n\", suma);`, sin texto.",
             ],
             testCases: [
               {
@@ -1158,27 +1123,25 @@ int main() {
             prompt: `## Reto 2 — Promedio de 5 calificaciones
 
 Lee **5 calificaciones enteras** del usuario, guárdalas en un arreglo, y
-imprime el promedio (dividiendo entre \`5.0\`).
+imprime el promedio (dividiendo entre \`5.0\`) con **2 decimales**.
 
-Para el test, el sistema enviará: \`8 9 7 10 6\` (promedio = 8).
+Para el test, el sistema enviará: \`8 9 7 10 6\` (promedio = 8.00).
 
 Salida esperada:
 
 \`\`\`
-8
+8.00
 \`\`\``,
             difficulty: "medium",
             xpReward: 35,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int notas[5];
   for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
+    scanf("%i", &notas[i]);
   }
 
   int suma = 0;
@@ -1187,26 +1150,32 @@ int main() {
   }
 
   double promedio = suma / 5.0;
-  cout << promedio << endl;
+  printf("%.2f\\n", promedio);
   return 0;
 }`,
             hints: [
-              "Tres bloques: lectura, suma, impresión.",
+              "Tres bloques: lectura con scanf, suma, impresión.",
               "Acumulador `suma = 0` ANTES del for que suma.",
-              "Divide entre `5.0` (con punto) para obtener decimales.",
+              "Divide entre `5.0` (con punto) e imprime con `%.2f`.",
             ],
             testCases: [
               {
                 stdin: "8 9 7 10 6\n",
-                expectedStdout: "8\n",
+                expectedStdout: "8.00\n",
                 visible: true,
-                description: "Promedio entero",
+                description: "Promedio exacto, 2 decimales",
               },
               {
                 stdin: "10 10 10 10 5\n",
-                expectedStdout: "9\n",
+                expectedStdout: "9.00\n",
                 visible: false,
-                description: "Promedio con decimal redondeado por cout",
+                description: "Promedio 9.0",
+              },
+              {
+                stdin: "8 5 10 7 4\n",
+                expectedStdout: "6.80\n",
+                visible: false,
+                description: "Promedio con decimal: 6.80",
               },
             ],
           },
@@ -1237,16 +1206,14 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 45,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int suma = 0;
@@ -1261,13 +1228,13 @@ int main() {
       cuenta++;
     }
   }
-  cout << cuenta << endl;
+  printf("%i\\n", cuenta);
   return 0;
 }`,
             hints: [
               "Necesitas 3 fors: leer, sumar (para promedio), contar.",
               "Compara con `>` (estricto), no con `>=`.",
-              "Imprime SOLO `cuenta`, sin texto.",
+              "Imprime SOLO `cuenta` con `%i`, sin texto.",
             ],
             testCases: [
               {
@@ -1307,8 +1274,7 @@ int main() {
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5] = {7, 9, 8, 10, 6};
@@ -1323,7 +1289,7 @@ int main() {
     }
   }
 
-  cout << "El mayor es " << mayor << endl;
+  printf("El mayor es %i\\n", mayor);
   return 0;
 }`,
           explanation:
@@ -1349,7 +1315,7 @@ int main() {
           type: "fill_blank",
           template: `int v[5];
 for (int i = 0; i < 5; i++) {
-  cin >> v[i];
+  scanf("%i", &v[i]);
 }
 
 // Inicializa AMBAS con el primer elemento
@@ -1366,8 +1332,8 @@ for (int i = {{2}}; i < 5; i++) {
   }
 }
 
-cout << "Mayor: " << {{6}} << endl;
-cout << "Menor: " << menor << endl;`,
+printf("Mayor: %i\\n", {{6}});
+printf("Menor: %i\\n", menor);`,
           blanks: [
             { answer: "0", hint: "Primer índice." },
             { answer: "0", hint: "Primer índice (mismo que mayor)." },
@@ -1375,7 +1341,7 @@ cout << "Menor: " << menor << endl;`,
             { answer: ">", hint: "Para MAYOR, estrictamente mayor." },
             { answer: "mayor", hint: "La variable que va guardando el máximo." },
             { answer: "<", hint: "Para MENOR, estrictamente menor." },
-            { answer: "mayor", hint: "Variable del máximo, para el cout." },
+            { answer: "mayor", hint: "Variable del máximo, para el printf." },
           ],
           explanation:
             "Truco: una sola pasada calcula el máximo Y el mínimo. Cada `if` actualiza una variable independiente. Inicializa AMBAS con `v[0]` para que funcionen aunque todos los valores sean negativos.",
@@ -1400,29 +1366,27 @@ Salida esperada:
 \`\`\``,
             difficulty: "easy",
             xpReward: 30,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int mayor = v[0];
   for (int i = 1; i < 5; i++) {
     if (v[i] > mayor) mayor = v[i];
   }
-  cout << mayor << endl;
+  printf("%i\\n", mayor);
   return 0;
 }`,
             hints: [
               "Inicializa `mayor = v[0]` después de leer.",
               "El for arranca en `i = 1` (ya consideraste el 0).",
-              "Solo imprime `mayor`, sin texto.",
+              "Solo imprime `mayor` con `%i`, sin texto.",
             ],
             testCases: [
               {
@@ -1466,29 +1430,27 @@ Salida esperada:
 \`\`\``,
             difficulty: "medium",
             xpReward: 35,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int menor = v[0];
   for (int i = 1; i < 5; i++) {
     if (v[i] < menor) menor = v[i];
   }
-  cout << menor << endl;
+  printf("%i\\n", menor);
   return 0;
 }`,
             hints: [
               "Cambia `>` por `<` y el nombre de la variable a `menor`.",
               "Sigue arrancando con `menor = v[0];`.",
-              "Sin texto, solo el número.",
+              "Sin texto, solo el número con `%i`.",
             ],
             testCases: [
               {
@@ -1528,16 +1490,14 @@ Salida esperada:
 \`\`\``,
             difficulty: "hard",
             xpReward: 45,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int idx = 0;
@@ -1546,7 +1506,7 @@ int main() {
       idx = i;
     }
   }
-  cout << idx << endl;
+  printf("%i\\n", idx);
   return 0;
 }`,
             hints: [
@@ -1592,13 +1552,12 @@ int main() {
       steps: [
         {
           type: "code_example",
-          code: `#include <iostream>
-using namespace std;
+          code: `#include <stdio.h>
 
 int main() {
   int notas[5];
   for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
+    scanf("%i", &notas[i]);
   }
 
   int suma = 0;
@@ -1612,9 +1571,9 @@ int main() {
   }
 
   double promedio = suma / 5.0;
-  cout << "Promedio: " << promedio << endl;
-  cout << "Mayor: " << mayor << endl;
-  cout << "Aprobados: " << aprobados << endl;
+  printf("Promedio: %.2f\\n", promedio);
+  printf("Mayor: %i\\n", mayor);
+  printf("Aprobados: %i\\n", aprobados);
   return 0;
 }`,
           explanation:
@@ -1640,7 +1599,7 @@ int main() {
           type: "fill_blank",
           template: `int notas[5];
 for (int i = 0; i < 5; i++) {
-  cin >> notas[{{0}}];
+  scanf("%i", &notas[{{0}}]);
 }
 
 int suma      = 0;
@@ -1663,10 +1622,11 @@ for (int i = 0; i < 5; i++) {
   }
 }
 
-cout << "Promedio: "   << suma / {{6}} << endl;
-cout << "Mayor: "      << mayor << endl;
-cout << "Aprobados: "  << aprobados << endl;
-cout << "Reprobados: " << reprobados << endl;`,
+double promedio = suma / {{6}};
+printf("Promedio: %.2f\\n", promedio);
+printf("Mayor: %i\\n", mayor);
+printf("Aprobados: %i\\n", aprobados);
+printf("Reprobados: %i\\n", reprobados);`,
           blanks: [
             { answer: "i", hint: "Índice variable que cambia con el for." },
             { answer: "0", hint: "El contador parte de cero." },
@@ -1690,32 +1650,30 @@ cout << "Reprobados: " << reprobados << endl;`,
 Lee **5 calificaciones** enteras del 0 al 10. Imprime **tres líneas** en este
 orden:
 
-1. \`Promedio: <p>\` con \`<p>\` = suma / 5.0
-2. \`Mayor: <m>\` (la más alta)
+1. \`Promedio: <p>\` con \`<p>\` = suma / 5.0 **con 2 decimales** (\`%.2f\`)
+2. \`Mayor: <m>\` (la más alta, entero)
 3. \`Aprobados: <a>\` (cuántas son \`>= 7\`)
 
-Para el test, el sistema enviará: \`8 5 10 7 4\` (Suma=34, Promedio=6.8,
+Para el test, el sistema enviará: \`8 5 10 7 4\` (Suma=34, Promedio=6.80,
 Mayor=10, Aprobados=3).
 
 Salida esperada:
 
 \`\`\`
-Promedio: 6.8
+Promedio: 6.80
 Mayor: 10
 Aprobados: 3
 \`\`\``,
             difficulty: "medium",
             xpReward: 45,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int notas[5];
   for (int i = 0; i < 5; i++) {
-    cin >> notas[i];
+    scanf("%i", &notas[i]);
   }
 
   int suma = 0;
@@ -1729,32 +1687,32 @@ int main() {
   }
 
   double promedio = suma / 5.0;
-  cout << "Promedio: " << promedio << endl;
-  cout << "Mayor: " << mayor << endl;
-  cout << "Aprobados: " << aprobados << endl;
+  printf("Promedio: %.2f\\n", promedio);
+  printf("Mayor: %i\\n", mayor);
+  printf("Aprobados: %i\\n", aprobados);
   return 0;
 }`,
             hints: [
               "Tres acumuladores ANTES del for: `suma`, `mayor` (en `notas[0]`), `aprobados`.",
               "Un solo for hace todo en una pasada.",
-              "Divide entre `5.0` para decimales.",
+              "Promedio con `%.2f`, los enteros con `%i`.",
             ],
             testCases: [
               {
                 stdin: "8 5 10 7 4\n",
-                expectedStdout: "Promedio: 6.8\nMayor: 10\nAprobados: 3\n",
+                expectedStdout: "Promedio: 6.80\nMayor: 10\nAprobados: 3\n",
                 visible: true,
                 description: "Caso típico",
               },
               {
                 stdin: "10 10 10 10 10\n",
-                expectedStdout: "Promedio: 10\nMayor: 10\nAprobados: 5\n",
+                expectedStdout: "Promedio: 10.00\nMayor: 10\nAprobados: 5\n",
                 visible: false,
                 description: "Todos 10",
               },
               {
                 stdin: "0 0 0 0 0\n",
-                expectedStdout: "Promedio: 0\nMayor: 0\nAprobados: 0\n",
+                expectedStdout: "Promedio: 0.00\nMayor: 0\nAprobados: 0\n",
                 visible: false,
                 description: "Caso vacío de aprobados",
               },
@@ -1793,16 +1751,14 @@ Suma sin extremos: 20
 \`\`\``,
             difficulty: "hard",
             xpReward: 55,
-            starterCode: `#include <iostream>
-using namespace std;
+            starterCode: `#include <stdio.h>
 `,
-            solutionCode: `#include <iostream>
-using namespace std;
+            solutionCode: `#include <stdio.h>
 
 int main() {
   int v[5];
   for (int i = 0; i < 5; i++) {
-    cin >> v[i];
+    scanf("%i", &v[i]);
   }
 
   int suma = 0;
@@ -1818,16 +1774,16 @@ int main() {
   int rango = mayor - menor;
   int sinExtremos = suma - menor - mayor;
 
-  cout << "Minimo: " << menor << endl;
-  cout << "Maximo: " << mayor << endl;
-  cout << "Rango: " << rango << endl;
-  cout << "Suma sin extremos: " << sinExtremos << endl;
+  printf("Minimo: %i\\n", menor);
+  printf("Maximo: %i\\n", mayor);
+  printf("Rango: %i\\n", rango);
+  printf("Suma sin extremos: %i\\n", sinExtremos);
   return 0;
 }`,
             hints: [
               "Un solo for con tres updates en cada vuelta: suma += v[i], comparar con menor, comparar con mayor.",
               "Inicializa `menor = v[0]` y `mayor = v[0]` antes del for.",
-              "Rango = mayor − menor. Suma sin extremos = suma − menor − mayor.",
+              "Rango = mayor − menor. Suma sin extremos = suma − menor − mayor. Todo entero → `%i`.",
             ],
             testCases: [
               {

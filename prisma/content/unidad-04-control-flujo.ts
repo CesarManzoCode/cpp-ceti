@@ -1,14 +1,14 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 03 — Control de flujo
+ * Unidad 04 — Control de flujo
  *
  * El alumno aprende a tomar decisiones en código. Patrón por lección:
  *   code_example → fill_blank → (quiz opcional) → code_challenge.
  * Ejemplos anclados al CETI: calificaciones, aprobado/reprobado,
  * elección de carrera, semestre actual.
  */
-export const unidad03: UnitDefinition = {
+export const unidad04: UnitDefinition = {
   slug: "control-de-flujo",
   title: "Control de flujo",
   description:

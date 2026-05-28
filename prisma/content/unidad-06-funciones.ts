@@ -1,14 +1,14 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 05 — Funciones
+ * Unidad 06 — Funciones
  *
  * El alumno aprende a empaquetar código reutilizable. Patrón estable:
  *   code_example → fill_blank → (quiz) → code_challenge.
  * Ejemplos del CETI: saludar, calcular promedio, verificar aprobado,
  * convertir calificación a letra.
  */
-export const unidad05: UnitDefinition = {
+export const unidad06: UnitDefinition = {
   slug: "funciones",
   title: "Funciones: empaquetar tu código",
   description:
