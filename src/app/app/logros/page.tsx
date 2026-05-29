@@ -20,8 +20,11 @@ import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { Progress } from "@/components/ui/progress";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import { db } from "@/lib/db";
-import { getUserStats } from "@/lib/courses";
+import {
+  getCompletedLessonsCount,
+  getDistinctExercisesPassedCount,
+} from "@/features/lessons/queries";
+import { getUserStats } from "@/lib/streak";
 import { requireSession } from "@/lib/get-session";
 import { cn, pluralize } from "@/lib/utils";
 
@@ -142,18 +145,11 @@ const BADGES: BadgeDef[] = [
 export default async function LogrosPage() {
   const session = await requireSession();
 
-  const [stats, lessonsCompleted, distinctExercisesPassed] = await Promise.all([
+  const [stats, lessonsCompleted, exercisesPassed] = await Promise.all([
     getUserStats(session.user.id),
-    db.userLessonProgress.count({
-      where: { userId: session.user.id, status: "completed" },
-    }),
-    db.userExerciseAttempt.findMany({
-      where: { userId: session.user.id, passed: true },
-      select: { exerciseId: true },
-      distinct: ["exerciseId"],
-    }),
+    getCompletedLessonsCount(session.user.id),
+    getDistinctExercisesPassedCount(session.user.id),
   ]);
-  const exercisesPassed = distinctExercisesPassed.length;
 
   const achievementStats: AchievementStats = {
     totalXp: stats.totalXp,

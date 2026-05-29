@@ -1,13 +1,10 @@
 import { notFound } from "next/navigation";
 
-import {
-  LessonViewer,
-  type ViewerStep,
-} from "@/components/lesson/lesson-viewer";
-import { getDefaultCourse } from "@/lib/courses";
-import { getLessonBySlug } from "@/lib/lessons";
+import { LessonViewer } from "@/features/lessons/components/lesson-viewer";
+import { getDefaultCourse } from "@/features/roadmap/queries";
+import { getLessonBySlug } from "@/features/lessons/queries";
 import { requireSession } from "@/lib/get-session";
-import type { StepContent } from "@/types/lesson";
+import type { StepContent, ViewerStep } from "@/features/lessons/types";
 
 interface PageProps {
   params: Promise<{ unitSlug: string; lessonSlug: string }>;

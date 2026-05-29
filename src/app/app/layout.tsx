@@ -1,13 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { Sidebar } from "@/components/app/sidebar";
-import { Topbar } from "@/components/app/topbar";
-import { TopbarSlot } from "@/components/app/topbar-slot";
-import {
-  getDefaultCourse,
-  getSidebarUnits,
-  getUserStats,
-} from "@/lib/courses";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Topbar } from "@/components/layout/topbar";
+import { TopbarSlot } from "@/components/layout/topbar-slot";
+import { getDefaultCourse, getRoadmapUnits } from "@/features/roadmap/queries";
+import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 
 export default async function AppLayout({
@@ -26,7 +23,7 @@ export default async function AppLayout({
     getUserStats(session.user.id),
   ]);
   const units = course
-    ? await getSidebarUnits(course.id, session.user.id)
+    ? await getRoadmapUnits(course.id, session.user.id)
     : [];
 
   return (

@@ -380,3 +380,24 @@ model UserStreak {
 
   @@map("user_streak")
 }
+
+// =====================================================================
+//  RATE LIMITING
+// =====================================================================
+//  Reemplaza el rate-limit en memoria de /api/run y de las acciones de
+//  envío de ejercicios. Persistente y multi-instancia (serverless safe).
+//  Estrategia: ventana fija — un row por (usuario, endpoint, minuto-utc).
+//  Limpieza: las filas viejas se pueden purgar con un job; mientras tanto
+//  son baratas (índice por windowStart).
+
+model RateLimit {
+  id          String   @id @default(cuid())
+  userId      String
+  endpoint    String   // "run" | "submit-lesson-exercise" | "submit-practice"
+  windowStart DateTime // truncado al inicio de la ventana (minuto)
+  count       Int      @default(1)
+
+  @@unique([userId, endpoint, windowStart])
+  @@index([windowStart])
+  @@map("rate_limit")
+}

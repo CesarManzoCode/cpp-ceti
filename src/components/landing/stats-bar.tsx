@@ -1,31 +1,13 @@
 import { BookOpen, GraduationCap, Layers, Sparkles } from "lucide-react";
 
-import { db } from "@/lib/db";
+import { getLandingStats } from "@/components/landing/queries";
 
 /**
  * Trust bar con métricas reales del contenido publicado.
  * Server component: lee la base al renderizar.
  */
 export async function StatsBar() {
-  let lessons = 0;
-  let exercises = 0;
-  let units = 0;
-  let degraded = false;
-
-  try {
-    [lessons, exercises, units] = await Promise.all([
-      db.lesson.count({ where: { published: true } }),
-      db.exercise.count(),
-      db.unit.count({ where: { published: true } }),
-    ]);
-  } catch {
-    // Fallback alineado con el contenido real en prisma/content/ — no inflamos
-    // ni inventamos números. Si la DB falla, mostramos un punto de partida honesto.
-    lessons = 60;
-    exercises = 80;
-    units = 10;
-    degraded = true;
-  }
+  const { lessons, exercises, units, degraded } = await getLandingStats();
 
   const approxMinutes = lessons * 5 + exercises * 4;
   const approxHours = Math.max(1, Math.round(approxMinutes / 60));

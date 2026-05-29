@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { Progress } from "@/components/ui/progress";
-import { RoadmapLessons } from "@/components/roadmap/roadmap-lessons";
-import { getDefaultCourse } from "@/lib/courses";
-import { getUnitBySlug } from "@/lib/lessons";
+import { RoadmapLessons } from "@/features/roadmap/components/roadmap-lessons";
+import { getDefaultCourse } from "@/features/roadmap/queries";
+import { getUnitBySlug } from "@/features/lessons/queries";
 import { requireSession } from "@/lib/get-session";
 
 interface PageProps {

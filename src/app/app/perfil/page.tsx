@@ -11,12 +11,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import { db } from "@/lib/db";
-import { getUserStats } from "@/lib/courses";
+import {
+  getCompletedLessonsCount,
+  getExerciseAttemptsCount,
+} from "@/features/lessons/queries";
+import { getUserStats } from "@/lib/streak";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
-
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton } from "@/features/profile/components/sign-out-button";
 
 export const metadata = {
   title: "Mi perfil",
@@ -28,12 +30,8 @@ export default async function PerfilPage() {
 
   const [stats, lessonsCompleted, attempts] = await Promise.all([
     getUserStats(user.id),
-    db.userLessonProgress.count({
-      where: { userId: user.id, status: "completed" },
-    }),
-    db.userExerciseAttempt.count({
-      where: { userId: user.id },
-    }),
+    getCompletedLessonsCount(user.id),
+    getExerciseAttemptsCount(user.id),
   ]);
 
   const initials = user.name

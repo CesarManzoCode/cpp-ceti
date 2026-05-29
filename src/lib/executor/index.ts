@@ -4,6 +4,7 @@ import { WandboxExecutor } from "./wandbox";
 import type { CodeExecutor } from "./types";
 
 export type { CodeExecutor, ExecutionRequest, ExecutionResult, TestCaseInput, TestCaseResult } from "./types";
+export { buildFeedback } from "./feedback";
 
 let cached: CodeExecutor | null = null;
 

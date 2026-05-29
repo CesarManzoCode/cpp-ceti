@@ -1,66 +1,52 @@
 import { NextResponse } from "next/server";
 
 import { ExecutorConfigError, getCodeExecutor } from "@/lib/executor";
-import { getSession } from "@/lib/get-session";
+import { requireSession } from "@/lib/get-session";
+import { RateLimitError, enforceRateLimit } from "@/lib/rate-limit";
+import { parseOrThrow, runCodeSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
-// Rate limit muy simple en memoria — basta para MVP. En producción mover a Redis.
-const recentRequests = new Map<string, number[]>();
-const RATE_LIMIT = 30; // 30 ejecuciones
-const RATE_WINDOW_MS = 60_000; // por minuto
-
-function isRateLimited(userId: string): boolean {
-  const now = Date.now();
-  const history = recentRequests.get(userId) ?? [];
-  const recent = history.filter((t) => now - t < RATE_WINDOW_MS);
-  if (recent.length >= RATE_LIMIT) {
-    return true;
-  }
-  recent.push(now);
-  recentRequests.set(userId, recent);
-  return false;
-}
-
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session?.user) {
+  let session;
+  try {
+    session = await requireSession();
+  } catch {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  if (isRateLimited(session.user.id)) {
-    return NextResponse.json(
-      { error: "Demasiadas ejecuciones. Espera un minuto." },
-      { status: 429 },
-    );
-  }
-
-  let body: { sourceCode?: string; stdin?: string };
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const sourceCode = body.sourceCode;
-  if (typeof sourceCode !== "string" || sourceCode.trim().length === 0) {
-    return NextResponse.json(
-      { error: "sourceCode es obligatorio" },
-      { status: 400 },
-    );
+  let input;
+  try {
+    input = parseOrThrow(runCodeSchema, rawBody);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Datos inválidos";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
-  if (sourceCode.length > 50_000) {
-    return NextResponse.json(
-      { error: "El código excede 50,000 caracteres" },
-      { status: 400 },
-    );
+
+  try {
+    await enforceRateLimit(session.user.id, "run");
+  } catch (err) {
+    if (err instanceof RateLimitError) {
+      return NextResponse.json(
+        { error: err.message },
+        { status: 429, headers: { "Retry-After": String(err.retryAfterSec) } },
+      );
+    }
+    throw err;
   }
 
   try {
     const executor = getCodeExecutor();
     const result = await executor.execute({
-      sourceCode,
-      stdin: typeof body.stdin === "string" ? body.stdin : "",
+      sourceCode: input.sourceCode,
+      stdin: input.stdin,
       cpuTimeLimit: 5,
     });
     return NextResponse.json(result);
@@ -69,7 +55,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "El ejecutor de código no está configurado. Revisa las variables JUDGE0_*.",
+            "El ejecutor de código no está configurado. Revisa las variables del proveedor.",
           detail: err.message,
         },
         { status: 503 },

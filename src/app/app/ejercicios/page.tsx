@@ -4,7 +4,7 @@ import { CheckCircle2, Sparkles, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { getPracticeGroups } from "@/lib/practice";
+import { getPracticeGroups } from "@/features/practice/queries";
 import { requireSession } from "@/lib/get-session";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 import { cn, pluralize } from "@/lib/utils";

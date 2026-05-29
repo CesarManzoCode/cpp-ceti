@@ -6,14 +6,15 @@ import { Button } from "@/components/ui/button";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import { RoadmapUnits } from "@/components/roadmap/roadmap-units";
-import { db } from "@/lib/db";
+import { RoadmapUnits } from "@/features/roadmap/components/roadmap-units";
 import {
+  findNextLesson,
   getDefaultCourse,
-  getSidebarUnits,
-  getUserStats,
-} from "@/lib/courses";
+  getRoadmapUnits,
+} from "@/features/roadmap/queries";
+import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
+import type { NextLesson } from "@/features/roadmap/types";
 
 export const metadata = {
   title: "Mi panel",
@@ -29,7 +30,7 @@ export default async function AppHomePage() {
     findNextLesson(session.user.id),
   ]);
   const units = course
-    ? await getSidebarUnits(course.id, session.user.id)
+    ? await getRoadmapUnits(course.id, session.user.id)
     : [];
 
   const totalLessons = units.reduce((sum, u) => sum + u.lessonCount, 0);
@@ -139,11 +140,7 @@ export default async function AppHomePage() {
   );
 }
 
-function ContinueHero({
-  next,
-}: {
-  next: NonNullable<Awaited<ReturnType<typeof findNextLesson>>>;
-}) {
+function ContinueHero({ next }: { next: NextLesson }) {
   const resume = next.status === "in_progress";
   const href = `/app/u/${next.unitSlug}/${next.lessonSlug}`;
 
@@ -226,53 +223,4 @@ function greetingFor(date: Date): string {
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
-}
-
-async function findNextLesson(userId: string) {
-  const [inProgress, completedProgress] = await Promise.all([
-    db.userLessonProgress.findFirst({
-      where: { userId, status: "in_progress" },
-      orderBy: { startedAt: "desc" },
-      include: { lesson: { include: { unit: true } } },
-    }),
-    db.userLessonProgress.findMany({
-      where: { userId, status: "completed" },
-      select: { lessonId: true },
-    }),
-  ]);
-
-  if (inProgress) {
-    return {
-      lessonSlug: inProgress.lesson.slug,
-      lessonTitle: inProgress.lesson.title,
-      unitSlug: inProgress.lesson.unit.slug,
-      unitTitle: inProgress.lesson.unit.title,
-      unitOrder: inProgress.lesson.unit.order,
-      estimatedMinutes: inProgress.lesson.estimatedMinutes,
-      status: "in_progress" as const,
-    };
-  }
-
-  const completedIds = completedProgress.map((p) => p.lessonId);
-  const next = await db.lesson.findFirst({
-    where: {
-      published: true,
-      unit: { published: true },
-      id: { notIn: completedIds.length ? completedIds : undefined },
-    },
-    orderBy: [{ unit: { order: "asc" } }, { order: "asc" }],
-    include: { unit: true },
-  });
-
-  if (!next) return null;
-
-  return {
-    lessonSlug: next.slug,
-    lessonTitle: next.title,
-    unitSlug: next.unit.slug,
-    unitTitle: next.unit.title,
-    unitOrder: next.unit.order,
-    estimatedMinutes: next.estimatedMinutes,
-    status: "not_started" as const,
-  };
 }

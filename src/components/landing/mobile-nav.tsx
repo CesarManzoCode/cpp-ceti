@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/shared/logo";
 
 interface MobileNavProps {
   links: { href: string; label: string }[];

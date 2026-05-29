@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { PracticeViewer } from "@/components/practice/practice-viewer";
-import { getPracticeBySlug } from "@/lib/practice";
+import { PracticeViewer } from "@/features/practice/components/practice-viewer";
+import { getPracticeBySlug } from "@/features/practice/queries";
 import { requireSession } from "@/lib/get-session";
 
 interface PageProps {

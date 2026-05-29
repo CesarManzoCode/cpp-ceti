@@ -3,7 +3,7 @@ import { ArrowRight, Home } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/shared/logo";
 
 export const metadata = {
   title: "Página no encontrada",

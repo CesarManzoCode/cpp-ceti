@@ -3,7 +3,7 @@ import { ArrowRight, Lock } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
-import { db } from "@/lib/db";
+import { getLandingUnits } from "@/components/landing/queries";
 
 /**
  * Tópicos editoriales por unidad — derivados del contenido real
@@ -24,41 +24,8 @@ const UNIT_TOPICS: Record<string, string[]> = {
   matrices: ["doble for", "filas y columnas", "buscar"],
 };
 
-interface UnitItem {
-  slug: string;
-  order: number;
-  title: string;
-  published: boolean;
-}
-
-const FALLBACK_UNITS: UnitItem[] = [
-  { slug: "primer-programa", order: 1, title: "Tu primer programa en C++", published: true },
-  { slug: "leer-datos", order: 2, title: "Leer datos del usuario con cin", published: true },
-  { slug: "variables-y-tipos", order: 3, title: "Variables y tipos de datos", published: true },
-  { slug: "control-de-flujo", order: 4, title: "Control de flujo", published: true },
-  { slug: "loops", order: 5, title: "Ciclos: repetir sin escribir cien veces", published: true },
-  { slug: "funciones", order: 6, title: "Funciones: empaquetar tu código", published: true },
-  { slug: "printf-scanf", order: 7, title: "printf y scanf: la forma C de imprimir y leer", published: true },
-  { slug: "arreglos", order: 8, title: "Arreglos: muchos valores en una sola variable", published: true },
-  { slug: "archivos", order: 9, title: "Archivos: guardar y leer datos del disco", published: true },
-  { slug: "matrices", order: 10, title: "Matrices: arreglos en dos dimensiones", published: true },
-];
-
 export async function Curriculum() {
-  let units: UnitItem[] = [];
-
-  try {
-    units = await db.unit.findMany({
-      where: { course: { slug: "cpp-desde-cero" } },
-      orderBy: { order: "asc" },
-      select: { slug: true, order: true, title: true, published: true },
-    });
-  } catch {
-    units = FALLBACK_UNITS;
-  }
-
-  if (units.length === 0) units = FALLBACK_UNITS;
-
+  const units = await getLandingUnits();
   const publishedCount = units.filter((u) => u.published).length;
 
   return (
