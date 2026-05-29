@@ -3,59 +3,64 @@ import { ArrowRight, Lock } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
+import { db } from "@/lib/db";
 
-const units = [
-  {
-    n: 1,
-    title: "Tu primer programa en C++",
-    topics: ["Hola Mundo", "Estructura", "Compilar", "Comentarios"],
-    available: true,
-  },
-  {
-    n: 2,
-    title: "Variables y tipos de datos",
-    topics: ["int, float, double", "char y string", "bool", "Operadores"],
-    available: true,
-  },
-  {
-    n: 3,
-    title: "Entrada y salida",
-    topics: ["cin / cout", "getline", "Formateo"],
-    available: false,
-  },
-  {
-    n: 4,
-    title: "Estructuras de control",
-    topics: ["if / else", "switch", "while", "for"],
-    available: false,
-  },
-  {
-    n: 5,
-    title: "Funciones",
-    topics: ["Definición", "Parámetros", "Retorno", "Recursión"],
-    available: false,
-  },
-  {
-    n: 6,
-    title: "Arreglos y vectores",
-    topics: ["Arrays", "vector<T>", "Iteración", "std::string"],
-    available: false,
-  },
-  {
-    n: 7,
-    title: "Punteros y referencias",
-    topics: ["* y &", "Paso por referencia", "Aritmética"],
-    available: false,
-  },
-  {
-    n: 8,
-    title: "POO en C++",
-    topics: ["Clases", "Objetos", "Herencia", "Polimorfismo"],
-    available: false,
-  },
+/**
+ * Tópicos editoriales por unidad — derivados del contenido real
+ * (prisma/content/unidad-*.ts). Cuando aparezca una unidad nueva en la DB
+ * cuyo slug no esté aquí, la card simplemente no muestra chips: cero drift,
+ * cero mentiras.
+ */
+const UNIT_TOPICS: Record<string, string[]> = {
+  "primer-programa": ["cout", "endl", "comentarios", "salto de línea"],
+  "leer-datos": ["cin", "getline", "varios valores", "validar entrada"],
+  "variables-y-tipos": ["int / double", "string", "bool", "const"],
+  "control-de-flujo": ["if / else", "else if", "switch", "&&  ||"],
+  loops: ["while", "for", "do-while", "break / continue"],
+  funciones: ["void", "return", "parámetros", "prototipos"],
+  "printf-scanf": ["printf", "scanf", "%i  %f"],
+  arreglos: ["arrays", "recorrer con for", "sumar y promediar", "buscar mayor"],
+  archivos: ["ofstream", "ifstream", "getline", "append"],
+  matrices: ["doble for", "filas y columnas", "buscar"],
+};
+
+interface UnitItem {
+  slug: string;
+  order: number;
+  title: string;
+  published: boolean;
+}
+
+const FALLBACK_UNITS: UnitItem[] = [
+  { slug: "primer-programa", order: 1, title: "Tu primer programa en C++", published: true },
+  { slug: "leer-datos", order: 2, title: "Leer datos del usuario con cin", published: true },
+  { slug: "variables-y-tipos", order: 3, title: "Variables y tipos de datos", published: true },
+  { slug: "control-de-flujo", order: 4, title: "Control de flujo", published: true },
+  { slug: "loops", order: 5, title: "Ciclos: repetir sin escribir cien veces", published: true },
+  { slug: "funciones", order: 6, title: "Funciones: empaquetar tu código", published: true },
+  { slug: "printf-scanf", order: 7, title: "printf y scanf: la forma C de imprimir y leer", published: true },
+  { slug: "arreglos", order: 8, title: "Arreglos: muchos valores en una sola variable", published: true },
+  { slug: "archivos", order: 9, title: "Archivos: guardar y leer datos del disco", published: true },
+  { slug: "matrices", order: 10, title: "Matrices: arreglos en dos dimensiones", published: true },
 ];
 
-export function Curriculum() {
+export async function Curriculum() {
+  let units: UnitItem[] = [];
+
+  try {
+    units = await db.unit.findMany({
+      where: { course: { slug: "cpp-desde-cero" } },
+      orderBy: { order: "asc" },
+      select: { slug: true, order: true, title: true, published: true },
+    });
+  } catch {
+    units = FALLBACK_UNITS;
+  }
+
+  if (units.length === 0) units = FALLBACK_UNITS;
+
+  const publishedCount = units.filter((u) => u.published).length;
+
   return (
     <section
       id="temario"
@@ -65,13 +70,14 @@ export function Curriculum() {
         <SectionHeading
           align="left"
           eyebrow="temario"
-          title="Ocho unidades, del primer cout hasta POO."
-          description="Construidas sobre el plan oficial del CETI. Nuevas lecciones llegan cada semana."
+          title={`${publishedCount} unidades, del primer cout a matrices.`}
+          description="Construidas sobre el plan oficial del CETI. Cada unidad combina teoría justa, ejemplos ejecutables, quizzes y retos donde tú escribes el código."
           className="max-w-2xl"
         />
 
         <ol className="mt-14 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
           {units.map((u) => {
+            const topics = UNIT_TOPICS[u.slug] ?? [];
             const rowClass =
               "group flex items-start gap-5 border-t border-border/70 p-5 first:border-t-0 sm:p-6";
             const inner = (
@@ -79,13 +85,13 @@ export function Curriculum() {
                 <div
                   className={
                     "grid size-10 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums " +
-                    (u.available
+                    (u.published
                       ? "bg-primary text-primary-foreground"
                       : "bg-surface-2 text-muted-foreground/50")
                   }
                 >
-                  {u.available ? (
-                    String(u.n).padStart(2, "0")
+                  {u.published ? (
+                    String(u.order).padStart(2, "0")
                   ) : (
                     <Lock className="size-4" aria-hidden />
                   )}
@@ -95,12 +101,12 @@ export function Curriculum() {
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <div>
                       <p className="eyebrow text-muted-foreground">
-                        Unidad {u.n}
+                        Unidad {u.order}
                       </p>
                       <h3
                         className={
                           "mt-1 text-[17px] font-semibold tracking-tight sm:text-lg " +
-                          (u.available
+                          (u.published
                             ? "text-foreground"
                             : "text-muted-foreground")
                         }
@@ -108,7 +114,7 @@ export function Curriculum() {
                         {u.title}
                       </h3>
                     </div>
-                    {u.available ? (
+                    {u.published ? (
                       <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-60">
                         Empezar
                         <ArrowRight className="size-3" aria-hidden />
@@ -119,28 +125,30 @@ export function Curriculum() {
                       </span>
                     )}
                   </div>
-                  <ul className="flex flex-wrap gap-1.5">
-                    {u.topics.map((t) => (
-                      <li
-                        key={t}
-                        className={
-                          "inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs " +
-                          (u.available
-                            ? "text-muted-foreground"
-                            : "text-muted-foreground/60")
-                        }
-                      >
-                        {t}
-                      </li>
-                    ))}
-                  </ul>
+                  {topics.length > 0 ? (
+                    <ul className="flex flex-wrap gap-1.5">
+                      {topics.map((t) => (
+                        <li
+                          key={t}
+                          className={
+                            "inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs " +
+                            (u.published
+                              ? "text-muted-foreground"
+                              : "text-muted-foreground/60")
+                          }
+                        >
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
               </>
             );
 
             return (
-              <li key={u.n}>
-                {u.available ? (
+              <li key={u.slug}>
+                {u.published ? (
                   <Link
                     href="/registro"
                     className={

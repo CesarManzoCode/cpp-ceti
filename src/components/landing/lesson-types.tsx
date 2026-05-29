@@ -15,8 +15,8 @@ export function LessonTypes() {
         <SectionHeading
           align="center"
           eyebrow="lo que vas a hacer"
-          title="Cuatro formas de aprender, todas en el navegador."
-          description="Cada lección combina teoría justa, ejemplos ejecutables, preguntas y retos donde TÚ escribes el código."
+          title="Práctica desde el primer paso, todo en el navegador."
+          description="Cada lección combina teoría justa, ejemplos ejecutables, quizzes, ejercicios de completar el código y retos donde TÚ lo escribes desde cero."
           className="mx-auto items-center"
         />
 

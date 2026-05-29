@@ -19,9 +19,11 @@ export async function StatsBar() {
       db.unit.count({ where: { published: true } }),
     ]);
   } catch {
-    lessons = 12;
-    exercises = 40;
-    units = 2;
+    // Fallback alineado con el contenido real en prisma/content/ — no inflamos
+    // ni inventamos números. Si la DB falla, mostramos un punto de partida honesto.
+    lessons = 60;
+    exercises = 80;
+    units = 10;
     degraded = true;
   }
 
