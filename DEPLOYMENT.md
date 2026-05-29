@@ -200,7 +200,20 @@ Cuando termine, abre la URL y prueba:
 1. Edita o agrega un archivo en `prisma/content/`.
 2. Push a `main`.
 3. Vercel hace deploy automático.
-4. **Importante:** Re-ejecuta `npm run db:seed` localmente (o via GitHub Action) para que la DB tenga el contenido nuevo. Los upserts no afectan el progreso de los usuarios.
+4. El seed corre **solo** como parte del build de Vercel: el script `build`
+   ejecuta `prisma generate && next build && tsx prisma/seed.ts`, así que la DB
+   queda sincronizada con el contenido en cada deploy. Los upserts no afectan el
+   progreso de los usuarios.
+
+   - Requiere que `DATABASE_URL` esté configurada en las env vars del proyecto
+     de Vercel (ya lo está, porque la app la usa en runtime).
+   - Si en **Project Settings → Build & Output Settings** tienes un *Build
+     Command* personalizado, asegúrate de que termine llamando al seed (p. ej.
+     `npm run build`, o `prisma migrate deploy && next build && tsx prisma/seed.ts`
+     si además aplicas migraciones). Si está en el valor por defecto, Vercel usa
+     el script `build` y no hay nada que cambiar.
+   - En builds locales sin `.env.local` el seed se omite solo (no hay
+     `DATABASE_URL` en el entorno), así que `npm run build` no falla.
 
 ### Migraciones del schema
 
