@@ -43,8 +43,13 @@ export interface FillBlankStepContent {
    */
   template: string;
   blanks: {
-    /** Respuesta correcta exacta */
+    /** Respuesta correcta exacta (canónica) */
     answer: string;
+    /**
+     * Regex opcional para blanks de texto libre. Si está presente, la respuesta
+     * se valida contra este patrón (anclado) en vez de comparar exacto.
+     */
+    pattern?: string;
     /** Pista opcional */
     hint?: string;
   }[];

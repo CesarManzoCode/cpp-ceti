@@ -51,7 +51,13 @@ int main() {
 }`,
           blanks: [
             { answer: "cout", hint: "Es el objeto que envía texto a la consola." },
-            { answer: '"Hola"', hint: "Cualquier texto, entre comillas dobles." },
+            {
+              answer: '"Hola"',
+              // Acepta cualquier texto entre comillas dobles (sin comillas dobles
+              // internas), tal como dice la pista.
+              pattern: '"[^"]*"',
+              hint: "Cualquier texto, entre comillas dobles.",
+            },
           ],
           explanation:
             "`cout << \"...\"` envía un texto a la consola. El texto siempre va entre comillas dobles.",

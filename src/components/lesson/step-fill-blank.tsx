@@ -25,8 +25,8 @@ export function StepFillBlank({
   const [showHint, setShowHint] = React.useState<number | null>(null);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
 
-  const allCorrect = content.blanks.every(
-    (b, i) => values[i]?.trim() === b.answer.trim(),
+  const allCorrect = content.blanks.every((b, i) =>
+    isBlankCorrect(b, values[i] ?? ""),
   );
 
   function verify() {
@@ -372,6 +372,28 @@ function parseTemplate(template: string): Segment[] {
   return segments;
 }
 
+/**
+ * Valida la respuesta de un blank. Si el blank define un `pattern`, se valida
+ * contra ese regex (anclado a toda la cadena); si no, se compara exacto con
+ * `answer`. Esto permite blanks de texto libre (ej: "cualquier texto entre
+ * comillas dobles") sin forzar una única respuesta literal.
+ */
+function isBlankCorrect(
+  blank: FillBlankStepContent["blanks"][number],
+  value: string,
+): boolean {
+  const trimmed = value.trim();
+  if (blank.pattern) {
+    try {
+      return new RegExp(`^(?:${blank.pattern})$`).test(trimmed);
+    } catch {
+      // Patrón inválido: caemos a comparación exacta para no romper el paso.
+      return trimmed === blank.answer.trim();
+    }
+  }
+  return trimmed === blank.answer.trim();
+}
+
 function renderTemplateLines(
   template: string,
   values: string[],
@@ -397,8 +419,9 @@ function renderTemplateLines(
     // input
     const blankIdx = seg.idx;
     const value = values[blankIdx] ?? "";
-    const expected = content.blanks[blankIdx]?.answer ?? "";
-    const isWrong = submitted && value.trim() !== expected.trim();
+    const blank = content.blanks[blankIdx];
+    const expected = blank?.answer ?? "";
+    const isWrong = submitted && !(blank && isBlankCorrect(blank, value));
     const isRight = submitted && !isWrong;
     lines[lines.length - 1].push(
       <input

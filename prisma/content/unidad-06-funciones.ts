@@ -172,7 +172,13 @@ int main() {
 }`,
           blanks: [
             { answer: "int", hint: "Tipo del parámetro: un número entero." },
-            { answer: "19", hint: "Cualquier número entero como ejemplo." },
+            {
+              answer: "19",
+              // Acepta cualquier número entero (con signo opcional), tal como
+              // dice la pista — no solo el ejemplo "19".
+              pattern: "-?\\d+",
+              hint: "Cualquier número entero como ejemplo.",
+            },
           ],
           explanation:
             "Al declarar la función indicas TIPO y NOMBRE del parámetro. Al llamarla pasas un valor de ese tipo.",

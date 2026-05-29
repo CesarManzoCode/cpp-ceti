@@ -62,7 +62,18 @@ export interface QuizStep {
 export interface FillBlankStep {
   type: "fill_blank";
   template: string;
-  blanks: { answer: string; hint?: string }[];
+  blanks: {
+    /** Respuesta canónica (se muestra como ejemplo y dimensiona el campo). */
+    answer: string;
+    /**
+     * Regex opcional para blanks de texto libre. Si está presente, la respuesta
+     * se valida contra este patrón (anclado) en lugar de comparar exacto con
+     * `answer`. Ej: `"\\".*\\""` para aceptar cualquier texto entre comillas.
+     */
+    pattern?: string;
+    /** Pista opcional */
+    hint?: string;
+  }[];
   explanation?: string;
 }
 
