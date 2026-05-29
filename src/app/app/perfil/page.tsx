@@ -1,6 +1,4 @@
-import Link from "next/link";
 import {
-  ChevronLeft,
   Send,
   Sparkles,
   Trophy,
@@ -11,7 +9,6 @@ import {
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import { db } from "@/lib/db";
@@ -57,13 +54,6 @@ export default async function PerfilPage() {
       data-page-enter
       className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
-        <Link href="/app">
-          <ChevronLeft />
-          Inicio
-        </Link>
-      </Button>
-
       <header className="rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
           <Avatar className="size-20 ring-1 ring-border ring-inset">
@@ -128,7 +118,7 @@ export default async function PerfilPage() {
           </Badge>
         </div>
 
-        <ul className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
           <li className="flex items-center justify-between gap-4 p-5">
             <div>
               <p className="text-sm font-medium">Cerrar sesión</p>
@@ -138,11 +128,33 @@ export default async function PerfilPage() {
             </div>
             <SignOutButton />
           </li>
+          <li className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Cambiar contraseña
+              </p>
+              <p className="text-xs text-muted-foreground/80">
+                Actualiza tu contraseña desde aquí.
+              </p>
+            </div>
+            <Badge variant="secondary" size="sm">
+              Pronto
+            </Badge>
+          </li>
+          <li className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Eliminar cuenta
+              </p>
+              <p className="text-xs text-muted-foreground/80">
+                Borra tu cuenta y todos tus datos de forma permanente.
+              </p>
+            </div>
+            <Badge variant="secondary" size="sm">
+              Pronto
+            </Badge>
+          </li>
         </ul>
-
-        <p className="px-1 text-xs text-muted-foreground">
-          Cambiar contraseña y eliminar cuenta llegarán pronto.
-        </p>
       </section>
 
       <p className="text-center text-xs text-muted-foreground">

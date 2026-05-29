@@ -17,7 +17,7 @@ export function RunOutput({ state, result, error }: RunOutputProps) {
       title="Salida"
       running={state === "running"}
       headerClassName="py-1.5"
-      bodyClassName="space-y-2 p-3 text-[12px]"
+      bodyClassName="max-h-72 space-y-2 overflow-auto p-3 text-[12px]"
     >
       {state === "running" ? (
         <p className="text-terminal-muted">Ejecutando…</p>
@@ -37,6 +37,11 @@ export function RunOutput({ state, result, error }: RunOutputProps) {
             <pre className="whitespace-pre-wrap text-terminal-danger">
               {result.stderr}
             </pre>
+          ) : null}
+          {!result.stdout && !result.compileOutput && !result.stderr ? (
+            <p className="italic text-terminal-faint">
+              (programa ejecutado sin salida)
+            </p>
           ) : null}
           <p className="text-[10px] uppercase tracking-[0.14em] text-terminal-faint">
             {result.message} · {result.durationMs}ms

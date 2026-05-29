@@ -1,7 +1,7 @@
-import type { CSSProperties } from "react";
 import { BookX, Code2, GraduationCap } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Reveal } from "@/components/ui/reveal";
 
 const problems = [
   {
@@ -27,7 +27,7 @@ export function Why() {
       id="por-que"
       className="border-b border-border/60 py-20 lg:py-28"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+      <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
           eyebrow="el problema"
@@ -40,16 +40,11 @@ export function Why() {
           className="mx-auto max-w-2xl items-center"
         />
 
-        <ul
-          data-stagger
-          style={{ "--stagger": "70ms" } as CSSProperties}
-          className="mt-14 grid gap-5 sm:grid-cols-3"
-        >
-          {problems.map((p, idx) => (
+        <ul className="mt-14 grid gap-5 sm:grid-cols-3">
+          {problems.map((p) => (
             <li
               key={p.title}
-              style={{ "--i": idx } as CSSProperties}
-              className="animate-fade-up flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
+              className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
             >
               <span className="inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-surface-2 text-muted-foreground">
                 <p.icon className="size-5" aria-hidden />
@@ -61,7 +56,7 @@ export function Why() {
             </li>
           ))}
         </ul>
-      </div>
+      </Reveal>
     </section>
   );
 }

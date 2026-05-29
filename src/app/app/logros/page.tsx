@@ -1,11 +1,17 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
-  ChevronLeft,
+  ArrowRight,
+  BookOpen,
+  Code2,
+  Flame,
+  GraduationCap,
   Lock,
   Sparkles,
+  Star,
   Trophy,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
@@ -19,9 +25,7 @@ import { getUserStats } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
 import { cn, pluralize } from "@/lib/utils";
 
-export const metadata = {
-  title: "Logros",
-};
+type BadgeTone = "primary" | "warning" | "success";
 
 interface BadgeDef {
   id: string;
@@ -29,7 +33,19 @@ interface BadgeDef {
   description: string;
   unlockedWhen: (s: AchievementStats) => boolean;
   hint: string;
+  icon: LucideIcon;
+  tone: BadgeTone;
 }
+
+const TONE_TILE: Record<BadgeTone, string> = {
+  primary: "bg-primary-soft text-primary",
+  warning: "bg-warning-soft text-warning",
+  success: "bg-success-soft text-success",
+};
+
+export const metadata = {
+  title: "Logros",
+};
 
 interface AchievementStats {
   totalXp: number;
@@ -46,6 +62,8 @@ const BADGES: BadgeDef[] = [
     description: "Completaste tu primera lección.",
     unlockedWhen: (s) => s.lessonsCompleted >= 1,
     hint: "Termina cualquier lección.",
+    icon: BookOpen,
+    tone: "primary",
   },
   {
     id: "explorer",
@@ -53,6 +71,8 @@ const BADGES: BadgeDef[] = [
     description: "Completaste 5 lecciones.",
     unlockedWhen: (s) => s.lessonsCompleted >= 5,
     hint: "Sigue avanzando — vas a la mitad de la primera unidad.",
+    icon: BookOpen,
+    tone: "primary",
   },
   {
     id: "unit-complete",
@@ -60,6 +80,8 @@ const BADGES: BadgeDef[] = [
     description: "Terminaste una unidad completa.",
     unlockedWhen: (s) => s.lessonsCompleted >= 6,
     hint: "Completa todas las lecciones de una unidad.",
+    icon: GraduationCap,
+    tone: "success",
   },
   {
     id: "challenger",
@@ -67,6 +89,8 @@ const BADGES: BadgeDef[] = [
     description: "Aprobaste tu primer reto de código.",
     unlockedWhen: (s) => s.exercisesPassed >= 1,
     hint: "Envía la solución a un reto y pasa todos sus tests.",
+    icon: Sparkles,
+    tone: "success",
   },
   {
     id: "challenger-5",
@@ -74,6 +98,8 @@ const BADGES: BadgeDef[] = [
     description: "Aprobaste 5 retos de código.",
     unlockedWhen: (s) => s.exercisesPassed >= 5,
     hint: "Completa 5 retos para desbloquearlo.",
+    icon: Code2,
+    tone: "success",
   },
   {
     id: "streak-3",
@@ -81,6 +107,8 @@ const BADGES: BadgeDef[] = [
     description: "Racha de 3 días.",
     unlockedWhen: (s) => s.longestStreak >= 3,
     hint: "Vuelve 3 días seguidos.",
+    icon: Flame,
+    tone: "warning",
   },
   {
     id: "streak-7",
@@ -88,6 +116,8 @@ const BADGES: BadgeDef[] = [
     description: "Racha de 7 días.",
     unlockedWhen: (s) => s.longestStreak >= 7,
     hint: "Vuelve cada día durante 7 días.",
+    icon: Flame,
+    tone: "warning",
   },
   {
     id: "xp-100",
@@ -95,6 +125,8 @@ const BADGES: BadgeDef[] = [
     description: "Acumulaste 100 XP.",
     unlockedWhen: (s) => s.totalXp >= 100,
     hint: "Cada lección te da entre 20 y 30 XP.",
+    icon: Zap,
+    tone: "primary",
   },
   {
     id: "xp-500",
@@ -102,6 +134,8 @@ const BADGES: BadgeDef[] = [
     description: "Acumulaste 500 XP.",
     unlockedWhen: (s) => s.totalXp >= 500,
     hint: "Sigue completando lecciones y retos.",
+    icon: Star,
+    tone: "warning",
   },
 ];
 
@@ -138,13 +172,6 @@ export default async function LogrosPage() {
       data-page-enter
       className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
-        <Link href="/app">
-          <ChevronLeft />
-          Inicio
-        </Link>
-      </Button>
-
       <header className="space-y-3">
         <ConsoleEyebrow tone="primary">Logros</ConsoleEyebrow>
         <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-[40px]">
@@ -152,20 +179,45 @@ export default async function LogrosPage() {
         </h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {unlocked.length === 0
-            ? "Aún no has desbloqueado logros. Empieza una lección para conseguir tu primer trofeo."
+            ? "Cada lección y cada reto que completes desbloquea un trofeo. Tu colección empieza con un solo paso."
             : `Llevas ${unlocked.length} de ${BADGES.length} ${pluralize(
                 BADGES.length,
                 "logro",
                 "logros",
               )}.`}
         </p>
-        <div className="flex items-center gap-3 pt-2">
-          <Progress value={percent} tone="warning" className="max-w-xs" />
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {percent}%
-          </span>
-        </div>
+        {unlocked.length > 0 ? (
+          <div className="flex items-center gap-3 pt-2">
+            <Progress value={percent} tone="warning" className="max-w-xs" />
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {percent}%
+            </span>
+          </div>
+        ) : null}
       </header>
+
+      {unlocked.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
+          <span className="grid size-12 place-items-center rounded-full bg-warning-soft text-warning">
+            <Trophy className="size-6" aria-hidden />
+          </span>
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold">
+              Tu primer trofeo está a una lección de distancia
+            </h2>
+            <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+              Completa cualquier lección para desbloquear “Primer paso” y echar
+              a andar tu racha.
+            </p>
+          </div>
+          <Button asChild size="sm" className="mt-1">
+            <Link href="/app">
+              Empezar una lección
+              <ArrowRight />
+            </Link>
+          </Button>
+        </div>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-3" aria-label="Resumen">
         <StatTile
@@ -261,6 +313,7 @@ function BadgeCard({
   badge: BadgeDef;
   unlocked: boolean;
 }) {
+  const Icon = badge.icon;
   return (
     <article
       className={cn(
@@ -273,13 +326,11 @@ function BadgeCard({
       <div
         className={cn(
           "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)]",
-          unlocked
-            ? "bg-warning-soft text-warning"
-            : "bg-surface-2 text-muted-foreground",
+          unlocked ? TONE_TILE[badge.tone] : "bg-surface-2 text-muted-foreground",
         )}
       >
         {unlocked ? (
-          <Trophy className="size-5" aria-hidden />
+          <Icon className="size-5" aria-hidden />
         ) : (
           <Lock className="size-4" aria-hidden />
         )}

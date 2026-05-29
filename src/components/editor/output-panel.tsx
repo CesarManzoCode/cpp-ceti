@@ -102,9 +102,7 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   if (result.status === "compile_error") {
     return (
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-terminal-warning">
-          Error de compilación
-        </p>
+        <p className="eyebrow mb-2 text-terminal-warning">Error de compilación</p>
         <pre className="whitespace-pre-wrap text-xs text-terminal-warning">
           {result.compileOutput ||
             result.stderr ||
@@ -127,9 +125,7 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
       )}
       {result.stderr ? (
         <div>
-          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-terminal-danger">
-            stderr
-          </p>
+          <p className="eyebrow mb-1 text-terminal-danger">stderr</p>
           <pre className="whitespace-pre-wrap text-xs text-terminal-danger">
             {result.stderr}
           </pre>

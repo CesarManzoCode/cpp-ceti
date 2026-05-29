@@ -87,7 +87,11 @@ export default async function AppHomePage() {
           icon={<Zap aria-hidden />}
           label="XP totales"
           value={<AnimatedNumber value={stats.totalXp} />}
-          sub="Cada lección vale 20–30 XP"
+          sub={
+            stats.totalXp === 0
+              ? "Completa tu primera lección"
+              : "Cada lección vale 20–30 XP"
+          }
           tone="primary"
         />
         <StatTile
@@ -102,9 +106,11 @@ export default async function AppHomePage() {
             </>
           }
           sub={
-            stats.longestStreak > stats.currentStreak
-              ? `Tu récord: ${stats.longestStreak} días`
-              : "¡Sigue así!"
+            stats.currentStreak === 0
+              ? "Empieza tu racha hoy"
+              : stats.longestStreak > stats.currentStreak
+                ? `Tu récord: ${stats.longestStreak} días`
+                : "¡Sigue así!"
           }
           tone="warning"
         />
@@ -144,7 +150,7 @@ function ContinueHero({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/15 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] sm:p-8"
+      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/15 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-8"
     >
       <div
         aria-hidden
@@ -152,7 +158,7 @@ function ContinueHero({
       />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          <p className="eyebrow text-primary">
             {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
           </p>
           <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.02em] sm:text-[26px]">
@@ -173,6 +179,7 @@ function ContinueHero({
           size="lg"
           className="self-start shadow-[var(--shadow-sm)] lg:self-auto"
           tabIndex={-1}
+          aria-hidden
         >
           {resume ? "Continuar" : "Empezar"}
           <ArrowRight />
@@ -191,7 +198,7 @@ function AllDoneHero() {
       />
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
-          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-success">
+          <p className="eyebrow inline-flex items-center gap-1.5 text-success">
             <Sparkles className="size-3.5" aria-hidden />
             Curso al día
           </p>

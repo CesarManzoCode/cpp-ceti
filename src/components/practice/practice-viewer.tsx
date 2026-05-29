@@ -22,6 +22,8 @@ import { RunOutput } from "@/components/exercise/run-output";
 import { SubmissionResults } from "@/components/exercise/submission-results";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitPracticeExercise } from "@/lib/practice-actions";
+import { DIFFICULTY_META } from "@/lib/difficulty";
+import { cn } from "@/lib/utils";
 import type { TestCaseResult } from "@/lib/executor";
 
 interface VisibleTest {
@@ -48,18 +50,13 @@ interface PracticeViewerProps {
   };
 }
 
-const difficultyMeta = {
-  easy: { label: "Fácil", variant: "success" as const },
-  medium: { label: "Intermedio", variant: "info" as const },
-  hard: { label: "Difícil", variant: "warning" as const },
-};
-
 export function PracticeViewer({ exercise }: PracticeViewerProps) {
   // Si ya tiene un intento guardado, lo cargamos. Si no, el starter.
   const [code, setCode] = React.useState(
     exercise.bestAttemptCode ?? exercise.starterCode,
   );
   const [submitting, setSubmitting] = React.useState(false);
+  const [confirmReset, setConfirmReset] = React.useState(false);
   const [submission, setSubmission] = React.useState<{
     passed: boolean;
     results: TestCaseResult[];
@@ -69,6 +66,12 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
   } | null>(null);
 
   const playground = useRunCode();
+  const running = playground.state === "running";
+
+  function handleRun() {
+    setSubmission(null);
+    playground.run(code);
+  }
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -93,6 +96,13 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
   }
 
   function handleReset() {
+    // Dos pasos: el primer clic arma la confirmación para no borrar trabajo por error.
+    if (!confirmReset) {
+      setConfirmReset(true);
+      window.setTimeout(() => setConfirmReset(false), 3000);
+      return;
+    }
+    setConfirmReset(false);
     setCode(exercise.starterCode);
     setSubmission(null);
   }
@@ -110,7 +120,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
           <div className="space-y-1">
             {exercise.unitTitle ? (
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <p className="eyebrow text-muted-foreground">
                 {exercise.unitTitle}
               </p>
             ) : null}
@@ -121,10 +131,10 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge
-              variant={difficultyMeta[exercise.difficulty].variant}
+              variant={DIFFICULTY_META[exercise.difficulty].variant}
               size="md"
             >
-              {difficultyMeta[exercise.difficulty].label}
+              {DIFFICULTY_META[exercise.difficulty].label}
             </Badge>
             <Badge variant="outline" size="md">
               <Zap className="text-warning" />+{exercise.xpReward} XP
@@ -139,52 +149,52 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         </div>
       </header>
 
-      <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        {/* Columna izquierda — enunciado */}
-        <section className="space-y-5">
+      <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
+        {/* Enunciado — siempre primero */}
+        <section className="space-y-4">
           <Markdown>{exercise.prompt}</Markdown>
-          <ExampleTests tests={exercise.visibleTests} />
-          <HintsPanel hints={exercise.hints} />
         </section>
 
-        {/* Columna derecha — editor + tests */}
-        <section className="space-y-3">
+        {/* Editor + acciones — bajo el enunciado en móvil; col. derecha en desktop */}
+        <section className="space-y-3 lg:col-start-2 lg:row-span-2">
           <CppEditor
             value={code}
             onChange={setCode}
-            onRun={() => playground.run(code)}
+            onRun={handleRun}
             minHeight={420}
           />
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={() => playground.run(code)}
-              disabled={playground.state === "running" || submitting}
-              loading={playground.state === "running"}
-              size="sm"
+              onClick={handleRun}
+              disabled={running || submitting}
+              loading={running}
+              className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Play className="fill-current" />
               Probar
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={submitting || playground.state === "running"}
+              disabled={submitting || running}
               loading={submitting}
-              size="sm"
+              className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Send />
               Enviar
             </Button>
             <Button
               variant="ghost"
-              size="sm"
               onClick={handleReset}
               disabled={submitting}
-              className="ml-auto text-muted-foreground"
+              className={cn(
+                "ml-auto h-11 sm:h-9",
+                confirmReset ? "text-destructive" : "text-muted-foreground",
+              )}
             >
               <RotateCcw />
-              Reiniciar
+              {confirmReset ? "¿Reiniciar?" : "Reiniciar"}
             </Button>
           </div>
 
@@ -200,6 +210,12 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
               error={playground.error}
             />
           )}
+        </section>
+
+        {/* Referencia — ejemplos y pistas: bajo el editor en móvil, izquierda en desktop */}
+        <section className="space-y-5 lg:col-start-1">
+          <ExampleTests tests={exercise.visibleTests} />
+          <HintsPanel hints={exercise.hints} />
         </section>
       </article>
     </div>

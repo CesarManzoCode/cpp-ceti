@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Reveal } from "@/components/ui/reveal";
 
 const faqs = [
   {
@@ -39,7 +40,7 @@ export function Faq() {
       id="preguntas"
       className="border-b border-border/60 py-20 lg:py-28"
     >
-      <div className="mx-auto max-w-3xl px-5 sm:px-6">
+      <Reveal className="mx-auto max-w-3xl px-5 sm:px-6">
         <SectionHeading
           align="center"
           eyebrow="dudas"
@@ -75,7 +76,7 @@ export function Faq() {
         <p className="mt-8 text-center text-sm text-muted-foreground">
           ¿Otra pregunta?{" "}
           <a
-            href="https://github.com"
+            href="https://github.com/CesarManzoCode/cpp-ceti/issues"
             target="_blank"
             rel="noreferrer noopener"
             className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
@@ -84,7 +85,7 @@ export function Faq() {
           </a>
           .
         </p>
-      </div>
+      </Reveal>
     </section>
   );
 }

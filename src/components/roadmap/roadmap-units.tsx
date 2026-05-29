@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import Link from "next/link";
 import { ArrowRight, Check, Lock } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
@@ -17,8 +17,6 @@ export interface RoadmapUnitsProps {
   courseSlug: string;
   units: RoadmapUnitItem[];
 }
-
-import Link from "next/link";
 
 /**
  * Roadmap del curso: cada unidad es una fila clara con número,
@@ -40,11 +38,7 @@ export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
   const headIndex = findHeadIndex(units);
 
   return (
-    <ol
-      data-stagger
-      style={{ "--stagger": "50ms" } as CSSProperties}
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
-    >
+    <ol className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
       {units.map((unit, idx) => {
         const completed =
           unit.lessonCount > 0 && unit.completedCount === unit.lessonCount;
@@ -64,8 +58,7 @@ export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
         return (
           <li
             key={unit.slug}
-            style={{ "--i": idx } as CSSProperties}
-            className="animate-fade-up border-t border-border/70 first:border-t-0"
+            className="border-t border-border/70 first:border-t-0"
           >
             <UnitRow
               href={unit.published ? `/app/u/${unit.slug}` : undefined}
@@ -129,25 +122,28 @@ function UnitRow({
         !published && "opacity-70",
       )}
     >
-      <UnitBadge order={order} status={status} published={published} />
+      <UnitBadge
+        order={order}
+        status={status}
+        published={published}
+        isCurrent={isCurrent}
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="eyebrow text-muted-foreground">
             Unidad {String(order).padStart(2, "0")}
           </p>
-          {isCurrent ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-              · En curso
-            </span>
+          {status === "in_progress" ? (
+            <span className="eyebrow text-primary">· En curso</span>
+          ) : isCurrent ? (
+            <span className="eyebrow text-primary">· Siguiente</span>
           ) : null}
           {status === "completed" ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">
-              · Completada
-            </span>
+            <span className="eyebrow text-success">· Completada</span>
           ) : null}
           {!published ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+            <span className="eyebrow text-muted-foreground/80">
               · Próximamente
             </span>
           ) : null}
@@ -155,7 +151,7 @@ function UnitRow({
         <h3
           className={cn(
             "mt-1 text-[17px] font-semibold tracking-tight sm:text-lg",
-            isCurrent && "text-primary",
+            (isCurrent || status === "in_progress") && "text-primary",
           )}
         >
           {title}
@@ -177,7 +173,7 @@ function UnitRow({
 
       {href ? (
         <ArrowRight
-          className="hidden size-4 shrink-0 text-muted-foreground/60 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
+          className="size-4 shrink-0 text-muted-foreground/50 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:text-muted-foreground/60"
           aria-hidden
         />
       ) : null}
@@ -201,10 +197,12 @@ function UnitBadge({
   order,
   status,
   published,
+  isCurrent,
 }: {
   order: number;
   status: UnitStatus;
   published: boolean;
+  isCurrent: boolean;
 }) {
   if (!published) {
     return (
@@ -226,7 +224,9 @@ function UnitBadge({
         "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums",
         status === "in_progress"
           ? "bg-primary text-primary-foreground"
-          : "bg-surface-2 text-foreground/70",
+          : isCurrent
+            ? "bg-primary-soft text-primary-soft-foreground ring-1 ring-inset ring-primary/30"
+            : "bg-surface-2 text-foreground/70",
       )}
     >
       {String(order).padStart(2, "0")}

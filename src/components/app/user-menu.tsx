@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { Dumbbell, LogOut, Settings, Trophy, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -90,6 +90,20 @@ export function UserMenu({ user }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="md:hidden"
+          onClick={() => router.push("/app/ejercicios")}
+        >
+          <Dumbbell className="size-4" />
+          Ejercicios
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="md:hidden"
+          onClick={() => router.push("/app/logros")}
+        >
+          <Trophy className="size-4" />
+          Logros
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/app/perfil")}>
           <Settings className="size-4" />
           Mi perfil

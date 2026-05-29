@@ -54,10 +54,8 @@ export function StatTile({
         </span>
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {label}
-        </p>
-        <p className="mt-1 text-[26px] font-bold leading-none tracking-tight tabular-nums text-foreground">
+        <p className="eyebrow text-muted-foreground">{label}</p>
+        <p className="mt-1.5 text-[23px] font-bold leading-none tracking-tight tabular-nums text-foreground">
           {value}
         </p>
         {sub ? (

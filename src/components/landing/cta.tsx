@@ -34,7 +34,7 @@ export function FinalCta() {
                   <ArrowRight />
                 </Link>
               </Button>
-              <Button asChild size="xl" variant="ghost">
+              <Button asChild size="xl" variant="outline">
                 <Link href="/login">Ya tengo cuenta</Link>
               </Button>
             </div>

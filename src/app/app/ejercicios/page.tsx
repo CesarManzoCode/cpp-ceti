@@ -1,22 +1,16 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { ChevronLeft, CheckCircle2, Sparkles, Zap } from "lucide-react";
+import { CheckCircle2, Sparkles, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { getPracticeGroups } from "@/lib/practice";
 import { requireSession } from "@/lib/get-session";
+import { DIFFICULTY_META } from "@/lib/difficulty";
 import { cn, pluralize } from "@/lib/utils";
 
 export const metadata = {
   title: "Ejercicios",
-};
-
-const difficultyMeta = {
-  easy: { label: "Fácil", variant: "success" as const },
-  medium: { label: "Intermedio", variant: "info" as const },
-  hard: { label: "Difícil", variant: "warning" as const },
 };
 
 export default async function EjerciciosPage() {
@@ -34,13 +28,6 @@ export default async function EjerciciosPage() {
       data-page-enter
       className="mx-auto max-w-5xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
-        <Link href="/app">
-          <ChevronLeft />
-          Inicio
-        </Link>
-      </Button>
-
       <header className="space-y-3">
         <ConsoleEyebrow tone="primary">Ejercicios</ConsoleEyebrow>
         <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-[40px]">
@@ -51,7 +38,7 @@ export default async function EjerciciosPage() {
           lección o para retarte si te atoraste.
         </p>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+        <div className="hidden flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground sm:flex">
           <span className="font-medium text-foreground/70">
             Dificultad, relativa a la unidad:
           </span>
@@ -147,10 +134,10 @@ export default async function EjerciciosPage() {
                       </p>
                       <div className="mt-auto flex items-center gap-2.5 pt-2 text-[11px] text-muted-foreground">
                         <Badge
-                          variant={difficultyMeta[ex.difficulty].variant}
+                          variant={DIFFICULTY_META[ex.difficulty].variant}
                           size="sm"
                         >
-                          {difficultyMeta[ex.difficulty].label}
+                          {DIFFICULTY_META[ex.difficulty].label}
                         </Badge>
                         <span className="inline-flex items-center gap-1 font-medium">
                           <Zap className="size-3 text-warning" aria-hidden />

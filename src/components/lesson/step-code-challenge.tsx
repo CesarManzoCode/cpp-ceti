@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowRight, Play, Send, Zap } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/markdown";
 import { CppEditor } from "@/components/editor/cpp-editor";
@@ -13,6 +14,7 @@ import { RunOutput } from "@/components/exercise/run-output";
 import { SubmissionResults } from "@/components/exercise/submission-results";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitExercise } from "@/lib/lessons-actions";
+import { DIFFICULTY_META } from "@/lib/difficulty";
 import type { TestCaseResult } from "@/lib/executor";
 
 interface VisibleTest {
@@ -36,12 +38,6 @@ interface StepCodeChallengeProps {
   isPending: boolean;
 }
 
-const difficultyLabel = {
-  easy: "Fácil",
-  medium: "Intermedio",
-  hard: "Difícil",
-} as const;
-
 export function StepCodeChallenge({
   exercise,
   onNext,
@@ -49,13 +45,22 @@ export function StepCodeChallenge({
 }: StepCodeChallengeProps) {
   const [code, setCode] = React.useState(exercise.starterCode);
   const [submitting, setSubmitting] = React.useState(false);
+  const [attempt, setAttempt] = React.useState(0);
   const [submission, setSubmission] = React.useState<{
     passed: boolean;
     results: TestCaseResult[];
     feedback: string;
   } | null>(null);
+  const resultRef = React.useRef<HTMLDivElement>(null);
 
   const playground = useRunCode();
+
+  // Lleva la mirada al veredicto en cada intento (también si vuelve a fallar).
+  React.useEffect(() => {
+    if (attempt > 0) {
+      resultRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [attempt]);
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -65,6 +70,7 @@ export function StepCodeChallenge({
         sourceCode: code,
       });
       setSubmission(res);
+      setAttempt((a) => a + 1);
       if (res.passed) {
         toast.success(`¡Ejercicio resuelto! +${exercise.xpReward} XP`);
       }
@@ -75,28 +81,27 @@ export function StepCodeChallenge({
     }
   }
 
+  const running = playground.state === "running";
+
   return (
-    <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-      {/* Columna izquierda — enunciado */}
-      <section className="space-y-5">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.14em]">
-          <span className="text-primary">
-            Reto · {difficultyLabel[exercise.difficulty]}
-          </span>
-          <span className="inline-flex items-center gap-1 text-warning-foreground">
-            <Zap className="size-3 text-warning" aria-hidden />
+    <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start">
+      {/* Enunciado — siempre primero (móvil y desktop col. izquierda) */}
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Badge variant={DIFFICULTY_META[exercise.difficulty].variant} size="sm">
+            {DIFFICULTY_META[exercise.difficulty].label}
+          </Badge>
+          <span className="eyebrow inline-flex items-center gap-1 text-warning">
+            <Zap className="size-3" aria-hidden />
             +{exercise.xpReward} XP
           </span>
         </div>
 
         <Markdown>{exercise.prompt}</Markdown>
-
-        <ExampleTests tests={exercise.visibleTests} />
-        <HintsPanel hints={exercise.hints} />
       </section>
 
-      {/* Columna derecha — editor + tests */}
-      <section className="space-y-3">
+      {/* Editor + acciones — en móvil va justo bajo el enunciado; en desktop, col. derecha */}
+      <section className="space-y-3 lg:col-start-2 lg:row-span-2">
         <CppEditor
           value={code}
           onChange={setCode}
@@ -104,33 +109,37 @@ export function StepCodeChallenge({
           minHeight={380}
         />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => playground.run(code)}
-            disabled={playground.state === "running" || submitting}
-            loading={playground.state === "running"}
-            size="sm"
-          >
-            <Play className="fill-current" />
-            Probar
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting || playground.state === "running"}
-            loading={submitting}
-            size="sm"
-          >
-            <Send />
-            Enviar solución
-          </Button>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSubmission(null);
+                playground.run(code);
+              }}
+              disabled={running || submitting}
+              loading={running}
+              className="h-11 flex-1 sm:h-9 sm:flex-none"
+            >
+              <Play className="fill-current" />
+              Probar
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || running}
+              loading={submitting}
+              className="h-11 flex-1 sm:h-9 sm:flex-none"
+            >
+              <Send />
+              Enviar solución
+            </Button>
+          </div>
           {submission?.passed ? (
             <Button
               onClick={onNext}
               loading={isPending}
               variant="success"
-              size="sm"
-              className="ml-auto"
+              className="h-11 w-full sm:h-9 sm:w-auto"
             >
               Siguiente
               <ArrowRight />
@@ -138,18 +147,27 @@ export function StepCodeChallenge({
           ) : null}
         </div>
 
-        {submission ? (
-          <SubmissionResults
-            submission={submission}
-            onTryAgain={() => setSubmission(null)}
-          />
-        ) : (
-          <RunOutput
-            state={playground.state}
-            result={playground.result}
-            error={playground.error}
-          />
-        )}
+        <div ref={resultRef}>
+          {submission ? (
+            <SubmissionResults
+              key={attempt}
+              submission={submission}
+              onTryAgain={() => setSubmission(null)}
+            />
+          ) : (
+            <RunOutput
+              state={playground.state}
+              result={playground.result}
+              error={playground.error}
+            />
+          )}
+        </div>
+      </section>
+
+      {/* Referencia — ejemplos y pistas: bajo el editor en móvil, col. izquierda en desktop */}
+      <section className="space-y-5 lg:col-start-1">
+        <ExampleTests tests={exercise.visibleTests} />
+        <HintsPanel hints={exercise.hints} />
       </section>
     </article>
   );

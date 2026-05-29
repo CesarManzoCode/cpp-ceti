@@ -1,6 +1,5 @@
-import type { CSSProperties } from "react";
-
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Reveal } from "@/components/ui/reveal";
 
 const steps = [
   {
@@ -24,31 +23,26 @@ export function HowItWorks() {
   return (
     <section
       id="como"
-      className="border-b border-border/60 bg-surface-2/40 py-20 lg:py-28"
+      className="border-b border-border/60 bg-surface-2/60 py-16 lg:py-24"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+      <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
-          align="center"
+          align="left"
           eyebrow="cómo funciona"
           title="90% práctica · 10% teoría"
           description="Porque programar se aprende programando — no escuchando."
-          className="mx-auto items-center"
+          className="max-w-2xl"
         />
 
-        <ol
-          data-stagger
-          style={{ "--stagger": "80ms" } as CSSProperties}
-          className="relative mt-14 grid gap-6 md:grid-cols-3"
-        >
+        <ol className="relative mt-14 grid gap-6 md:grid-cols-3">
           <span
             aria-hidden
             className="pointer-events-none absolute inset-x-12 top-[34px] hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
           />
-          {steps.map((s, idx) => (
+          {steps.map((s) => (
             <li
               key={s.n}
-              style={{ "--i": idx } as CSSProperties}
-              className="animate-fade-up relative flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
+              className="relative flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
             >
               <span className="font-mono text-sm font-semibold tabular-nums text-primary">
                 {s.n}
@@ -60,7 +54,7 @@ export function HowItWorks() {
             </li>
           ))}
         </ol>
-      </div>
+      </Reveal>
     </section>
   );
 }

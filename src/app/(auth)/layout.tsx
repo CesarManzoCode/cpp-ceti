@@ -21,9 +21,7 @@ export default function AuthLayout({
         </Link>
 
         <div className="relative z-10 max-w-md space-y-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            Manifiesto
-          </p>
+          <p className="eyebrow text-primary">Manifiesto</p>
           <blockquote className="text-balance text-3xl font-bold leading-[1.15] tracking-[-0.025em] text-foreground sm:text-[34px]">
             Programar se aprende programando.
             <br />
@@ -44,11 +42,15 @@ export default function AuthLayout({
 
       {/* Panel derecho: form */}
       <main className="flex flex-col px-5 py-8 sm:px-10">
-        <header className="mb-10 flex items-center justify-between lg:hidden">
-          <Link href="/">
+        <div className="mb-9 lg:hidden">
+          <Link href="/" className="inline-block">
             <Logo />
           </Link>
-        </header>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Lecciones cortas, ejercicios reales y un compilador C++ en tu
+            navegador.
+          </p>
+        </div>
         <div className="m-auto w-full max-w-sm">{children}</div>
       </main>
     </div>

@@ -5,6 +5,7 @@ import { StreakFlame } from "@/components/ui/streak-flame";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/app/user-menu";
 import { MobileSidebar } from "@/components/app/mobile-sidebar";
+import { TopbarLocation } from "@/components/app/topbar-location";
 import type { SidebarUnit } from "@/components/app/sidebar-nav";
 
 export interface TopbarProps {
@@ -23,7 +24,9 @@ export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/70 bg-background/85 px-4 backdrop-blur-xl sm:px-6">
       <MobileSidebar units={units} />
 
-      <div className="flex-1" />
+      <TopbarLocation units={units} />
+
+      <div className="min-w-2 flex-1" />
 
       <div
         className="flex items-center divide-x divide-border/70 text-sm"

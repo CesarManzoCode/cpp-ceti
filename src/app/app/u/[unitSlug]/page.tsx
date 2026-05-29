@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,15 +36,8 @@ export default async function UnitPage({ params }: PageProps) {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto max-w-4xl space-y-8 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <Button asChild size="sm" variant="ghost" className="-ml-2.5 self-start">
-        <Link href="/app">
-          <ChevronLeft />
-          Inicio
-        </Link>
-      </Button>
-
       <header className="space-y-3">
         <div className="flex items-center gap-3">
           <ConsoleEyebrow tone="primary">
@@ -76,6 +69,33 @@ export default async function UnitPage({ params }: PageProps) {
           </span>
         </div>
       </header>
+
+      {unitComplete ? (
+        <div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-success/25 bg-success-soft/30 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-success text-success-foreground">
+              <Check className="size-5" strokeWidth={3} aria-hidden />
+            </span>
+            <div>
+              <p className="eyebrow text-success">Unidad completada</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Dominaste esta unidad. Sigue con lo que viene en tu camino.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="self-start sm:self-auto"
+          >
+            <Link href="/app">
+              Volver al inicio
+              <ArrowRight />
+            </Link>
+          </Button>
+        </div>
+      ) : null}
 
       <RoadmapLessons
         unitSlug={unit.slug}

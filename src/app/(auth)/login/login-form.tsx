@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
@@ -16,7 +17,23 @@ export function LoginForm() {
   const redirectTo = searchParams.get("redirectTo") ?? "/app";
 
   const [isPending, startTransition] = React.useTransition();
+  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [errorNonce, setErrorNonce] = React.useState(0);
+
+  const busy = isPending || isGoogleLoading;
+
+  React.useEffect(() => {
+    // Enfoca el correo en desktop; en móvil no forzamos abrir el teclado.
+    if (window.matchMedia("(min-width: 640px)").matches) {
+      document.getElementById("email")?.focus();
+    }
+  }, []);
+
+  function fail(message: string) {
+    setError(message);
+    setErrorNonce((n) => n + 1);
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,7 +44,7 @@ export function LoginForm() {
     const password = String(formData.get("password") ?? "");
 
     if (!email || !password) {
-      setError("Email y contraseña son obligatorios.");
+      fail("Email y contraseña son obligatorios.");
       return;
     }
 
@@ -38,9 +55,7 @@ export function LoginForm() {
       });
 
       if (signInError) {
-        setError(
-          signInError.message ?? "Credenciales inválidas. Intenta de nuevo.",
-        );
+        fail(signInError.message ?? "Credenciales inválidas. Intenta de nuevo.");
         return;
       }
 
@@ -52,13 +67,16 @@ export function LoginForm() {
 
   async function handleGoogle() {
     setError(null);
+    setIsGoogleLoading(true);
     const { error: oauthError } = await authClient.signIn.social({
       provider: "google",
       callbackURL: redirectTo,
     });
     if (oauthError) {
-      setError(oauthError.message ?? "No pudimos iniciar sesión con Google.");
+      fail(oauthError.message ?? "No pudimos iniciar sesión con Google.");
+      setIsGoogleLoading(false);
     }
+    // En éxito el navegador redirige a Google; dejamos el spinner activo.
   }
 
   return (
@@ -69,9 +87,10 @@ export function LoginForm() {
         className="w-full"
         size="lg"
         onClick={handleGoogle}
-        disabled={isPending}
+        loading={isGoogleLoading}
+        disabled={busy}
       >
-        <GoogleIcon />
+        {isGoogleLoading ? null : <GoogleIcon />}
         Continuar con Google
       </Button>
 
@@ -86,29 +105,29 @@ export function LoginForm() {
           autoComplete="email"
           placeholder="tu@correo.com"
           required
-          disabled={isPending}
+          disabled={busy}
           leadingIcon={<Mail />}
         />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="current-password"
           placeholder="••••••••"
           required
           minLength={8}
-          disabled={isPending}
+          disabled={busy}
           leadingIcon={<Lock />}
         />
       </div>
 
       {error ? (
         <p
-          className="flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
+          key={errorNonce}
+          className="animate-fade-in flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -121,6 +140,7 @@ export function LoginForm() {
         className="w-full"
         size="lg"
         loading={isPending}
+        disabled={isGoogleLoading}
       >
         {isPending ? "Iniciando sesión…" : "Iniciar sesión"}
       </Button>

@@ -22,11 +22,40 @@ export default function GlobalError({
           padding: "2rem",
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-          background: "#0c0f14",
-          color: "#e5e7eb",
+          background: "#0d1014",
+          color: "#e9eaee",
         }}
       >
         <div style={{ maxWidth: 420, textAlign: "center" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 9,
+              marginBottom: 22,
+              fontWeight: 600,
+              fontSize: 15,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            <span
+              style={{
+                display: "grid",
+                placeItems: "center",
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                background: "#7185f0",
+                color: "#0e1430",
+                fontWeight: 700,
+                fontFamily: "ui-monospace, SFMono-Regular, monospace",
+                fontSize: 11,
+              }}
+            >
+              C++
+            </span>
+            <span>CETI</span>
+          </div>
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             Algo salió mal
           </h1>
@@ -48,8 +77,8 @@ export default function GlobalError({
           <button
             onClick={reset}
             style={{
-              background: "#3b82f6",
-              color: "white",
+              background: "#7185f0",
+              color: "#0e1430",
               border: 0,
               padding: "10px 18px",
               borderRadius: 10,

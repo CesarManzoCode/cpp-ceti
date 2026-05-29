@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Home } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 import { Logo } from "@/components/logo";
 
 export const metadata = {
@@ -17,10 +18,10 @@ export default function NotFound() {
         </Link>
 
         <div className="space-y-3">
-          <p className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <ConsoleEyebrow tone="muted" className="font-mono">
             Error 404
-          </p>
-          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+          </ConsoleEyebrow>
+          <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-4xl">
             Esa página no existe.
           </h1>
           <p className="text-balance text-[15px] leading-relaxed text-muted-foreground">

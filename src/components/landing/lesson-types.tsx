@@ -1,7 +1,7 @@
-import type { CSSProperties } from "react";
 import { BookOpen, Check, Code2, Play, Puzzle, Terminal } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Reveal } from "@/components/ui/reveal";
 
 /**
  * Showcase de los 4 tipos de lección que tiene la app.
@@ -11,7 +11,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 export function LessonTypes() {
   return (
     <section className="border-b border-border/60 py-20 lg:py-28">
-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+      <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
           eyebrow="lo que vas a hacer"
@@ -20,25 +20,21 @@ export function LessonTypes() {
           className="mx-auto items-center"
         />
 
-        <ul
-          data-stagger
-          style={{ "--stagger": "60ms" } as CSSProperties}
-          className="mt-14 grid gap-5 sm:grid-cols-2"
-        >
-          <li style={{ "--i": 0 } as CSSProperties} className="animate-fade-up">
+        <ul className="mt-14 grid gap-5 sm:grid-cols-2">
+          <li>
             <TheoryCard />
           </li>
-          <li style={{ "--i": 1 } as CSSProperties} className="animate-fade-up">
+          <li>
             <ExampleCard />
           </li>
-          <li style={{ "--i": 2 } as CSSProperties} className="animate-fade-up">
+          <li>
             <QuizCard />
           </li>
-          <li style={{ "--i": 3 } as CSSProperties} className="animate-fade-up">
+          <li>
             <ChallengeCard />
           </li>
         </ul>
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -59,7 +55,7 @@ function TypeShell({
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
       <div className="space-y-2.5 p-6 sm:p-7">
-        <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="eyebrow inline-flex items-center gap-2 text-muted-foreground">
           <Icon className="size-3.5" aria-hidden />
           {label}
         </div>

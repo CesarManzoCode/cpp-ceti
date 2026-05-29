@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileNav } from "@/components/landing/mobile-nav";
 
 const navLinks = [
   { href: "#por-que", label: "Por qué" },
@@ -44,9 +45,10 @@ export function LandingNavbar() {
           >
             <Link href="/login">Iniciar sesión</Link>
           </Button>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link href="/registro">Empezar gratis</Link>
           </Button>
+          <MobileNav links={navLinks} />
         </div>
       </div>
     </header>

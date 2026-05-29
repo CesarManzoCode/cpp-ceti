@@ -2,10 +2,15 @@ import Link from "next/link";
 
 import { Logo } from "@/components/logo";
 
-const links = [
+const links: { href: string; label: string; external?: boolean }[] = [
   { href: "/login", label: "Iniciar sesión" },
   { href: "/registro", label: "Crear cuenta" },
   { href: "#temario", label: "Temario" },
+  {
+    href: "https://github.com/CesarManzoCode/cpp-ceti",
+    label: "GitHub",
+    external: true,
+  },
 ];
 
 export function LandingFooter() {
@@ -20,15 +25,27 @@ export function LandingFooter() {
         </div>
 
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="transition-colors hover:text-foreground"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {links.map((l) =>
+            l.external ? (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="transition-colors hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ) : (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="transition-colors hover:text-foreground"
+              >
+                {l.label}
+              </Link>
+            ),
+          )}
         </nav>
 
         <p className="text-center text-xs text-muted-foreground sm:text-right">

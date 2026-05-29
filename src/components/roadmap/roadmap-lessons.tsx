@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { ArrowRight, Check, Clock, Lock, Play, Zap } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -46,11 +45,7 @@ export function RoadmapLessons({
   const headIndex = findHeadIndex(lessons);
 
   return (
-    <ol
-      data-stagger
-      style={{ "--stagger": "40ms" } as CSSProperties}
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
-    >
+    <ol className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
       {lessons.map((lesson, idx) => {
         const isCurrent = idx === headIndex;
         const isLocked = headIndex !== -1 && idx > headIndex;
@@ -58,8 +53,7 @@ export function RoadmapLessons({
         return (
           <li
             key={lesson.id}
-            style={{ "--i": idx } as CSSProperties}
-            className="animate-fade-up border-t border-border/70 first:border-t-0"
+            className="border-t border-border/70 first:border-t-0"
           >
             <LessonRow
               href={`/app/u/${unitSlug}/${lesson.slug}`}
@@ -138,19 +132,13 @@ function LessonRow({
             {title}
           </h3>
           {isCurrent && status === "not_started" ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-              · Siguiente
-            </span>
+            <span className="eyebrow text-primary">· Siguiente</span>
           ) : null}
           {status === "completed" ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">
-              · Completada
-            </span>
+            <span className="eyebrow text-success">· Completada</span>
           ) : null}
           {status === "in_progress" ? (
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-              · En curso
-            </span>
+            <span className="eyebrow text-primary">· En curso</span>
           ) : null}
         </div>
         {description ? (
@@ -177,7 +165,7 @@ function LessonRow({
 
       {!isLocked ? (
         <ArrowRight
-          className="hidden size-4 shrink-0 text-muted-foreground/60 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:block"
+          className="size-4 shrink-0 text-muted-foreground/50 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:text-muted-foreground/60"
           aria-hidden
         />
       ) : null}

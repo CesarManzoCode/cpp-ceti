@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function LessonLoading() {
   return (
     <>
-      <div className="sticky top-16 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
           <Skeleton className="h-8 w-32 rounded-[var(--radius-sm)]" />
           <div className="relative flex-1">
@@ -27,7 +27,7 @@ export default function LessonLoading() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-6 sm:px-6 lg:py-8">
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 px-5 py-7 sm:px-6 lg:py-9">
         <header className="space-y-3">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-9 w-2/3" />

@@ -13,9 +13,7 @@ export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        Ejemplos
-      </h4>
+      <h4 className="eyebrow text-muted-foreground">Ejemplos</h4>
       <div className="space-y-2">
         {tests.map((t, idx) => (
           <div

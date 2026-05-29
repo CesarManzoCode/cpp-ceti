@@ -54,7 +54,7 @@ export function TerminalSurface({
             headerClassName,
           )}
         >
-          <span className="flex min-w-0 items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-terminal-muted">
+          <span className="eyebrow flex min-w-0 items-center gap-2 text-terminal-muted">
             {dots ? (
               <span className="mr-1 flex gap-1.5" aria-hidden>
                 <span className="size-2.5 rounded-full bg-terminal-danger/90" />

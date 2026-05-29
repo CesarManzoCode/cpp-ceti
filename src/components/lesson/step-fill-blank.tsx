@@ -45,9 +45,7 @@ export function StepFillBlank({
   return (
     <article className="space-y-7">
       <header className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-          Completa el código
-        </p>
+        <p className="eyebrow text-primary">Completa el código</p>
         <h3 className="text-balance text-xl font-semibold tracking-tight">
           Llena los espacios para que el programa compile.
         </h3>
@@ -439,7 +437,8 @@ function renderTemplateLines(
         autoCapitalize="off"
         autoComplete="off"
         className={cn(
-          "mx-[2px] inline-block min-w-16 rounded border px-1.5 py-[1px] align-baseline font-mono text-[13px] outline-none transition-colors",
+          // 16px en móvil evita el auto-zoom de iOS Safari al enfocar el input.
+          "mx-[2px] inline-block min-w-16 rounded border px-1.5 py-[1px] align-baseline font-mono text-[16px] outline-none transition-colors sm:text-[13px]",
           isWrong
             ? "border-destructive/70 bg-destructive/15 text-destructive"
             : isRight

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,8 +34,14 @@ export function LessonCompleted({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">
         <div className="px-7 pb-2 pt-8 text-center">
-          <div className="animate-scale-in mx-auto grid size-14 place-items-center rounded-full bg-success-soft text-success">
-            <CheckCircle2 className="size-7" aria-hidden />
+          <div className="relative mx-auto w-fit">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-success/25 blur-xl motion-safe:animate-pulse-soft"
+            />
+            <div className="animate-scale-in relative grid size-14 place-items-center rounded-full bg-success-soft text-success ring-4 ring-success/15">
+              <CheckCircle2 className="size-7" aria-hidden />
+            </div>
           </div>
 
           <DialogTitle className="mt-5 text-balance text-[22px] font-bold tracking-[-0.02em]">
@@ -42,9 +49,9 @@ export function LessonCompleted({
           </DialogTitle>
           <DialogDescription className="mt-2 text-[15px]">
             Sumaste{" "}
-            <span className="inline-flex items-center gap-1 font-semibold text-warning-foreground">
-              <Sparkles className="size-3.5 text-warning" aria-hidden />
-              +{xpEarned} XP
+            <span className="inline-flex items-center gap-1 font-semibold text-warning">
+              <Sparkles className="size-3.5" aria-hidden />+
+              <AnimatedNumber value={xpEarned} /> XP
             </span>{" "}
             a tu progreso.
           </DialogDescription>
@@ -52,9 +59,7 @@ export function LessonCompleted({
 
         {nextLessonLink ? (
           <div className="mx-6 mt-4 rounded-[var(--radius-md)] border border-border bg-surface-2/60 p-3.5 text-left">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Siguiente
-            </p>
+            <p className="eyebrow text-muted-foreground">Siguiente</p>
             <p className="mt-1 truncate text-sm font-medium text-foreground">
               {nextLessonLink.title}
             </p>

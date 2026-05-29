@@ -47,9 +47,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
   return (
     <article className="space-y-7">
       <header className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-          Pregunta
-        </p>
+        <p className="eyebrow text-primary">Pregunta</p>
         <h3 className="text-balance text-[22px] font-semibold leading-snug tracking-tight">
           {content.question}
         </h3>

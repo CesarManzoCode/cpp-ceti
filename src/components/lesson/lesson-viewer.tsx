@@ -77,7 +77,8 @@ export function LessonViewer({
   const router = useRouter();
   const total = lesson.steps.length;
   const currentStep = lesson.steps[currentIndex];
-  const progressPercent = ((currentIndex + 1) / total) * 100;
+  // "Trabajo completado": llena al avanzar de paso, llega a 100% solo al cerrar.
+  const progressPercent = (currentIndex / total) * 100;
   const isFirstStep = currentIndex === 0;
   // Los retos de código necesitan más ancho para el editor que la lectura.
   const isWideStep = currentStep?.type === "code_challenge";
@@ -185,7 +186,7 @@ export function LessonViewer({
         {/* Title — solo en el primer paso para no repetir; resto muestra contexto */}
         {isFirstStep ? (
           <header className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <p className="eyebrow text-primary">
               Unidad {unit.order.toString().padStart(2, "0")}
             </p>
             <h1 className="text-balance text-[26px] font-bold leading-tight tracking-[-0.025em] sm:text-[34px]">
@@ -199,13 +200,13 @@ export function LessonViewer({
           </header>
         ) : (
           <header>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <p className="eyebrow text-muted-foreground">
               Paso {currentIndex + 1} de {total} · {lesson.title}
             </p>
           </header>
         )}
 
-        <div className="min-h-[400px]">
+        <div className="min-h-[280px]">
           <StepRenderer
             step={currentStep}
             onNext={handleNext}

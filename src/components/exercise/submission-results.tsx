@@ -85,14 +85,19 @@ export function SubmissionResults({
                 <IOBlock label="Tu salida" value={r.actualStdout || "(vacío)"} />
                 {r.stderr ? (
                   <div className="sm:col-span-2">
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-destructive/80">
-                      stderr
-                    </p>
-                    <pre className="overflow-x-auto rounded-md bg-destructive-soft px-2.5 py-1.5 font-mono text-[11.5px] text-destructive">
+                    <p className="eyebrow mb-1 text-destructive/80">stderr</p>
+                    <pre className="max-h-40 overflow-auto rounded-md bg-destructive-soft px-2.5 py-1.5 font-mono text-[11.5px] text-destructive">
                       {r.stderr}
                     </pre>
                   </div>
                 ) : null}
+              </div>
+            ) : !r.passed && !r.visible ? (
+              <div className="border-t border-border/70 bg-surface-2/40 px-3 py-2.5">
+                <p className="text-[12px] leading-relaxed text-muted-foreground">
+                  Caso oculto — no mostramos la entrada. Revisa tu lógica con los
+                  ejemplos de arriba.
+                </p>
               </div>
             ) : null}
           </li>

@@ -71,6 +71,10 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-dvh bg-background text-foreground antialiased">
+        {/* Sin JS, los bloques con reveal-on-scroll deben verse igualmente. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1 !important}`}</style>
+        </noscript>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

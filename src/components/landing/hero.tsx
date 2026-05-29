@@ -58,7 +58,7 @@ export function Hero() {
             className="animate-fade-up max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl"
           >
             Lecciones cortas, ejercicios reales y un compilador C++ en tu
-            navegador. La plataforma que tus maestros nunca te dieron.
+            navegador. Practica de verdad, con feedback al instante.
           </p>
 
           <div
@@ -71,7 +71,7 @@ export function Hero() {
                 <ArrowRight />
               </Link>
             </Button>
-            <Button asChild size="xl" variant="ghost">
+            <Button asChild size="xl" variant="outline">
               <Link href="#como">
                 <PlayCircle />
                 Ver cómo funciona
@@ -92,8 +92,12 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Columna mockup */}
-        <div className="relative animate-scale-in" aria-hidden>
+        {/* Columna mockup — proof real del producto, expuesto a lectores de pantalla */}
+        <div
+          className="relative animate-scale-in"
+          role="img"
+          aria-label='Editor de código C++ con un programa que imprime "Hola, CETI!", compilado en 312 milisegundos.'
+        >
           <CodeMockup />
         </div>
       </div>

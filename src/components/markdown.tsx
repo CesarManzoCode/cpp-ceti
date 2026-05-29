@@ -39,17 +39,17 @@ export function Markdown({ children, className }: MarkdownProps) {
             <h3 className="mb-2 mt-6 text-xl font-semibold first:mt-0">{children}</h3>
           ),
           p: ({ children }) => (
-            <p className="my-4 text-base leading-relaxed text-foreground/90 first:mt-0 last:mb-0">
+            <p className="my-4 max-w-[68ch] text-base leading-relaxed text-foreground/90 first:mt-0 last:mb-0">
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-4 ml-6 list-disc space-y-1.5 marker:text-muted-foreground">
+            <ul className="my-4 ml-6 max-w-[68ch] list-disc space-y-1.5 marker:text-muted-foreground">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-4 ml-6 list-decimal space-y-1.5 marker:text-muted-foreground">
+            <ol className="my-4 ml-6 max-w-[68ch] list-decimal space-y-1.5 marker:text-muted-foreground">
               {children}
             </ol>
           ),
@@ -67,7 +67,7 @@ export function Markdown({ children, className }: MarkdownProps) {
             </a>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-4 border-primary/60 bg-primary/5 px-4 py-2 italic text-foreground/80">
+            <blockquote className="my-4 max-w-[68ch] border-l-4 border-primary/60 bg-primary/5 px-4 py-2 italic text-foreground/80">
               {children}
             </blockquote>
           ),

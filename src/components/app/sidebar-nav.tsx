@@ -38,7 +38,7 @@ export function SidebarNav({
 
   return (
     <nav className="flex flex-col gap-7">
-      <NavGroup>
+      <NavGroup activeKey={pathname}>
         {topLinks.map((link) => {
           const active = link.exact
             ? pathname === link.href
@@ -58,10 +58,8 @@ export function SidebarNav({
       </NavGroup>
 
       <div className="space-y-3">
-        <h3 className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
-          Unidades
-        </h3>
-        <NavGroup>
+        <h3 className="eyebrow px-3 text-muted-foreground/80">Unidades</h3>
+        <NavGroup activeKey={pathname}>
           {units.map((unit) => {
             const href = `/app/u/${unit.slug}`;
             const active = pathname.startsWith(href);
@@ -106,7 +104,14 @@ export function SidebarNav({
  * Grupo con indicador activo deslizante a la izquierda.
  * El indicador se mueve animado al item activo (firma visual premium).
  */
-function NavGroup({ children }: { children: React.ReactNode }) {
+function NavGroup({
+  children,
+  activeKey,
+}: {
+  children: React.ReactNode;
+  /** Re-measure the indicator whenever the active route changes. */
+  activeKey?: string;
+}) {
   const groupRef = React.useRef<HTMLUListElement | null>(null);
   const [indicator, setIndicator] = React.useState<{
     top: number;
@@ -140,16 +145,18 @@ function NavGroup({ children }: { children: React.ReactNode }) {
       );
     };
 
-    update();
+    // Measure after the DOM commits the new data-active attribute.
+    const raf = requestAnimationFrame(update);
     const ro = new ResizeObserver(update);
     ro.observe(group);
     Array.from(group.children).forEach((child) => ro.observe(child));
     window.addEventListener("resize", update);
     return () => {
+      cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("resize", update);
     };
-  }, []);
+  }, [activeKey]);
 
   return (
     <ul ref={groupRef} className="relative flex flex-col gap-0.5">
@@ -183,21 +190,34 @@ function NavItem({
   onNavigate?: () => void;
   children: React.ReactNode;
 }) {
+  const itemClass = cn(
+    "group flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm",
+    "transition-[background-color,color] duration-150",
+    disabled
+      ? "cursor-not-allowed text-muted-foreground/50"
+      : active
+        ? "bg-accent text-foreground"
+        : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+  );
+
+  // Locked items are inert: not a link, not in the tab order, no dead "#" jump.
+  if (disabled) {
+    return (
+      <li>
+        <span aria-disabled className={itemClass}>
+          {children}
+        </span>
+      </li>
+    );
+  }
+
   return (
     <li data-active={active ? "true" : undefined}>
       <Link
         href={href}
         onClick={onNavigate}
-        aria-disabled={disabled}
         aria-current={active ? "page" : undefined}
-        className={cn(
-          "group flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm",
-          "transition-[background-color,color] duration-150",
-          disabled && "cursor-not-allowed opacity-40",
-          active
-            ? "bg-accent text-foreground"
-            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-        )}
+        className={itemClass}
       >
         {children}
       </Link>

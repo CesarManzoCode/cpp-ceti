@@ -10,6 +10,7 @@ export async function StatsBar() {
   let lessons = 0;
   let exercises = 0;
   let units = 0;
+  let degraded = false;
 
   try {
     [lessons, exercises, units] = await Promise.all([
@@ -21,6 +22,7 @@ export async function StatsBar() {
     lessons = 12;
     exercises = 40;
     units = 2;
+    degraded = true;
   }
 
   const approxMinutes = lessons * 5 + exercises * 4;
@@ -39,8 +41,10 @@ export async function StatsBar() {
       className="border-b border-border/60 bg-surface-2/30 py-12"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
-        <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Construido sobre el temario oficial del CETI
+        <p className="eyebrow mb-8 text-center text-muted-foreground">
+          {degraded
+            ? "El temario crece cada semana"
+            : "Construido sobre el temario oficial del CETI"}
         </p>
         <ul className="grid grid-cols-2 divide-x divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card md:grid-cols-4 md:divide-y-0">
           {items.map((it) => (
@@ -49,12 +53,10 @@ export async function StatsBar() {
               className="flex flex-col items-center gap-2 px-4 py-7 text-center"
             >
               <it.icon className="size-5 text-primary/70" aria-hidden />
-              <span className="text-[32px] font-bold tracking-tight tabular-nums text-foreground sm:text-[40px]">
+              <span className="text-[30px] font-bold tracking-tight tabular-nums text-foreground sm:text-[38px]">
                 {it.value}
               </span>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                {it.label}
-              </span>
+              <span className="eyebrow text-muted-foreground">{it.label}</span>
             </li>
           ))}
         </ul>

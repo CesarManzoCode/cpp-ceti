@@ -43,14 +43,27 @@ export function CppEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
+        "flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]",
         className,
       )}
-      style={{ minHeight }}
     >
-      <MonacoEditor
-        height={minHeight}
-        language="cpp"
+      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3.5 py-2">
+        <span className="flex items-center gap-2">
+          <span className="flex gap-1.5" aria-hidden>
+            <span className="size-2.5 rounded-full bg-terminal-danger/90" />
+            <span className="size-2.5 rounded-full bg-terminal-warning/90" />
+            <span className="size-2.5 rounded-full bg-terminal-success/90" />
+          </span>
+          <span className="font-mono text-[11px] text-terminal-muted">
+            main.cpp
+          </span>
+        </span>
+        <span className="eyebrow text-terminal-faint">C++</span>
+      </div>
+      <div style={{ height: `min(${minHeight}px, 70svh)` }}>
+        <MonacoEditor
+          height="100%"
+          language="cpp"
         value={value}
         theme={monacoTheme}
         onChange={(v) => onChange?.(v ?? "")}
@@ -139,7 +152,8 @@ export function CppEditor({
             useShadows: false,
           },
         }}
-      />
+        />
+      </div>
     </div>
   );
 }

@@ -12,7 +12,7 @@ interface EyebrowProps extends React.ComponentProps<"span"> {
 const toneColor = {
   primary: "text-primary",
   muted: "text-muted-foreground",
-  warning: "text-warning-foreground",
+  warning: "text-warning",
   success: "text-success",
 } as const;
 
@@ -31,11 +31,7 @@ export function ConsoleEyebrow({
   return (
     <span
       data-slot="eyebrow"
-      className={cn(
-        "inline-block text-[11px] font-semibold uppercase tracking-[0.18em]",
-        toneColor[tone],
-        className,
-      )}
+      className={cn("eyebrow inline-block", toneColor[tone], className)}
       {...props}
     >
       {children}

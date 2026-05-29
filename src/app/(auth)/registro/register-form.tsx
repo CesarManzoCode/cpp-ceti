@@ -7,13 +7,29 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
 export function RegisterForm() {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
+  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [errorNonce, setErrorNonce] = React.useState(0);
+
+  const busy = isPending || isGoogleLoading;
+
+  React.useEffect(() => {
+    if (window.matchMedia("(min-width: 640px)").matches) {
+      document.getElementById("name")?.focus();
+    }
+  }, []);
+
+  function fail(message: string) {
+    setError(message);
+    setErrorNonce((n) => n + 1);
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,11 +41,11 @@ export function RegisterForm() {
     const password = String(formData.get("password") ?? "");
 
     if (name.length < 2) {
-      setError("Tu nombre debe tener al menos 2 caracteres.");
+      fail("Tu nombre debe tener al menos 2 caracteres.");
       return;
     }
     if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+      fail("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
 
@@ -41,7 +57,7 @@ export function RegisterForm() {
       });
 
       if (signUpError) {
-        setError(
+        fail(
           signUpError.message ??
             "No pudimos crear tu cuenta. Tal vez ya existe ese correo.",
         );
@@ -56,12 +72,14 @@ export function RegisterForm() {
 
   async function handleGoogle() {
     setError(null);
+    setIsGoogleLoading(true);
     const { error: oauthError } = await authClient.signIn.social({
       provider: "google",
       callbackURL: "/app",
     });
     if (oauthError) {
-      setError(oauthError.message ?? "No pudimos registrarte con Google.");
+      fail(oauthError.message ?? "No pudimos registrarte con Google.");
+      setIsGoogleLoading(false);
     }
   }
 
@@ -73,9 +91,10 @@ export function RegisterForm() {
         className="w-full"
         size="lg"
         onClick={handleGoogle}
-        disabled={isPending}
+        loading={isGoogleLoading}
+        disabled={busy}
       >
-        <GoogleIcon />
+        {isGoogleLoading ? null : <GoogleIcon />}
         Continuar con Google
       </Button>
 
@@ -91,7 +110,7 @@ export function RegisterForm() {
           placeholder="Tu nombre"
           required
           minLength={2}
-          disabled={isPending}
+          disabled={busy}
           leadingIcon={<User />}
         />
       </div>
@@ -105,22 +124,21 @@ export function RegisterForm() {
           autoComplete="email"
           placeholder="tu@correo.com"
           required
-          disabled={isPending}
+          disabled={busy}
           leadingIcon={<Mail />}
         />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           placeholder="Mínimo 8 caracteres"
           required
           minLength={8}
-          disabled={isPending}
+          disabled={busy}
           leadingIcon={<Lock />}
         />
         <p className="text-xs text-muted-foreground">
@@ -130,7 +148,8 @@ export function RegisterForm() {
 
       {error ? (
         <p
-          className="flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
+          key={errorNonce}
+          className="animate-fade-in flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -143,6 +162,7 @@ export function RegisterForm() {
         className="w-full"
         size="lg"
         loading={isPending}
+        disabled={isGoogleLoading}
       >
         {isPending ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
