@@ -104,8 +104,8 @@ int main() {
             { answer: "<stdio.h>", hint: "Header de printf (forma C)." },
             { answer: "int", hint: "Tipo de retorno de main." },
             { answer: "printf", hint: "La función para imprimir, estilo C." },
-            { answer: "\\n", hint: "Secuencia para salto de línea." },
-            { answer: "\\n", hint: "Otro salto de línea." },
+            { answer: "\\n", hint: "Salto de línea al final de 'Bienvenido al CETI'." },
+            { answer: "\\n", hint: "Salto de línea al final de 'Programando en C'." },
             { answer: "0", hint: "Código de salida exitoso." },
           ],
           explanation:
@@ -986,8 +986,8 @@ int main() {
   // Lee 3 enteros en una sola llamada
   scanf({{0}}, {{1}}a, {{2}}b, {{3}}c);
 
-  printf("a = {{4}}, b = {{4}}, c = {{4}}\\n", a, b, c);
-  printf("Suma de los tres: {{5}}\\n", a + b + c);
+  printf("a = {{4}}, b = {{5}}, c = {{6}}\\n", a, b, c);
+  printf("Suma de los tres: {{7}}\\n", a + b + c);
   return 0;
 }`,
           blanks: [
@@ -995,8 +995,10 @@ int main() {
             { answer: "&", hint: "& antes de la primera variable." },
             { answer: "&", hint: "& antes de la segunda." },
             { answer: "&", hint: "& antes de la tercera." },
-            { answer: "%i", hint: "Placeholder usado tres veces para los 3 enteros." },
-            { answer: "%i", hint: "Placeholder para la suma." },
+            { answer: "%i", hint: "Placeholder para imprimir `a` (entero)." },
+            { answer: "%i", hint: "Placeholder para imprimir `b` (entero)." },
+            { answer: "%i", hint: "Placeholder para imprimir `c` (entero)." },
+            { answer: "%i", hint: "Placeholder para imprimir la suma (entero)." },
           ],
           explanation:
             "Cuando lees varios valores: 1) tantos `%i` como variables en el string, 2) tantos `&variable` después de la coma. El espacio dentro del string es opcional — `\"%i %i\"` y `\"%i%i\"` funcionan igual.",
@@ -1244,22 +1246,24 @@ double area(double base, double altura) {
 
 int main() {
   double b, h;
-  scanf({{1}}, {{2}}b, {{2}}h);
+  scanf({{1}}, {{2}}b, {{3}}h);
 
-  double a = {{3}}(b, h);
-  printf("Base: {{4}}\\n", b);
-  printf("Altura: {{4}}\\n", h);
-  printf("Area: {{5}}\\n", a);
+  double a = {{4}}(b, h);
+  printf("Base: {{5}}\\n", b);
+  printf("Altura: {{6}}\\n", h);
+  printf("Area: {{7}}\\n", a);
 
-  return {{6}};
+  return {{8}};
 }`,
           blanks: [
             { answer: "*", hint: "Operador de multiplicación." },
             { answer: "\"%lf %lf\"", hint: "Dos doubles separados; %lf en scanf." },
-            { answer: "&", hint: "& antes de cada variable en scanf." },
+            { answer: "&", hint: "& antes de la primera variable (`b`) en scanf." },
+            { answer: "&", hint: "& antes de la segunda variable (`h`) en scanf." },
             { answer: "area", hint: "Nombre de la función definida arriba." },
-            { answer: "%.2f", hint: "Formato de double con 2 decimales." },
-            { answer: "%.2f", hint: "Mismo formato para el área." },
+            { answer: "%.2f", hint: "Formato de double con 2 decimales para la base." },
+            { answer: "%.2f", hint: "Mismo formato de 2 decimales para la altura." },
+            { answer: "%.2f", hint: "Mismo formato de 2 decimales para el área." },
             { answer: "0", hint: "Código de salida exitoso." },
           ],
           explanation:

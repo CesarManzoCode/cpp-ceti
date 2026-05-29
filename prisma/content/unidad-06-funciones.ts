@@ -321,23 +321,33 @@ int main() {
 
 Define una función \`double promedio(int a, int b)\` que devuelva el promedio (suma / 2.0) de los dos enteros.
 
-Desde \`main\`, calcula \`promedio(8, 10)\` e imprime el resultado.
+Desde \`main\`, calcula \`promedio(7, 10)\` e imprime el resultado con 1 decimal:
+
+\`\`\`cpp
+cout << fixed << setprecision(1) << promedio(7, 10) << endl;
+\`\`\`
+
+(Necesitas \`#include <iomanip>\` para \`setprecision\`).
 
 Salida esperada:
 
 \`\`\`
-9
+8.5
 \`\`\``,
             difficulty: "medium",
             xpReward: 35,
             starterCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
+// Define aquí la función promedio
+
 int main() {
-  cout << promedio(8, 10) << endl;
+  cout << fixed << setprecision(1) << promedio(7, 10) << endl;
   return 0;
 }`,
             solutionCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
 double promedio(int a, int b) {
@@ -345,18 +355,19 @@ double promedio(int a, int b) {
 }
 
 int main() {
-  cout << promedio(8, 10) << endl;
+  cout << fixed << setprecision(1) << promedio(7, 10) << endl;
   return 0;
 }`,
             hints: [
-              "Tipo de retorno con decimales para que `(8+10)/2` no se trunque.",
+              "Tipo de retorno con decimales para que `(7+10)/2` no se trunque.",
               "Divide entre `2.0` para conservar decimales.",
+              "Para forzar 1 decimal: `cout << fixed << setprecision(1) << ...`.",
             ],
             testCases: [
               {
-                expectedStdout: "9\n",
+                expectedStdout: "8.5\n",
                 visible: true,
-                description: "Promedio de 8 y 10 es 9",
+                description: "Promedio de 7 y 10 es 8.5",
               },
             ],
           },

@@ -514,7 +514,10 @@ if (edad >= 18 {{0}} tutor_acepta) {
   cout << "Puedes inscribirte" << endl;
 }`,
           blanks: [
-            { answer: "||", hint: "OR: con una basta." },
+            {
+              answer: "||",
+              hint: "OR (`||`, dos barras): con que UNA condición sea verdadera, entra al `if`. Aquí basta con ser mayor de edad O que el tutor acepte.",
+            },
           ],
           explanation:
             "Con `||`, si ya eres mayor de edad NO necesitas firma; pero también puedes inscribirte si el tutor acepta aunque seas menor.",
@@ -639,16 +642,17 @@ int main() {
 
 switch (grupo) {
   case 'A':
-    cout << "Mañana" << endl;
+    cout << "Manana" << endl;
     {{0}};
   case 'B':
     cout << "Tarde" << endl;
-    {{0}};
-  {{1}}:
+    {{1}};
+  {{2}}:
     cout << "Grupo desconocido" << endl;
 }`,
           blanks: [
-            { answer: "break", hint: "Lo que termina el case actual." },
+            { answer: "break", hint: "Lo que termina el case 'A'." },
+            { answer: "break", hint: "Lo mismo para el case 'B' — cada case necesita su propio `break`." },
             { answer: "default", hint: "El caso ‘ninguno de los anteriores’." },
           ],
           explanation:
@@ -659,7 +663,9 @@ switch (grupo) {
           exercise: {
             prompt: `## Día de la semana
 
-Declara \`int dia = 3;\` y usa un \`switch\` para imprimir el nombre del día (lunes = 1, martes = 2, miércoles = 3, ..., domingo = 7). Para cualquier otro valor, imprime \`Dia invalido\`.
+Declara \`int dia = 3;\` y usa un \`switch\` para imprimir el nombre del día (1=lunes, 2=martes, 3=miercoles, 4=jueves, 5=viernes, 6=sabado, 7=domingo). Para cualquier otro valor, imprime \`Dia invalido\`.
+
+**Importante:** escribe los nombres SIN acentos (\`miercoles\`, \`sabado\`, etc.) para que el test exacto pase.
 
 Con \`dia = 3\` la salida esperada es:
 

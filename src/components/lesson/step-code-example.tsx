@@ -17,6 +17,8 @@ interface StepCodeExampleProps {
   isPending: boolean;
 }
 
+const NEEDS_STDIN_RE = /\b(cin\s*>>|scanf\s*\(|getline\s*\()/;
+
 export function StepCodeExample({
   content,
   onNext,
@@ -37,7 +39,11 @@ export function StepCodeExample({
       <Markdown>{content.explanation}</Markdown>
 
       {content.runnable ? (
-        <CodePlayground initialCode={content.code} editorHeight={260} />
+        <CodePlayground
+          initialCode={content.code}
+          editorHeight={260}
+          showStdin={NEEDS_STDIN_RE.test(content.code)}
+        />
       ) : (
         <CppEditor value={content.code} readOnly minHeight={220} />
       )}

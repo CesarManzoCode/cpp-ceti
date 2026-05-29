@@ -45,8 +45,14 @@ int main() {
           template: `int {{0}} = 9;
 cout << "Materias: " << {{1}} << endl;`,
           blanks: [
-            { answer: "materias", hint: "Cualquier nombre válido — usa este." },
-            { answer: "materias", hint: "Es el mismo nombre que declaraste arriba." },
+            {
+              answer: "materias",
+              hint: "Escribe exactamente: `materias` (minúsculas, sin acento).",
+            },
+            {
+              answer: "materias",
+              hint: "El mismo nombre exacto que escribiste arriba: `materias`.",
+            },
           ],
           explanation:
             "El nombre que pones al declarar es el que usas después. Tiene que coincidir EXACTAMENTE (incluyendo mayúsculas/minúsculas).",
@@ -270,53 +276,63 @@ int promedio = total {{0}} materias;`,
             prompt: `## Promedio de 3 calificaciones
 
 Declara tres \`int\`:
-- \`mate = 8\`
-- \`fisica = 9\`
-- \`programacion = 7\`
+- \`mate = 7\`
+- \`fisica = 8\`
+- \`programacion = 9\`
 
-Calcula el promedio y muéstralo.
+Calcula el promedio y muéstralo con un decimal.
 
 **Importante:** divide entre \`3.0\` (no entre \`3\`) para que conserve los decimales.
 
+Usa esto para mostrar el resultado con 1 decimal:
+
+\`\`\`cpp
+cout << fixed << setprecision(1) << promedio << endl;
+\`\`\`
+
+(Necesitas \`#include <iomanip>\` para \`setprecision\`).
+
 Salida esperada:
 \`\`\`
-8
+8.0
 \`\`\``,
             difficulty: "easy",
             xpReward: 25,
             starterCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
 int main() {
-  int mate = 8;
-  int fisica = 9;
-  int programacion = 7;
+  int mate = 7;
+  int fisica = 8;
+  int programacion = 9;
 
-  // Calcula el promedio aquí
+  // Calcula el promedio y muéstralo con 1 decimal
 
   return 0;
 }`,
             solutionCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
 int main() {
-  int mate = 8;
-  int fisica = 9;
-  int programacion = 7;
+  int mate = 7;
+  int fisica = 8;
+  int programacion = 9;
   double promedio = (mate + fisica + programacion) / 3.0;
-  cout << promedio << endl;
+  cout << fixed << setprecision(1) << promedio << endl;
   return 0;
 }`,
             hints: [
               "Suma las 3 calificaciones primero: `mate + fisica + programacion`.",
               "Usa paréntesis para asegurar la precedencia: `(a + b + c) / 3.0`.",
-              "Divide entre `3.0` (con decimal) para que el resultado sea `double`.",
+              "Para forzar 1 decimal: `cout << fixed << setprecision(1) << promedio << endl;`.",
             ],
             testCases: [
               {
-                expectedStdout: "8\n",
+                expectedStdout: "8.0\n",
                 visible: true,
-                description: "Promedio de 8, 9 y 7 es 8.0",
+                description: "Promedio de 7, 8 y 9 es 8.0 (con 1 decimal)",
               },
             ],
           },

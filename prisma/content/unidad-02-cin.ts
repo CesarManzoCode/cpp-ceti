@@ -516,57 +516,68 @@ cout << "Area: " << base {{2}} altura << endl;`,
 
 Lee **tres calificaciones enteras** en una sola línea (con \`cin >> a >> b >> c;\`).
 Calcula el promedio dividiendo entre **3.0** (con punto, para que dé decimales)
-e imprime:
+e imprime el resultado con 1 decimal:
 
 \`\`\`
 Promedio: <p>
 \`\`\`
 
-Para el test, el sistema enviará: \`8 9 10\` (promedio = 9).
+Para forzar 1 decimal usa:
+
+\`\`\`cpp
+cout << fixed << setprecision(1) << ...;
+\`\`\`
+
+(Necesitas \`#include <iomanip>\`).
+
+Para el test, el sistema enviará: \`7 8 10\` (promedio = 8.3).
 
 Salida esperada:
 
 \`\`\`
-Promedio: 9
+Promedio: 8.3
 \`\`\``,
             difficulty: "easy",
             xpReward: 30,
             starterCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
 int main() {
   int a, b, c;
   // Lee a, b, c
-  // Imprime "Promedio: " seguido de (a+b+c)/3.0
+  // Imprime "Promedio: " seguido de (a+b+c)/3.0 con 1 decimal
 
   return 0;
 }`,
             solutionCode: `#include <iostream>
+#include <iomanip>
 using namespace std;
 
 int main() {
   int a, b, c;
   cin >> a >> b >> c;
-  cout << "Promedio: " << (a + b + c) / 3.0 << endl;
+  cout << fixed << setprecision(1)
+       << "Promedio: " << (a + b + c) / 3.0 << endl;
   return 0;
 }`,
             hints: [
               "Lee con `cin >> a >> b >> c;`.",
               "Para el cálculo: `(a + b + c) / 3.0` — los paréntesis y el `3.0` son importantes.",
-              "Un solo `cout`: `cout << \"Promedio: \" << (a + b + c) / 3.0 << endl;`.",
+              "`cout << fixed << setprecision(1) << \"Promedio: \" << (a+b+c)/3.0 << endl;`.",
             ],
             testCases: [
               {
-                stdin: "8 9 10\n",
-                expectedStdout: "Promedio: 9\n",
+                stdin: "7 8 10\n",
+                expectedStdout: "Promedio: 8.3\n",
                 visible: true,
-                description: "Promedio entero",
+                description: "Promedio con 1 decimal",
               },
               {
-                stdin: "10 10 10\n",
-                expectedStdout: "Promedio: 10\n",
+                stdin: "9 9 9\n",
+                expectedStdout: "Promedio: 9.0\n",
                 visible: false,
-                description: "Todos perfectos",
+                description: "Todos iguales: 9.0",
               },
             ],
           },
