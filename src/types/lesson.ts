@@ -42,6 +42,8 @@ export interface FillBlankStepContent {
    * Ej: `cout << "Hola" {{0}} endl;`
    */
   template: string;
+  /** Enunciado específico (markdown). Reemplaza al título genérico cuando existe. */
+  prompt?: string;
   blanks: {
     /** Respuesta correcta exacta (canónica) */
     answer: string;
@@ -50,6 +52,12 @@ export interface FillBlankStepContent {
      * se valida contra este patrón (anclado) en vez de comparar exacto.
      */
     pattern?: string;
+    /**
+     * Índice de OTRO blank con el que este debe COINCIDIR. Permite "cualquier
+     * nombre válido — pero el mismo en ambos lugares". Si se usa, el `pattern`
+     * controla qué se considera "válido" (default: identificador C++).
+     */
+    matchBlank?: number;
     /** Pista opcional */
     hint?: string;
   }[];

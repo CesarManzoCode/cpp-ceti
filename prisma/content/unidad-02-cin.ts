@@ -59,6 +59,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa la línea de lectura: el primer hueco lleva el flujo de entrada (`cin`) y el segundo el operador de extracción (`>>`).",
           template: `int calificacion;
 cout << "Tu calificacion: ";
 {{0}} {{1}} calificacion;
@@ -165,6 +166,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Encadena dos lecturas en la misma línea. Ambos huecos llevan el mismo operador `>>` para leer `a` y luego `b`.",
           template: `int a, b;
 cin {{0}} a {{1}} b;
 cout << "Suma: " << a + b << endl;`,
@@ -276,6 +278,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe el header que falta para poder usar `string`. Recuerda incluir los signos `<` y `>`.",
           template: `#include <iostream>
 #include {{0}}
 using namespace std;
@@ -381,6 +384,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Usa `getline` para leer una línea completa. El primer hueco es la función y el segundo la variable destino.",
           template: `string carrera;
 {{0}}(cin, {{1}});
 cout << "Estudias: " << carrera << endl;`,
@@ -496,6 +500,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Encadena dos lecturas con `>>` y luego usa `*` para calcular el área dentro del `cout`.",
           template: `int base, altura;
 cin {{0}} base {{1}} altura;
 
@@ -691,6 +696,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Llena los 4 huecos: el header `<string>`, el tipo `string`, la función `getline` y el operador `>>` para leer el número.",
           template: `#include <iostream>
 #include {{0}}
 using namespace std;

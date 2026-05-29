@@ -62,6 +62,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa con los operadores `>=` (mayor o igual) y `==` (igualdad exacta).",
           template: `int promedio = 9;
 bool aprobado = promedio {{0}} 7;
 bool excelente = promedio {{1}} 9;`,
@@ -155,6 +156,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe la palabra clave `if` y el operador `<` para comparar faltas con 3.",
           template: `int faltas = 2;
 
 {{0}} (faltas {{1}} 3) {
@@ -252,6 +254,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe la palabra clave que ejecuta el bloque alternativo cuando el `if` es falso.",
           template: `int edad = 17;
 
 if (edad >= 18) {
@@ -371,6 +374,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Encadena otra condición entre el `if` y el `else` con la palabra clave correcta.",
           template: `int semestre = 3;
 
 if (semestre <= 2) {
@@ -507,6 +511,7 @@ Aun no estas inscrito`,
         },
         {
           type: "fill_blank",
+          prompt: "Conecta las dos condiciones con el operador lógico OR para que basta con que UNA se cumpla.",
           template: `int edad = 18;
 bool tutor_acepta = true;
 
@@ -638,6 +643,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Cada `case` necesita `break` para no caer al siguiente. El caso comodín final usa `default`.",
           template: `char grupo = 'B';
 
 switch (grupo) {

@@ -62,6 +62,13 @@ export interface QuizStep {
 export interface FillBlankStep {
   type: "fill_blank";
   template: string;
+  /**
+   * Enunciado específico del ejercicio (markdown). Si se define, reemplaza al
+   * encabezado genérico "Llena los espacios para que el programa compile" y
+   * debe describir EXACTAMENTE qué espera el ejercicio. Úsalo siempre que la
+   * respuesta no sea obvia desde el código mostrado.
+   */
+  prompt?: string;
   blanks: {
     /** Respuesta canónica (se muestra como ejemplo y dimensiona el campo). */
     answer: string;
@@ -71,6 +78,13 @@ export interface FillBlankStep {
      * `answer`. Ej: `"\\".*\\""` para aceptar cualquier texto entre comillas.
      */
     pattern?: string;
+    /**
+     * Índice de OTRO blank con el que este debe COINCIDIR exactamente. Permite
+     * "cualquier nombre válido — pero el mismo en ambos lugares". Si se usa,
+     * el `pattern` controla qué se considera "válido" (por defecto: identificador
+     * C++); el `answer` solo sirve para ejemplo/dimensionar el input.
+     */
+    matchBlank?: number;
     /** Pista opcional */
     hint?: string;
   }[];

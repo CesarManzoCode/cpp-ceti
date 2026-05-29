@@ -42,16 +42,20 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "**Declara una variable `int` y úsala después.** Puedes elegir el nombre que quieras (`materias`, `m`, `n`, lo que sea) — lo único importante es que el nombre sea **el mismo** en los dos espacios.",
           template: `int {{0}} = 9;
 cout << "Materias: " << {{1}} << endl;`,
           blanks: [
             {
               answer: "materias",
-              hint: "Escribe exactamente: `materias` (minúsculas, sin acento).",
+              pattern: "[a-zA-Z_][a-zA-Z0-9_]*",
+              hint: "Cualquier nombre válido: una letra o palabra (sin espacios, sin números al inicio). Por ejemplo `materias`.",
             },
             {
               answer: "materias",
-              hint: "El mismo nombre exacto que escribiste arriba: `materias`.",
+              matchBlank: 0,
+              hint: "El MISMO nombre exacto que escribiste arriba.",
             },
           ],
           explanation:
@@ -136,6 +140,8 @@ B`,
         },
         {
           type: "fill_blank",
+          prompt:
+            "Escribe el tipo correcto para cada valor: `int` para el entero `12`, `double` para el decimal `9.4` y `char` para el caracter `'A'`.",
           template: `{{0}} creditos = 12;
 {{1}} calificacion = 9.4;
 {{2}} grupo = 'A';`,
@@ -261,6 +267,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Completa con el operador de división `/` para calcular el promedio dividiendo `total` entre `materias`.",
           template: `int total = 30;
 int materias = 4;
 int promedio = total {{0}} materias;`,
@@ -369,6 +377,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Concatena los strings con el operador `+` para unir `escuela`, `\" - \"` y `carrera` en un solo mensaje.",
           template: `string escuela = "CETI";
 string carrera = "Desarrollo de Software";
 string mensaje = escuela {{0}} " - " {{1}} carrera;`,
@@ -472,6 +482,8 @@ Reprobo:  0`,
         },
         {
           type: "fill_blank",
+          prompt:
+            "Asigna los valores literales: `true` para `aprobado` y `false` para `reprobado` (sin comillas, todo minúsculas).",
           template: `bool aprobado = {{0}};
 bool reprobado = {{1}};`,
           blanks: [
@@ -563,6 +575,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Marca ambas variables como inmodificables con `const` antes del tipo (una `const` por declaración).",
           template: `{{0}} double IVA = 0.16;
 {{1}} int DIAS_PARCIAL = 28;`,
           blanks: [

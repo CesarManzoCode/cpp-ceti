@@ -91,6 +91,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Completa los indices `[fila][columna]` para asignar `10, 20, 30, 40` en `m[2][2]` e imprimir el `30`.",
           template: `int m[2][2];
 
 m[{{0}}][0] = 10;     // fila 0, columna 0
@@ -352,6 +354,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Declara `notas[2][3]` con Aurora `{8, 9, 10}` y Mario `{5, 6, 7}`, e imprime la tercera materia (indice `2`) de Mario.",
           template: `// Calificaciones de 2 alumnos en 3 materias
 int notas[{{0}}][{{1}}] = {
   {8, 9, {{2}}},     // Aurora
@@ -628,6 +632,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Recorre la matriz `2x3` con un doble `for`: imprime un espacio entre valores y un `\\n` al final de cada fila.",
           template: `int m[2][3] = {
   {10, 20, 30},
   {40, 50, 60},
@@ -889,6 +895,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Lee `9` enteros en `m[3][3]` con `scanf` (recuerda el `&`) e imprime la diagonal principal `m[k][k]`.",
           template: `int m[3][3];
 
 // Lectura: 9 enteros del usuario
@@ -1159,6 +1167,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Inicializa `suma` en `0`, recorre la matriz `2x3` con doble `for` y acumula cada `v[i][j]` con `+=`.",
           template: `int v[2][3] = {
   {10, 20, 30},
   {40, 50, 60},
@@ -1434,6 +1444,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Inicializa `menor` con la celda `m[0][0]` y usa el operador `<` dentro del doble `for` para encontrar el minimo.",
           template: `int m[3][3];
 
 // Lectura
@@ -1747,6 +1759,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Recorre los `3` alumnos sumando sus `4` materias, divide entre `4.0` y guarda el indice `i` cuando el promedio sea `>` que el mejor previo.",
           template: `// Mejor alumno = el de mayor promedio en una matriz 3×4
 
 int notas[3][4];

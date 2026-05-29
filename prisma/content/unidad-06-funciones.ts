@@ -63,6 +63,7 @@ Hola alumno CETI`,
         },
         {
           type: "fill_blank",
+          prompt: "Completa el tipo de retorno `void` y la llamada `despedir()` desde `main` (no olvides los paréntesis).",
           template: `{{0}} despedir() {
   cout << "Hasta luego" << endl;
 }
@@ -162,6 +163,7 @@ Hola Diego`,
         },
         {
           type: "fill_blank",
+          prompt: "Declara el tipo del parámetro `edad` (entero) y pasa un número entero al llamar `imprimir_edad`.",
           template: `void imprimir_edad({{0}} edad) {
   cout << "Tienes " << edad << " anios" << endl;
 }
@@ -299,6 +301,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe el tipo de retorno `int` y la palabra clave `return` para devolver `a + b`.",
           template: `{{0}} sumar(int a, int b) {
   {{1}} a + b;
 }
@@ -424,6 +427,7 @@ int cuadrado(int n) {
         },
         {
           type: "fill_blank",
+          prompt: "Cierra el prototipo de `presentar` con el caracter correcto (sin llaves, solo `;`).",
           template: `#include <iostream>
 using namespace std;
 
@@ -527,6 +531,7 @@ Hola Aurora`,
         },
         {
           type: "fill_blank",
+          prompt: "Asigna el valor por defecto `1` al parámetro `veces` usando el operador correcto.",
           template: `void repetir(string texto, int veces {{0}} 1) {
   for (int i = 0; i < veces; i++) {
     cout << texto << endl;
@@ -654,6 +659,7 @@ Reprobado`,
         },
         {
           type: "fill_blank",
+          prompt: "Devuelve directamente el resultado de `calificacion >= 7` con la palabra clave adecuada.",
           template: `bool aprobado(int calificacion) {
   {{0}} calificacion >= 7;
 }

@@ -62,6 +62,7 @@ Pase de lista 3`,
         },
         {
           type: "fill_blank",
+          prompt: "Completa el `while`: usa la variable `materia` en la condición y el operador `++` para incrementarla.",
           template: `int materia = 1;
 while ({{0}} <= 5) {
   cout << "Materia " << materia << endl;
@@ -168,6 +169,7 @@ Alumno #5`,
         },
         {
           type: "fill_blank",
+          prompt: "Escribe la condición del `for` para que `i` itere hasta `3` (incluido).",
           template: `for (int i = 1; {{0}}; i++) {
   cout << i << endl;
 }`,
@@ -272,6 +274,7 @@ Intento 3`,
         },
         {
           type: "fill_blank",
+          prompt: "Completa la estructura `do-while`: la palabra que abre el bloque y la que va con la condición al final.",
           template: `int n = 10;
 {{0}} {
   cout << n << endl;
@@ -394,6 +397,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Agrega la palabra clave que detiene el ciclo cuando `alumno` llega a `5`.",
           template: `for (int alumno = 1; alumno <= 10; alumno++) {
   if (alumno == 5) {
     {{0}};
@@ -502,6 +506,7 @@ G3-A1 G3-A2 `,
         },
         {
           type: "fill_blank",
+          prompt: "Completa los loops anidados: el operador para multiplicar `i` por `j` y `endl` para saltar de fila.",
           template: `for (int i = 1; i <= 3; i++) {
   for (int j = 1; j <= 3; j++) {
     cout << i {{0}} j << " ";
@@ -609,6 +614,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa el acumulador: empieza el `contador` en `0` y usa `+=` para sumar `1` por vuelta.",
           template: `int contador = {{0}};
 for (int i = 1; i <= 5; i++) {
   contador {{1}} 1;

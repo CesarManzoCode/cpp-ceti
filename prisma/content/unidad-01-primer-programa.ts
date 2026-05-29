@@ -42,6 +42,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa la línea para imprimir texto en consola. El primer espacio es el objeto de salida (`cout`); el segundo es **cualquier** texto entre comillas dobles.",
           template: `#include <iostream>
 using namespace std;
 
@@ -133,6 +134,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa la línea para que imprima `Hola, Mundo!` con salto de línea. Necesitas el operador de inserción `<<` y luego `endl` (sin comillas).",
           template: `cout << "Hola, Mundo!" {{0}} {{1}};`,
           blanks: [
             { answer: "<<", hint: "El mismo operador para encadenar." },
@@ -241,6 +243,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Agrega la **directiva del preprocesador** que incluye cada librería. Es la misma palabra para ambos espacios y empieza con `#`.",
           template: `{{0}} <iostream>   // para cout y cin
 {{1}} <string>     // para usar string
 using namespace std;
@@ -357,6 +360,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Sin `using namespace std;`, agrega el **prefijo** del namespace estándar delante de cada nombre. Es el mismo prefijo en ambos espacios.",
           template: `#include <iostream>
 // sin "using namespace std;" aquí
 
@@ -477,6 +481,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa la firma y el cierre de `main`. Primero el **tipo de retorno** (`int`); luego la **palabra clave** que entrega el código de salida (`return`).",
           template: `#include <iostream>
 using namespace std;
 
@@ -595,6 +600,7 @@ int main(){cout<<"Funciona igual";return 0;}`,
         },
         {
           type: "fill_blank",
+          prompt: "Pon la **puntuación** que falta: `{` para abrir el bloque, `;` al cierre de cada sentencia y `}` para cerrar el bloque.",
           template: `#include <iostream>
 using namespace std;
 
@@ -702,6 +708,7 @@ int main() {            // punto de entrada del programa
         },
         {
           type: "fill_blank",
+          prompt: "Reconstruye las dos piezas obligatorias de `main`: el **tipo de retorno** (`int`) y la **palabra clave** que entrega el código de salida (`return`).",
           template: `#include <iostream>
 using namespace std;
 
@@ -788,6 +795,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe el inicio de un **comentario de una línea** (`//`) para que el compilador ignore el texto que sigue.",
           template: `#include <iostream>
 using namespace std;
 
@@ -877,6 +885,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Encadena texto y número con el **operador de inserción** (`<<`). Es el mismo operador en ambos espacios.",
           template: `cout << "Tengo " {{0}} 8 {{1}} " materias" << endl;`,
           blanks: [
             { answer: "<<", hint: "Necesitas el operador entre cada cosa." },
@@ -962,6 +971,7 @@ Linea 3`,
         },
         {
           type: "fill_blank",
+          prompt: "Agrega un **salto de línea** al final de cada `cout`. La primera línea con `<< endl`; la segunda con `<< \"\\n\"`.",
           template: `cout << "Alumno: Aurora" {{0}};
 cout << "Grupo: 5DSM" {{1}};`,
           blanks: [
@@ -1074,6 +1084,7 @@ Ruta: C:\\Users\\Aurora`,
         },
         {
           type: "fill_blank",
+          prompt: "Mete las **secuencias de escape** que faltan: primero un tabulador (`\\t`); luego una comilla doble escapada (`\\\"`) a cada lado del texto.",
           template: `cout << "Aurora{{0}}5to semestre" << endl;
 cout << "Cita: {{1}}sin miedo{{2}}" << endl;`,
           blanks: [

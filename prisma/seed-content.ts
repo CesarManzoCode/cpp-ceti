@@ -184,6 +184,7 @@ function buildStepContent(step: StepDefinition): Record<string, unknown> {
     case "fill_blank":
       return {
         template: step.template,
+        ...(step.prompt ? { prompt: step.prompt } : {}),
         blanks: step.blanks,
         ...(step.explanation ? { explanation: step.explanation } : {}),
       };

@@ -4,8 +4,11 @@ import * as React from "react";
 import { ArrowRight, CheckCircle2, Lightbulb, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Markdown } from "@/components/markdown";
 import { cn } from "@/lib/utils";
 import type { FillBlankStepContent } from "@/types/lesson";
+
+const CPP_IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 interface StepFillBlankProps {
   content: FillBlankStepContent;
@@ -26,7 +29,7 @@ export function StepFillBlank({
   const [feedbackKey, setFeedbackKey] = React.useState(0);
 
   const allCorrect = content.blanks.every((b, i) =>
-    isBlankCorrect(b, values[i] ?? ""),
+    isBlankCorrect(b, values[i] ?? "", values),
   );
 
   function verify() {
@@ -46,9 +49,15 @@ export function StepFillBlank({
     <article className="space-y-7">
       <header className="space-y-2">
         <p className="eyebrow text-primary">Completa el código</p>
-        <h3 className="text-balance text-xl font-semibold tracking-tight">
-          Llena los espacios para que el programa compile.
-        </h3>
+        {content.prompt ? (
+          <div className="prose-instructions text-balance text-foreground">
+            <Markdown>{content.prompt}</Markdown>
+          </div>
+        ) : (
+          <h3 className="text-balance text-xl font-semibold tracking-tight">
+            Llena los espacios para que el programa compile.
+          </h3>
+        )}
       </header>
 
       <div
@@ -371,25 +380,45 @@ function parseTemplate(template: string): Segment[] {
 }
 
 /**
- * Valida la respuesta de un blank. Si el blank define un `pattern`, se valida
- * contra ese regex (anclado a toda la cadena); si no, se compara exacto con
- * `answer`. Esto permite blanks de texto libre (ej: "cualquier texto entre
- * comillas dobles") sin forzar una única respuesta literal.
+ * Valida la respuesta de un blank.
+ *
+ * Reglas:
+ * 1. Si tiene `matchBlank`, el valor debe ser un identificador C++ válido
+ *    (o cumplir el `pattern` si está definido) Y coincidir con el valor del
+ *    blank referenciado. Esto permite "cualquier nombre, pero el mismo en
+ *    ambos lugares".
+ * 2. Si tiene `pattern` (sin `matchBlank`), se valida contra ese regex anclado.
+ * 3. Si no, se compara exacto con `answer`.
  */
 function isBlankCorrect(
   blank: FillBlankStepContent["blanks"][number],
   value: string,
+  allValues: string[],
 ): boolean {
   const trimmed = value.trim();
+  if (blank.matchBlank !== undefined) {
+    const formatRe = blank.pattern
+      ? safeRegex(`^(?:${blank.pattern})$`)
+      : CPP_IDENTIFIER_RE;
+    if (formatRe && !formatRe.test(trimmed)) return false;
+    const other = (allValues[blank.matchBlank] ?? "").trim();
+    if (!other) return false;
+    return trimmed === other;
+  }
   if (blank.pattern) {
-    try {
-      return new RegExp(`^(?:${blank.pattern})$`).test(trimmed);
-    } catch {
-      // Patrón inválido: caemos a comparación exacta para no romper el paso.
-      return trimmed === blank.answer.trim();
-    }
+    const re = safeRegex(`^(?:${blank.pattern})$`);
+    if (re) return re.test(trimmed);
+    return trimmed === blank.answer.trim();
   }
   return trimmed === blank.answer.trim();
+}
+
+function safeRegex(source: string): RegExp | null {
+  try {
+    return new RegExp(source);
+  } catch {
+    return null;
+  }
 }
 
 function renderTemplateLines(
@@ -419,7 +448,8 @@ function renderTemplateLines(
     const value = values[blankIdx] ?? "";
     const blank = content.blanks[blankIdx];
     const expected = blank?.answer ?? "";
-    const isWrong = submitted && !(blank && isBlankCorrect(blank, value));
+    const isWrong =
+      submitted && !(blank && isBlankCorrect(blank, value, values));
     const isRight = submitted && !isWrong;
     lines[lines.length - 1].push(
       <input

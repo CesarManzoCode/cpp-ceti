@@ -88,6 +88,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Abre `hola.txt` con `ofstream`, escribe 3 lineas con `<<` y `endl`, y cierra el stream con `close()`.",
           template: `#include <stdio.h>
 #include {{0}}
 using namespace std;
@@ -365,6 +366,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Escribe `4 5 6` en `trio.txt` con `ofstream`, releelos con `ifstream` usando `>>`, e imprime su producto.",
           template: `// Escribir 3 enteros, releer y mostrar el producto
 
 {{0}} salida("trio.txt");
@@ -629,6 +631,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Abre `config.txt` con `ifstream` y valida con `if (!archivo)`. Si falla retorna `1`; si abre, lee un `int` con `>>` y muestralo.",
           template: `// Lee un entero del archivo SI existe; si no, reporta y sale.
 {{0}} archivo("config.txt");
 
@@ -915,6 +918,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Recorre `notas.txt` linea por linea con `while (getline(...))`, imprime cada linea y lleva un contador que termina mostrando el total.",
           template: `// Construye un archivo de 3 líneas, después léelo y cuéntalas
 
 ofstream salida("notas.txt");
@@ -1220,6 +1224,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Agrega 3 entradas a `log.txt` reabriendo con `ios::app` para no truncar, y verifica leyendo todo con `getline`.",
           template: `// Construye un log de 3 entradas SIN perder lo anterior
 
 // 1) Primera apertura: modo normal (crea o trunca)
@@ -1542,6 +1547,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Pide 5 enteros con `scanf` y guardalos en `datos.txt`; releelos con `while (entrada >> valor)` e imprime el promedio con `%.2f` casteando a `double`.",
           template: `// Pipeline completo: scanf → archivo → archivo → estadísticas
 
 // 1) Pide N enteros y guárdalos en el archivo

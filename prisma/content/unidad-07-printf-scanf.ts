@@ -92,6 +92,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Cambia este programa de `cout` a `printf`. Completa el header `<stdio.h>`, el tipo `int`, la función `printf` y los saltos de línea `\\n`.",
           template: `// Cambia este programa de cout a printf
 #include {{0}}
 
@@ -317,6 +319,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Llena los `%i` (especificadores de entero) y las variables `edad`, `semestre`, `materias` en orden. En la última línea repite `%i` y completa la suma con `materias`.",
           template: `#include <stdio.h>
 
 int main() {
@@ -513,6 +517,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Usa `%f` para el formato libre, `%.2f` para 2 decimales y `%.0f` para redondear sin decimales. Una de las líneas también pide la variable `total`.",
           template: `#include <stdio.h>
 
 int main() {
@@ -735,6 +741,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Para `scanf` no olvides el `&` antes de cada variable. Usa `\"%i\"` para el entero y `\"%f\"` para el double. En el `printf` final usa `%i` y `%.2f` con las variables `edad` y `promedio`.",
           template: `#include <stdio.h>
 
 int main() {
@@ -978,6 +986,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Lee 3 enteros con `\"%i %i %i\"` y un `&` antes de cada variable. En los `printf` usa `%i` para cada valor entero impreso.",
           template: `#include <stdio.h>
 
 int main() {
@@ -1237,6 +1247,8 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt:
+            "Completa el operador `*` en la función, `\"%lf %lf\"` con `&` por variable en el `scanf`, el nombre `area` al llamarla, `%.2f` para imprimir cada double y `0` como código de salida.",
           template: `#include <stdio.h>
 
 // Función pura: calcula área del rectángulo

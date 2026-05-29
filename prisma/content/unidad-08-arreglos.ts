@@ -85,6 +85,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Declara el arreglo de tamaño `4` y asigna por índice: primero `0`, tercero `2`, último `3`.",
           template: `// Boletín de 4 calificaciones
 int notas[{{0}}];
 
@@ -347,6 +348,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Inicializa con llaves `{}` los días de enero a mayo (`31, 28, 31, 30, 31`) y accede por índice base `0`.",
           template: `// Inicializa días del mes para enero, febrero, marzo, abril, mayo
 {{0}} dias[5] = { {{1}}, {{2}}, 31, {{3}}, {{4}} };
 
@@ -554,6 +556,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Completa el `for` con índice inicial `0`, condición `< 5`, `++` y acumula en `suma` con `+=`.",
           template: `int v[5] = {10, 20, 30, 40, 50};
 int suma = {{0}};
 
@@ -769,6 +772,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Lee con `scanf` usando `&notas[i]`, luego imprime al revés con `for` de `4` a `0` y `i--`.",
           template: `// Lee 5 calificaciones y luego imprímelas en orden inverso
 int notas[{{0}}];
 
@@ -1026,6 +1030,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Acumula con `suma += notas[i]` y calcula el promedio como `double` dividiendo entre `5.0`.",
           template: `int notas[5];
 for (int i = 0; i < 5; i++) {
   scanf("%i", &notas[i]);
@@ -1313,6 +1318,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "Inicializa `mayor` y `menor` con `v[0]`, arranca el `for` en `1` y compara con `>` y `<`.",
           template: `int v[5];
 for (int i = 0; i < 5; i++) {
   scanf("%i", &v[i]);
@@ -1597,6 +1603,7 @@ int main() {
         },
         {
           type: "fill_blank",
+          prompt: "En una pasada acumula `suma += notas[i]`, actualiza `mayor` y cuenta `aprobados++` cuando la nota sea `>= 7`.",
           template: `int notas[5];
 for (int i = 0; i < 5; i++) {
   scanf("%i", &notas[{{0}}]);
