@@ -147,11 +147,11 @@ function ContinueHero({ next }: { next: NextLesson }) {
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/15 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-8"
+      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/20 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-8"
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 opacity-80 blur-3xl"
       />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-3">
@@ -162,7 +162,7 @@ function ContinueHero({ next }: { next: NextLesson }) {
             {next.lessonTitle}
           </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <span>
+            <span className="truncate">
               Unidad {next.unitOrder} · {next.unitTitle}
             </span>
             <span aria-hidden className="text-muted-foreground/40">·</span>
@@ -174,7 +174,7 @@ function ContinueHero({ next }: { next: NextLesson }) {
         </div>
         <Button
           size="lg"
-          className="self-start shadow-[var(--shadow-sm)] lg:self-auto"
+          className="w-full shadow-[var(--shadow-sm)] group-hover:translate-x-0.5 group-hover:shadow-[var(--shadow-md)] sm:w-auto"
           tabIndex={-1}
           aria-hidden
         >
@@ -207,7 +207,7 @@ function AllDoneHero() {
             llega contenido nuevo.
           </p>
         </div>
-        <Button asChild size="lg" variant="outline" className="self-start">
+        <Button asChild size="lg" className="self-start sm:self-auto">
           <Link href="/app/ejercicios">
             Practicar
             <ArrowRight />

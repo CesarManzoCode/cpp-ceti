@@ -322,6 +322,24 @@ h1, h2, h3, h4 {
   border-radius: var(--radius-sm);
 }
 
+/* Instruction prose — looser size for prompts above forms/blanks */
+.prose-instructions {
+  font-size: 1.0625rem; /* 17px */
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+}
+.prose-instructions p {
+  margin: 0;
+  max-width: 60ch;
+}
+.prose-instructions p + p {
+  margin-top: 0.5rem;
+}
+.prose-instructions strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
 /* ============================================================
    Pattern utilities — used sparingly, never as decoration alone
    ============================================================ */

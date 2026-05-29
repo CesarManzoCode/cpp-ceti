@@ -30,11 +30,11 @@ export function StreakFlame({
         aria-hidden
         className={cn(
           "size-full",
-          lit ? "text-warning" : "text-muted-foreground/40",
+          lit ? "text-warning" : "text-muted-foreground/55",
           !isStatic && lit && (strong ? "animate-flame-strong" : "animate-flame"),
         )}
         fill={lit ? "currentColor" : "none"}
-        strokeWidth={lit ? 1.5 : 2}
+        strokeWidth={lit ? 1.5 : 1.85}
       />
     </span>
   );

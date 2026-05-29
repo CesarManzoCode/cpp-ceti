@@ -29,7 +29,7 @@ export function SidebarNav({
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-7">
+    <nav className="flex flex-col gap-5">
       <NavGroup activeKey={pathname}>
         {topLinks.map((link) => {
           const active = link.exact
@@ -49,8 +49,11 @@ export function SidebarNav({
         })}
       </NavGroup>
 
-      <div className="space-y-3">
-        <h3 className="eyebrow px-3 text-muted-foreground/80">Unidades</h3>
+      <div className="space-y-2">
+        <div className="flex items-baseline justify-between px-3">
+          <h3 className="eyebrow text-muted-foreground/80">Unidades</h3>
+          <UnitsProgressTag units={units} />
+        </div>
         <NavGroup activeKey={pathname}>
           {units.map((unit) => {
             const href = `/app/u/${unit.slug}`;
@@ -89,6 +92,18 @@ export function SidebarNav({
         </NavGroup>
       </div>
     </nav>
+  );
+}
+
+function UnitsProgressTag({ units }: { units: RoadmapUnit[] }) {
+  const total = units.reduce((s, u) => s + u.lessonCount, 0);
+  const done = units.reduce((s, u) => s + u.completedCount, 0);
+  if (total === 0) return null;
+  const pct = Math.round((done / total) * 100);
+  return (
+    <span className="font-mono text-[10px] tabular-nums text-muted-foreground/70">
+      {pct}%
+    </span>
   );
 }
 
@@ -139,12 +154,20 @@ function NavGroup({
 
     // Measure after the DOM commits the new data-active attribute.
     const raf = requestAnimationFrame(update);
+
+    // Bring the active item into view in case the units list is long.
+    const scrollRaf = requestAnimationFrame(() => {
+      const active = group.querySelector<HTMLElement>("[data-active='true']");
+      active?.scrollIntoView({ block: "nearest" });
+    });
+
     const ro = new ResizeObserver(update);
     ro.observe(group);
     Array.from(group.children).forEach((child) => ro.observe(child));
     window.addEventListener("resize", update);
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(scrollRaf);
       ro.disconnect();
       window.removeEventListener("resize", update);
     };

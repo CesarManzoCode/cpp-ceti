@@ -55,10 +55,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
 
       <ul
         key={feedbackKey}
-        className={cn(
-          "space-y-2",
-          submitted && !isCorrect && "animate-shake",
-        )}
+        className="space-y-2"
         role="radiogroup"
         aria-label="Opciones"
       >
@@ -86,11 +83,11 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
                     "border-primary bg-primary-soft/50",
                   showCorrect && "border-success bg-success-soft text-success",
                   showWrong &&
-                    "border-destructive bg-destructive-soft text-destructive",
+                    "animate-shake border-destructive bg-destructive-soft text-destructive",
                   submitted &&
                     !isSelected &&
                     !isThisCorrect &&
-                    "opacity-55",
+                    "opacity-50",
                 )}
               >
                 <span

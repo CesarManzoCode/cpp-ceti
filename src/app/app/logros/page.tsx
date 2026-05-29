@@ -316,13 +316,15 @@ function BadgeCard({
         "flex items-start gap-4 rounded-[var(--radius-lg)] border bg-card p-5 transition-colors",
         unlocked
           ? "border-border hover:border-border-strong"
-          : "border-dashed border-border opacity-75 hover:opacity-100",
+          : "border-dashed border-border/80",
       )}
     >
       <div
         className={cn(
           "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)]",
-          unlocked ? TONE_TILE[badge.tone] : "bg-surface-2 text-muted-foreground",
+          unlocked
+            ? TONE_TILE[badge.tone]
+            : "bg-surface-2 text-muted-foreground/70 ring-1 ring-inset ring-border/50",
         )}
       >
         {unlocked ? (
@@ -333,7 +335,12 @@ function BadgeCard({
       </div>
 
       <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="text-[15px] font-semibold tracking-tight">
+        <h3
+          className={cn(
+            "text-[15px] font-semibold tracking-tight",
+            unlocked ? "text-foreground" : "text-foreground/80",
+          )}
+        >
           {badge.title}
         </h3>
         <p className="text-sm leading-relaxed text-muted-foreground">

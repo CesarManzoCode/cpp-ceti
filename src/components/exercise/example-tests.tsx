@@ -12,8 +12,15 @@ export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
   if (tests.length === 0) return null;
 
   return (
-    <div className="space-y-2">
-      <h4 className="eyebrow text-muted-foreground">Ejemplos</h4>
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <h4 className="text-sm font-semibold tracking-tight text-foreground">
+          Ejemplos
+        </h4>
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+          {tests.length} {tests.length === 1 ? "caso" : "casos"}
+        </span>
+      </div>
       <div className="space-y-2">
         {tests.map((t, idx) => (
           <div

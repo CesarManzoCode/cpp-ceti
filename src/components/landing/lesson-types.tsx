@@ -101,17 +101,17 @@ function ExampleCard() {
       title="Código que puedes correr."
       description="Ve el ejemplo. Cámbialo. Ejecútalo en el navegador y observa qué pasa."
     >
-      <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]">
-        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-zinc-400">
+      <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal">
+        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-terminal-faint">
           <span className="font-mono normal-case tracking-normal">ejemplo.cpp</span>
-          <span className="inline-flex items-center gap-1 font-semibold text-emerald-400">
+          <span className="inline-flex items-center gap-1 font-semibold text-terminal-success">
             <Play className="size-2.5 fill-current" aria-hidden /> run
           </span>
         </div>
-        <pre className="px-3 py-2.5 font-mono text-[11.5px] leading-[1.6] text-zinc-100">
-<span className="text-sky-400">int</span>{" "}
-<span className="text-blue-400">main</span>(){" {"}{"\n"}
-{"  "}cout {"<<"} <span className="text-emerald-400">{`"Hola"`}</span>;{"\n"}
+        <pre className="px-3 py-2.5 font-mono text-[11.5px] leading-[1.6] text-terminal-fg">
+<span className="text-syntax-type">int</span>{" "}
+<span className="text-syntax-type">main</span>(){" {"}{"\n"}
+{"  "}cout {"<<"} <span className="text-syntax-string">{`"Hola"`}</span>;{"\n"}
 {"}"}
         </pre>
       </div>
@@ -160,10 +160,10 @@ function ChallengeCard() {
       description="La plataforma compila, corre tests y te da feedback. Ganas XP al pasar."
     >
       <div className="space-y-2">
-        <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)]">
-          <pre className="px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-zinc-100">
-{"// imprime el promedio de a y b\n"}
-<span className="text-sky-400">double</span>{" "}promedio = <span className="text-zinc-400">{"/* ... */"}</span>;
+        <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal">
+          <pre className="px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-terminal-fg">
+<span className="text-syntax-comment">{"// imprime el promedio de a y b\n"}</span>
+<span className="text-syntax-type">double</span>{" "}promedio = <span className="text-syntax-comment">{"/* ... */"}</span>;
           </pre>
         </div>
         <div className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-success/30 bg-success-soft px-2.5 py-1.5 text-xs text-success">

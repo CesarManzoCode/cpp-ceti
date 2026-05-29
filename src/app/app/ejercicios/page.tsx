@@ -74,12 +74,19 @@ export default async function EjerciciosPage() {
       </header>
 
       {groups.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border p-10 text-center">
-          <Sparkles className="mx-auto size-8 text-muted-foreground/60" aria-hidden />
-          <p className="mt-4 text-sm text-muted-foreground">
-            Aún no hay ejercicios cargados. Vuelve pronto — estamos llenando
-            unidad por unidad.
-          </p>
+        <div className="flex flex-col items-center gap-4 rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
+          <span className="grid size-12 place-items-center rounded-full bg-primary-soft text-primary">
+            <Sparkles className="size-5" aria-hidden />
+          </span>
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold">
+              Los ejercicios se desbloquean conforme avanzas
+            </h2>
+            <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+              Sigue el camino del curso y cada unidad te abrirá nuevos retos
+              para consolidar lo aprendido.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="space-y-12">

@@ -19,7 +19,7 @@ export function Hero() {
         className="dot-pattern absolute inset-0 -z-10 opacity-50 dark:opacity-30"
       />
 
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:py-28">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:py-28">
         {/* Columna texto */}
         <div
           data-stagger
@@ -28,15 +28,18 @@ export function Hero() {
         >
           <div
             style={{ "--i": 0 } as CSSProperties}
-            className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur"
+            className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-surface/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur"
           >
-            <span className="size-1.5 rounded-full bg-success" aria-hidden />
+            <span className="relative inline-flex size-1.5" aria-hidden>
+              <span className="absolute inset-0 animate-pulse-soft rounded-full bg-success" />
+              <span className="relative size-1.5 rounded-full bg-success" />
+            </span>
             <span>Hecho en Guadalajara para estudiantes del CETI</span>
           </div>
 
           <h1
             style={{ "--i": 1 } as CSSProperties}
-            className="animate-fade-up text-balance text-[44px] font-bold leading-[1.02] tracking-[-0.04em] sm:text-[60px] lg:text-[68px]"
+            className="animate-fade-up text-balance text-[46px] font-bold leading-[1.02] tracking-[-0.04em] sm:text-[60px] lg:text-[68px]"
           >
             Aprende{" "}
             <span className="relative inline-block">
@@ -55,7 +58,7 @@ export function Hero() {
 
           <p
             style={{ "--i": 2 } as CSSProperties}
-            className="animate-fade-up max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl"
+            className="animate-fade-up max-w-xl text-pretty text-[17px] leading-relaxed text-muted-foreground sm:text-xl"
           >
             Lecciones cortas, ejercicios reales y un compilador C++ en tu
             navegador. Practica de verdad, con feedback al instante.
@@ -81,7 +84,7 @@ export function Hero() {
 
           <ul
             style={{ "--i": 4 } as CSSProperties}
-            className="animate-fade-up flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground"
+            className="animate-fade-up flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-sm text-foreground/75"
           >
             {proofPoints.map((p) => (
               <li key={p} className="flex items-center gap-2">

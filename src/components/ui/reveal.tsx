@@ -48,7 +48,7 @@ export function Reveal({
     );
     io.observe(el);
 
-    const fallback = window.setTimeout(() => setShown(true), 2000);
+    const fallback = window.setTimeout(() => setShown(true), 900);
 
     return () => {
       io.disconnect();

@@ -11,7 +11,7 @@ export default function DashboardLoading() {
         <Skeleton className="h-9 w-72" />
       </header>
 
-      <Skeleton className="h-36 w-full rounded-[var(--radius-xl)]" />
+      <Skeleton className="h-44 w-full rounded-[var(--radius-xl)] sm:h-48" />
 
       <div className="grid gap-3 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (

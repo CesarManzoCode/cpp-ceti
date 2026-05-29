@@ -166,7 +166,6 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
 
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
               onClick={handleRun}
               disabled={running || submitting}
               loading={running}
@@ -176,6 +175,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
               Probar
             </Button>
             <Button
+              variant="outline"
               onClick={handleSubmit}
               disabled={submitting || running}
               loading={submitting}

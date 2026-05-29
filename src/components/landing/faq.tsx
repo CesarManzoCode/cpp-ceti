@@ -53,10 +53,10 @@ export function Faq() {
           {faqs.map((f) => (
             <details
               key={f.q}
-              className="group p-5 transition-colors open:bg-surface-2/40 sm:p-6 [&_summary::-webkit-details-marker]:hidden"
+              className="group p-5 transition-colors open:bg-surface-2/60 sm:p-6 [&_summary::-webkit-details-marker]:hidden"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-                <h3 className="text-[15px] font-semibold tracking-tight sm:text-[17px]">
+                <h3 className="text-[15px] font-semibold tracking-tight transition-colors group-open:text-foreground sm:text-[17px]">
                   {f.q}
                 </h3>
                 <span

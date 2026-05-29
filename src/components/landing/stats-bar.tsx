@@ -1,43 +1,37 @@
-import { BookOpen, GraduationCap, Layers, Sparkles } from "lucide-react";
-
 import { getLandingStats } from "@/components/landing/queries";
 
 /**
- * Trust bar con métricas reales del contenido publicado.
- * Server component: lee la base al renderizar.
+ * Trust bar editorial: solo números reales del temario publicado.
+ * Sin iconos decorativos — los números cargan el peso visual.
  */
 export async function StatsBar() {
   const { lessons, exercises, units, degraded } = await getLandingStats();
 
-  const approxMinutes = lessons * 5 + exercises * 4;
-  const approxHours = Math.max(1, Math.round(approxMinutes / 60));
-
   const items = [
-    { label: "Lecciones", value: `${lessons}+`, icon: BookOpen },
-    { label: "Ejercicios", value: `${exercises}+`, icon: Sparkles },
-    { label: "Unidades activas", value: `${units}`, icon: Layers },
-    { label: "Horas estimadas", value: `~${approxHours} h`, icon: GraduationCap },
+    { label: "Unidades", value: `${units}` },
+    { label: "Lecciones", value: `${lessons}+` },
+    { label: "Ejercicios", value: `${exercises}+` },
+    { label: "Costo", value: "Gratis" },
   ];
 
   return (
     <section
-      aria-label="Estadísticas del curso"
-      className="border-b border-border/60 bg-surface-2/30 py-12"
+      aria-label="Resumen del curso"
+      className="border-b border-border/60 bg-surface-2/30 py-10 sm:py-14"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-6">
-        <p className="eyebrow mb-8 text-center text-muted-foreground">
+      <div className="mx-auto max-w-5xl px-5 sm:px-6">
+        <p className="eyebrow mb-7 text-center text-muted-foreground">
           {degraded
             ? "El temario crece cada semana"
             : "Construido sobre el temario oficial del CETI"}
         </p>
-        <ul className="grid grid-cols-2 divide-x divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card md:grid-cols-4 md:divide-y-0">
+        <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-lg)] border border-border bg-border/70 md:grid-cols-4">
           {items.map((it) => (
             <li
               key={it.label}
-              className="flex flex-col items-center gap-2 px-4 py-7 text-center"
+              className="flex flex-col items-center gap-1.5 bg-card px-4 py-6 text-center"
             >
-              <it.icon className="size-5 text-primary/70" aria-hidden />
-              <span className="text-[30px] font-bold tracking-tight tabular-nums text-foreground sm:text-[38px]">
+              <span className="text-[30px] font-bold leading-none tracking-tight tabular-nums text-foreground sm:text-[36px]">
                 {it.value}
               </span>
               <span className="eyebrow text-muted-foreground">{it.label}</span>

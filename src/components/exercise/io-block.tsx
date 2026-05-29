@@ -13,7 +13,7 @@ export function IOBlock({ label, value, muted }: IOBlockProps) {
       <p className="eyebrow mb-1 text-muted-foreground">{label}</p>
       <pre
         className={cn(
-          "max-h-44 overflow-auto rounded-md bg-surface-2 px-2.5 py-1.5 font-mono text-[11.5px] leading-relaxed",
+          "max-h-44 overflow-auto rounded-[var(--radius-xs)] bg-surface-2 px-3 py-1.5 font-mono text-[12.5px] leading-[1.55]",
           muted && "text-muted-foreground/70",
         )}
       >

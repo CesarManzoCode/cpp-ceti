@@ -34,17 +34,17 @@ export function HowItWorks() {
           className="max-w-2xl"
         />
 
-        <ol className="relative mt-14 grid gap-6 md:grid-cols-3">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-12 top-[34px] hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
-          />
+        <ol className="mt-14 grid gap-5 md:grid-cols-3">
           {steps.map((s) => (
             <li
               key={s.n}
-              className="relative flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
+              className="relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-7"
             >
-              <span className="font-mono text-sm font-semibold tabular-nums text-primary">
+              <span
+                aria-hidden
+                className="absolute inset-y-6 left-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent"
+              />
+              <span className="font-mono text-[13px] font-semibold tabular-nums tracking-wider text-primary">
                 {s.n}
               </span>
               <h3 className="text-lg font-semibold tracking-tight">{s.title}</h3>

@@ -58,7 +58,10 @@ export function StepCodeChallenge({
   // Lleva la mirada al veredicto en cada intento (también si vuelve a fallar).
   React.useEffect(() => {
     if (attempt > 0) {
-      resultRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      resultRef.current?.scrollIntoView({
+        block: attempt === 1 ? "start" : "nearest",
+        behavior: "smooth",
+      });
     }
   }, [attempt]);
 
@@ -112,7 +115,6 @@ export function StepCodeChallenge({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
               onClick={() => {
                 setSubmission(null);
                 playground.run(code);
@@ -125,6 +127,7 @@ export function StepCodeChallenge({
               Probar
             </Button>
             <Button
+              variant="outline"
               onClick={handleSubmit}
               disabled={submitting || running}
               loading={submitting}

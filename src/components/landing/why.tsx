@@ -40,16 +40,16 @@ export function Why() {
           className="mx-auto max-w-2xl items-center"
         />
 
-        <ul className="mt-14 grid gap-5 sm:grid-cols-3">
+        <ul className="mt-14 grid gap-4 sm:grid-cols-3">
           {problems.map((p) => (
             <li
               key={p.title}
-              className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7"
+              className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7 transition-colors hover:border-border-strong"
             >
-              <span className="inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-surface-2 text-muted-foreground">
+              <span className="inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-surface-2 text-muted-foreground ring-1 ring-inset ring-border/50">
                 <p.icon className="size-5" aria-hidden />
               </span>
-              <h3 className="text-lg font-semibold tracking-tight">{p.title}</h3>
+              <h3 className="text-[17px] font-semibold tracking-tight">{p.title}</h3>
               <p className="text-[15px] leading-relaxed text-muted-foreground">
                 {p.body}
               </p>

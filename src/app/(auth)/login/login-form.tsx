@@ -106,7 +106,7 @@ export function LoginForm() {
           placeholder="tu@correo.com"
           required
           disabled={busy}
-          leadingIcon={<Mail />}
+          leadingIcon={<Mail className="size-4" />}
         />
       </div>
 
@@ -120,7 +120,7 @@ export function LoginForm() {
           required
           minLength={8}
           disabled={busy}
-          leadingIcon={<Lock />}
+          leadingIcon={<Lock className="size-4" />}
         />
       </div>
 
@@ -152,7 +152,7 @@ function Divider({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative my-1 flex items-center">
       <span className="h-px flex-1 bg-border" aria-hidden />
-      <span className="px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {children}
       </span>
       <span className="h-px flex-1 bg-border" aria-hidden />

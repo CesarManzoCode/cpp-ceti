@@ -7,7 +7,7 @@ import { BrandSpinner } from "@/components/ui/brand-spinner";
 export default function RootLoading() {
   return (
     <div className="grid min-h-dvh place-items-center bg-background">
-      <BrandSpinner size="lg" />
+      <BrandSpinner size="lg" label="Cargando…" />
     </div>
   );
 }

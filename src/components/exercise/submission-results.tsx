@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -51,12 +52,17 @@ export function SubmissionResults({
         </span>
       </div>
 
-      <ul className="space-y-2">
+      <ul
+        data-stagger
+        style={{ "--stagger": "40ms" } as CSSProperties}
+        className="space-y-2"
+      >
         {submission.results.map((r, idx) => (
           <li
             key={r.testId}
+            style={{ "--i": idx } as CSSProperties}
             className={cn(
-              "overflow-hidden rounded-[var(--radius-sm)] border bg-card text-xs",
+              "animate-fade-up overflow-hidden rounded-[var(--radius-sm)] border bg-card text-xs",
               r.passed ? "border-border" : "border-destructive/40",
             )}
           >

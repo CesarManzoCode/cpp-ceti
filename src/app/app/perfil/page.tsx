@@ -52,21 +52,21 @@ export default async function PerfilPage() {
       data-page-enter
       className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <header className="rounded-[var(--radius-xl)] border border-border bg-card p-6 sm:p-8">
+      <header className="rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-[var(--shadow-xs)] sm:p-8">
         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-          <Avatar className="size-20 ring-1 ring-border ring-inset">
+          <Avatar className="size-16 ring-1 ring-border ring-inset sm:size-20">
             {user.image ? (
               <AvatarImage src={user.image} alt={user.name} />
             ) : null}
-            <AvatarFallback className="bg-primary-soft text-2xl font-semibold text-primary-soft-foreground">
-              {initials || <UserIcon className="size-8" />}
+            <AvatarFallback className="bg-primary-soft text-xl font-semibold text-primary-soft-foreground sm:text-2xl">
+              {initials || <UserIcon className="size-7 sm:size-8" />}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-1.5">
-            <h1 className="text-[26px] font-bold tracking-[-0.025em] sm:text-[32px]">
+          <div className="min-w-0 space-y-1.5">
+            <h1 className="truncate text-[24px] font-bold tracking-[-0.025em] sm:text-[32px]">
               {user.name}
             </h1>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80">
               <Sparkles className="size-3" aria-hidden />
               Miembro desde {memberSince}

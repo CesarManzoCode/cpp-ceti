@@ -46,7 +46,7 @@ export async function Curriculum() {
           {units.map((u) => {
             const topics = UNIT_TOPICS[u.slug] ?? [];
             const rowClass =
-              "group flex items-start gap-5 border-t border-border/70 p-5 first:border-t-0 sm:p-6";
+              "group relative flex items-start gap-5 border-t border-border/70 p-5 first:border-t-0 sm:gap-6 sm:p-6";
             const inner = (
               <>
                 <div
@@ -54,7 +54,7 @@ export async function Curriculum() {
                     "grid size-10 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums " +
                     (u.published
                       ? "bg-primary text-primary-foreground"
-                      : "bg-surface-2 text-muted-foreground/50")
+                      : "border border-dashed border-border bg-surface-2 text-muted-foreground/60")
                   }
                 >
                   {u.published ? (
@@ -64,11 +64,11 @@ export async function Curriculum() {
                   )}
                 </div>
 
-                <div className="min-w-0 flex-1 space-y-2">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div>
+                <div className="min-w-0 flex-1 space-y-2.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <div className="min-w-0">
                       <p className="eyebrow text-muted-foreground">
-                        Unidad {u.order}
+                        Unidad {String(u.order).padStart(2, "0")}
                       </p>
                       <h3
                         className={
@@ -82,12 +82,12 @@ export async function Curriculum() {
                       </h3>
                     </div>
                     {u.published ? (
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-60">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-primary/70 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-primary">
                         Empezar
                         <ArrowRight className="size-3" aria-hidden />
                       </span>
                     ) : (
-                      <span className="text-[11px] font-medium text-muted-foreground/70">
+                      <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
                         Próximamente
                       </span>
                     )}
@@ -98,7 +98,7 @@ export async function Curriculum() {
                         <li
                           key={t}
                           className={
-                            "inline-flex items-center rounded-full border border-border/70 bg-surface-2/60 px-2.5 py-0.5 text-xs " +
+                            "inline-flex items-center rounded-[var(--radius-xs)] border border-border/60 bg-surface-2/60 px-2 py-0.5 font-mono text-[11px] " +
                             (u.published
                               ? "text-muted-foreground"
                               : "text-muted-foreground/60")

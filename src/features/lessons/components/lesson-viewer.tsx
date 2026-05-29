@@ -58,10 +58,16 @@ export function LessonViewer({
   const isWideStep = currentStep?.type === "code_challenge";
   const containerMax = isWideStep ? "max-w-6xl" : "max-w-4xl";
 
+  function scrollTop() {
+    if (window.scrollY > 80) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
   function handlePrev() {
     if (currentIndex === 0) return;
     setCurrentIndex(currentIndex - 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTop();
   }
 
   function handleNext() {
@@ -74,7 +80,7 @@ export function LessonViewer({
           setCompletedDialog({ open: true, xp: res.xpEarned });
         } else if (currentIndex < total - 1) {
           setCurrentIndex(currentIndex + 1);
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          scrollTop();
         }
       } catch (err) {
         toast.error(
@@ -131,6 +137,11 @@ export function LessonViewer({
           )}
 
           <div className="flex flex-1 items-center gap-3">
+            {!isFirstStep ? (
+              <span className="hidden min-w-0 truncate text-[13px] font-medium text-foreground/80 md:inline">
+                {lesson.title}
+              </span>
+            ) : null}
             <Progress value={progressPercent} size="xs" className="flex-1" />
             <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
               {currentIndex + 1}/{total}

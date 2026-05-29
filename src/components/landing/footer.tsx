@@ -15,7 +15,7 @@ const links: { href: string; label: string; external?: boolean }[] = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/60 bg-surface-2/40">
+    <footer className="border-t border-border bg-surface-2/60">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-10 sm:px-6 sm:flex-row">
         <div className="flex flex-col items-center gap-2 sm:items-start">
           <Logo size="sm" />

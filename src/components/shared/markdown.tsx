@@ -67,7 +67,7 @@ export function Markdown({ children, className }: MarkdownProps) {
             </a>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="my-4 max-w-[68ch] border-l-4 border-primary/60 bg-primary/5 px-4 py-2 italic text-foreground/80">
+            <blockquote className="my-4 max-w-[68ch] rounded-r-[var(--radius-xs)] border-l-[3px] border-primary bg-primary/8 px-4 py-2.5 italic text-foreground dark:bg-primary/12">
               {children}
             </blockquote>
           ),
