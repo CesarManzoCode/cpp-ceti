@@ -37,7 +37,7 @@ export function LessonCompleted({
           <div className="relative mx-auto w-fit">
             <span
               aria-hidden
-              className="absolute inset-0 rounded-full bg-success/25 blur-xl motion-safe:animate-pulse-soft"
+              className="animate-pulse-soft absolute inset-0 rounded-full bg-success/25 blur-xl"
             />
             <div className="animate-scale-in relative grid size-14 place-items-center rounded-full bg-success-soft text-success ring-4 ring-success/15">
               <CheckCircle2 className="size-7" aria-hidden />
