@@ -39,7 +39,7 @@ export function HowItWorks() {
               <span className="text-gradient-primary">10% teoría.</span>
             </>
           }
-          description="Porque programar se aprende programando — no escuchando."
+          description="Porque programar se aprende programando: repasas el concepto y lo aplicas de inmediato."
           className="max-w-2xl"
         />
 

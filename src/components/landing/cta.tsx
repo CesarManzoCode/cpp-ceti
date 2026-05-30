@@ -24,15 +24,15 @@ export function FinalCta() {
 
           <div className="relative">
             <h2 className="font-display mx-auto max-w-3xl text-balance text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.035em]">
-              Deja de copiar código del pizarrón.
+              Lo que ves en clase,
               <br />
               <span className="text-gradient-primary">
-                Empieza a programarlo.
+                vuélvelo tuyo programando.
               </span>
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base">
               Si tu próximo examen es la próxima semana, el mejor momento para
-              empezar es hoy.
+              empezar a practicar es hoy.
             </p>
 
             <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

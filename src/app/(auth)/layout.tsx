@@ -28,7 +28,7 @@ export default function AuthLayout({
             <span className="text-gradient-primary">programando.</span>
             <br />
             <span className="text-muted-foreground">
-              No memorizando código del pizarrón.
+              Practicándolo hasta que se te queda.
             </span>
           </blockquote>
           <p className="max-w-sm text-[15px] leading-relaxed text-muted-foreground">

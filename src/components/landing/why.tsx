@@ -5,19 +5,19 @@ import { Reveal } from "@/components/ui/reveal";
 
 const problems = [
   {
-    icon: BookX,
-    title: "El pizarrón no enseña",
-    body: "Los maestros copian código sin explicar la lógica. Tú memorizas. Y el examen te cae encima.",
+    icon: Code2,
+    title: "Ver no es lo mismo que escribir",
+    body: "Seguir un ejemplo en clase es el primer paso. Escribir el código tú mismo —equivocarte y corregir— es lo que hace que el concepto se quede.",
   },
   {
-    icon: Code2,
+    icon: BookX,
     title: "Mimo no tiene C++",
     body: "Sololearn, Codecademy, Mimo — ninguna enseña C++. Y menos en español.",
   },
   {
     icon: GraduationCap,
-    title: "Reprobar no es por flojera",
-    body: "Es por falta de recursos. Esta plataforma te da lo que la escuela debería darte.",
+    title: "Repasa a tu ritmo",
+    body: "Si un tema no te cayó a la primera, aquí lo practicas las veces que necesites, con pistas y feedback inmediato.",
   },
 ];
 
@@ -27,11 +27,13 @@ export function Why() {
       <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
-          eyebrow="el problema"
+          eyebrow="la idea"
           title={
             <>
-              En el CETI, C++ se reprueba en masa.{" "}
-              <span className="text-muted-foreground">Y no es tu culpa.</span>
+              ¿Un tema de C++ no te quedó claro?{" "}
+              <span className="text-muted-foreground">
+                Aquí lo practicas hasta dominarlo.
+              </span>
             </>
           }
           className="mx-auto max-w-2xl items-center"

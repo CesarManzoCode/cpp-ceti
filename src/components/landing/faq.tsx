@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "¿Voy a aprobar la materia si lo uso?",
-    a: "No prometemos que apruebes — eso depende de ti. Pero te damos algo que la escuela no: práctica real con feedback inmediato. Si haces los ejercicios, vas a entender el código mucho mejor.",
+    a: "No prometemos que apruebes — eso depende de ti. Lo que sí te damos es un lugar para practicar lo que ves en clase: ejercicios reales con feedback inmediato. Si haces los ejercicios, vas a entender el código mucho mejor.",
   },
   {
     q: "¿Qué pasa si me atoro en un ejercicio?",
