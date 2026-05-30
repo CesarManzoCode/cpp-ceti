@@ -1,3 +1,5 @@
+import { env } from "@/env";
+
 import { Judge0Executor } from "./judge0";
 import { PistonExecutor } from "./piston";
 import { WandboxExecutor } from "./wandbox";
@@ -20,72 +22,53 @@ let cached: CodeExecutor | null = null;
 export function getCodeExecutor(): CodeExecutor {
   if (cached) return cached;
 
-  const provider = process.env.CODE_EXECUTOR_PROVIDER ?? "wandbox";
+  const provider = env.CODE_EXECUTOR_PROVIDER;
 
   if (provider === "wandbox") {
-    cached = new WandboxExecutor(
-      process.env.WANDBOX_URL ?? "https://wandbox.org",
-      {
-        compiler: process.env.WANDBOX_COMPILER,
-        compilerOptions: process.env.WANDBOX_COMPILER_OPTIONS,
-      },
-    );
+    cached = new WandboxExecutor(env.WANDBOX_URL ?? "https://wandbox.org", {
+      compiler: env.WANDBOX_COMPILER,
+      compilerOptions: env.WANDBOX_COMPILER_OPTIONS,
+    });
     return cached;
   }
 
   if (provider === "piston") {
     cached = new PistonExecutor(
-      process.env.PISTON_URL ?? "https://emkc.org/api/v2/piston",
-      {
-        version: process.env.PISTON_CPP_VERSION,
-      },
+      env.PISTON_URL ?? "https://emkc.org/api/v2/piston",
+      { version: env.PISTON_CPP_VERSION },
     );
     return cached;
   }
 
   if (provider === "piston-selfhosted") {
-    const url = process.env.PISTON_URL;
-    if (!url) {
-      throw new ExecutorConfigError(
-        "PISTON_URL es obligatorio cuando CODE_EXECUTOR_PROVIDER es 'piston-selfhosted'",
-      );
-    }
-    cached = new PistonExecutor(url, {
-      version: process.env.PISTON_CPP_VERSION,
+    // env validó que PISTON_URL exista para este provider.
+    cached = new PistonExecutor(env.PISTON_URL!, {
+      version: env.PISTON_CPP_VERSION,
     });
     return cached;
   }
 
-  const languageIdEnv = process.env.JUDGE0_CPP_LANGUAGE_ID;
-  const languageId = languageIdEnv ? Number(languageIdEnv) : undefined;
+  const languageId = env.JUDGE0_CPP_LANGUAGE_ID
+    ? Number(env.JUDGE0_CPP_LANGUAGE_ID)
+    : undefined;
 
   if (provider === "judge0-selfhosted") {
-    const url = process.env.JUDGE0_SELFHOSTED_URL;
-    if (!url) {
-      throw new ExecutorConfigError(
-        "JUDGE0_SELFHOSTED_URL es obligatorio cuando CODE_EXECUTOR_PROVIDER es 'judge0-selfhosted'",
-      );
-    }
     const headers: Record<string, string> = {};
-    if (process.env.JUDGE0_AUTH_TOKEN) {
-      headers["X-Auth-Token"] = process.env.JUDGE0_AUTH_TOKEN;
+    if (env.JUDGE0_AUTH_TOKEN) {
+      headers["X-Auth-Token"] = env.JUDGE0_AUTH_TOKEN;
     }
-    cached = new Judge0Executor(url, headers, { languageId });
+    cached = new Judge0Executor(env.JUDGE0_SELFHOSTED_URL!, headers, {
+      languageId,
+    });
     return cached;
   }
 
   if (provider === "judge0-rapidapi") {
-    const key = process.env.JUDGE0_RAPIDAPI_KEY;
-    const host = process.env.JUDGE0_RAPIDAPI_HOST ?? "judge0-ce.p.rapidapi.com";
-    if (!key) {
-      throw new ExecutorConfigError(
-        "JUDGE0_RAPIDAPI_KEY es obligatorio cuando CODE_EXECUTOR_PROVIDER es 'judge0-rapidapi'",
-      );
-    }
+    const host = env.JUDGE0_RAPIDAPI_HOST ?? "judge0-ce.p.rapidapi.com";
     cached = new Judge0Executor(
       `https://${host}`,
       {
-        "X-RapidAPI-Key": key,
+        "X-RapidAPI-Key": env.JUDGE0_RAPIDAPI_KEY!,
         "X-RapidAPI-Host": host,
       },
       { languageId },

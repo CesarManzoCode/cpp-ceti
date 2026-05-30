@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "./retry";
 import type {
   CodeExecutor,
   ExecutionRequest,
@@ -68,16 +69,20 @@ export class Judge0Executor implements CodeExecutor {
     };
 
     const url = `${this.baseUrl}/submissions?wait=true&base64_encoded=false&fields=*`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.headers,
+    const response = await fetchWithRetry(
+      url,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...this.headers,
+        },
+        body: JSON.stringify(payload),
+        // No cachear ejecuciones de código en CDN
+        cache: "no-store",
       },
-      body: JSON.stringify(payload),
-      // No cachear ejecuciones de código en CDN
-      cache: "no-store",
-    });
+      { label: "judge0" },
+    );
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");

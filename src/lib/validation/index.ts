@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const CODE_MAX_LENGTH = 50_000;
+export const STDIN_MAX_LENGTH = 10_000;
+export const BUG_REPORT_MAX_LENGTH = 2_000;
 
 export const sourceCodeSchema = z
   .string({ message: "El código es obligatorio" })
@@ -10,6 +12,15 @@ export const sourceCodeSchema = z
     CODE_MAX_LENGTH,
     `El código excede ${CODE_MAX_LENGTH.toLocaleString("es-MX")} caracteres`,
   );
+
+export const stdinSchema = z
+  .string()
+  .max(
+    STDIN_MAX_LENGTH,
+    `El stdin excede ${STDIN_MAX_LENGTH.toLocaleString("es-MX")} caracteres`,
+  )
+  .optional()
+  .default("");
 
 export const cuidSchema = z.string().min(1, "Identificador inválido");
 
@@ -26,7 +37,7 @@ export const stepCompletionSchema = z.object({
 
 export const runCodeSchema = z.object({
   sourceCode: sourceCodeSchema,
-  stdin: z.string().optional().default(""),
+  stdin: stdinSchema,
 });
 
 export type RunCodeInput = z.infer<typeof runCodeSchema>;

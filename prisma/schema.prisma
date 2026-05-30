@@ -34,12 +34,17 @@ model User {
   accounts Account[]
 
   // Relaciones de progreso
-  courseProgress    UserCourseProgress[]
-  lessonProgress    UserLessonProgress[]
-  stepProgress      UserStepProgress[]
-  exerciseAttempts  UserExerciseAttempt[]
-  practiceAttempts  UserPracticeAttempt[]
-  streak            UserStreak?
+  courseProgress       UserCourseProgress[]
+  lessonProgress       UserLessonProgress[]
+  stepProgress         UserStepProgress[]
+  exerciseAttempts     UserExerciseAttempt[]
+  exerciseCompletions  UserExerciseCompletion[]
+  practiceAttempts     UserPracticeAttempt[]
+  practiceCompletions  UserPracticeCompletion[]
+  hintsViewed          UserHintViewed[]
+  studySessions        StudySession[]
+  bugReports           BugReport[]
+  streak               UserStreak?
 
   @@index([email])
   @@map("user")
@@ -175,8 +180,9 @@ model LessonStep {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  exercise Exercise?
-  progress UserStepProgress[]
+  exercise   Exercise?
+  progress   UserStepProgress[]
+  bugReports BugReport[]
 
   @@unique([lessonId, order])
   @@index([lessonId, order])
@@ -203,6 +209,9 @@ model Exercise {
   xpReward         Int         @default(15)
   testCases        TestCase[]
   attempts         UserExerciseAttempt[]
+  completions      UserExerciseCompletion[]
+  hintsViewed      UserHintViewed[]
+  bugReports       BugReport[]
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
@@ -296,10 +305,28 @@ model UserExerciseAttempt {
   testsPassed  Int      @default(0)
   testsTotal   Int      @default(0)
   durationMs   Int?
+  /** True solo en el primer intento que aprobó (consistente con UserExerciseCompletion). */
+  awardedXp    Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   @@index([userId, exerciseId, createdAt])
   @@map("user_exercise_attempt")
+}
+
+// Marca atómica de "este usuario ya aprobó este ejercicio".
+// Su UNIQUE (userId, exerciseId) es lo que evita doble XP por race condition:
+// al intentar `create()`, solo el primer envío concurrente gana; los demás
+// reciben P2002 y no se les otorga XP.
+model UserExerciseCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
+
+  @@unique([userId, exerciseId])
+  @@map("user_exercise_completion")
 }
 
 // =====================================================================
@@ -329,8 +356,11 @@ model PracticeExercise {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  testCases PracticeTestCase[]
-  attempts  UserPracticeAttempt[]
+  testCases    PracticeTestCase[]
+  attempts     UserPracticeAttempt[]
+  completions  UserPracticeCompletion[]
+  hintsViewed  UserHintViewed[]
+  bugReports   BugReport[]
 
   @@index([unitSlug, position])
   @@map("practice_exercise")
@@ -362,10 +392,26 @@ model UserPracticeAttempt {
   testsPassed Int              @default(0)
   testsTotal  Int              @default(0)
   durationMs  Int?
+  /** True solo en el primer intento que aprobó (consistente con UserPracticeCompletion). */
+  awardedXp   Boolean          @default(false)
   createdAt   DateTime         @default(now())
 
   @@index([userId, exerciseId, createdAt])
   @@map("user_practice_attempt")
+}
+
+// Marca atómica de "este usuario ya aprobó este ejercicio de práctica".
+// Análogo a UserExerciseCompletion: el UNIQUE evita XP duplicado en race.
+model UserPracticeCompletion {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    PracticeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  completedAt DateTime         @default(now())
+
+  @@unique([userId, exerciseId])
+  @@map("user_practice_completion")
 }
 
 model UserStreak {
@@ -379,6 +425,82 @@ model UserStreak {
   updatedAt       DateTime @updatedAt
 
   @@map("user_streak")
+}
+
+// =====================================================================
+//  SEÑALES PEDAGÓGICAS — sesiones, hints, reportes de contenido
+// =====================================================================
+
+// Sesión de estudio. La abre el cliente al entrar a una lección/práctica
+// y la cierra (set `endedAt`) al salir o al expirar el heartbeat.
+// Sirve para medir tiempo real dedicado por estudiante.
+model StudySession {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /** "lesson" | "practice" | "free-code". */
+  surface     String
+  /** Referencia opcional al recurso (lessonId, practiceExerciseId, etc.). */
+  resourceId  String?
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  /** Última señal de actividad para detectar sesiones huérfanas. */
+  lastPingAt  DateTime @default(now())
+
+  @@index([userId, startedAt])
+  @@index([userId, surface, startedAt])
+  @@map("study_session")
+}
+
+// Una fila por (usuario, ejercicio, hint que vio). UNIQUE evita inflar
+// stats por clicks repetidos en el mismo hint. Sirve para medir eficacia.
+model UserHintViewed {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hintIndex          Int
+  /** Solo uno de {exerciseId, practiceExerciseId} debe estar presente. */
+  exerciseId         String?
+  exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  practiceExerciseId String?
+  practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: Cascade)
+  viewedAt           DateTime          @default(now())
+
+  @@unique([userId, exerciseId, hintIndex])
+  @@unique([userId, practiceExerciseId, hintIndex])
+  @@index([userId, viewedAt])
+  @@map("user_hint_viewed")
+}
+
+// Reporte de problema en contenido (typo, test case roto, etc.). El alumno
+// elige UN target: paso, ejercicio de lección o ejercicio de práctica.
+model BugReport {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /** Solo uno de los tres debe estar presente — se valida vía CHECK constraint. */
+  lessonStepId       String?
+  lessonStep         LessonStep?       @relation(fields: [lessonStepId], references: [id], onDelete: SetNull)
+  exerciseId         String?
+  exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+  practiceExerciseId String?
+  practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
+  message            String
+  status             BugReportStatus   @default(open)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("bug_report")
+}
+
+enum BugReportStatus {
+  open
+  triaged
+  resolved
+  duplicate
+  wontfix
 }
 
 // =====================================================================

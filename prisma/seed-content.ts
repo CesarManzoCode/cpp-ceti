@@ -98,61 +98,82 @@ async function upsertLesson(
     },
   });
 
-  // Estrategia de reemplazo: borramos los pasos existentes y recreamos.
-  // Esto simplifica el seed cuando reordenas/eliminas/agregas pasos.
-  // (El progreso del usuario referencia stepId, así que borrar resetea ese
-  // progreso, pero eso es aceptable en desarrollo. En producción versionaríamos.)
-  await db.lessonStep.deleteMany({ where: { lessonId: dbLesson.id } });
-
+  // Upsert por (lessonId, order). Esto preserva los IDs de los pasos y
+  // por extensión todo el UserStepProgress / UserExerciseAttempt asociado.
+  // Cambiar texto, hints o test cases NO resetea el progreso del usuario.
   for (let i = 0; i < lesson.steps.length; i++) {
-    await createStep(db, dbLesson.id, lesson.steps[i], i);
+    await upsertStep(db, dbLesson.id, lesson.steps[i], i);
   }
+
+  // Si una lección se acortó (menos pasos que antes), purgar los sobrantes.
+  // Sólo borra los que ya no caen en el rango — el resto sobrevive.
+  await db.lessonStep.deleteMany({
+    where: { lessonId: dbLesson.id, order: { gt: lesson.steps.length } },
+  });
 }
 
-async function createStep(
+async function upsertStep(
   db: PrismaClient,
   lessonId: string,
   step: StepDefinition,
   index: number,
 ) {
   const content = buildStepContent(step);
+  const order = index + 1;
 
-  const dbStep = await db.lessonStep.create({
-    data: {
+  const dbStep = await db.lessonStep.upsert({
+    where: { lessonId_order: { lessonId, order } },
+    update: {
+      type: step.type,
+      content: content as Prisma.InputJsonValue,
+    },
+    create: {
       lessonId,
-      order: index + 1,
+      order,
       type: step.type,
       content: content as Prisma.InputJsonValue,
     },
   });
 
-  if (step.type === "code_challenge") {
-    const ex = step.exercise;
-    const dbExercise = await db.exercise.create({
+  if (step.type !== "code_challenge") return;
+
+  const ex = step.exercise;
+  const dbExercise = await db.exercise.upsert({
+    where: { stepId: dbStep.id },
+    update: {
+      prompt: ex.prompt,
+      starterCode: ex.starterCode,
+      solutionCode: ex.solutionCode,
+      hints: ex.hints ?? [],
+      difficulty: ex.difficulty ?? "easy",
+      xpReward: ex.xpReward ?? 15,
+    },
+    create: {
+      stepId: dbStep.id,
+      prompt: ex.prompt,
+      starterCode: ex.starterCode,
+      solutionCode: ex.solutionCode,
+      hints: ex.hints ?? [],
+      difficulty: ex.difficulty ?? "easy",
+      xpReward: ex.xpReward ?? 15,
+    },
+  });
+
+  // Reemplazo de test cases: no afecta a UserExerciseAttempt porque los
+  // intentos referencian al exerciseId, no a los test cases.
+  await db.testCase.deleteMany({ where: { exerciseId: dbExercise.id } });
+  for (let i = 0; i < ex.testCases.length; i++) {
+    const tc = ex.testCases[i];
+    await db.testCase.create({
       data: {
-        stepId: dbStep.id,
-        prompt: ex.prompt,
-        starterCode: ex.starterCode,
-        solutionCode: ex.solutionCode,
-        hints: ex.hints ?? [],
-        difficulty: ex.difficulty ?? "easy",
-        xpReward: ex.xpReward ?? 15,
+        exerciseId: dbExercise.id,
+        stdin: tc.stdin ?? "",
+        expectedStdout: tc.expectedStdout,
+        visible: tc.visible ?? true,
+        description: tc.description ?? null,
+        order: i + 1,
       },
     });
-
-    for (let i = 0; i < ex.testCases.length; i++) {
-      const tc = ex.testCases[i];
-      await db.testCase.create({
-        data: {
-          exerciseId: dbExercise.id,
-          stdin: tc.stdin ?? "",
-          expectedStdout: tc.expectedStdout,
-          visible: tc.visible ?? true,
-          description: tc.description ?? null,
-          order: i + 1,
-        },
-      });
-    }
   }
 }
 

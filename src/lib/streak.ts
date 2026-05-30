@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { cache } from "react";
 
 import { db } from "@/lib/db";
@@ -23,26 +24,27 @@ export const getUserStats = cache(async (userId: string): Promise<UserStats> => 
 });
 
 /**
- * Suma XP al usuario y actualiza su racha diaria.
- * - Hoy ya activo → solo suma XP, racha intacta.
- * - Activo ayer → +1 a la racha.
- * - Más de 1 día sin actividad (o nunca) → reset a 1.
+ * Asegura que la racha esté actualizada para hoy y suma XP. Espera correr
+ * dentro de una transacción que ya garantizó que este evento sucede UNA vez
+ * (ej. tras `updateMany` que transitó la lección a completed con WHERE
+ * condicional). Eso evita la race en la lectura de fechas: la transición
+ * sólo ocurre una vez por evento, así que esta función se invoca una vez.
  *
- * Usado tanto al completar una lección como al aprobar un ejercicio de
- * práctica por primera vez. Reemplaza la duplicación que vivía en
- * lessons/actions y practice/actions.
+ * El `totalXp` se incrementa atómicamente (no read-then-write) para evitar
+ * lost updates si por alguna razón se invocan dos racha-updates en paralelo.
  */
 export async function awardXpAndUpdateStreak(
+  tx: Prisma.TransactionClient,
   userId: string,
   xpEarned: number,
 ): Promise<void> {
   const today = startOfDayUTC(new Date());
   const yesterday = startOfDayUTC(new Date(Date.now() - 86_400_000));
 
-  const existing = await db.userStreak.findUnique({ where: { userId } });
+  const existing = await tx.userStreak.findUnique({ where: { userId } });
 
   if (!existing) {
-    await db.userStreak.create({
+    await tx.userStreak.create({
       data: {
         userId,
         currentStreak: 1,
@@ -69,27 +71,28 @@ export async function awardXpAndUpdateStreak(
     newStreak = 1;
   }
 
-  await db.userStreak.update({
+  await tx.userStreak.update({
     where: { userId },
     data: {
       currentStreak: newStreak,
       longestStreak: Math.max(existing.longestStreak, newStreak),
       lastActiveDate: today,
-      totalXp: existing.totalXp + xpEarned,
+      totalXp: { increment: xpEarned },
     },
   });
 }
 
 /**
- * Suma XP sin tocar la racha. Usado para sumar XP por un sub-evento
- * (ej. aprobar un ejercicio dentro de una lección, donde la racha la
- * actualiza el evento mayor de completar la lección).
+ * Suma XP sin tocar la racha. Atómico vía `increment`. Usado para XP de
+ * sub-eventos (ej. aprobar un ejercicio dentro de una lección, donde la
+ * racha la maneja la transición de la lección).
  */
 export async function incrementUserXp(
+  tx: Prisma.TransactionClient,
   userId: string,
   xp: number,
 ): Promise<void> {
-  await db.userStreak.upsert({
+  await tx.userStreak.upsert({
     where: { userId },
     update: { totalXp: { increment: xp } },
     create: {

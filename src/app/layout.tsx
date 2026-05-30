@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "@/components/ui/sonner";
+import { env } from "@/env";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,9 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
     default: "C++ CETI — Aprende C++ programando, no memorizando",
     template: "%s · C++ CETI",

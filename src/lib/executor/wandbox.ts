@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "./retry";
 import type {
   CodeExecutor,
   ExecutionRequest,
@@ -65,12 +66,16 @@ export class WandboxExecutor implements CodeExecutor {
       save: false,
     };
 
-    const response = await fetch(`${this.baseUrl}/api/compile.json`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
+    const response = await fetchWithRetry(
+      `${this.baseUrl}/api/compile.json`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      },
+      { label: "wandbox" },
+    );
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");

@@ -2,16 +2,13 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 
+import { env, googleAuthEnabled } from "@/env";
 import { db } from "./db";
-
-const googleClientId = process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-const googleEnabled = Boolean(googleClientId && googleClientSecret);
 
 export const auth = betterAuth({
   appName: "C++ CETI",
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
-  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
 
   database: prismaAdapter(db, {
     provider: "postgresql",
@@ -23,11 +20,11 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
 
-  socialProviders: googleEnabled
+  socialProviders: googleAuthEnabled
     ? {
         google: {
-          clientId: googleClientId!,
-          clientSecret: googleClientSecret!,
+          clientId: env.GOOGLE_CLIENT_ID!,
+          clientSecret: env.GOOGLE_CLIENT_SECRET!,
         },
       }
     : undefined,

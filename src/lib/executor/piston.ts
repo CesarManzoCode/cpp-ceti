@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "./retry";
 import type {
   CodeExecutor,
   ExecutionRequest,
@@ -57,12 +58,16 @@ export class PistonExecutor implements CodeExecutor {
       run_memory_limit: (req.memoryLimitKb ?? 128_000) * 1024,
     };
 
-    const response = await fetch(`${this.baseUrl}/execute`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
+    const response = await fetchWithRetry(
+      `${this.baseUrl}/execute`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      },
+      { label: "piston" },
+    );
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { ExecutorConfigError, getCodeExecutor } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
+import { logger } from "@/lib/logger";
 import { RateLimitError, enforceRateLimit } from "@/lib/rate-limit";
 import { parseOrThrow, runCodeSchema } from "@/lib/validation";
 
@@ -52,18 +53,25 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof ExecutorConfigError) {
+      // Log con el detalle real, devolver mensaje genérico. La config del
+      // proveedor no debe filtrarse al cliente.
+      logger.error(
+        { err, userId: session.user.id, route: "/api/run" },
+        "executor not configured",
+      );
       return NextResponse.json(
         {
-          error:
-            "El ejecutor de código no está configurado. Revisa las variables del proveedor.",
-          detail: err.message,
+          error: "El ejecutor de código no está disponible en este momento.",
         },
         { status: 503 },
       );
     }
-    const message = err instanceof Error ? err.message : "Error desconocido";
+    logger.error(
+      { err, userId: session.user.id, route: "/api/run" },
+      "code execution failed",
+    );
     return NextResponse.json(
-      { error: "Fallo al ejecutar el código", detail: message },
+      { error: "No se pudo ejecutar el código. Intenta de nuevo." },
       { status: 500 },
     );
   }
