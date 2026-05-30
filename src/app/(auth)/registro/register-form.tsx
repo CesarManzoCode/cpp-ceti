@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Lock, Mail, User } from "lucide-react";
+import { AlertCircle, AtSign, Check, Lock, Mail, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -14,6 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
+import {
+  USERNAME_MAX,
+  USERNAME_MIN,
+  usernameSchema,
+} from "@/lib/validation";
+import { checkUsernameAvailability } from "@/features/profile/actions";
 
 const registerSchema = z.object({
   name: z
@@ -21,6 +27,7 @@ const registerSchema = z.object({
     .trim()
     .min(2, "Tu nombre debe tener al menos 2 caracteres")
     .max(60, "Máximo 60 caracteres"),
+  username: usernameSchema,
   email: z
     .string()
     .trim()
@@ -31,7 +38,16 @@ const registerSchema = z.object({
     .min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
-type FieldErrors = Partial<Record<"name" | "email" | "password", string>>;
+type FieldErrors = Partial<
+  Record<"name" | "username" | "email" | "password", string>
+>;
+
+type UsernameStatus =
+  | { kind: "idle" }
+  | { kind: "bad-format"; reason: string }
+  | { kind: "checking" }
+  | { kind: "ok"; normalized: string }
+  | { kind: "taken"; reason: string };
 
 export function RegisterForm() {
   const router = useRouter();
@@ -40,8 +56,36 @@ export function RegisterForm() {
   const [formError, setFormError] = React.useState<string | null>(null);
   const [errorNonce, setErrorNonce] = React.useState(0);
   const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({});
+  const [usernameValue, setUsernameValue] = React.useState("");
+  // Estado async (resultado del fetch de disponibilidad).
+  const [availabilityStatus, setAvailabilityStatus] = React.useState<
+    UsernameStatus & { for: string } | null
+  >(null);
 
   const busy = isPending || isGoogleLoading;
+
+  // Status sincrónico derivado del input — sin setState desde effects.
+  const syncStatus = React.useMemo<UsernameStatus>(() => {
+    const trimmed = usernameValue.trim();
+    if (trimmed.length === 0) return { kind: "idle" };
+    const parsed = usernameSchema.safeParse(trimmed);
+    if (!parsed.success) {
+      return {
+        kind: "bad-format",
+        reason: parsed.error.issues[0]?.message ?? "Formato inválido",
+      };
+    }
+    return { kind: "checking" };
+  }, [usernameValue]);
+
+  // Status mostrado: si el sync es válido y tenemos un resultado fresco
+  // para el valor actual, lo preferimos; si no, mostramos el sync.
+  const usernameStatus: UsernameStatus =
+    syncStatus.kind === "checking" &&
+    availabilityStatus &&
+    availabilityStatus.for === usernameValue.trim()
+      ? availabilityStatus
+      : syncStatus;
 
   React.useEffect(() => {
     if (window.matchMedia("(min-width: 640px)").matches) {
@@ -49,9 +93,52 @@ export function RegisterForm() {
     }
   }, []);
 
+  // Fetch debounced de disponibilidad. Sólo se dispara cuando el sync OK.
+  React.useEffect(() => {
+    if (syncStatus.kind !== "checking") return;
+    const trimmed = usernameValue.trim();
+    const handle = setTimeout(async () => {
+      try {
+        const result = await checkUsernameAvailability({ username: trimmed });
+        if (result.available) {
+          setAvailabilityStatus({
+            kind: "ok",
+            normalized: result.normalized,
+            for: trimmed,
+          });
+        } else {
+          setAvailabilityStatus({
+            kind: "taken",
+            reason: result.reason,
+            for: trimmed,
+          });
+        }
+      } catch {
+        // silent — el submit re-valida server-side
+      }
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [syncStatus.kind, usernameValue]);
+
   function failForm(message: string) {
     setFormError(message);
     setErrorNonce((n) => n + 1);
+  }
+
+  function handleNameBlur(event: React.FocusEvent<HTMLInputElement>) {
+    // Autosugerir username una sola vez al salir de "Nombre" si está vacío.
+    if (usernameValue.trim().length > 0) return;
+    const name = event.currentTarget.value.trim();
+    if (name.length < 2) return;
+    const suggestion = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9_]/g, "")
+      .slice(0, USERNAME_MAX);
+    if (suggestion.length >= USERNAME_MIN) {
+      setUsernameValue(suggestion);
+    }
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -62,6 +149,7 @@ export function RegisterForm() {
     const formData = new FormData(event.currentTarget);
     const parsed = registerSchema.safeParse({
       name: String(formData.get("name") ?? "").trim(),
+      username: String(formData.get("username") ?? "").trim(),
       email: String(formData.get("email") ?? "").trim(),
       password: String(formData.get("password") ?? ""),
     });
@@ -70,9 +158,15 @@ export function RegisterForm() {
       return;
     }
 
+    if (usernameStatus.kind === "bad-format" || usernameStatus.kind === "taken") {
+      setFieldErrors((e) => ({ ...e, username: usernameStatus.reason }));
+      return;
+    }
+
     startTransition(async () => {
       const { error: signUpError } = await authClient.signUp.email({
         name: parsed.data.name,
+        username: parsed.data.username,
         email: parsed.data.email,
         password: parsed.data.password,
       });
@@ -80,7 +174,7 @@ export function RegisterForm() {
       if (signUpError) {
         failForm(
           signUpError.message ??
-            "No pudimos crear tu cuenta. Tal vez ya existe ese correo.",
+            "No pudimos crear tu cuenta. Tal vez ya existe ese correo o usuario.",
         );
         return;
       }
@@ -131,6 +225,36 @@ export function RegisterForm() {
           minLength={2}
           disabled={busy}
           leadingIcon={<User className="size-4" />}
+          onBlur={handleNameBlur}
+        />
+      </FormField>
+
+      <FormField
+        name="username"
+        label="Nombre de usuario"
+        error={fieldErrors.username ?? statusError(usernameStatus)}
+        hint={
+          fieldErrors.username || statusError(usernameStatus)
+            ? undefined
+            : statusHint(usernameStatus)
+        }
+      >
+        <Input
+          type="text"
+          autoComplete="username"
+          placeholder="cesar123"
+          required
+          minLength={USERNAME_MIN}
+          maxLength={USERNAME_MAX}
+          disabled={busy}
+          leadingIcon={<AtSign className="size-4" />}
+          trailing={statusIcon(usernameStatus)}
+          inputMode="text"
+          spellCheck={false}
+          value={usernameValue}
+          onChange={(e) =>
+            setUsernameValue(e.currentTarget.value.toLowerCase())
+          }
         />
       </FormField>
 
@@ -177,12 +301,42 @@ export function RegisterForm() {
         className="w-full"
         size="lg"
         loading={isPending}
-        disabled={isGoogleLoading}
+        disabled={
+          isGoogleLoading ||
+          usernameStatus.kind === "bad-format" ||
+          usernameStatus.kind === "taken"
+        }
       >
         {isPending ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
     </form>
   );
+}
+
+function statusError(s: UsernameStatus): string | undefined {
+  if (s.kind === "bad-format" || s.kind === "taken") return s.reason;
+  return undefined;
+}
+
+function statusHint(s: UsernameStatus): string | undefined {
+  if (s.kind === "checking") return "Verificando disponibilidad…";
+  if (s.kind === "ok") return "Disponible";
+  return "3-20 letras, números o guion bajo. No se puede cambiar después.";
+}
+
+function statusIcon(s: UsernameStatus): React.ReactNode {
+  if (s.kind === "ok") {
+    return <Check className="size-4 text-success" aria-hidden />;
+  }
+  if (s.kind === "checking") {
+    return (
+      <span
+        className="block size-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground"
+        aria-hidden
+      />
+    );
+  }
+  return null;
 }
 
 function Divider({ children }: { children: React.ReactNode }) {

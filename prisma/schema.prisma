@@ -25,6 +25,12 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   name          String
+  /// Handle público estable (lowercase, [a-z0-9_], 3-20 chars). Identifica al usuario
+  /// en URLs (`/app/perfil/<username>`) y para búsqueda de amigos. Inmutable después
+  /// del primer set (no hay UI para cambiarlo; preserva enlaces de invitación).
+  username      String    @unique
+  /// Bio opcional mostrada en el perfil público. Texto plano.
+  bio           String?   @db.VarChar(160)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -45,6 +51,10 @@ model User {
   studySessions        StudySession[]
   bugReports           BugReport[]
   streak               UserStreak?
+
+  // Relaciones sociales
+  friendshipsSent     Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived Friendship[] @relation("FriendshipAddressee")
 
   @@index([email])
   @@map("user")
@@ -503,6 +513,48 @@ enum BugReportStatus {
   resolved
   duplicate
   wontfix
+}
+
+// =====================================================================
+//  SOCIAL — amigos
+// =====================================================================
+//  Sistema de amistad bidireccional con flujo solicitud → aceptación.
+//  Una fila por par (requester, addressee). El UNIQUE evita duplicados.
+//  La UI traduce un par ACCEPTED en "amigos" sin importar quién mandó la
+//  solicitud — `getFriends(userId)` une ambas direcciones.
+//
+//  Estados:
+//    pending   — solicitud enviada, addressee aún no responde
+//    accepted  — amistad activa
+//    blocked   — addressee bloqueó al requester (no recibe más solicitudes
+//                ni aparece su actividad). Bloqueo unidireccional: el
+//                bloqueado sigue viendo su lado normal.
+//
+//  La unicidad (requesterId, addresseeId) impide que A pueda mandarle dos
+//  solicitudes a B, pero NO bloquea que B también le mande a A
+//  (race de solicitudes cruzadas). La server action `sendFriendRequest`
+//  detecta el caso y auto-acepta.
+
+model Friendship {
+  id          String       @id @default(cuid())
+  requesterId String
+  requester   User         @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User         @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendStatus @default(pending)
+  createdAt   DateTime     @default(now())
+  acceptedAt  DateTime?
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+  @@map("friendship")
+}
+
+enum FriendStatus {
+  pending
+  accepted
+  blocked
 }
 
 // =====================================================================

@@ -1,11 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Clock, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Sparkles, UserPlus, Users, Zap } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
+import { ActivityFeed } from "@/features/friends/components/activity-feed";
+import {
+  getActivityFeed,
+  getFriends,
+} from "@/features/friends/queries";
 import { RoadmapUnits } from "@/features/roadmap/components/roadmap-units";
 import {
   findNextLesson,
@@ -24,10 +29,12 @@ export default async function AppHomePage() {
   const session = await getSession();
   if (!session?.user) return null;
 
-  const [course, stats, nextLesson] = await Promise.all([
+  const [course, stats, nextLesson, friends, feed] = await Promise.all([
     getDefaultCourse(),
     getUserStats(session.user.id),
     findNextLesson(session.user.id),
+    getFriends(session.user.id),
+    getActivityFeed(session.user.id, 5),
   ]);
   const units = course
     ? await getRoadmapUnits(course.id, session.user.id)
@@ -136,6 +143,50 @@ export default async function AppHomePage() {
 
         <RoadmapUnits courseSlug={course?.slug ?? ""} units={units} />
       </section>
+
+      <section className="space-y-4">
+        <SectionRule
+          trailing={
+            friends.length > 0 ? (
+              <Link
+                href="/app/amigos"
+                className="font-medium text-foreground hover:underline"
+              >
+                Ver todos →
+              </Link>
+            ) : undefined
+          }
+        >
+          Actividad de tus amigos
+        </SectionRule>
+        {friends.length === 0 ? (
+          <FriendsEmptyHero />
+        ) : (
+          <ActivityFeed events={feed} emptyHint="friends" />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function FriendsEmptyHero() {
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-6 text-center sm:p-7">
+      <div className="mx-auto inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-soft-foreground">
+        <Users className="size-5" aria-hidden />
+      </div>
+      <p className="mt-3 text-sm font-semibold tracking-tight">
+        Agrega compañeros del CETI
+      </p>
+      <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
+        Cuando aceptes solicitudes verás aquí su progreso en tiempo real.
+      </p>
+      <Button asChild variant="outline" size="sm" className="mt-4">
+        <Link href="/app/amigos?tab=buscar">
+          <UserPlus />
+          Buscar amigos
+        </Link>
+      </Button>
     </div>
   );
 }

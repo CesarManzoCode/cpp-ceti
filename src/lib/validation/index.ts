@@ -55,3 +55,53 @@ export function parseOrThrow<T>(schema: z.ZodType<T>, input: unknown): T {
   }
   return result.data;
 }
+
+// =====================================================================
+// USERNAME — handle público, inmutable, lowercase
+// =====================================================================
+
+export const USERNAME_MIN = 3;
+export const USERNAME_MAX = 20;
+export const USERNAME_PATTERN = /^[a-z0-9_]+$/;
+
+/**
+ * Handles bloqueados por colisión con rutas internas, marca o impersonación.
+ * `lower-cased` para comparar contra el input ya normalizado.
+ */
+export const RESERVED_USERNAMES = new Set([
+  "admin", "administrator", "root", "system", "support", "soporte", "ayuda",
+  "moderador", "mod", "ceti", "cpp", "cpp_ceti", "cppceti", "anthropic",
+  "claude", "openai", "vercel", "next", "nextjs", "supabase",
+  "app", "api", "login", "logout", "registro", "register", "signup", "signin",
+  "perfil", "profile", "amigos", "friends", "invitar", "invite",
+  "ejercicios", "lecciones", "logros", "u", "settings", "config",
+  "user", "users", "null", "undefined", "test", "anonymous", "anon",
+]);
+
+export const usernameSchema = z
+  .string({ message: "Elige un nombre de usuario" })
+  .trim()
+  .min(USERNAME_MIN, `Mínimo ${USERNAME_MIN} caracteres`)
+  .max(USERNAME_MAX, `Máximo ${USERNAME_MAX} caracteres`)
+  .transform((s) => s.toLowerCase())
+  .refine((s) => USERNAME_PATTERN.test(s), {
+    message: "Solo letras, números y guion bajo",
+  })
+  .refine((s) => !RESERVED_USERNAMES.has(s), {
+    message: "Ese nombre está reservado",
+  });
+
+/**
+ * Genera un username candidato desde un seed (email local-part o nombre).
+ * Limpia caracteres no permitidos, recorta a MAX y pad con sufijo del id
+ * si quedó muy corto. NO garantiza unicidad — el caller debe resolverla.
+ */
+export function generateUsernameFromSeed(seed: string, idForPadding: string): string {
+  const cleaned = seed
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "")
+    .slice(0, USERNAME_MAX);
+  if (cleaned.length >= USERNAME_MIN) return cleaned;
+  const padding = idForPadding.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, USERNAME_MIN);
+  return (cleaned + padding).slice(0, USERNAME_MAX) || `u${padding}`;
+}

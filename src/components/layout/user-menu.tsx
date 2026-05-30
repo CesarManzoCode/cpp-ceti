@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Dumbbell, LogOut, Settings, Trophy, User as UserIcon } from "lucide-react";
+import {
+  Dumbbell,
+  LogOut,
+  Settings,
+  Trophy,
+  User as UserIcon,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -25,10 +32,12 @@ interface UserMenuProps {
     name: string;
     email: string;
     image?: string | null;
+    username: string;
   };
+  pendingFriendsCount?: number;
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
   const router = useRouter();
   const initials = user.name
     .split(" ")
@@ -83,8 +92,8 @@ export function UserMenu({ user }: UserMenuProps) {
               <p className="truncate text-sm font-medium text-foreground">
                 {user.name}
               </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {user.email}
+              <p className="truncate font-mono text-xs text-muted-foreground">
+                @{user.username}
               </p>
             </div>
           </div>
@@ -104,9 +113,22 @@ export function UserMenu({ user }: UserMenuProps) {
           <Trophy className="size-4" />
           Logros
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/app/amigos")}>
+          <Users className="size-4" />
+          <span className="flex-1">Amigos</span>
+          {pendingFriendsCount > 0 ? (
+            <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 font-mono text-[10px] font-semibold tabular-nums text-primary-foreground">
+              {pendingFriendsCount}
+            </span>
+          ) : null}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/app/perfil/${user.username}`)}>
+          <UserIcon className="size-4" />
+          Ver mi perfil público
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/app/perfil")}>
           <Settings className="size-4" />
-          Mi perfil
+          Configuración
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut}>

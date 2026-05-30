@@ -5,7 +5,13 @@ import { Logo } from "@/components/shared/logo";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
-export function Sidebar({ units }: { units: RoadmapUnit[] }) {
+export function Sidebar({
+  units,
+  pendingFriendsCount = 0,
+}: {
+  units: RoadmapUnit[];
+  pendingFriendsCount?: number;
+}) {
   return (
     <aside
       aria-label="Navegación principal"
@@ -21,7 +27,7 @@ export function Sidebar({ units }: { units: RoadmapUnit[] }) {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-5">
-        <SidebarNav units={units} />
+        <SidebarNav units={units} pendingFriendsCount={pendingFriendsCount} />
       </div>
 
       <div className="border-t border-border/70 px-4 py-3">

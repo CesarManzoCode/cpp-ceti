@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, Circle, Dumbbell, Home, Lock, Trophy } from "lucide-react";
+import { Check, Circle, Dumbbell, Home, Lock, Trophy, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
@@ -16,15 +16,18 @@ const topLinks: {
 }[] = [
   { href: "/app", label: "Inicio", icon: Home, exact: true },
   { href: "/app/ejercicios", label: "Ejercicios", icon: Dumbbell },
+  { href: "/app/amigos", label: "Amigos", icon: Users },
   { href: "/app/logros", label: "Logros", icon: Trophy },
 ];
 
 export function SidebarNav({
   units,
   onNavigate,
+  pendingFriendsCount = 0,
 }: {
   units: RoadmapUnit[];
   onNavigate?: () => void;
+  pendingFriendsCount?: number;
 }) {
   const pathname = usePathname();
 
@@ -35,6 +38,10 @@ export function SidebarNav({
           const active = link.exact
             ? pathname === link.href
             : pathname.startsWith(link.href);
+          const badge =
+            link.href === "/app/amigos" && pendingFriendsCount > 0
+              ? pendingFriendsCount
+              : null;
           return (
             <NavItem
               key={link.href}
@@ -43,7 +50,15 @@ export function SidebarNav({
               onNavigate={onNavigate}
             >
               <link.icon className="size-4 shrink-0" aria-hidden />
-              <span>{link.label}</span>
+              <span className="flex-1">{link.label}</span>
+              {badge ? (
+                <span
+                  className="grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-primary px-1 font-mono text-[10px] font-semibold tabular-nums text-primary-foreground"
+                  aria-label={`${badge} solicitudes pendientes`}
+                >
+                  {badge}
+                </span>
+              ) : null}
             </NavItem>
           );
         })}

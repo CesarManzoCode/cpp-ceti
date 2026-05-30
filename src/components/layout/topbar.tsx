@@ -10,21 +10,22 @@ import { levelFromXp } from "@/lib/level";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 export interface TopbarProps {
-  user: { name: string; email: string; image?: string | null };
+  user: { name: string; email: string; image?: string | null; username: string };
   totalXp: number;
   streak: number;
   units: RoadmapUnit[];
+  pendingFriendsCount?: number;
 }
 
 /**
  * Topbar editorial: lectura discreta de las dos métricas clave
  * (racha + XP) en estilo sobrio — no son botones, son indicadores.
  */
-export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
+export function Topbar({ user, totalXp, streak, units, pendingFriendsCount = 0 }: TopbarProps) {
   const lvl = levelFromXp(totalXp);
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/70 bg-background/85 px-4 backdrop-blur-xl sm:px-6">
-      <MobileSidebar units={units} />
+      <MobileSidebar units={units} pendingFriendsCount={pendingFriendsCount} />
 
       <TopbarLocation units={units} />
 
@@ -84,7 +85,7 @@ export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
 
       <div className="ml-3 flex items-center gap-1">
         <ThemeToggle />
-        <UserMenu user={user} />
+        <UserMenu user={user} pendingFriendsCount={pendingFriendsCount} />
       </div>
     </header>
   );

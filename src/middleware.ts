@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-const PUBLIC_PATHS = ["/", "/login", "/registro", "/api/auth"];
+const PUBLIC_PATHS = ["/", "/login", "/registro", "/invitar", "/api/auth"];
 const AUTH_PATHS = ["/login", "/registro"];
 
 export function middleware(request: NextRequest) {

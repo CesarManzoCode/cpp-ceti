@@ -15,7 +15,13 @@ import { Logo } from "@/components/shared/logo";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
-export function MobileSidebar({ units }: { units: RoadmapUnit[] }) {
+export function MobileSidebar({
+  units,
+  pendingFriendsCount = 0,
+}: {
+  units: RoadmapUnit[];
+  pendingFriendsCount?: number;
+}) {
   const [open, setOpen] = React.useState(false);
 
   const handleNavigate = React.useCallback(() => {
@@ -44,7 +50,11 @@ export function MobileSidebar({ units }: { units: RoadmapUnit[] }) {
           </SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-3 py-4">
-          <SidebarNav units={units} onNavigate={handleNavigate} />
+          <SidebarNav
+            units={units}
+            onNavigate={handleNavigate}
+            pendingFriendsCount={pendingFriendsCount}
+          />
         </div>
         <div className="border-t border-border/70 px-4 py-3">
           <a
