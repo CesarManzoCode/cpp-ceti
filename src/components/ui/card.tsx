@@ -17,6 +17,9 @@ const cardVariants = cva(
           "focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
         ].join(" "),
         muted: "border-border/60 bg-surface-2 shadow-none",
+        // Card con borde degradado animado (gradient-border utility en globals).
+        // El border-border es transparente — el contorno lo dibuja el ::before.
+        gradient: "border-transparent gradient-border shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]",
       },
     },
     defaultVariants: { variant: "default" },

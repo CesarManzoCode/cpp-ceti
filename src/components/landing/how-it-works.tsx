@@ -23,13 +23,22 @@ export function HowItWorks() {
   return (
     <section
       id="como"
-      className="border-b border-border/60 bg-surface-2/60 py-16 lg:py-24"
+      className="relative overflow-hidden border-b border-border/60 bg-surface-2/40 py-16 lg:py-24"
     >
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="bg-grid-tight absolute inset-0 opacity-30 dark:opacity-20" />
+      </div>
+
       <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="left"
           eyebrow="cómo funciona"
-          title="90% práctica · 10% teoría"
+          title={
+            <>
+              90% práctica ·{" "}
+              <span className="text-gradient-primary">10% teoría.</span>
+            </>
+          }
           description="Porque programar se aprende programando — no escuchando."
           className="max-w-2xl"
         />
@@ -38,14 +47,15 @@ export function HowItWorks() {
           {steps.map((s) => (
             <li
               key={s.n}
-              className="relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-7"
+              className="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-7 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-md)]"
             >
+              {/* Línea vertical degradada como anclaje izquierdo */}
               <span
                 aria-hidden
-                className="absolute inset-y-6 left-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent"
+                className="absolute inset-y-6 left-0 w-px bg-gradient-to-b from-primary/60 via-primary/25 to-transparent transition-opacity group-hover:via-primary/40"
               />
-              <span className="font-mono text-[13px] font-semibold tabular-nums tracking-wider text-primary">
-                {s.n}
+              <span className="font-mono text-[28px] font-bold leading-none tabular-nums tracking-tight">
+                <span className="text-gradient-primary">{s.n}</span>
               </span>
               <h3 className="text-lg font-semibold tracking-tight">{s.title}</h3>
               <p className="text-[15px] leading-relaxed text-muted-foreground">

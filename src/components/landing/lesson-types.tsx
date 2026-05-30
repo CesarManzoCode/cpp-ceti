@@ -15,7 +15,12 @@ export function LessonTypes() {
         <SectionHeading
           align="center"
           eyebrow="lo que vas a hacer"
-          title="Práctica desde el primer paso, todo en el navegador."
+          title={
+            <>
+              Práctica desde el primer paso,{" "}
+              <span className="text-gradient-primary">todo en el navegador.</span>
+            </>
+          }
           description="Cada lección combina teoría justa, ejemplos ejecutables, quizzes, ejercicios de completar el código y retos donde TÚ lo escribes desde cero."
           className="mx-auto items-center"
         />
@@ -53,9 +58,14 @@ function TypeShell({
   children: React.ReactNode;
 }) {
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-px hover:border-primary/30 hover:shadow-[var(--shadow-md)]">
+      {/* Línea de "shine" arriba — sutil aura premium en hover */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      />
       <div className="space-y-2.5 p-6 sm:p-7">
-        <div className="eyebrow inline-flex items-center gap-2 text-muted-foreground">
+        <div className="eyebrow inline-flex items-center gap-2 text-primary/80">
           <Icon className="size-3.5" aria-hidden />
           {label}
         </div>

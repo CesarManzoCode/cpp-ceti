@@ -23,10 +23,7 @@ const problems = [
 
 export function Why() {
   return (
-    <section
-      id="por-que"
-      className="border-b border-border/60 py-20 lg:py-28"
-    >
+    <section id="por-que" className="border-b border-border/60 py-20 lg:py-28">
       <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           align="center"
@@ -44,13 +41,18 @@ export function Why() {
           {problems.map((p) => (
             <li
               key={p.title}
-              className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-7 transition-colors hover:border-border-strong"
+              className="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card p-7 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-px hover:border-border-strong hover:shadow-[var(--shadow-sm)]"
             >
-              <span className="inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-surface-2 text-muted-foreground ring-1 ring-inset ring-border/50">
+              {/* Aura tonal en la esquina; sube en opacidad al hover */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full bg-primary/10 opacity-50 blur-2xl transition-opacity duration-300 group-hover:opacity-90"
+              />
+              <span className="relative inline-grid size-11 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary ring-1 ring-inset ring-primary/15 transition-transform duration-200 group-hover:scale-105">
                 <p.icon className="size-5" aria-hidden />
               </span>
-              <h3 className="text-[17px] font-semibold tracking-tight">{p.title}</h3>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
+              <h3 className="relative text-[17px] font-semibold tracking-tight">{p.title}</h3>
+              <p className="relative text-[15px] leading-relaxed text-muted-foreground">
                 {p.body}
               </p>
             </li>

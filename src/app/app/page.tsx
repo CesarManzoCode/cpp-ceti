@@ -59,8 +59,9 @@ export default async function AppHomePage() {
         <p className="text-sm text-muted-foreground">
           {greeting}, {firstName}.
         </p>
-        <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-[34px]">
-          Vamos a programar un rato.
+        <h1 className="text-3xl font-bold tracking-[-0.03em] sm:text-[36px]">
+          Vamos a{" "}
+          <span className="text-gradient-primary">programar un rato.</span>
         </h1>
       </header>
 
@@ -171,22 +172,28 @@ export default async function AppHomePage() {
 
 function FriendsEmptyHero() {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-6 text-center sm:p-7">
-      <div className="mx-auto inline-grid size-10 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-soft-foreground">
-        <Users className="size-5" aria-hidden />
+    <div className="relative overflow-hidden rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-6 text-center sm:p-7">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/8 to-transparent"
+      />
+      <div className="relative">
+        <div className="mx-auto inline-grid size-11 place-items-center rounded-[var(--radius-md)] bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-primary-foreground shadow-[0_6px_18px_-6px_var(--brand-glow)]">
+          <Users className="size-5" aria-hidden />
+        </div>
+        <p className="mt-3 text-sm font-semibold tracking-tight">
+          Agrega compañeros del CETI
+        </p>
+        <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
+          Cuando aceptes solicitudes verás aquí su progreso en tiempo real.
+        </p>
+        <Button asChild variant="outline" size="sm" className="mt-4">
+          <Link href="/app/amigos?tab=buscar">
+            <UserPlus />
+            Buscar amigos
+          </Link>
+        </Button>
       </div>
-      <p className="mt-3 text-sm font-semibold tracking-tight">
-        Agrega compañeros del CETI
-      </p>
-      <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
-        Cuando aceptes solicitudes verás aquí su progreso en tiempo real.
-      </p>
-      <Button asChild variant="outline" size="sm" className="mt-4">
-        <Link href="/app/amigos?tab=buscar">
-          <UserPlus />
-          Buscar amigos
-        </Link>
-      </Button>
     </div>
   );
 }
@@ -198,18 +205,25 @@ function ContinueHero({ next }: { next: NextLesson }) {
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-[var(--radius-xl)] border border-primary/20 bg-card p-6 shadow-[var(--shadow-md)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-8"
+      className="group gradient-border relative block overflow-hidden rounded-[var(--radius-xl)] bg-card p-6 shadow-[var(--shadow-md)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-8"
     >
+      {/* Aurora corner — sólo en el card, no en toda la página */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 opacity-80 blur-3xl"
+        className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-gradient-to-br from-primary/25 to-[color:var(--brand-2)]/20 opacity-70 blur-3xl transition-opacity duration-300 group-hover:opacity-100"
+      />
+      {/* Shine top */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[15%] top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
       />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-3">
-          <p className="eyebrow text-primary">
+          <p className="eyebrow inline-flex items-center gap-1.5 text-primary">
+            <Sparkles className="size-3" aria-hidden />
             {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
           </p>
-          <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.02em] sm:text-[26px]">
+          <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.025em] sm:text-[28px]">
             {next.lessonTitle}
           </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -223,15 +237,18 @@ function ContinueHero({ next }: { next: NextLesson }) {
             </span>
           </div>
         </div>
-        <Button
-          size="lg"
-          className="w-full shadow-[var(--shadow-sm)] group-hover:translate-x-0.5 group-hover:shadow-[var(--shadow-md)] sm:w-auto"
-          tabIndex={-1}
-          aria-hidden
-        >
-          {resume ? "Continuar" : "Empezar"}
-          <ArrowRight />
-        </Button>
+        <span className="glow-primary inline-flex rounded-[var(--radius-md)]">
+          <Button
+            size="lg"
+            variant="glow"
+            className="w-full group-hover:translate-x-0.5 sm:w-auto"
+            tabIndex={-1}
+            aria-hidden
+          >
+            {resume ? "Continuar" : "Empezar"}
+            <ArrowRight />
+          </Button>
+        </span>
       </div>
     </Link>
   );

@@ -80,20 +80,35 @@ export default async function PublicProfilePage({ params }: PageProps) {
       data-page-enter
       className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
     >
-      <header className="rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-[var(--shadow-xs)] sm:p-8">
-        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-          <Avatar className="size-16 ring-1 ring-border ring-inset sm:size-20">
-            {profile.image ? (
-              <AvatarImage src={profile.image} alt={profile.name} />
-            ) : null}
-            <AvatarFallback className="bg-primary-soft text-xl font-semibold text-primary-soft-foreground sm:text-2xl">
-              {initials || <UserIcon className="size-7 sm:size-8" />}
-            </AvatarFallback>
-          </Avatar>
+      <header className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-[var(--shadow-sm)] sm:p-8">
+        {/* Aurora corner muy sutil + shine top — eleva el header sin saturar */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-32 -top-32 size-72 rounded-full bg-gradient-to-br from-primary/15 to-[color:var(--brand-2)]/15 opacity-70 blur-3xl" />
+        </div>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-[15%] top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+        />
+        <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+          {/* Avatar con halo */}
+          <div className="relative">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -inset-2 rounded-full bg-gradient-to-br from-primary/30 to-[color:var(--brand-2)]/30 opacity-70 blur-md dark:opacity-90"
+            />
+            <Avatar className="relative size-16 ring-2 ring-card ring-offset-2 ring-offset-[color:var(--primary)]/40 sm:size-20">
+              {profile.image ? (
+                <AvatarImage src={profile.image} alt={profile.name} />
+              ) : null}
+              <AvatarFallback className="bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-xl font-semibold text-primary-foreground sm:text-2xl">
+                {initials || <UserIcon className="size-7 sm:size-8" />}
+              </AvatarFallback>
+            </Avatar>
+          </div>
 
           <div className="min-w-0 flex-1 space-y-1.5">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-start">
-              <h1 className="truncate text-[24px] font-bold tracking-[-0.025em] sm:text-[32px]">
+              <h1 className="truncate text-[26px] font-bold tracking-[-0.03em] sm:text-[34px]">
                 {profile.name}
               </h1>
               {isSelf ? (
@@ -121,7 +136,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         </div>
 
         {(profile.bio || isSelf) ? (
-          <div className="mt-5 border-t border-border/60 pt-4">
+          <div className="relative mt-5 border-t border-border/60 pt-4">
             {isSelf ? (
               <BioEditor initialBio={profile.bio ?? ""} />
             ) : (
@@ -132,11 +147,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
       </header>
 
       <section
-        className="rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] sm:p-6"
+        className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] sm:p-6"
         aria-label={`Nivel actual: ${lvl.level}`}
       >
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="grid size-14 shrink-0 place-items-center rounded-[var(--radius-lg)] border border-primary/40 bg-primary-soft text-base font-bold text-primary sm:size-16 sm:text-lg">
+        <div className="relative flex flex-wrap items-center gap-4">
+          {/* Level badge premium — gradient bg + glow inset */}
+          <div className="relative grid size-14 shrink-0 place-items-center rounded-[var(--radius-lg)] bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-base font-bold text-primary-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_6px_20px_-6px_var(--brand-glow)] sm:size-16 sm:text-lg">
             Nv {lvl.level}
           </div>
           <div className="min-w-0 flex-1 space-y-2">
@@ -149,14 +165,14 @@ export default async function PublicProfilePage({ params }: PageProps) {
               </p>
             </div>
             <div
-              className="h-2 overflow-hidden rounded-full bg-border"
+              className="relative h-2.5 overflow-hidden rounded-full bg-border/70"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={lvl.xpForNextLevel}
               aria-valuenow={lvl.xpInCurrentLevel}
             >
               <div
-                className="h-full rounded-full bg-primary transition-[width] duration-700"
+                className="relative h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--brand-2))] shadow-[0_0_12px_0_var(--brand-glow)] transition-[width] duration-700"
                 style={{ width: `${Math.min(100, lvl.progress * 100)}%` }}
               />
             </div>

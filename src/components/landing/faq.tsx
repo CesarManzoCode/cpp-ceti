@@ -44,7 +44,12 @@ export function Faq() {
         <SectionHeading
           align="center"
           eyebrow="dudas"
-          title="Preguntas que se hace todo mundo."
+          title={
+            <>
+              Preguntas que{" "}
+              <span className="text-gradient-primary">se hace todo mundo.</span>
+            </>
+          }
           description="Si la tuya no está aquí, escríbenos."
           className="mx-auto items-center"
         />
@@ -61,7 +66,7 @@ export function Faq() {
                 </h3>
                 <span
                   aria-hidden
-                  className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-[transform,background-color,border-color,color] duration-200 group-open:rotate-45 group-open:border-primary group-open:bg-primary group-open:text-primary-foreground"
+                  className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-[transform,background,border-color,color,box-shadow] duration-200 group-open:rotate-45 group-open:border-transparent group-open:bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] group-open:text-primary-foreground group-open:shadow-[0_4px_14px_-4px_var(--brand-glow)]"
                 >
                   <Plus className="size-3.5" strokeWidth={2.5} />
                 </span>

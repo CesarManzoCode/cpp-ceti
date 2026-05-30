@@ -21,6 +21,16 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow-[var(--shadow-xs)]",
           "hover:bg-primary/92 hover:shadow-[var(--shadow-sm)]",
         ].join(" "),
+        // Premium gradient button — indigo→púrpura, inset highlight + sombra a color.
+        // Pensado para CTAs principales (hero, final-CTA, conversion moments).
+        // Si va envuelto en `<span class="glow-primary">`, el halo difuso se compone alrededor.
+        glow: [
+          "text-primary-foreground",
+          "bg-[linear-gradient(135deg,var(--primary)_0%,var(--brand-2)_100%)]",
+          "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.18),0_6px_22px_-6px_var(--brand-glow)]",
+          "hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.22),0_10px_30px_-6px_var(--brand-glow)]",
+          "border border-white/10",
+        ].join(" "),
         destructive: [
           "bg-destructive text-destructive-foreground shadow-[var(--shadow-xs)]",
           "hover:bg-destructive/92 hover:shadow-[var(--shadow-sm)]",

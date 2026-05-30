@@ -66,8 +66,15 @@ export default async function InvitarPage({ params }: PageProps) {
     .toUpperCase();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <header className="border-b border-border/70 bg-background/80 px-5 py-4 backdrop-blur-xl">
+    <div className="relative flex min-h-dvh flex-col bg-background">
+      {/* Aurora de fondo full-page — invitación es momento de marca máxima */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="aurora absolute inset-0 opacity-60 dark:opacity-90" />
+        <div className="bg-grid absolute inset-0 opacity-40 dark:opacity-25" />
+        <div className="bg-stars absolute inset-0 hidden opacity-40 dark:block" />
+      </div>
+
+      <header className="relative z-10 border-b border-border/70 bg-background/60 px-5 py-4 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/" className="-m-2 rounded-[var(--radius-sm)] p-2 transition-opacity hover:opacity-80">
             <Logo />
@@ -84,29 +91,40 @@ export default async function InvitarPage({ params }: PageProps) {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="relative z-10 flex-1">
         <div className="mx-auto max-w-xl space-y-8 px-5 py-10 sm:px-6 sm:py-16">
           <div className="text-center">
             <p className="eyebrow text-primary">Invitación</p>
-            <h1 className="mt-2 text-balance text-2xl font-bold tracking-[-0.02em] sm:text-3xl">
-              {profile.name} te invita a aprender C++
+            <h1 className="font-display mt-2 text-balance text-[clamp(1.75rem,5vw,2.5rem)] font-bold leading-tight tracking-[-0.03em]">
+              {profile.name} te invita a{" "}
+              <span className="text-gradient-primary">aprender C++</span>
             </h1>
-            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
               C++ CETI es una plataforma de práctica para alumnos del CETI
               Guadalajara — 90% código, 10% teoría, todo en español.
             </p>
           </div>
 
-          <section className="rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-[var(--shadow-sm)] sm:p-8">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <Avatar className="size-20 ring-1 ring-border ring-inset">
-                {profile.image ? (
-                  <AvatarImage src={profile.image} alt={profile.name} />
-                ) : null}
-                <AvatarFallback className="bg-primary-soft text-2xl font-semibold text-primary-soft-foreground">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+          <section className="gradient-border relative overflow-hidden rounded-[var(--radius-xl)] bg-card p-6 shadow-[var(--shadow-lg)] sm:p-8">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-[20%] top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+            />
+            <div className="relative flex flex-col items-center gap-4 text-center">
+              <div className="relative">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-2 rounded-full bg-gradient-to-br from-primary/30 to-[color:var(--brand-2)]/30 opacity-80 blur-md"
+                />
+                <Avatar className="relative size-20 ring-2 ring-card ring-offset-2 ring-offset-[color:var(--primary)]/40">
+                  {profile.image ? (
+                    <AvatarImage src={profile.image} alt={profile.name} />
+                  ) : null}
+                  <AvatarFallback className="bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-2xl font-semibold text-primary-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
               <div className="space-y-0.5">
                 <p className="text-lg font-bold tracking-tight">{profile.name}</p>
                 <p className="font-mono text-sm text-muted-foreground">
@@ -134,16 +152,18 @@ export default async function InvitarPage({ params }: PageProps) {
                 </div>
               ) : (
                 <div className="mt-4 flex w-full flex-col gap-2">
-                  <Button asChild size="lg" className="w-full">
-                    <Link
-                      href={`/registro?redirectTo=${encodeURIComponent(
-                        `/invitar/${normalized}`,
-                      )}`}
-                    >
-                      <UserPlus />
-                      Crear cuenta y agregar
-                    </Link>
-                  </Button>
+                  <span className="glow-primary inline-flex w-full rounded-[var(--radius-md)]">
+                    <Button asChild size="lg" variant="glow" className="w-full">
+                      <Link
+                        href={`/registro?redirectTo=${encodeURIComponent(
+                          `/invitar/${normalized}`,
+                        )}`}
+                      >
+                        <UserPlus />
+                        Crear cuenta y agregar
+                      </Link>
+                    </Button>
+                  </span>
                   <Button asChild variant="ghost" size="sm" className="w-full">
                     <Link
                       href={`/login?redirectTo=${encodeURIComponent(

@@ -93,6 +93,13 @@
   --syntax-number: oklch(0.85 0.14 82);
   --syntax-comment: oklch(0.58 0.02 256);
   --syntax-operator: oklch(0.74 0.025 256);
+
+  /* Brand secondary — púrpura complementario al indigo. Usado para gradientes
+     premium (hero, glow, gradient-border). Solo aparece en composición, nunca
+     como color principal — mantiene jerarquía visual. */
+  --brand-2: oklch(0.62 0.22 305);
+  --brand-3: oklch(0.7 0.16 220);
+  --brand-glow: oklch(0.62 0.22 285 / 0.45);
 }
 
 .dark {
@@ -160,6 +167,11 @@
   --terminal-muted: oklch(0.62 0.012 250);
   --terminal-faint: oklch(0.45 0.012 252);
   --terminal-border: oklch(0.22 0.014 252);
+
+  /* Brand secondary — más saturado en oscuro para mantener presencia. */
+  --brand-2: oklch(0.74 0.2 305);
+  --brand-3: oklch(0.78 0.16 220);
+  --brand-glow: oklch(0.74 0.22 285 / 0.55);
 }
 
 @theme inline {
@@ -597,6 +609,211 @@ kbd {
 }
 
 /* ============================================================
+   Premium surfaces — aurora, gradient text, glow, gradient borders
+   Estos son utilities composables; nunca decoran solas — siempre
+   apoyan jerarquía. Uso restringido: hero, CTAs principales, level
+   badges, action cards destacadas. NO usar como wallpaper.
+   ============================================================ */
+
+/* Gradient text de la marca — animación lenta de "respiración" del color.
+   Default: indigo → púrpura → azul. Pasa --grad-via para tunear. */
+.text-gradient-primary {
+  background-image: linear-gradient(
+    115deg,
+    var(--primary) 0%,
+    var(--brand-2) 50%,
+    var(--brand-3) 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 9s linear infinite;
+  /* Anti-aliasing premium en webkit */
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes gradient-shift {
+  to { background-position: 220% center; }
+}
+
+/* Aurora — manchas de color difusas que se desplazan lentamente.
+   Ideal para hero / final-CTA. NO usar en cards pequeñas (se pierde). */
+.aurora {
+  background:
+    radial-gradient(60% 50% at 18% 28%, color-mix(in oklch, var(--primary) 32%, transparent), transparent 60%),
+    radial-gradient(50% 50% at 82% 22%, color-mix(in oklch, var(--brand-2) 28%, transparent), transparent 60%),
+    radial-gradient(70% 55% at 50% 100%, color-mix(in oklch, var(--brand-3) 22%, transparent), transparent 70%);
+  filter: blur(40px);
+  animation: aurora-shift 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.dark .aurora {
+  background:
+    radial-gradient(60% 50% at 18% 28%, color-mix(in oklch, var(--primary) 40%, transparent), transparent 60%),
+    radial-gradient(50% 50% at 82% 22%, color-mix(in oklch, var(--brand-2) 36%, transparent), transparent 60%),
+    radial-gradient(70% 55% at 50% 100%, color-mix(in oklch, var(--brand-3) 28%, transparent), transparent 70%);
+}
+
+@keyframes aurora-shift {
+  0%   { transform: translate3d(0%, 0%, 0) scale(1); }
+  50%  { transform: translate3d(-1%, -2%, 0) scale(1.05); }
+  100% { transform: translate3d(1%, 1%, 0) scale(1.03); }
+}
+
+/* Grid animado — líneas finas con mask radial que apaga los bordes.
+   Apoya el aurora; nunca va solo (queda demasiado técnico). */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--border-strong) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--border-strong) 60%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, black, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, black, transparent 85%);
+}
+.bg-grid-tight {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--border-strong) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--border-strong) 55%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 35%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 35%, transparent 90%);
+}
+
+/* Glow primary — halo que envuelve al elemento; aplicar al WRAPPER
+   con `position: relative` y el target con `position: relative; z-index:1`. */
+.glow-primary {
+  position: relative;
+}
+.glow-primary::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--primary), var(--brand-2));
+  filter: blur(18px);
+  opacity: 0.45;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out-quart);
+}
+.glow-primary:hover::before {
+  opacity: 0.7;
+}
+.dark .glow-primary::before {
+  opacity: 0.55;
+}
+.dark .glow-primary:hover::before {
+  opacity: 0.85;
+}
+
+/* Gradient border (1px) — borde con degradado vía mask-composite.
+   Funciona en Chromium y Webkit modernos; degrada a borde sólido fino. */
+.gradient-border {
+  position: relative;
+  background: var(--card);
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 45%, transparent) 0%,
+    color-mix(in oklch, var(--brand-2) 30%, transparent) 35%,
+    transparent 60%,
+    color-mix(in oklch, var(--primary) 18%, transparent) 100%
+  );
+  -webkit-mask:
+    linear-gradient(white 0 0) content-box,
+    linear-gradient(white 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(white 0 0) content-box,
+    linear-gradient(white 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out-quart);
+}
+.gradient-border-strong::before {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 70%, transparent) 0%,
+    color-mix(in oklch, var(--brand-2) 50%, transparent) 50%,
+    color-mix(in oklch, var(--brand-3) 30%, transparent) 100%
+  );
+}
+
+/* Shine bar — barra estática con degradado decorativo en la parte alta
+   de cards/sections "premium" (CTAs principales, level badges). */
+.shine-top::before {
+  content: "";
+  position: absolute;
+  inset-inline: 12%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--primary) 70%, transparent),
+    color-mix(in oklch, var(--brand-2) 55%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Halo focal — orb radial sutil detrás de un elemento clave (avatares
+   del perfil, level badge). Aplicar como ::before en el wrapper. */
+.halo-primary::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--primary) 35%, transparent) 0%,
+    transparent 60%
+  );
+  filter: blur(24px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Marquee — desplazamiento horizontal infinito para trust strips. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 35s linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Star noise (sutil) — puntos aleatorios. Usar SOLO en hero oscuro
+   tipo GitHub. Layer encima de aurora; opacidad muy baja. */
+.bg-stars {
+  background-image:
+    radial-gradient(1px 1px at 24% 18%, color-mix(in oklch, var(--foreground) 50%, transparent) 50%, transparent),
+    radial-gradient(1px 1px at 70% 42%, color-mix(in oklch, var(--foreground) 35%, transparent) 50%, transparent),
+    radial-gradient(1px 1px at 14% 78%, color-mix(in oklch, var(--foreground) 45%, transparent) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 88% 12%, color-mix(in oklch, var(--brand-2) 70%, transparent) 50%, transparent),
+    radial-gradient(1px 1px at 52% 88%, color-mix(in oklch, var(--foreground) 35%, transparent) 50%, transparent),
+    radial-gradient(1.2px 1.2px at 38% 32%, color-mix(in oklch, var(--primary) 60%, transparent) 50%, transparent),
+    radial-gradient(1px 1px at 84% 64%, color-mix(in oklch, var(--foreground) 40%, transparent) 50%, transparent);
+  background-size: 100% 100%;
+}
+
+/* Scroll-shadow — sombra que aparece sólo cuando hay contenido encima.
+   Se activa con data-scrolled="true" via JS minimal (3 líneas en navbar). */
+[data-scrolled="true"] {
+  box-shadow: 0 1px 0 0 var(--border), 0 6px 18px -10px color-mix(in oklch, var(--foreground) 22%, transparent);
+}
+
+/* ============================================================
    Reduced motion — honor user preference everywhere
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -604,5 +821,9 @@ kbd {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  /* Detén marquee y aurora explícitamente (los hace illegibles, no sólo lento) */
+  .marquee, .aurora, .text-gradient-primary {
+    animation: none !important;
   }
 }

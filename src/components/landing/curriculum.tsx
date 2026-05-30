@@ -37,7 +37,14 @@ export async function Curriculum() {
         <SectionHeading
           align="left"
           eyebrow="temario"
-          title={`${publishedCount} unidades, del primer cout a matrices.`}
+          title={
+            <>
+              {publishedCount} unidades,{" "}
+              <span className="text-gradient-primary">
+                del primer cout a matrices.
+              </span>
+            </>
+          }
           description="Construidas sobre el plan oficial del CETI. Cada unidad combina teoría justa, ejemplos ejecutables, quizzes y retos donde tú escribes el código."
           className="max-w-2xl"
         />
@@ -51,9 +58,9 @@ export async function Curriculum() {
               <>
                 <div
                   className={
-                    "grid size-10 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums " +
+                    "grid size-10 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums shadow-[var(--shadow-xs)] " +
                     (u.published
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-primary-foreground"
                       : "border border-dashed border-border bg-surface-2 text-muted-foreground/60")
                   }
                 >
