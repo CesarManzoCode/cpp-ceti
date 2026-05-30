@@ -18,8 +18,12 @@ jobs:
 
     # Valores placeholder para el build/test (env.ts valida al boot).
     # No son secretos reales — el deploy real usa los de Vercel.
+    #
+    # OJO: NO seteamos NODE_ENV=production aquí. Si lo hiciéramos, `npm ci`
+    # saltaría devDependencies (vitest, eslint, typescript, prisma CLI) y
+    # los scripts fallarían con exit 127. `next build` ya pone NODE_ENV
+    # a production internamente cuando lo necesita.
     env:
-      NODE_ENV: production
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       BETTER_AUTH_SECRET: ci-secret-ci-secret-ci-secret-3232
       BETTER_AUTH_URL: http://localhost:3000
