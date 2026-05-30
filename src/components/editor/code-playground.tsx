@@ -59,7 +59,7 @@ export function CodePlayground({
             onChange={(e) => setStdin(e.target.value)}
             placeholder="Valores que tu programa leerá con cin..."
             rows={3}
-            className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 font-mono text-sm transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]"
+            className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 font-mono text-base transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-sm"
           />
         </div>
       ) : null}

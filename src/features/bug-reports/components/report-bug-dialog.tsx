@@ -98,7 +98,8 @@ export function ReportBugDialog({ target, children }: ReportBugDialogProps) {
               maxLength={BUG_REPORT_MAX_LENGTH}
               aria-invalid={tooShort || tooLong || undefined}
               className={cn(
-                "w-full resize-y rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 text-sm transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
+                // 16px en móvil evita el auto-zoom de iOS Safari al enfocar; text-sm en sm+ (desktop intacto).
+                "w-full resize-y rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 text-base transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-sm",
                 (tooShort || tooLong) && "border-destructive/60",
               )}
             />

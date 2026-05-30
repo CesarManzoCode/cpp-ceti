@@ -26,7 +26,8 @@ function Input({
       data-slot="input"
       aria-invalid={invalid || undefined}
       className={cn(
-        "peer flex h-11 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60",
+        // 16px en móvil evita el auto-zoom de iOS Safari al enfocar; 14px (text-sm) en sm+ (desktop intacto).
+        "peer flex h-11 w-full bg-transparent text-base text-foreground placeholder:text-muted-foreground/60 sm:text-sm",
         "disabled:cursor-not-allowed disabled:opacity-60",
         "file:border-0 file:bg-transparent file:text-sm file:font-medium",
         "outline-none",

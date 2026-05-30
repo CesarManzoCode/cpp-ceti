@@ -261,8 +261,20 @@
 html {
   color-scheme: light dark;
   -webkit-text-size-adjust: 100%;
+  /* Sin flash gris al tocar en móvil (iOS/Android) — el feedback lo da nuestro :active. */
+  -webkit-tap-highlight-color: transparent;
   /* Sticky header is 64px (h-16); clear it so anchored sections never land clipped. */
   scroll-padding-top: 5rem;
+}
+
+/* Quita el retraso de ~300ms en doble-tap sobre controles táctiles, sin
+   desactivar el pinch-zoom de la página (accesibilidad intacta). */
+button,
+a,
+[role="button"],
+label,
+summary {
+  touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: no-preference) {

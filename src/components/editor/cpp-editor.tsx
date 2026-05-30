@@ -60,6 +60,21 @@ export function CppEditor({
   );
   const monacoRef = React.useRef<typeof Monaco | null>(null);
 
+  // En celular subimos a 16px: mejora la legibilidad del código en pantalla
+  // chica y evita el auto-zoom de iOS Safari al enfocar el editor. Desktop
+  // (sm+, ≥640px) se queda en 14px — igual que siempre.
+  const [fontSize, setFontSize] = React.useState(14);
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const apply = () => setFontSize(mq.matches ? 16 : 14);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  React.useEffect(() => {
+    editorRef.current?.updateOptions({ fontSize });
+  }, [fontSize]);
+
   // Aplicar markers cuando cambian los diagnostics (errores/warnings).
   React.useEffect(() => {
     const editor = editorRef.current;
@@ -237,7 +252,7 @@ export function CppEditor({
             }
           }}
           options={{
-            fontSize: 14,
+            fontSize,
             fontFamily:
               "var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace",
             fontLigatures: true,
