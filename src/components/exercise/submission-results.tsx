@@ -4,15 +4,11 @@ import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IOBlock } from "@/components/exercise/io-block";
-import type { TestCaseResult } from "@/lib/executor";
+import type { SubmissionState } from "@/components/exercise/types";
 import { cn } from "@/lib/utils";
 
 interface SubmissionResultsProps {
-  submission: {
-    passed: boolean;
-    results: TestCaseResult[];
-    feedback: string;
-  };
+  submission: SubmissionState;
   onTryAgain: () => void;
 }
 

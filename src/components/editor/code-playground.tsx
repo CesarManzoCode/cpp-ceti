@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Label } from "@/components/ui/label";
 import { CppEditor } from "@/components/editor/cpp-editor";
+import { diagnosticsFromExecution } from "@/components/editor/diagnostics";
 import { OutputPanel } from "@/components/editor/output-panel";
 import { useRunCode } from "@/hooks/use-run-code";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ export function CodePlayground({
         onChange={setCode}
         onRun={handleRun}
         minHeight={editorHeight}
+        diagnostics={diagnosticsFromExecution(result)}
       />
 
       {showStdin ? (

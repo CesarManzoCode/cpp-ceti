@@ -4,19 +4,42 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Lock, Mail, User } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import {
+  FormField,
+  zodIssuesToFieldErrors,
+} from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+
+const registerSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Tu nombre debe tener al menos 2 caracteres")
+    .max(60, "Máximo 60 caracteres"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Tu correo es obligatorio")
+    .email("Correo inválido"),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres"),
+});
+
+type FieldErrors = Partial<Record<"name" | "email" | "password", string>>;
 
 export function RegisterForm() {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
   const [errorNonce, setErrorNonce] = React.useState(0);
+  const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({});
 
   const busy = isPending || isGoogleLoading;
 
@@ -26,38 +49,36 @@ export function RegisterForm() {
     }
   }, []);
 
-  function fail(message: string) {
-    setError(message);
+  function failForm(message: string) {
+    setFormError(message);
     setErrorNonce((n) => n + 1);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setFormError(null);
+    setFieldErrors({});
 
     const formData = new FormData(event.currentTarget);
-    const name = String(formData.get("name") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
-
-    if (name.length < 2) {
-      fail("Tu nombre debe tener al menos 2 caracteres.");
-      return;
-    }
-    if (password.length < 8) {
-      fail("La contraseña debe tener al menos 8 caracteres.");
+    const parsed = registerSchema.safeParse({
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      password: String(formData.get("password") ?? ""),
+    });
+    if (!parsed.success) {
+      setFieldErrors(zodIssuesToFieldErrors(parsed.error.issues));
       return;
     }
 
     startTransition(async () => {
       const { error: signUpError } = await authClient.signUp.email({
-        name,
-        email,
-        password,
+        name: parsed.data.name,
+        email: parsed.data.email,
+        password: parsed.data.password,
       });
 
       if (signUpError) {
-        fail(
+        failForm(
           signUpError.message ??
             "No pudimos crear tu cuenta. Tal vez ya existe ese correo.",
         );
@@ -71,14 +92,15 @@ export function RegisterForm() {
   }
 
   async function handleGoogle() {
-    setError(null);
+    setFormError(null);
+    setFieldErrors({});
     setIsGoogleLoading(true);
     const { error: oauthError } = await authClient.signIn.social({
       provider: "google",
       callbackURL: "/app",
     });
     if (oauthError) {
-      fail(oauthError.message ?? "No pudimos registrarte con Google.");
+      failForm(oauthError.message ?? "No pudimos registrarte con Google.");
       setIsGoogleLoading(false);
     }
   }
@@ -100,11 +122,8 @@ export function RegisterForm() {
 
       <Divider>o con tu correo</Divider>
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Nombre</Label>
+      <FormField name="name" label="Nombre" error={fieldErrors.name}>
         <Input
-          id="name"
-          name="name"
           type="text"
           autoComplete="name"
           placeholder="Tu nombre"
@@ -113,13 +132,10 @@ export function RegisterForm() {
           disabled={busy}
           leadingIcon={<User className="size-4" />}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo</Label>
+      <FormField name="email" label="Correo" error={fieldErrors.email}>
         <Input
-          id="email"
-          name="email"
           type="email"
           autoComplete="email"
           placeholder="tu@correo.com"
@@ -127,13 +143,15 @@ export function RegisterForm() {
           disabled={busy}
           leadingIcon={<Mail className="size-4" />}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
+      <FormField
+        name="password"
+        label="Contraseña"
+        error={fieldErrors.password}
+        hint="Usa al menos 8 caracteres. Hazla difícil de adivinar."
+      >
         <PasswordInput
-          id="password"
-          name="password"
           autoComplete="new-password"
           placeholder="Mínimo 8 caracteres"
           required
@@ -141,19 +159,16 @@ export function RegisterForm() {
           disabled={busy}
           leadingIcon={<Lock className="size-4" />}
         />
-        <p className="text-xs text-muted-foreground">
-          Usa al menos 8 caracteres. Hazla difícil de adivinar.
-        </p>
-      </div>
+      </FormField>
 
-      {error ? (
+      {formError ? (
         <p
           key={errorNonce}
           className="animate-fade-in flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {error}
+          {formError}
         </p>
       ) : null}
 

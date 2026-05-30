@@ -107,6 +107,22 @@ export const getLessonBySlug = cache(async (
     ).map((s) => s.stepId),
   );
 
+  // Último intento por ejercicio (para hidratar el editor al volver).
+  const exerciseIds = lesson.steps
+    .map((s) => s.exercise?.id)
+    .filter((id): id is string => Boolean(id));
+  const latestAttempts = exerciseIds.length
+    ? await db.userExerciseAttempt.findMany({
+        where: { userId, exerciseId: { in: exerciseIds } },
+        orderBy: { createdAt: "desc" },
+        distinct: ["exerciseId"],
+        select: { exerciseId: true, code: true },
+      })
+    : [];
+  const latestCodeByExercise = new Map(
+    latestAttempts.map((a) => [a.exerciseId, a.code]),
+  );
+
   // Lección siguiente para navegación
   const nextInUnit = await db.lesson.findFirst({
     where: {
@@ -162,6 +178,9 @@ export const getLessonBySlug = cache(async (
       steps: lesson.steps.map((s) => ({
         ...s,
         completed: completedStepIds.has(s.id),
+        bestAttemptCode: s.exercise
+          ? (latestCodeByExercise.get(s.exercise.id) ?? null)
+          : null,
       })),
     },
     progress,

@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   CheckCircle2,
   ChevronLeft,
   Play,
@@ -15,23 +16,25 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CppEditor } from "@/components/editor/cpp-editor";
+import {
+  diagnosticsFromExecution,
+  diagnosticsFromSubmission,
+} from "@/components/editor/diagnostics";
+import { useCodeDraft } from "@/components/editor/use-code-draft";
 import { Markdown } from "@/components/shared/markdown";
 import { ExampleTests } from "@/components/exercise/example-tests";
 import { HintsPanel } from "@/components/exercise/hints-panel";
 import { RunOutput } from "@/components/exercise/run-output";
 import { SubmissionResults } from "@/components/exercise/submission-results";
+import type {
+  SubmissionState,
+  VisibleTest,
+} from "@/components/exercise/types";
+import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitPracticeExercise } from "@/features/practice/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 import { cn } from "@/lib/utils";
-import type { TestCaseResult } from "@/lib/executor";
-
-interface VisibleTest {
-  id: string;
-  stdin: string;
-  expectedStdout: string;
-  description: string | null;
-}
 
 interface PracticeViewerProps {
   exercise: {
@@ -51,22 +54,28 @@ interface PracticeViewerProps {
 }
 
 export function PracticeViewer({ exercise }: PracticeViewerProps) {
-  // Si ya tiene un intento guardado, lo cargamos. Si no, el starter.
-  const [code, setCode] = React.useState(
-    exercise.bestAttemptCode ?? exercise.starterCode,
-  );
+  // Borrador local + mejor intento del servidor + fallback al starter.
+  const [code, setCode, resetCode] = useCodeDraft({
+    key: exercise.id,
+    fallback: exercise.starterCode,
+    serverBest: exercise.bestAttemptCode,
+  });
   const [submitting, setSubmitting] = React.useState(false);
   const [confirmReset, setConfirmReset] = React.useState(false);
-  const [submission, setSubmission] = React.useState<{
-    passed: boolean;
-    results: TestCaseResult[];
-    feedback: string;
-    xpEarned: number;
-    firstPass: boolean;
-  } | null>(null);
+  const [submission, setSubmission] = React.useState<
+    | (SubmissionState & { xpEarned: number; firstPass: boolean })
+    | null
+  >(null);
 
   const playground = useRunCode();
   const running = playground.state === "running";
+
+  const diagnostics = React.useMemo(() => {
+    if (submission && !submission.passed) {
+      return diagnosticsFromSubmission(submission.results);
+    }
+    return diagnosticsFromExecution(playground.result);
+  }, [submission, playground.result]);
 
   function handleRun() {
     setSubmission(null);
@@ -103,7 +112,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
       return;
     }
     setConfirmReset(false);
-    setCode(exercise.starterCode);
+    resetCode();
     setSubmission(null);
   }
 
@@ -145,6 +154,12 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
                 Resuelto
               </Badge>
             ) : null}
+            <ReportBugDialog
+              target={{
+                kind: "practice",
+                practiceExerciseId: exercise.id,
+              }}
+            />
           </div>
         </div>
       </header>
@@ -162,6 +177,8 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
             onChange={setCode}
             onRun={handleRun}
             minHeight={420}
+            diagnostics={diagnostics}
+            ariaLabel={`Editor de práctica: ${exercise.title}. Ctrl+Enter para ejecutar.`}
           />
 
           <div className="flex items-center gap-2">
@@ -197,6 +214,18 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
               {confirmReset ? "¿Reiniciar?" : "Reiniciar"}
             </Button>
           </div>
+
+          {diagnostics.length > 0 ? (
+            <p
+              className="flex items-center gap-1.5 text-xs text-destructive"
+              role="status"
+            >
+              <AlertTriangle className="size-3 shrink-0" aria-hidden />
+              {diagnostics.length === 1
+                ? "1 error de compilación marcado en el editor"
+                : `${diagnostics.length} errores de compilación marcados en el editor`}
+            </p>
+          ) : null}
 
           {submission ? (
             <SubmissionResults

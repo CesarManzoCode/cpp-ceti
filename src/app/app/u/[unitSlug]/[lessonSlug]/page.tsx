@@ -8,10 +8,15 @@ import type { StepContent, ViewerStep } from "@/features/lessons/types";
 
 interface PageProps {
   params: Promise<{ unitSlug: string; lessonSlug: string }>;
+  searchParams: Promise<{ p?: string }>;
 }
 
-export default async function LessonPage({ params }: PageProps) {
+export default async function LessonPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { unitSlug, lessonSlug } = await params;
+  const { p } = await searchParams;
   const session = await requireSession();
 
   const course = await getDefaultCourse();
@@ -41,9 +46,11 @@ export default async function LessonPage({ params }: PageProps) {
           id: s.exercise.id,
           prompt: s.exercise.prompt,
           starterCode: s.exercise.starterCode,
+          solutionCode: s.exercise.solutionCode,
           hints: s.exercise.hints,
           difficulty: s.exercise.difficulty as "easy" | "medium" | "hard",
           xpReward: s.exercise.xpReward,
+          bestAttemptCode: s.bestAttemptCode,
           visibleTests: s.exercise.testCases.map((t) => ({
             id: t.id,
             stdin: t.stdin,
@@ -53,6 +60,13 @@ export default async function LessonPage({ params }: PageProps) {
         }
       : undefined,
   }));
+
+  // ?p=N (1-indexed) permite linkear directo a un paso específico.
+  const parsedP = p ? Number.parseInt(p, 10) : NaN;
+  const initialStepIndex =
+    Number.isFinite(parsedP) && parsedP >= 1 && parsedP <= steps.length
+      ? parsedP - 1
+      : null;
 
   return (
     <LessonViewer
@@ -69,6 +83,7 @@ export default async function LessonPage({ params }: PageProps) {
         order: data.unit.order,
       }}
       nextLessonLink={data.nextLessonLink}
+      initialStepIndex={initialStepIndex}
     />
   );
 }

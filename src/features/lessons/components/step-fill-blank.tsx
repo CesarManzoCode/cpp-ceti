@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, Lightbulb, Pencil } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, Lightbulb, Pencil } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/shared/markdown";
@@ -16,6 +17,8 @@ interface StepFillBlankProps {
   isPending: boolean;
 }
 
+const ATTEMPTS_BEFORE_SOLUTION = 3;
+
 export function StepFillBlank({
   content,
   onNext,
@@ -27,6 +30,8 @@ export function StepFillBlank({
   const [submitted, setSubmitted] = React.useState(false);
   const [showHint, setShowHint] = React.useState<number | null>(null);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
+  const [failedAttempts, setFailedAttempts] = React.useState(0);
+  const [solutionRevealed, setSolutionRevealed] = React.useState(false);
 
   const allCorrect = content.blanks.every((b, i) =>
     isBlankCorrect(b, values[i] ?? "", values),
@@ -35,7 +40,21 @@ export function StepFillBlank({
   function verify() {
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
+    if (!allCorrect) {
+      setFailedAttempts((n) => n + 1);
+    }
   }
+
+  function revealSolution() {
+    setValues(content.blanks.map((b) => b.answer));
+    setSolutionRevealed(true);
+    setSubmitted(true);
+    setFeedbackKey((k) => k + 1);
+    toast.info("Te dejamos las respuestas. Léelas y entiende el porqué.");
+  }
+
+  const canShowSolution =
+    failedAttempts >= ATTEMPTS_BEFORE_SOLUTION && !allCorrect && !solutionRevealed;
 
   const lines = renderTemplateLines(
     content.template,
@@ -147,33 +166,48 @@ export function StepFillBlank({
         </div>
       ) : null}
 
-      <div className="flex justify-end gap-2 border-t border-border/70 pt-6">
-        {!submitted || !allCorrect ? (
-          <>
-            {submitted && !allCorrect ? (
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-6">
+        {canShowSolution ? (
+          <Button
+            onClick={revealSolution}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Eye />
+            Ver solución
+          </Button>
+        ) : (
+          <span />
+        )}
+        <div className="ml-auto flex gap-2">
+          {!submitted || !allCorrect ? (
+            <>
+              {submitted && !allCorrect ? (
+                <Button
+                  onClick={() => setSubmitted(false)}
+                  variant="ghost"
+                  size="lg"
+                >
+                  <Pencil />
+                  Corregir
+                </Button>
+              ) : null}
               <Button
-                onClick={() => setSubmitted(false)}
-                variant="ghost"
+                onClick={verify}
+                disabled={values.some((v) => !v.trim())}
                 size="lg"
               >
-                <Pencil />
-                Corregir
+                Verificar
               </Button>
-            ) : null}
-            <Button
-              onClick={verify}
-              disabled={values.some((v) => !v.trim())}
-              size="lg"
-            >
-              Verificar
+            </>
+          ) : (
+            <Button onClick={onNext} loading={isPending} size="lg">
+              Continuar
+              <ArrowRight />
             </Button>
-          </>
-        ) : (
-          <Button onClick={onNext} loading={isPending} size="lg">
-            Continuar
-            <ArrowRight />
-          </Button>
-        )}
+          )}
+        </div>
       </div>
     </article>
   );

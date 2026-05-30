@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { MobileSidebar } from "@/components/layout/mobile-sidebar";
 import { TopbarLocation } from "@/components/layout/topbar-location";
+import { levelFromXp } from "@/lib/level";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 export interface TopbarProps {
@@ -20,6 +21,7 @@ export interface TopbarProps {
  * (racha + XP) en estilo sobrio — no son botones, son indicadores.
  */
 export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
+  const lvl = levelFromXp(totalXp);
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/70 bg-background/85 px-4 backdrop-blur-xl sm:px-6">
       <MobileSidebar units={units} />
@@ -42,6 +44,27 @@ export function Topbar({ user, totalXp, streak, units }: TopbarProps) {
           </span>
           <span className="hidden text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:inline">
             {streak === 1 ? "día" : "días"}
+          </span>
+        </span>
+
+        <span
+          className="flex items-center gap-2 px-4"
+          aria-label={`Nivel ${lvl.level}, ${lvl.xpInCurrentLevel} de ${lvl.xpForNextLevel} XP`}
+        >
+          <span className="grid size-7 place-items-center rounded-md border border-primary/40 bg-primary-soft text-[10px] font-bold tracking-tight text-primary">
+            Nv{lvl.level}
+          </span>
+          <span
+            className="hidden h-1 w-12 overflow-hidden rounded-full bg-border sm:block"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={lvl.xpForNextLevel}
+            aria-valuenow={lvl.xpInCurrentLevel}
+          >
+            <span
+              className="block h-full rounded-full bg-primary transition-[width]"
+              style={{ width: `${Math.min(100, lvl.progress * 100)}%` }}
+            />
           </span>
         </span>
 

@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, RotateCcw, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Eye,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -15,15 +21,32 @@ interface StepQuizProps {
   isPending: boolean;
 }
 
+const ATTEMPTS_BEFORE_REVEAL = 3;
+
 export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
+  const [failedAttempts, setFailedAttempts] = React.useState(0);
+  const [revealed, setRevealed] = React.useState(false);
 
   const isCorrect = selected === content.correctIndex;
+  const canProceed = isCorrect || revealed;
+  const canReveal =
+    failedAttempts >= ATTEMPTS_BEFORE_REVEAL && !isCorrect && !revealed;
 
   function handleCheck() {
     if (selected === null) return;
+    setSubmitted(true);
+    setFeedbackKey((k) => k + 1);
+    if (selected !== content.correctIndex) {
+      setFailedAttempts((n) => n + 1);
+    }
+  }
+
+  function revealAnswer() {
+    setSelected(content.correctIndex);
+    setRevealed(true);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
   }
@@ -35,14 +58,19 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
       if (e.key !== "Enter") return;
       if (!submitted) {
         if (selected !== null) handleCheck();
-      } else if (isCorrect && !isPending) {
+      } else if (canProceed && !isPending) {
         onNext();
       }
     }
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, submitted, isCorrect, isPending]);
+  }, [selected, submitted, canProceed, isPending]);
+
+  const perOptionFeedback =
+    submitted && selected !== null && !isCorrect && !revealed
+      ? content.feedbackPerOption?.[selected]
+      : null;
 
   return (
     <article className="space-y-7">
@@ -119,28 +147,48 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
         })}
       </ul>
 
+      {perOptionFeedback ? (
+        <div className="rounded-[var(--radius-md)] border border-warning/40 bg-warning-soft p-4 text-sm">
+          <p className="mb-1 font-semibold text-warning-foreground">
+            No es por ahí:
+          </p>
+          <p className="text-foreground/90">{perOptionFeedback}</p>
+        </div>
+      ) : null}
+
       {submitted ? (
         <div
           key={`fb-${feedbackKey}`}
           className={cn(
             "rounded-[var(--radius-md)] border p-5 animate-fade-up",
-            isCorrect
-              ? "border-success/30 bg-success-soft animate-correct"
+            canProceed
+              ? "border-success/30 bg-success-soft"
               : "border-warning/40 bg-warning-soft",
+            isCorrect && "animate-correct",
           )}
         >
           <p
             className={cn(
               "mb-1.5 flex items-center gap-2 text-sm font-semibold",
-              isCorrect ? "text-success" : "text-warning-foreground",
+              canProceed ? "text-success" : "text-warning-foreground",
             )}
           >
             {isCorrect ? (
-              <CheckCircle2 className="size-4" aria-hidden />
+              <>
+                <CheckCircle2 className="size-4" aria-hidden />
+                Correcto
+              </>
+            ) : revealed ? (
+              <>
+                <Eye className="size-4" aria-hidden />
+                Respuesta revelada
+              </>
             ) : (
-              <XCircle className="size-4" aria-hidden />
+              <>
+                <XCircle className="size-4" aria-hidden />
+                Aún no — repasa esto
+              </>
             )}
-            {isCorrect ? "Correcto" : "Aún no — repasa esto"}
           </p>
           <div className="text-[15px] text-foreground/90">
             <Markdown>{content.explanation}</Markdown>
@@ -148,36 +196,44 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">
-        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
-          <Kbd>Enter</Kbd>
-          {!submitted ? "para verificar" : isCorrect ? "para continuar" : ""}
+      <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-6">
+        {canReveal ? (
+          <Button
+            onClick={revealAnswer}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Eye />
+            Ver respuesta correcta
+          </Button>
+        ) : null}
+
+        <span className="ml-auto inline-flex items-center gap-3">
+          <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
+            <Kbd>Enter</Kbd>
+            {!submitted ? "verificar" : canProceed ? "continuar" : ""}
+          </span>
+          {!submitted ? (
+            <Button onClick={handleCheck} disabled={selected === null} size="lg">
+              Verificar
+            </Button>
+          ) : canProceed ? (
+            <Button onClick={onNext} loading={isPending} size="lg">
+              Continuar
+              <ArrowRight />
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setSubmitted(false)}
+              variant="outline"
+              size="lg"
+            >
+              <RotateCcw />
+              Intentar de nuevo
+            </Button>
+          )}
         </span>
-        {!submitted ? (
-          <Button
-            onClick={handleCheck}
-            disabled={selected === null}
-            size="lg"
-            className="ml-auto"
-          >
-            Verificar
-          </Button>
-        ) : isCorrect ? (
-          <Button onClick={onNext} loading={isPending} size="lg" className="ml-auto">
-            Continuar
-            <ArrowRight />
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setSubmitted(false)}
-            variant="outline"
-            size="lg"
-            className="ml-auto"
-          >
-            <RotateCcw />
-            Intentar de nuevo
-          </Button>
-        )}
       </div>
     </article>
   );

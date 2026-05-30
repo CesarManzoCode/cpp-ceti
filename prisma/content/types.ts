@@ -35,7 +35,9 @@ export type StepDefinition =
   | CodeExampleStep
   | QuizStep
   | FillBlankStep
-  | CodeChallengeStep;
+  | CodeChallengeStep
+  | MatchingStep
+  | CodeCompletionStep;
 
 export interface TheoryStep {
   type: "theory";
@@ -55,6 +57,8 @@ export interface QuizStep {
   type: "quiz";
   question: string;
   options: string[];
+  /** Mensaje dirigido por opción incorrecta (mismo índice que `options`). Opcional. */
+  feedbackPerOption?: string[];
   correctIndex: number;
   explanation: string;
 }
@@ -111,4 +115,31 @@ export interface TestCaseDefinition {
   expectedStdout: string;
   visible?: boolean;
   description?: string;
+}
+
+/**
+ * Pareo conceptual — el alumno empareja cada item de la columna izquierda
+ * con el correspondiente de la derecha. Se mezclan visualmente para que
+ * piense la respuesta, no la posición.
+ */
+export interface MatchingStep {
+  type: "matching";
+  /** Enunciado (markdown) — opcional. */
+  prompt?: string;
+  /** Cada par {left, right} es una asociación correcta. */
+  pairs: { left: string; right: string }[];
+  /** Explicación que se muestra al pasar. */
+  explanation?: string;
+}
+
+/**
+ * Reordenar líneas — la UI muestra el código mezclado y el alumno tiene
+ * que poner las líneas en el orden correcto usando flechas ↑/↓.
+ */
+export interface CodeCompletionStep {
+  type: "code_completion";
+  prompt?: string;
+  /** Líneas en orden correcto. La UI las muestra mezcladas al inicio. */
+  lines: string[];
+  explanation?: string;
 }

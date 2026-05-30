@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { completeStep } from "@/features/lessons/actions";
 import { cn } from "@/lib/utils";
 import type { ViewerStep } from "@/features/lessons/types";
@@ -29,19 +30,40 @@ export interface LessonViewerProps {
     order: number;
   };
   nextLessonLink: { href: string; title: string } | null;
+  /** Si viene de `?p=N` (1-indexed) en la URL, gana sobre el firstIncomplete. */
+  initialStepIndex?: number | null;
 }
 
 export function LessonViewer({
   lesson,
   unit,
   nextLessonLink,
+  initialStepIndex,
 }: LessonViewerProps) {
   const initialIndex = React.useMemo(() => {
+    if (
+      initialStepIndex !== null &&
+      initialStepIndex !== undefined &&
+      initialStepIndex >= 0 &&
+      initialStepIndex < lesson.steps.length
+    ) {
+      return initialStepIndex;
+    }
     const firstIncomplete = lesson.steps.findIndex((s) => !s.completed);
     return firstIncomplete === -1 ? 0 : firstIncomplete;
-  }, [lesson.steps]);
+  }, [lesson.steps, initialStepIndex]);
 
   const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
+
+  // Mantener la URL sincronizada con el paso actual para soportar deep-link
+  // y refresh sin perder posición. Usamos history.replaceState para no inflar
+  // el back-stack con cada avance de paso.
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("p", String(currentIndex + 1));
+    window.history.replaceState(null, "", url.toString());
+  }, [currentIndex]);
   const [isPending, startTransition] = React.useTransition();
   const [completedDialog, setCompletedDialog] = React.useState<{
     open: boolean;
@@ -147,6 +169,14 @@ export function LessonViewer({
               {currentIndex + 1}/{total}
             </span>
           </div>
+
+          <ReportBugDialog
+            target={
+              currentStep.type === "code_challenge" && currentStep.exercise
+                ? { kind: "exercise", exerciseId: currentStep.exercise.id }
+                : { kind: "lesson_step", lessonStepId: currentStep.id }
+            }
+          />
 
           <Button
             asChild

@@ -8,7 +8,9 @@ export type StepType =
   | "code_example"
   | "quiz"
   | "fill_blank"
-  | "code_challenge";
+  | "code_challenge"
+  | "matching"
+  | "code_completion";
 
 export interface TheoryStepContent {
   /** Cuerpo de la lección en Markdown. Soporta bloques de código con ```cpp */
@@ -31,6 +33,8 @@ export interface CodeExampleStepContent {
 export interface QuizStepContent {
   question: string;
   options: string[];
+  /** Mensaje dirigido por opción incorrecta (mismo índice que `options`). Opcional. */
+  feedbackPerOption?: string[];
   /** Índice de la opción correcta (0-based) */
   correctIndex: number;
   explanation: string;
@@ -69,12 +73,26 @@ export interface CodeChallengeStepContent {
   exerciseRef: true;
 }
 
+export interface MatchingStepContent {
+  prompt?: string;
+  pairs: { left: string; right: string }[];
+  explanation?: string;
+}
+
+export interface CodeCompletionStepContent {
+  prompt?: string;
+  lines: string[];
+  explanation?: string;
+}
+
 export type StepContent =
   | ({ type: "theory" } & TheoryStepContent)
   | ({ type: "code_example" } & CodeExampleStepContent)
   | ({ type: "quiz" } & QuizStepContent)
   | ({ type: "fill_blank" } & FillBlankStepContent)
-  | ({ type: "code_challenge" } & CodeChallengeStepContent);
+  | ({ type: "code_challenge" } & CodeChallengeStepContent)
+  | ({ type: "matching" } & MatchingStepContent)
+  | ({ type: "code_completion" } & CodeCompletionStepContent);
 
 export interface LessonStepData<T extends StepType = StepType> {
   id: string;
@@ -98,9 +116,11 @@ export interface ViewerStep {
     id: string;
     prompt: string;
     starterCode: string;
+    solutionCode: string;
     hints: string[];
     difficulty: "easy" | "medium" | "hard";
     xpReward: number;
+    bestAttemptCode: string | null;
     visibleTests: {
       id: string;
       stdin: string;

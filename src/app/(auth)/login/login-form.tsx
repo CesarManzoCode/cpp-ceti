@@ -4,12 +4,25 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import {
+  FormField,
+  zodIssuesToFieldErrors,
+} from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+
+const loginSchema = z.object({
+  email: z.string().trim().min(1, "Tu correo es obligatorio").email("Correo inválido"),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres"),
+});
+
+type FieldErrors = Partial<Record<"email" | "password", string>>;
 
 export function LoginForm() {
   const router = useRouter();
@@ -18,44 +31,48 @@ export function LoginForm() {
 
   const [isPending, startTransition] = React.useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
   const [errorNonce, setErrorNonce] = React.useState(0);
+  const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({});
 
   const busy = isPending || isGoogleLoading;
 
   React.useEffect(() => {
-    // Enfoca el correo en desktop; en móvil no forzamos abrir el teclado.
     if (window.matchMedia("(min-width: 640px)").matches) {
       document.getElementById("email")?.focus();
     }
   }, []);
 
-  function fail(message: string) {
-    setError(message);
+  function failForm(message: string) {
+    setFormError(message);
     setErrorNonce((n) => n + 1);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setFormError(null);
+    setFieldErrors({});
 
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
-
-    if (!email || !password) {
-      fail("Email y contraseña son obligatorios.");
+    const parsed = loginSchema.safeParse({
+      email: String(formData.get("email") ?? "").trim(),
+      password: String(formData.get("password") ?? ""),
+    });
+    if (!parsed.success) {
+      setFieldErrors(zodIssuesToFieldErrors(parsed.error.issues));
       return;
     }
 
     startTransition(async () => {
       const { error: signInError } = await authClient.signIn.email({
-        email,
-        password,
+        email: parsed.data.email,
+        password: parsed.data.password,
       });
 
       if (signInError) {
-        fail(signInError.message ?? "Credenciales inválidas. Intenta de nuevo.");
+        failForm(
+          signInError.message ?? "Credenciales inválidas. Intenta de nuevo.",
+        );
         return;
       }
 
@@ -66,14 +83,15 @@ export function LoginForm() {
   }
 
   async function handleGoogle() {
-    setError(null);
+    setFormError(null);
+    setFieldErrors({});
     setIsGoogleLoading(true);
     const { error: oauthError } = await authClient.signIn.social({
       provider: "google",
       callbackURL: redirectTo,
     });
     if (oauthError) {
-      fail(oauthError.message ?? "No pudimos iniciar sesión con Google.");
+      failForm(oauthError.message ?? "No pudimos iniciar sesión con Google.");
       setIsGoogleLoading(false);
     }
     // En éxito el navegador redirige a Google; dejamos el spinner activo.
@@ -96,11 +114,8 @@ export function LoginForm() {
 
       <Divider>o con tu correo</Divider>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo</Label>
+      <FormField name="email" label="Correo" error={fieldErrors.email}>
         <Input
-          id="email"
-          name="email"
           type="email"
           autoComplete="email"
           placeholder="tu@correo.com"
@@ -108,13 +123,10 @@ export function LoginForm() {
           disabled={busy}
           leadingIcon={<Mail className="size-4" />}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
+      <FormField name="password" label="Contraseña" error={fieldErrors.password}>
         <PasswordInput
-          id="password"
-          name="password"
           autoComplete="current-password"
           placeholder="••••••••"
           required
@@ -122,16 +134,16 @@ export function LoginForm() {
           disabled={busy}
           leadingIcon={<Lock className="size-4" />}
         />
-      </div>
+      </FormField>
 
-      {error ? (
+      {formError ? (
         <p
           key={errorNonce}
           className="animate-fade-in flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {error}
+          {formError}
         </p>
       ) : null}
 

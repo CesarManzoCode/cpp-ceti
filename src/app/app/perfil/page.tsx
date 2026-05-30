@@ -15,9 +15,12 @@ import {
   getCompletedLessonsCount,
   getExerciseAttemptsCount,
 } from "@/features/lessons/queries";
+import { levelFromXp } from "@/lib/level";
 import { getUserStats } from "@/lib/streak";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
+import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
+import { DeleteAccountDialog } from "@/features/profile/components/delete-account-dialog";
 import { SignOutButton } from "@/features/profile/components/sign-out-button";
 
 export const metadata = {
@@ -47,6 +50,8 @@ export default async function PerfilPage() {
     year: "numeric",
   });
 
+  const lvl = levelFromXp(stats.totalXp);
+
   return (
     <div
       data-page-enter
@@ -74,6 +79,43 @@ export default async function PerfilPage() {
           </div>
         </div>
       </header>
+
+      <section
+        className="rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] sm:p-6"
+        aria-label={`Nivel actual: ${lvl.level}`}
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="grid size-14 shrink-0 place-items-center rounded-[var(--radius-lg)] border border-primary/40 bg-primary-soft text-base font-bold text-primary sm:size-16 sm:text-lg">
+            Nv {lvl.level}
+          </div>
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-sm font-semibold tracking-tight">
+                Nivel {lvl.level}
+              </p>
+              <p className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                {lvl.xpInCurrentLevel}/{lvl.xpForNextLevel} XP
+              </p>
+            </div>
+            <div
+              className="h-2 overflow-hidden rounded-full bg-border"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={lvl.xpForNextLevel}
+              aria-valuenow={lvl.xpInCurrentLevel}
+            >
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-700"
+                style={{ width: `${Math.min(100, lvl.progress * 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {lvl.xpForNextLevel - lvl.xpInCurrentLevel} XP para el nivel{" "}
+              {lvl.level + 1}.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold tracking-tight">Tu actividad</h2>
@@ -128,29 +170,22 @@ export default async function PerfilPage() {
           </li>
           <li className="flex items-center justify-between gap-4 p-5">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Cambiar contraseña
-              </p>
-              <p className="text-xs text-muted-foreground/80">
-                Actualiza tu contraseña desde aquí.
+              <p className="text-sm font-medium">Cambiar contraseña</p>
+              <p className="text-xs text-muted-foreground">
+                Actualiza tu contraseña. Cerramos las sesiones en otros
+                dispositivos por seguridad.
               </p>
             </div>
-            <Badge variant="secondary" size="sm">
-              Pronto
-            </Badge>
+            <ChangePasswordDialog />
           </li>
           <li className="flex items-center justify-between gap-4 p-5">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Eliminar cuenta
-              </p>
-              <p className="text-xs text-muted-foreground/80">
+              <p className="text-sm font-medium">Eliminar cuenta</p>
+              <p className="text-xs text-muted-foreground">
                 Borra tu cuenta y todos tus datos de forma permanente.
               </p>
             </div>
-            <Badge variant="secondary" size="sm">
-              Pronto
-            </Badge>
+            <DeleteAccountDialog userEmail={user.email} />
           </li>
         </ul>
       </section>

@@ -1,11 +1,5 @@
 import { IOBlock } from "@/components/exercise/io-block";
-
-interface VisibleTest {
-  id: string;
-  stdin: string;
-  expectedStdout: string;
-  description: string | null;
-}
+import type { VisibleTest } from "@/components/exercise/types";
 
 /** The "Ejemplos" panel of visible input/output samples for an exercise. */
 export function ExampleTests({ tests }: { tests: VisibleTest[] }) {

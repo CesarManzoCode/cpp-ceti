@@ -33,6 +33,11 @@ export const auth = betterAuth({
     additionalFields: {
       // los campos extra que necesitemos pueden añadirse aquí
     },
+    // Habilita /delete-user. Borra el usuario y su data por cascade
+    // (sesiones, progreso, intentos, etc. — definido en schema.prisma).
+    deleteUser: {
+      enabled: true,
+    },
   },
 
   session: {

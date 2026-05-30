@@ -95,9 +95,10 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Columna mockup — proof real del producto, expuesto a lectores de pantalla */}
+        {/* Columna mockup — proof real del producto, expuesto a lectores de pantalla.
+            En pantallas muy chicas (≤sm) lo escondemos para no comprimir el hero. */}
         <div
-          className="relative animate-scale-in"
+          className="relative hidden animate-scale-in sm:block"
           role="img"
           aria-label='Editor de código C++ con un programa que imprime "Hola, CETI!", compilado en 312 milisegundos.'
         >

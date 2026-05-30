@@ -199,6 +199,9 @@ function buildStepContent(step: StepDefinition): Record<string, unknown> {
       return {
         question: step.question,
         options: step.options,
+        ...(step.feedbackPerOption
+          ? { feedbackPerOption: step.feedbackPerOption }
+          : {}),
         correctIndex: step.correctIndex,
         explanation: step.explanation,
       };
@@ -213,5 +216,17 @@ function buildStepContent(step: StepDefinition): Record<string, unknown> {
       // El detalle del ejercicio se guarda en la tabla Exercise,
       // aquí solo dejamos un marcador.
       return { exerciseRef: true };
+    case "matching":
+      return {
+        ...(step.prompt ? { prompt: step.prompt } : {}),
+        pairs: step.pairs,
+        ...(step.explanation ? { explanation: step.explanation } : {}),
+      };
+    case "code_completion":
+      return {
+        ...(step.prompt ? { prompt: step.prompt } : {}),
+        lines: step.lines,
+        ...(step.explanation ? { explanation: step.explanation } : {}),
+      };
   }
 }

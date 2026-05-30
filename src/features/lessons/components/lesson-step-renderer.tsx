@@ -7,6 +7,8 @@ import { StepCodeExample } from "./step-code-example";
 import { StepQuiz } from "./step-quiz";
 import { StepFillBlank } from "./step-fill-blank";
 import { StepCodeChallenge } from "./step-code-challenge";
+import { StepMatching } from "./step-matching";
+import { StepCodeCompletion } from "./step-code-completion";
 
 interface LessonStepRendererProps {
   step: ViewerStep;
@@ -77,6 +79,24 @@ export function LessonStepRenderer({
         />
       );
     }
+    case "matching":
+      return (
+        <StepMatching
+          content={step.content as Extract<StepContent, { type: "matching" }>}
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
+    case "code_completion":
+      return (
+        <StepCodeCompletion
+          content={
+            step.content as Extract<StepContent, { type: "code_completion" }>
+          }
+          onNext={onNext}
+          isPending={isPending}
+        />
+      );
     default:
       return (
         <p className="text-sm text-muted-foreground">

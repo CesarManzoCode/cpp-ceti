@@ -119,7 +119,9 @@
   --secondary-foreground: oklch(0.97 0.005 250);
 
   --muted: oklch(0.225 0.016 252);
-  --muted-foreground: oklch(0.66 0.012 250);
+  /* Subido de 0.66 → 0.74 para cumplir WCAG AA en texto chico sobre el fondo
+     oscuro (bg ~ 0.165). 0.66 daba ~4.0:1; 0.74 da ~5.5:1. */
+  --muted-foreground: oklch(0.74 0.012 250);
 
   --accent: oklch(0.25 0.018 252);
   --accent-foreground: oklch(0.97 0.005 250);
