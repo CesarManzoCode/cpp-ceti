@@ -195,25 +195,39 @@ Cuando termine, abre la URL y prueba:
 
 ## 7. Mantenimiento
 
+### Build de Vercel (recomendado)
+
+A partir de Sprint 3, `npm run build` **solo** compila la app:
+
+```
+prisma generate && next build
+```
+
+El seed y las migraciones se aplican fuera del build para no encadenar
+escrituras a la DB con cada deploy.
+
+**Configura el Build Command de Vercel** (Project Settings → Build & Output
+Settings) a:
+
+```
+prisma migrate deploy && npm run build
+```
+
+Esto aplica las migraciones pendientes antes de compilar. Si una migración
+falla, el deploy falla — y nunca se publica una versión incompatible con la DB.
+
 ### Actualizar contenido
 
 1. Edita o agrega un archivo en `prisma/content/`.
-2. Push a `main`.
-3. Vercel hace deploy automático.
-4. El seed corre **solo** como parte del build de Vercel: el script `build`
-   ejecuta `prisma generate && next build && tsx prisma/seed.ts`, así que la DB
-   queda sincronizada con el contenido en cada deploy. Los upserts no afectan el
-   progreso de los usuarios.
+2. Push a `main` → Vercel hace deploy.
+3. Después del deploy, corre el seed:
+   - **Desde tu máquina**: `npm run db:seed` (lee `.env.local` apuntando a prod).
+   - **O dispara un workflow manual** en GitHub Actions que corra
+     `dotenv -e .env.local -- tsx prisma/seed.ts` con secrets.
 
-   - Requiere que `DATABASE_URL` esté configurada en las env vars del proyecto
-     de Vercel (ya lo está, porque la app la usa en runtime).
-   - Si en **Project Settings → Build & Output Settings** tienes un *Build
-     Command* personalizado, asegúrate de que termine llamando al seed (p. ej.
-     `npm run build`, o `prisma migrate deploy && next build && tsx prisma/seed.ts`
-     si además aplicas migraciones). Si está en el valor por defecto, Vercel usa
-     el script `build` y no hay nada que cambiar.
-   - En builds locales sin `.env.local` el seed se omite solo (no hay
-     `DATABASE_URL` en el entorno), así que `npm run build` no falla.
+Los seeds son **upserts idempotentes** — repetirlos no destruye progreso de
+usuarios. Los pasos de lección se preservan por `(lessonId, order)` (ver
+Sprint 1) y los test cases se reemplazan sin tocar los attempts.
 
 ### Migraciones del schema
 
@@ -223,13 +237,54 @@ Si cambias `prisma/schema.prisma`:
 npm run db:migrate -- --name describe_your_change
 git add prisma/migrations/
 git commit -m "feat(db): describe your change"
+git push
 ```
 
-En el deploy de Vercel, configura un build command:
+El Build Command de Vercel (`prisma migrate deploy && npm run build`) las
+aplica automáticamente al desplegar. También puedes correrlas manualmente
+con `npm run db:migrate:deploy`.
 
+### Healthcheck
+
+`GET /api/health` devuelve el estado de la app y la DB:
+
+```bash
+curl https://tu-app.vercel.app/api/health
+# 200 OK → { "ok": true, "db": "up", "time": "2026-05-29T18:00:00.000Z" }
+# 503    → { "ok": false, "db": "down", "time": "..." }
 ```
-prisma migrate deploy && next build
+
+Apunta cualquier servicio de monitoreo (UptimeRobot, Better Stack) a esa URL
+con un check cada 1–5 min. Vercel ya tiene su propio liveness check del
+deploy; este endpoint además verifica la conectividad a la DB.
+
+### Rollback
+
+Si una versión rompe producción:
+
+**1. Rollback de la app (Vercel):**
+
+```bash
+vercel rollback        # interactivo, lista los últimos deploys
+# o desde el dashboard: Deployments → ... → Promote to Production
 ```
+
+**2. Si rollbackeaste *y* habías aplicado una migración nueva**:
+
+La DB ya tiene cambios que el código viejo no espera. Dos rutas:
+
+- **Forward fix (recomendado)**: aplica un *patch migration* aditivo que
+  resuelva el problema sin revertir lo aplicado.
+- **Revert manual** (raro): escribe SQL inverso y marca la migración como
+  revertida en el ledger:
+
+  ```bash
+  # 1. Ejecuta el SQL de reverso vía Supabase SQL Editor.
+  # 2. Marca la migración como rolled-back para que Prisma no la re-aplique.
+  npx prisma migrate resolve --rolled-back NOMBRE_DE_LA_MIGRATION
+  ```
+
+> 🚫 **Nunca corras `prisma migrate reset` en producción** — vacía la BD.
 
 ### Monitoreo del Judge0
 
