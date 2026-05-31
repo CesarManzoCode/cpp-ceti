@@ -235,7 +235,11 @@ Salida esperada:
 Precio: 250
 IVA: 40
 Total: 290
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (como en esta unidad, no \`printf\`).
+> \`cout\` elimina automáticamente los ceros innecesarios: \`cout << 250.0\` imprime \`250\`,
+> \`cout << 40.0\` imprime \`40\`. No verás \`250.000000\`.`,
       starterCode: `#include <iostream>
 using namespace std;
 
@@ -441,7 +445,11 @@ Salida esperada:
 
 \`\`\`
 100 C = 212 F
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` muestra solo los decimales que se necesitan: \`cout << 100.0\` → \`100\`,
+> \`cout << 98.6\` → \`98.6\`. No se añaden ceros de más.`,
       starterCode: `#include <iostream>
 using namespace std;
 `,
@@ -523,7 +531,13 @@ Monto: 1000
 Interes: 50
 Comision: 25
 Total: 1075
-\`\`\``,
+\`\`\`
+
+> **Importante — formato de salida:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` elimina automáticamente los ceros innecesarios después del punto decimal:
+> \`cout << 1000.0\` imprime \`1000\` (no \`1000.000000\`),
+> \`cout << 50.0\` imprime \`50\`.
+> Si usas \`printf("%f", ...)\` o \`printf("%lf", ...)\`, obtendrás 6 decimales y el test fallará.`,
       starterCode: `#include <iostream>
 using namespace std;
 `,
@@ -548,6 +562,7 @@ int main() {
       hints: [
         "Const al inicio. Después variable normal. Después cálculos.",
         "Cuatro `cout` distintos, en el orden exacto del enunciado.",
+        "Usa `cout <<`, no `printf`. `cout` elimina los ceros de más automáticamente.",
       ],
       testCases: [
         {

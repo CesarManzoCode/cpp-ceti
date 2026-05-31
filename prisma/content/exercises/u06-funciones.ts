@@ -342,7 +342,10 @@ Salida esperada:
 
 \`\`\`
 Promedio: 9
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` elimina los ceros de más: \`cout << 9.0\` imprime \`9\`, no \`9.000000\`.`,
       starterCode: `#include <iostream>
 using namespace std;
 
@@ -422,7 +425,10 @@ Salida esperada:
 \`\`\`
 Con default: 116
 Con 8%: 108
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` elimina los ceros innecesarios: \`cout << 116.0\` imprime \`116\`, no \`116.000000\`.`,
       starterCode: `#include <iostream>
 using namespace std;
 

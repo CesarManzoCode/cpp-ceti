@@ -132,7 +132,7 @@ int main() {
   return 0;
 }`,
           explanation:
-            "Cada tipo guarda algo distinto: `int` enteros, `double` decimales, `char` UN solo caracter entre comillas SIMPLES (`'B'`, no `\"B\"`).",
+            "Cada tipo guarda algo distinto: `int` enteros, `double` decimales, `char` UN solo caracter entre comillas SIMPLES (`'B'`, no `\"B\"`).\n\n**¿Cómo imprime `cout` los `double`?** `cout` muestra *solo los decimales que hacen falta* y elimina los ceros de más: `cout << 8.7` → `8.7`; `cout << 1000.0` → `1000`; `cout << 9.50` → `9.5`. No verás `8.700000`. Esto es diferente a `printf(\"%f\", ...)` que siempre muestra 6 decimales — algo que aprenderás en la Unidad 7.",
           runnable: true,
           expectedOutput: `19
 8.7

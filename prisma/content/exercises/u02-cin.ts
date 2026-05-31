@@ -238,7 +238,11 @@ Salida esperada:
 Sin IVA: 100
 IVA: 16
 Total: 116
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` elimina los ceros innecesarios: \`cout << 100.0\` imprime \`100\`,
+> \`cout << 16.0\` imprime \`16\`. Con \`printf("%f",...)\` obtendrías \`100.000000\`.`,
       starterCode: `#include <iostream>
 using namespace std;
 
@@ -518,7 +522,11 @@ Salida esperada:
 Subtotal: 76.5
 Descuento: 7.65
 Total: 68.85
-\`\`\``,
+\`\`\`
+
+> **Nota sobre formato:** Usa \`cout\` para imprimir (no \`printf\`).
+> \`cout\` muestra solo los decimales que hacen falta: \`76.5\` imprime \`76.5\`,
+> \`100.0\` imprime \`100\`. Si usaras \`printf("%f",...)\` obtendrías \`76.500000\`.`,
       starterCode: `#include <iostream>
 using namespace std;
 `,
