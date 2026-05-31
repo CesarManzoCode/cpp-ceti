@@ -494,12 +494,17 @@ int main() {
 
   printf("Promedio: %f\\n", promedio);     // 8.750000 (6 decimales por defecto)
   printf("Promedio: %.2f\\n", promedio);   // 8.75 (controlado)
+  printf("Promedio: %g\\n", promedio);     // 8.75 (elimina ceros de mas)
+
+  double monto = 1000.0;
+  printf("Monto: %f\\n", monto);           // 1000.000000
+  printf("Monto: %g\\n", monto);           // 1000  (igual que cout)
   return 0;
 }`,
           explanation:
-            "`%f` imprime un `double`. Por defecto muestra **6 decimales** — feo. Con `%.Nf` (donde N es un número) controlas cuántos decimales. `%.2f` es el más común para calificaciones y precios.",
+            "`%f` imprime un `double`. Por defecto muestra **6 decimales** — feo. Con `%.Nf` (donde N es un número) controlas cuántos decimales. `%.2f` es el más común para calificaciones y precios.\n\n**`%g` — el equivalente de `cout` en printf:** elimina los ceros innecesarios al final. `printf(\"%g\", 1000.0)` → `1000`; `printf(\"%g\", 8.75)` → `8.75`. Esto es exactamente lo que hace `cout` por defecto (por eso en las unidades anteriores `cout << 1000.0` imprimía `1000` sin punto ni ceros). Usa `%g` cuando quieras ese comportamiento automático con `printf`.",
           runnable: true,
-          expectedOutput: "Promedio: 8.750000\nPromedio: 8.75",
+          expectedOutput: "Promedio: 8.750000\nPromedio: 8.75\nPromedio: 8.75\nMonto: 1000.000000\nMonto: 1000",
         },
         {
           type: "quiz",
