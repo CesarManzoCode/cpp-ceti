@@ -1,3 +1,4 @@
+import { normalizeOutput } from "./normalize";
 import { fetchWithRetry } from "./retry";
 import type {
   CodeExecutor,
@@ -164,18 +165,4 @@ function buildTestResult(
     status: result.status,
     durationMs: result.durationMs,
   };
-}
-
-/**
- * Normaliza output para comparación: convierte CRLF a LF, hace trim de espacios
- * al final de cada línea, y trim del output completo.
- * Esto evita falsos negativos por `endl` vs `\n` o espacios trailing.
- */
-function normalizeOutput(s: string): string {
-  return s
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .join("\n")
-    .trim();
 }

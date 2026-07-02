@@ -709,7 +709,8 @@ scanf("%i", &edad);
 Dos cosas raras la primera vez:
 
 1. El **especificador** va dentro del string (\`"%i"\`) — igual que en \`printf\`.
-   - \`%i\` para entero, \`%f\` para double.
+   - \`%i\` para entero, \`%lf\` para double (OJO: en \`scanf\` el double lleva
+     \`%lf\`; el \`%f\` a secas sólo es para imprimir con \`printf\`).
 2. El **\`&\` (ampersand)** ANTES de la variable es **obligatorio**.
    - Le dice a \`scanf\` *dónde* guardar el valor (la dirección de la variable).
    - Si lo olvidas, el programa se rompe en runtime.`,
@@ -747,7 +748,7 @@ int main() {
         {
           type: "fill_blank",
           prompt:
-            "Para `scanf` no olvides el `&` antes de cada variable. Usa `\"%i\"` para el entero y `\"%f\"` para el double. En el `printf` final usa `%i` y `%.2f` con las variables `edad` y `promedio`.",
+            "Para `scanf` no olvides el `&` antes de cada variable. Usa `\"%i\"` para el entero y `\"%lf\"` para el double. En el `printf` final usa `%i` y `%.2f` con las variables `edad` y `promedio`.",
           template: `#include <stdio.h>
 
 int main() {
@@ -766,7 +767,7 @@ int main() {
           blanks: [
             { answer: "\"%i\"", hint: "Especificador de entero entre comillas." },
             { answer: "&", hint: "Símbolo OBLIGATORIO antes de la variable en scanf." },
-            { answer: "\"%f\"", hint: "Especificador de double entre comillas." },
+            { answer: "\"%lf\"", hint: "Especificador de double en scanf entre comillas." },
             { answer: "&", hint: "Mismo símbolo & antes de promedio." },
             { answer: "%i", hint: "Placeholder para entero (en printf, sin comillas extras)." },
             { answer: "%.2f", hint: "Placeholder para double con 2 decimales." },
@@ -774,7 +775,7 @@ int main() {
             { answer: "promedio", hint: "Segunda variable (double)." },
           ],
           explanation:
-            "Patrón: `scanf(\"%i\", &variable);` para enteros, `scanf(\"%f\", &variable);` para doubles. En printf NO va el `&` — solo en scanf.",
+            "Patrón: `scanf(\"%i\", &variable);` para enteros, `scanf(\"%lf\", &variable);` para doubles (`%lf` sólo en scanf; para imprimir usa `%f`). En printf NO va el `&` — solo en scanf.",
         },
         // -----------------------------------------------------------------
         // Reto 1 (fácil): Eco de un entero
@@ -898,7 +899,7 @@ int main() {
           exercise: {
             prompt: `## Reto 3 — Calificación con decimales
 
-Lee un \`double\` con \`scanf\` (usa \`%f\`) y reimprímelo con dos decimales:
+Lee un \`double\` con \`scanf\` (usa \`%lf\`) y reimprímelo con dos decimales:
 
 \`\`\`
 Calificacion: <d con 2 decimales>
@@ -1006,7 +1007,13 @@ int main() {
   return 0;
 }`,
           blanks: [
-            { answer: "\"%i %i %i\"", hint: "Tres %i separados por espacio, entre comillas." },
+            {
+              answer: "\"%i %i %i\"",
+              // El espacio en el format string de scanf es opcional — la
+              // propia explanation lo dice, así que aceptamos ambas formas.
+              pattern: "\"%i ?%i ?%i\"",
+              hint: "Tres %i separados por espacio, entre comillas.",
+            },
             { answer: "&", hint: "& antes de la primera variable." },
             { answer: "&", hint: "& antes de la segunda." },
             { answer: "&", hint: "& antes de la tercera." },
@@ -1274,7 +1281,12 @@ int main() {
 }`,
           blanks: [
             { answer: "*", hint: "Operador de multiplicación." },
-            { answer: "\"%lf %lf\"", hint: "Dos doubles separados; %lf en scanf." },
+            {
+              answer: "\"%lf %lf\"",
+              // El espacio en el format string de scanf es opcional.
+              pattern: "\"%lf ?%lf\"",
+              hint: "Dos doubles separados; %lf en scanf.",
+            },
             { answer: "&", hint: "& antes de la primera variable (`b`) en scanf." },
             { answer: "&", hint: "& antes de la segunda variable (`h`) en scanf." },
             { answer: "area", hint: "Nombre de la función definida arriba." },

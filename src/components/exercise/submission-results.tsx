@@ -4,7 +4,13 @@ import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IOBlock } from "@/components/exercise/io-block";
+import {
+  describeDiff,
+  diffOutputs,
+  type OutputDiff,
+} from "@/components/exercise/output-diff";
 import type { SubmissionState } from "@/components/exercise/types";
+import { normalizeOutput } from "@/lib/executor/normalize";
 import { cn } from "@/lib/utils";
 
 interface SubmissionResultsProps {
@@ -83,8 +89,10 @@ export function SubmissionResults({
 
             {!r.passed && r.visible ? (
               <div className="grid gap-2 border-t border-border/70 bg-surface-2/40 p-3 sm:grid-cols-2">
-                <IOBlock label="Esperado" value={r.expectedStdout || "(vacío)"} />
-                <IOBlock label="Tu salida" value={r.actualStdout || "(vacío)"} />
+                <DiffedOutput
+                  expected={r.expectedStdout}
+                  actual={r.actualStdout}
+                />
                 {r.stderr ? (
                   <div className="sm:col-span-2">
                     <p className="eyebrow mb-1 text-destructive/80">stderr</p>
@@ -113,6 +121,95 @@ export function SubmissionResults({
           </Button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Esperado vs Tu salida con la primera diferencia RESALTADA y explicada.
+ * Sin esto, una diferencia de un caracter (una mayúscula, un espacio) hace
+ * que ambos bloques "se vean iguales" y el alumno crea que la plataforma
+ * calificó mal.
+ */
+function DiffedOutput({
+  expected,
+  actual,
+}: {
+  expected: string;
+  actual: string;
+}) {
+  const diff = diffOutputs(expected, actual);
+
+  if (!diff) {
+    // Falló por otra razón (runtime error, timeout, output vacío).
+    return (
+      <>
+        <IOBlock label="Esperado" value={expected || "(vacío)"} />
+        <IOBlock label="Tu salida" value={actual || "(vacío)"} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <HighlightedOutput label="Esperado" value={expected} diff={diff} side="expected" />
+      <HighlightedOutput label="Tu salida" value={actual} diff={diff} side="actual" />
+      <p className="sm:col-span-2 rounded-[var(--radius-xs)] bg-warning-soft px-2.5 py-1.5 text-[12px] leading-relaxed text-warning-foreground">
+        {describeDiff(diff)}
+      </p>
+    </>
+  );
+}
+
+function HighlightedOutput({
+  label,
+  value,
+  diff,
+  side,
+}: {
+  label: string;
+  value: string;
+  diff: OutputDiff;
+  side: "expected" | "actual";
+}) {
+  // Mostramos el output normalizado (igual que lo compara el servidor) para
+  // que línea/columna del mensaje coincidan con lo que se ve en pantalla.
+  const lines = normalizeOutput(value).split("\n");
+  const diffLine = diff.line - 1;
+  const markClass =
+    side === "expected"
+      ? "rounded-[2px] bg-success/25 font-semibold"
+      : "rounded-[2px] bg-destructive/25 font-semibold";
+
+  return (
+    <div className="min-w-0">
+      <p className="eyebrow mb-1 text-muted-foreground">{label}</p>
+      <pre className="max-h-44 overflow-auto rounded-[var(--radius-xs)] bg-surface-2 px-3 py-1.5 font-mono text-[12.5px] leading-[1.55]">
+        {lines.map((line, i) => {
+          if (i !== diffLine) {
+            return (
+              <span key={i}>
+                {line}
+                {i < lines.length - 1 ? "\n" : ""}
+              </span>
+            );
+          }
+          const col = diff.col - 1;
+          return (
+            <span key={i}>
+              {line.slice(0, col)}
+              <mark className={markClass}>
+                {line.slice(col, col + 1) || " "}
+              </mark>
+              {line.slice(col + 1)}
+              {i < lines.length - 1 ? "\n" : ""}
+            </span>
+          );
+        })}
+        {diffLine >= lines.length && side === "actual" ? (
+          <mark className={cn(markClass, "opacity-70")}>(línea faltante)</mark>
+        ) : null}
+      </pre>
     </div>
   );
 }

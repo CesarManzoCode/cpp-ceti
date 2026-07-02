@@ -1,3 +1,4 @@
+import { normalizeOutput } from "./normalize";
 import { fetchWithRetry } from "./retry";
 import type {
   CodeExecutor,
@@ -190,13 +191,4 @@ function buildTestResult(
     status: result.status as ExecutionStatus,
     durationMs: result.durationMs,
   };
-}
-
-function normalizeOutput(s: string): string {
-  return s
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .join("\n")
-    .trim();
 }
