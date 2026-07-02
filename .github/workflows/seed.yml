@@ -1,6 +1,7 @@
 name: Seed DB
 
-# Carga el contenido de prisma/content/ a la base de producción.
+# Carga el contenido de prisma/content/ a la base de producción
+# (requiere el secret DATABASE_URL, configurado el 2026-07-02).
 # Corre solo cuando un push a main toca contenido, o a mano desde la
 # pestaña Actions (workflow_dispatch). Los seeds son upserts idempotentes:
 # repetirlos no destruye progreso de usuarios (ver DEPLOYMENT.md).
