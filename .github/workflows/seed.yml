@@ -13,6 +13,8 @@ on:
       - "prisma/seed.ts"
       - "prisma/seed-content.ts"
       - "prisma/seed-practice.ts"
+      # El propio workflow: editarlo re-corre el seed (y lo valida).
+      - ".github/workflows/seed.yml"
 
 # Nunca dos seeds a la vez; el que llega espera al que corre.
 concurrency:
