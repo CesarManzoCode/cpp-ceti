@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Eye,
   RotateCcw,
+  ListOrdered,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -99,31 +100,24 @@ export function StepCodeCompletion({
 
   return (
     <article className="space-y-7">
-      <StepHeader label="Reordena el código">
+      <StepHeader label="Reordena el código" icon={<ListOrdered aria-hidden />} tone="warning">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h2 className="text-balance text-[20px] font-semibold leading-snug">
+          <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">
             Acomoda las líneas en el orden correcto.
           </h2>
         )}
       </StepHeader>
 
-      <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal">
-        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-terminal-elevated px-4 py-2 text-[11px] text-terminal-muted">
-          <span className="flex items-center gap-2 font-mono">
-            <span className="flex gap-1" aria-hidden>
-              <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
-              <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
-              <span className="size-2 rounded-[1px] bg-terminal-success/80" />
-            </span>
-            main.cpp
-          </span>
-          <span className="font-mono uppercase tracking-[0.1em]">orden</span>
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal">
+        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2.5 text-[12px] font-semibold text-terminal-muted">
+          <span className="font-mono">main.cpp</span>
+          <span>Ordena las líneas</span>
         </div>
-        <ol className="font-mono text-[13px] leading-[1.7] text-terminal-fg">
+        <ol className="font-mono text-[13.5px] leading-[1.8] text-terminal-fg sm:text-[14px]">
           {items.map((line, idx) => {
             const correct = submitted && line === correctOrder[idx];
             const wrong = submitted && line !== correctOrder[idx];
@@ -131,7 +125,7 @@ export function StepCodeCompletion({
               <li
                 key={`${line}-${idx}`}
                 className={cn(
-                  "grid grid-cols-[3.25rem_1fr_auto] items-center gap-2 border-b border-[var(--terminal-border)]/40 px-2 py-1 last:border-b-0",
+                  "grid grid-cols-[2.75rem_1fr_auto] items-center gap-2 border-b border-[var(--terminal-border)]/40 px-2 py-1.5 last:border-b-0",
                   wrong && "bg-destructive/10",
                   correct && "bg-success/10",
                 )}
@@ -149,7 +143,7 @@ export function StepCodeCompletion({
                       onClick={() => move(idx, -1)}
                       disabled={idx === 0}
                       aria-label={`Subir línea ${idx + 1}`}
-                      className="grid size-8 place-items-center rounded-[1px] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
+                      className="grid size-9 place-items-center rounded-[var(--radius-xs)] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
                     >
                       <ArrowUp className="size-3.5" aria-hidden />
                     </button>
@@ -158,7 +152,7 @@ export function StepCodeCompletion({
                       onClick={() => move(idx, 1)}
                       disabled={idx === items.length - 1}
                       aria-label={`Bajar línea ${idx + 1}`}
-                      className="grid size-8 place-items-center rounded-[1px] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
+                      className="grid size-9 place-items-center rounded-[var(--radius-xs)] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
                     >
                       <ArrowDown className="size-3.5" aria-hidden />
                     </button>

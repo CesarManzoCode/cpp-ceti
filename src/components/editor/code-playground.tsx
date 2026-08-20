@@ -51,15 +51,15 @@ export function CodePlayground({
 
       {showStdin ? (
         <div className="space-y-1.5">
-          <Label className="label-micro text-muted-foreground">
-            Entrada estándar · stdin
+          <Label className="text-[14px] font-bold text-muted-foreground">
+            Entrada del programa
           </Label>
           <textarea
             value={stdin}
             onChange={(e) => setStdin(e.target.value)}
             placeholder="Valores que tu programa leerá con cin..."
             rows={3}
-            className="w-full rounded-[var(--radius-xs)] border border-input bg-surface px-3 py-2 font-mono text-base transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-sm"
+            className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3.5 py-2.5 font-mono text-base leading-relaxed transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-[14px]"
           />
         </div>
       ) : null}
@@ -70,6 +70,7 @@ export function CodePlayground({
           disabled={state === "running"}
           loading={state === "running"}
           size="lg"
+          className="max-sm:flex-1"
         >
           <Play className="fill-current" />
           {state === "running" ? "Compilando…" : "Compilar y ejecutar"}
@@ -83,7 +84,7 @@ export function CodePlayground({
           <RotateCcw />
           Reiniciar
         </Button>
-        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
+        <span className="hidden text-[13px] text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
           <Kbd>Ctrl</Kbd>
           <span>+</span>
           <Kbd>Enter</Kbd>

@@ -57,20 +57,13 @@ function CodePanel() {
     <div
       role="img"
       aria-label='Editor de C++ con un programa que imprime "Hola, CETI!" y la consola mostrando esa salida.'
-      className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal"
+      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal shadow-[var(--shadow-lg)]"
     >
-      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3 py-2">
-        <span className="flex items-center gap-2">
-          <span className="flex gap-1" aria-hidden>
-            <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
-            <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
-            <span className="size-2 rounded-[1px] bg-terminal-success/80" />
-          </span>
-          <span className="font-mono text-[11px] text-terminal-muted">
-            main.cpp
-          </span>
+      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2.5">
+        <span className="font-mono text-[12px] font-medium text-terminal-muted">
+          main.cpp
         </span>
-        <span className="label-micro text-terminal-faint">C++</span>
+        <span className="text-[12px] font-semibold text-terminal-faint">C++</span>
       </div>
 
       <div className="grid grid-cols-[2.5rem_1fr]">
@@ -98,7 +91,9 @@ function CodePanel() {
       </div>
 
       <div className="border-t border-[var(--terminal-border)] px-4 py-3">
-        <p className="label-micro text-terminal-faint">salida</p>
+        <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-terminal-muted">
+          Salida
+        </p>
         <pre className="mt-1.5 font-mono text-[13px] text-terminal-success">
           Hola, CETI!
         </pre>

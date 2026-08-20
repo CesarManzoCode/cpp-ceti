@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
-import { StepRuler } from "@/components/ui/step-ruler";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { completeStep } from "@/features/lessons/actions";
@@ -78,7 +78,7 @@ export function LessonViewer({
   const isFirstStep = currentIndex === 0;
   // Los retos de código necesitan más ancho para el editor que la lectura.
   const isWideStep = currentStep?.type === "code_challenge";
-  const containerMax = isWideStep ? "max-w-6xl" : "max-w-3xl";
+  const containerMax = isWideStep ? "max-w-6xl" : "max-w-[46rem]";
 
   function scrollTop() {
     if (window.scrollY > 80) {
@@ -122,13 +122,13 @@ export function LessonViewer({
 
   return (
     <>
-      {/* Barra del reproductor. La regla de pasos es el elemento central:
-          marca discreta por paso, la actual más alta. Contesta "¿cuánto
-          me falta?" sin tener que leer un porcentaje. */}
-      <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-sm">
+      {/* Cabecera del reproductor. Los bloques de la izquierda a la
+          derecha son los pasos de la lección: el mismo objeto con el
+          que se dibuja el curso entero, aquí a la escala más pequeña. */}
+      <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md">
         <div
           className={cn(
-            "mx-auto flex items-center gap-3 px-3 py-2.5 sm:px-6",
+            "mx-auto flex h-14 items-center gap-3 px-3 sm:h-16 sm:px-6",
             containerMax,
           )}
         >
@@ -162,12 +162,17 @@ export function LessonViewer({
           )}
 
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <StepRuler total={total} current={currentIndex} className="flex-1" />
-            <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
-              {String(currentIndex + 1).padStart(2, "0")}
-              <span className="text-muted-foreground/50">
-                /{String(total).padStart(2, "0")}
-              </span>
+            <BrickRow
+              className="min-w-0 flex-1"
+              total={total}
+              done={currentIndex}
+              current={currentIndex}
+              size="md"
+              srLabel={`Paso ${currentIndex + 1} de ${total}`}
+            />
+            <span className="shrink-0 text-[13px] font-bold tabular-nums text-muted-foreground">
+              {currentIndex + 1}
+              <span className="text-subtle-foreground">/{total}</span>
             </span>
           </div>
 
@@ -187,7 +192,7 @@ export function LessonViewer({
               aria-label="Salir de la lección"
             >
               <Link href="/app">
-                <X className="size-4" />
+                <X className="size-5" />
               </Link>
             </Button>
           </div>
@@ -197,30 +202,28 @@ export function LessonViewer({
       <div
         key={currentStep.id}
         className={cn(
-          "animate-slide-in-right mx-auto flex flex-col gap-7 px-5 py-6 sm:px-6 lg:py-9",
+          "animate-slide-in-right mx-auto flex flex-col gap-7 px-4 py-7 sm:px-6 lg:py-10",
           containerMax,
         )}
       >
         {isFirstStep ? (
-          <header>
-            <p className="label-micro text-primary">
-              Unidad {unit.order.toString().padStart(2, "0")} · {unit.title}
+          <header className="border-b border-border pb-7">
+            <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+              Unidad {unit.order} · {unit.title}
             </p>
-            <h1 className="mt-3 text-balance text-[26px] font-semibold leading-[1.12] tracking-[-0.025em] sm:text-[32px]">
+            <h1 className="mt-3 text-balance text-[28px] font-extrabold leading-[1.12] tracking-[-0.032em] sm:text-[36px]">
               <InlineCodeText>{lesson.title}</InlineCodeText>
             </h1>
             {lesson.description ? (
-              <p className="mt-2.5 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-3 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-muted-foreground sm:text-[17px]">
                 {lesson.description}
               </p>
             ) : null}
           </header>
         ) : (
-          <header>
-            <p className="label-micro text-muted-foreground">
-              {lesson.title.replace(/`/g, "")}
-            </p>
-          </header>
+          <p className="truncate text-[14px] font-semibold text-subtle-foreground">
+            {lesson.title.replace(/`/g, "")}
+          </p>
         )}
 
         <div className="min-h-[280px]">

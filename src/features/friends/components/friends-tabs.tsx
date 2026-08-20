@@ -38,7 +38,7 @@ export function FriendsTabs({
         <TabsTrigger value="amigos" className="gap-1.5">
           Amigos
           {friends.length > 0 ? (
-            <span className="font-mono text-[10px] tabular-nums text-muted-foreground/80">
+            <span className="text-[12px] font-bold tabular-nums text-subtle-foreground">
               {friends.length}
             </span>
           ) : null}
@@ -46,7 +46,7 @@ export function FriendsTabs({
         <TabsTrigger value="solicitudes" className="gap-1.5">
           Solicitudes
           {incoming.length > 0 ? (
-            <Badge size="sm" className="px-1.5 font-mono tabular-nums">
+            <Badge size="sm" variant="solid" className="tabular-nums">
               {incoming.length}
             </Badge>
           ) : null}

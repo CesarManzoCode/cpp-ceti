@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 const STATIC_LABELS: Record<string, string> = {
   "/app": "Inicio",
-  "/app/ejercicios": "Ejercicios",
+  "/app/ejercicios": "Práctica",
   "/app/amigos": "Amigos",
   "/app/logros": "Logros",
   "/app/perfil": "Perfil",
@@ -36,45 +37,42 @@ function resolve(
 }
 
 /**
- * Persistent wayfinding in the top chrome: a brand mark on mobile (the sidebar
- * logo is hidden there) plus a breadcrumb so every page answers "where am I"
- * and offers a one-tap path back to Inicio.
+ * Dónde estoy. En móvil manda la marca (no hay rail que la muestre) y
+ * en escritorio, el nombre de la pantalla con retorno a Inicio.
  */
 export function TopbarLocation({ units }: { units: RoadmapUnit[] }) {
   const pathname = usePathname();
   const { label, hasParent } = resolve(pathname, units);
 
   return (
-    <div className="flex min-w-0 items-center gap-2.5">
+    <div className="flex min-w-0 items-center gap-3">
       <Link
         href="/app"
         aria-label="Ir a Inicio"
-        className="shrink-0 rounded-[var(--radius-xs)] transition-opacity hover:opacity-70 md:hidden"
+        className="shrink-0 rounded-[var(--radius-sm)] transition-opacity hover:opacity-75 lg:hidden"
       >
-        <Logo glyphOnly />
+        <Logo size="sm" />
       </Link>
 
       <nav
         aria-label="Ubicación"
-        className="flex min-w-0 items-center gap-1.5 text-sm"
+        className="hidden min-w-0 items-center gap-1.5 lg:flex"
       >
         {hasParent ? (
-          <>
-            <Link
-              href="/app"
-              className="hidden shrink-0 text-muted-foreground transition-colors hover:text-foreground sm:inline"
-            >
-              Inicio
-            </Link>
-            <span
-              aria-hidden
-              className="hidden shrink-0 font-mono text-xs text-muted-foreground/50 sm:inline"
-            >
+          <Link
+            href="/app"
+            className="-ml-1 flex shrink-0 items-center gap-0.5 rounded-[var(--radius-sm)] px-1 py-1 text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+            Inicio
+          </Link>
+        ) : null}
+        <span className="truncate text-[15px] font-bold text-foreground">
+          {hasParent ? (
+            <span aria-hidden className="mr-1.5 text-border-strong">
               /
             </span>
-          </>
-        ) : null}
-        <span className="truncate font-medium text-foreground">
+          ) : null}
           {label}
         </span>
       </nav>

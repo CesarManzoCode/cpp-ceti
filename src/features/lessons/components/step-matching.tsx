@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, Eye, RotateCcw, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, Link2, RotateCcw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -121,13 +121,13 @@ export function StepMatching({
 
   return (
     <article className="space-y-7">
-      <StepHeader label="Pareo">
+      <StepHeader label="Relaciona" icon={<Link2 aria-hidden />} tone="info">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h2 className="text-balance text-[20px] font-semibold leading-snug">
+          <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">
             Empareja cada concepto con su descripción.
           </h2>
         )}
@@ -135,8 +135,10 @@ export function StepMatching({
 
       <div className="grid gap-5 sm:grid-cols-2 sm:gap-5">
         <div>
-          <p className="label-micro mb-2 text-muted-foreground">Concepto</p>
-        <ul className="space-y-1.5" aria-label="Conceptos">
+          <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">
+            Concepto
+          </p>
+        <ul className="space-y-2" aria-label="Conceptos">
           {lefts.map((text, idx) => {
             const isSelected = selectedLeft === idx;
             const pair = pairings[idx];
@@ -151,7 +153,7 @@ export function StepMatching({
                   disabled={submitted}
                   aria-pressed={isPaired}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-[var(--radius-xs)] border bg-card px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                    "flex w-full items-center gap-3 rounded-[var(--radius-md)] border bg-card px-3.5 py-3 text-left text-[15px] font-semibold transition-colors",
                     "border-border hover:border-border-strong",
                     isSelected && "border-primary ring-2 ring-[var(--primary-ring)]",
                     isPaired && !submitted && "border-primary bg-primary-soft/40",
@@ -162,7 +164,7 @@ export function StepMatching({
                 >
                   <span
                     className={cn(
-                      "grid size-6 shrink-0 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
+                      "grid size-7 shrink-0 place-items-center rounded-[var(--radius-sm)] border text-[12px] font-extrabold",
                       "border-border-strong bg-surface-2 text-muted-foreground",
                       isPaired && !submitted && "border-primary bg-primary text-primary-foreground",
                       isCorrect && "border-success bg-success text-success-foreground",
@@ -176,7 +178,7 @@ export function StepMatching({
                     <InlineCodeText>{text}</InlineCodeText>
                   </span>
                   {isPaired ? (
-                    <span className="rounded-[var(--radius-xs)] border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    <span className="rounded-full border border-border bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
                       {String.fromCharCode(65 + (pair as number))}
                     </span>
                   ) : null}
@@ -188,8 +190,10 @@ export function StepMatching({
         </div>
 
         <div>
-          <p className="label-micro mb-2 text-muted-foreground">Descripción</p>
-        <ul className="space-y-1.5" aria-label="Descripciones">
+          <p className="mb-2.5 text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">
+            Descripción
+          </p>
+        <ul className="space-y-2" aria-label="Descripciones">
           {shuffledRight.map((rightIdx) => {
             const text = rights[rightIdx];
             const pairedLeft = pairings.findIndex((p) => p === rightIdx);
@@ -204,7 +208,7 @@ export function StepMatching({
                   onClick={() => handleRightClick(rightIdx)}
                   disabled={submitted || !isClickable}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-[var(--radius-xs)] border bg-card px-3 py-2.5 text-left text-sm transition-colors",
+                    "flex w-full items-center gap-3 rounded-[var(--radius-md)] border bg-card px-3.5 py-3 text-left text-[15px] transition-colors",
                     "border-border",
                     isClickable && "hover:border-primary hover:bg-primary-soft/30",
                     !isClickable && !submitted && "cursor-default opacity-70",
@@ -216,7 +220,7 @@ export function StepMatching({
                 >
                   <span
                     className={cn(
-                      "grid size-6 shrink-0 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
+                      "grid size-7 shrink-0 place-items-center rounded-[var(--radius-sm)] border text-[12px] font-extrabold",
                       "border-border-strong bg-surface-2 text-muted-foreground",
                       isPaired && !submitted && "border-primary bg-primary text-primary-foreground",
                       isCorrect && "border-success bg-success text-success-foreground",

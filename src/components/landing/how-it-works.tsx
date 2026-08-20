@@ -26,28 +26,24 @@ export function HowItWorks() {
           description="Porque programar se aprende programando: repasas el concepto y lo aplicas de inmediato."
         />
 
-        <ol className="gutter-list mt-12 border-y border-border">
+        <ol className="mt-12 grid gap-4 md:grid-cols-3">
           {steps.map((s, i) => (
             <li
               key={s.title}
-              className="gutter-row border-t border-border first:border-t-0"
+              className="rounded-[var(--radius-lg)] border border-border bg-card p-6 shadow-[var(--shadow-xs)]"
             >
-              <span className="flex items-start justify-center pr-3 pt-5">
-                <span
-                  aria-hidden
-                  className="font-mono text-[13px] tabular-nums text-primary"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+              <span
+                aria-hidden
+                className="grid size-10 place-items-center rounded-[var(--radius-md)] bg-primary text-[17px] font-extrabold tabular-nums text-primary-foreground"
+              >
+                {i + 1}
               </span>
-              <span className="py-5 pl-4 md:flex md:gap-8">
-                <span className="block text-[17px] font-semibold leading-snug md:w-64 md:shrink-0">
-                  {s.title}
-                </span>
-                <span className="mt-2 block max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground md:mt-0">
-                  {s.body}
-                </span>
-              </span>
+              <h3 className="mt-4 text-[18px] font-bold leading-snug">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+                {s.body}
+              </p>
             </li>
           ))}
         </ol>

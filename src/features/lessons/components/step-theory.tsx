@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/shared/markdown";
-import { StepActions } from "@/features/lessons/components/step-shell";
+import { StepActions, StepKind } from "@/features/lessons/components/step-shell";
 import type { TheoryStepContent } from "@/features/lessons/types";
 
 interface StepTheoryProps {
@@ -26,11 +26,13 @@ export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
   }, [onNext, isPending]);
 
   return (
-    <article className="space-y-6">
+    <article className="space-y-7">
+      <StepKind label="Aprende" icon={<BookOpen aria-hidden />} />
+
       <Markdown>{content.markdown}</Markdown>
 
       {content.mediaUrl ? (
-        <div className="overflow-hidden border border-border bg-surface-2">
+        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={content.mediaUrl}

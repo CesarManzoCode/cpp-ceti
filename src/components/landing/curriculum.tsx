@@ -42,49 +42,56 @@ export async function Curriculum() {
           description="Construidas sobre el plan oficial del CETI. Cada unidad combina teoría justa, ejemplos ejecutables, quizzes y retos donde tú escribes el código."
         />
 
-        <ol className="gutter-list mt-12 max-w-4xl border-y border-border">
+        <ol className="mt-12 flex max-w-4xl flex-col gap-3">
           {units.map((u) => {
             const topics = UNIT_TOPICS[u.slug] ?? [];
 
             const body = (
               <>
-                <span className="flex items-start justify-center pr-3 pt-5">
+                <span className="flex shrink-0 items-start pt-0.5">
                   {u.published ? (
                     <span
                       aria-hidden
-                      className="font-mono text-[13px] tabular-nums text-foreground"
+                      className="grid size-9 place-items-center rounded-[var(--radius-md)] bg-primary text-[15px] font-extrabold tabular-nums text-primary-foreground"
                     >
-                      {String(u.order).padStart(2, "0")}
+                      {u.order}
                     </span>
                   ) : (
-                    <Lock
-                      className="size-3.5 text-muted-foreground/50"
+                    <span
                       aria-hidden
-                    />
+                      className="grid size-9 place-items-center rounded-[var(--radius-md)] border border-dashed border-border-strong text-subtle-foreground"
+                    >
+                      <Lock className="size-4" />
+                    </span>
                   )}
                 </span>
 
-                <span className="min-w-0 py-5 pl-4">
+                <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <span
                       className={
-                        "text-[16px] font-semibold leading-snug sm:text-[17px] " +
+                        "text-[17px] font-bold leading-snug sm:text-[18px] " +
                         (u.published ? "text-foreground" : "text-muted-foreground")
                       }
                     >
                       {u.title}
                     </span>
                     {!u.published ? (
-                      <span className="label-micro text-muted-foreground/70">
+                      <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
                         Próximamente
                       </span>
                     ) : null}
                   </span>
 
                   {topics.length > 0 ? (
-                    <span className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-[11.5px] text-muted-foreground">
+                    <span className="mt-3 flex flex-wrap gap-2">
                       {topics.map((t) => (
-                        <span key={t}>{t}</span>
+                        <span
+                          key={t}
+                          className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-muted-foreground"
+                        >
+                          {t}
+                        </span>
                       ))}
                     </span>
                   ) : null}
@@ -93,16 +100,18 @@ export async function Curriculum() {
             );
 
             return (
-              <li key={u.slug} className="border-t border-border first:border-t-0">
+              <li key={u.slug}>
                 {u.published ? (
                   <Link
                     href="/registro"
-                    className="gutter-row transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                    className="flex items-start gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-5"
                   >
                     {body}
                   </Link>
                 ) : (
-                  <div className="gutter-row opacity-70">{body}</div>
+                  <div className="flex items-start gap-4 rounded-[var(--radius-lg)] border border-dashed border-border-strong p-4 sm:p-5">
+                    {body}
+                  </div>
                 )}
               </li>
             );

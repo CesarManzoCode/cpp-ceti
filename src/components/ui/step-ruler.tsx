@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { BrickRow } from "@/components/ui/bricks";
 import { cn } from "@/lib/utils";
 
 interface StepRulerProps extends Omit<React.ComponentProps<"div">, "children"> {
@@ -9,13 +10,9 @@ interface StepRulerProps extends Omit<React.ComponentProps<"div">, "children"> {
 }
 
 /**
- * Regla de pasos de la lección.
- *
- * Los pasos son discretos, así que el avance también: una marca por
- * paso en vez de una barra continua. El alumno lee de un vistazo
- * "voy en el 4 y faltan 3", que es la pregunta que realmente se hace
- * a media lección. La marca actual es más alta que las demás para que
- * el ojo la encuentre sin depender del color.
+ * Los pasos de la lección, con el mismo lenguaje de bloques del curso:
+ * cada paso es una pieza que colocas. El alumno lee "voy en el 4 y me
+ * faltan 3" sin tener que interpretar un porcentaje.
  */
 export function StepRuler({
   total,
@@ -32,27 +29,17 @@ export function StepRuler({
       aria-valuemax={safeTotal}
       aria-valuenow={Math.min(current + 1, safeTotal)}
       aria-valuetext={`Paso ${Math.min(current + 1, safeTotal)} de ${safeTotal}`}
-      className={cn("flex h-3 items-end gap-[3px]", className)}
+      className={cn("flex items-center", className)}
       {...props}
     >
-      {Array.from({ length: safeTotal }, (_, i) => {
-        const done = i < current;
-        const active = i === current;
-        return (
-          <span
-            key={i}
-            aria-hidden
-            className={cn(
-              "min-w-1 flex-1 rounded-[1px] transition-[height,background-color] duration-200",
-              active
-                ? "h-3 bg-primary"
-                : done
-                  ? "h-1.5 bg-primary/45"
-                  : "h-1.5 bg-surface-3",
-            )}
-          />
-        );
-      })}
+      <BrickRow
+        className="w-full"
+        total={safeTotal}
+        done={current}
+        current={current}
+        size="md"
+        srLabel={`Paso ${Math.min(current + 1, safeTotal)} de ${safeTotal}`}
+      />
     </div>
   );
 }

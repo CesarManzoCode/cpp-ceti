@@ -117,7 +117,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-5 py-5 sm:px-6 lg:px-8 lg:py-7">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <header className="space-y-3">
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
           <Link href="/app/ejercicios">
@@ -129,11 +129,11 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-border pb-4">
           <div className="space-y-1.5">
             {exercise.unitTitle ? (
-              <p className="label-micro text-muted-foreground">
+              <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
                 {exercise.unitTitle}
               </p>
             ) : null}
-            <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.025em] sm:text-[30px]">
+            <h1 className="text-[26px] font-extrabold leading-tight tracking-[-0.032em] sm:text-[32px]">
               {exercise.title}
             </h1>
           </div>
@@ -217,7 +217,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
 
           {diagnostics.length > 0 ? (
             <p
-              className="flex items-center gap-1.5 text-xs text-destructive"
+              className="flex items-center gap-1.5 text-[13px] font-semibold text-destructive"
               role="status"
             >
               <AlertTriangle className="size-3 shrink-0" aria-hidden />

@@ -46,7 +46,20 @@ con un editor anexo: somos un sistema de práctica con teoría justo-a-tiempo.
 5. **El cookiePrefix `cpp-ceti`** está configurado en `auth.ts` y en
    `middleware.ts`. Si lo cambias, hazlo en AMBOS lugares.
 
-6. **Server Actions críticas** viven en `src/lib/lessons-actions.ts`:
+6. **El sistema visual vive en `globals.css` y en `components/ui/bricks.tsx`.**
+   Los tokens (color, radio, sombra, tipografía) son variables CSS; los
+   estilos de elemento van dentro de `@layer base` y los helpers de clase
+   dentro de `@layer components`, para que cualquier utilidad de Tailwind
+   pueda sobrescribirlos. Si escribes una regla fuera de esas capas, ganará
+   siempre y romperás overrides puntuales.
+
+7. **Los bloques (`BrickRow` / `BrickColumn`) son el elemento firma.**
+   Una pieza = una lección (o un paso, o un ejercicio). Se usan en la ruta
+   del curso, en el rail, en la cabecera de unidad y en el reproductor de
+   lecciones. Si añades una secuencia con progreso, reutilízalos en vez de
+   inventar otra barra.
+
+8. **Server Actions críticas** viven en `src/lib/lessons-actions.ts`:
    - `completeStep` — única vía para marcar un paso completado y mover XP.
    - `submitExercise` — corre tests y guarda intentos.
    No dupliques esa lógica en API routes.

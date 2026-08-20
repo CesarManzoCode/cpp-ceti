@@ -49,7 +49,7 @@ export function LessonTypes() {
                 </span>
                 <span className="text-terminal-success">run</span>
               </div>
-              <pre className="px-3 py-2.5 font-mono text-[11.5px] leading-[1.65] text-terminal-fg">
+              <pre className="px-3 py-2.5 font-mono text-[13px] leading-[1.7] text-terminal-fg">
 <span className="text-syntax-type">int</span>{" "}
 <span className="text-syntax-type">main</span>(){" {"}{"\n"}
 {"  "}cout {"<<"} <span className="text-syntax-string">{`"Hola"`}</span>;{"\n"}
@@ -64,14 +64,14 @@ export function LessonTypes() {
             description="Preguntas cortas con feedback inmediato. Si fallas, te decimos por qué."
           >
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[14px] text-muted-foreground">
                 ¿Qué imprime <code className="code-inline">cout {"<<"} 5 + 3</code>?
               </p>
               <ul className="border-y border-border">
                 <li className="flex items-center gap-2.5 border-b border-border py-2 text-[13px]">
                   <span
                     aria-hidden
-                    className="grid size-5 place-items-center rounded-[var(--radius-xs)] border border-border-strong bg-surface-2 font-mono text-[10px] text-muted-foreground"
+                    className="grid size-5 place-items-center rounded-[var(--radius-xs)] border border-border-strong bg-surface-2 text-[11px] font-bold text-muted-foreground"
                   >
                     A
                   </span>
@@ -80,7 +80,7 @@ export function LessonTypes() {
                 <li className="flex items-center gap-2.5 bg-success-soft/60 py-2 pl-0 text-[13px]">
                   <span
                     aria-hidden
-                    className="grid size-5 place-items-center rounded-[var(--radius-xs)] border border-success bg-success font-mono text-[10px] text-success-foreground"
+                    className="grid size-5 place-items-center rounded-[var(--radius-xs)] border border-success bg-success text-[11px] font-bold text-success-foreground"
                   >
                     B
                   </span>
@@ -102,7 +102,7 @@ export function LessonTypes() {
           >
             <div className="space-y-2.5">
               <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal">
-                <pre className="px-3 py-2.5 font-mono text-[11.5px] leading-[1.6] text-terminal-fg">
+                <pre className="px-3 py-2.5 font-mono text-[13px] leading-[1.7] text-terminal-fg">
 <span className="text-syntax-comment">{"// imprime el promedio de a y b\n"}</span>
 <span className="text-syntax-type">double</span>{" "}promedio = <span className="text-syntax-comment">{"/* ... */"}</span>;
                 </pre>

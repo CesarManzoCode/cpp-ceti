@@ -106,26 +106,16 @@ export function CppEditor({
       role="region"
       aria-label={ariaLabel ?? "Editor de C++"}
       className={cn(
-        "group/editor flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
+        "group/editor flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3 py-2">
-        <span className="flex items-center gap-2">
-          <span className="flex gap-1" aria-hidden>
-            <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
-            <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
-            <span className="size-2 rounded-[1px] bg-terminal-success/80" />
-          </span>
-          <span className="font-mono text-[11px] text-terminal-muted">
-            main.cpp
-          </span>
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4 py-2.5">
+        <span className="font-mono text-[12px] font-medium text-terminal-muted">
+          main.cpp
         </span>
-        <span className="flex items-center gap-3">
-          <span className="hidden font-mono text-[10px] text-terminal-faint sm:inline">
-            Ctrl+Enter para ejecutar
-          </span>
-          <span className="label-micro text-terminal-faint">C++</span>
+        <span className="hidden text-[12px] text-terminal-faint sm:inline">
+          Ctrl+Enter para ejecutar
         </span>
       </div>
       <div style={{ height: `min(${minHeight}px, 70svh)` }}>
@@ -143,23 +133,23 @@ export function CppEditor({
               base: "vs-dark",
               inherit: true,
               rules: [
-                { token: "comment", foreground: "6d7686", fontStyle: "italic" },
-                { token: "keyword", foreground: "f0967c" },
-                { token: "string", foreground: "9ed6a6" },
-                { token: "number", foreground: "e9c46a" },
-                { token: "type", foreground: "90b8ec" },
+                { token: "comment", foreground: "7d87a0", fontStyle: "italic" },
+                { token: "keyword", foreground: "f2a2c0" },
+                { token: "string", foreground: "a8dfb0" },
+                { token: "number", foreground: "f0c674" },
+                { token: "type", foreground: "8fc6f5" },
               ],
               colors: {
-                "editor.background": "#14171e",
-                "editor.foreground": "#eceded",
-                "editorLineNumber.foreground": "#454c5a",
-                "editorLineNumber.activeForeground": "#9aa2b1",
+                "editor.background": "#171e2d",
+                "editor.foreground": "#e9edf2",
+                "editorLineNumber.foreground": "#565e73",
+                "editorLineNumber.activeForeground": "#a3a8b4",
                 "editor.selectionBackground": "#3f6bd44d",
-                "editor.lineHighlightBackground": "#1b1f28",
-                "editor.lineHighlightBorder": "#1b1f2800",
-                "editorCursor.foreground": "#8fb8f0",
-                "editorIndentGuide.background": "#232833",
-                "editorIndentGuide.activeBackground": "#39404e",
+                "editor.lineHighlightBackground": "#1e2637",
+                "editor.lineHighlightBorder": "#1e263700",
+                "editorCursor.foreground": "#8fc6f5",
+                "editorIndentGuide.background": "#252d40",
+                "editorIndentGuide.activeBackground": "#3b445a",
               },
             });
 

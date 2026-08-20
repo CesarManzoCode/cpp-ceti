@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 
@@ -17,13 +18,15 @@ export default function AuthLayout({
       <aside className="hidden flex-col justify-between border-r border-border bg-surface-2 p-10 lg:flex xl:p-14">
         <Link
           href="/"
-          className="-m-2 w-fit rounded-[var(--radius-xs)] p-2 transition-opacity hover:opacity-70"
+          className="-m-2 w-fit rounded-[var(--radius-sm)] p-2 transition-opacity hover:opacity-75"
         >
           <Logo size="lg" />
         </Link>
 
         <div className="max-w-md">
-          <p className="label-micro text-muted-foreground">La idea</p>
+          <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+            La idea
+          </p>
           <p className="font-display mt-5 text-balance text-[clamp(1.75rem,3vw,2.25rem)]">
             Programar se aprende programando.
           </p>
@@ -32,29 +35,28 @@ export default function AuthLayout({
             navegador. Hecho para estudiantes del CETI Guadalajara.
           </p>
 
-          <ul className="mt-9 border-t border-border">
+          <ul className="mt-9 flex flex-col gap-3.5">
             {[
               "Escribes código de verdad, no llenas cuestionarios",
               "El compilador te dice qué falló y en qué línea",
               "Tu avance, tu racha y tus XP quedan guardados",
-            ].map((item, i) => (
+            ].map((item) => (
               <li
                 key={item}
-                className="flex gap-4 border-b border-border py-3.5 text-sm leading-relaxed text-foreground/90"
+                className="flex items-start gap-3 text-[15px] leading-relaxed text-foreground"
               >
-                <span
+                <Check
+                  className="mt-0.5 size-5 shrink-0 text-primary"
+                  strokeWidth={2.8}
                   aria-hidden
-                  className="shrink-0 font-mono text-[11px] tabular-nums text-primary"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+                />
                 {item}
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="font-mono text-[11px] text-muted-foreground">
+        <p className="text-[13px] font-medium text-muted-foreground">
           Proyecto independiente · No oficial del CETI
         </p>
       </aside>

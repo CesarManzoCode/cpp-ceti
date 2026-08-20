@@ -30,12 +30,12 @@ export function OutputPanel({
       icon={Terminal}
       running={state === "running"}
       trailing={<StatusBadge state={state} result={result} />}
-      className={cn("text-sm", className)}
+      className={cn("text-[14px]", className)}
       bodyClassName="max-h-72 min-h-24 overflow-auto p-4"
     >
       <div aria-live="polite" role="status">
         {state === "idle" ? (
-          <p className="flex items-center gap-1.5 text-xs italic text-terminal-faint">
+          <p className="flex items-center gap-1.5 font-sans text-[13px] text-terminal-faint">
             Pulsa <Kbd className={darkKbd}>Ctrl</Kbd>
             <span>+</span>
             <Kbd className={darkKbd}>Enter</Kbd>
@@ -44,14 +44,14 @@ export function OutputPanel({
         ) : null}
 
         {state === "running" ? (
-          <p className="flex items-center gap-2 text-xs text-terminal-muted">
+          <p className="flex items-center gap-2 font-sans text-[13px] text-terminal-muted">
             <TypingDots className="text-terminal-success" />
             Compilando y ejecutando…
           </p>
         ) : null}
 
         {state === "error" ? (
-          <p className="flex items-start gap-2 text-xs text-terminal-danger">
+          <p className="flex items-start gap-2 text-[13px] text-terminal-danger">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span className="whitespace-pre-wrap">{error}</span>
           </p>
@@ -102,8 +102,10 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   if (result.status === "compile_error") {
     return (
       <div>
-        <p className="label-micro mb-2 text-terminal-warning">Error de compilación</p>
-        <pre className="whitespace-pre-wrap text-xs text-terminal-warning">
+        <p className="mb-2 font-sans text-[13px] font-bold text-terminal-warning">
+          Error de compilación
+        </p>
+        <pre className="whitespace-pre-wrap text-[13px] leading-relaxed text-terminal-warning">
           {result.compileOutput ||
             result.stderr ||
             "Compilación falló sin detalle."}
@@ -115,18 +117,18 @@ function ResultDisplay({ result }: { result: ExecutionResult }) {
   return (
     <div className="space-y-3">
       {result.stdout ? (
-        <pre className="whitespace-pre-wrap text-terminal-fg">
+        <pre className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-terminal-fg">
           {result.stdout}
         </pre>
       ) : (
-        <p className="text-xs italic text-terminal-faint">
+        <p className="font-sans text-[13px] text-terminal-faint">
           (programa ejecutado sin salida estándar)
         </p>
       )}
       {result.stderr ? (
         <div>
-          <p className="label-micro mb-1 text-terminal-danger">stderr</p>
-          <pre className="whitespace-pre-wrap text-xs text-terminal-danger">
+          <p className="mb-1 font-sans text-[13px] font-bold text-terminal-danger">stderr</p>
+          <pre className="whitespace-pre-wrap text-[13px] leading-relaxed text-terminal-danger">
             {result.stderr}
           </pre>
         </div>

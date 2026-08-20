@@ -30,9 +30,9 @@ function Toaster({ ...props }: ToasterProps) {
           description:
             "text-[12.5px] leading-snug text-muted-foreground mt-0.5",
           actionButton:
-            "ml-auto inline-flex items-center justify-center h-7 px-3 rounded-[var(--radius-xs)] bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/88 transition-colors",
+            "ml-auto inline-flex items-center justify-center h-7 px-3 rounded-[var(--radius-sm)] bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary-hover transition-colors",
           cancelButton:
-            "inline-flex items-center justify-center h-7 px-3 rounded-[var(--radius-xs)] bg-secondary text-secondary-foreground text-xs font-medium hover:bg-accent transition-colors",
+            "inline-flex items-center justify-center h-7 px-3 rounded-[var(--radius-sm)] bg-secondary text-secondary-foreground text-[13px] font-semibold hover:bg-accent transition-colors",
           closeButton:
             "!absolute !right-1.5 !top-1.5 !size-6 !rounded-[var(--radius-xs)] !border-0 !bg-transparent !text-muted-foreground hover:!bg-accent hover:!text-foreground !transition-colors opacity-0 group-hover/toast:opacity-100",
           success:

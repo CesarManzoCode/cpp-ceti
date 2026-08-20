@@ -105,19 +105,19 @@ export function UserSearch({ meUsername }: UserSearchProps) {
       />
 
       {trimmed.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[14px] text-muted-foreground">
           Tu handle es{" "}
           <span className="font-mono text-foreground">@{meUsername}</span>.
           Compártelo para que otros te encuentren.
         </p>
       ) : trimmed.length < 2 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[14px] text-muted-foreground">
           Escribe al menos 2 caracteres.
         </p>
       ) : searching ? (
-        <p className="text-xs text-muted-foreground">Buscando…</p>
+        <p className="text-[14px] text-muted-foreground">Buscando…</p>
       ) : displayResults.length === 0 && displayHasSearched ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[14px] text-muted-foreground">
           Nadie con ese nombre. Revisa la ortografía o invítalos por link.
         </p>
       ) : (
@@ -162,7 +162,7 @@ function ResultAction({
 }) {
   if (user.state === "friends") {
     return (
-      <span className="label-micro text-success">Amigos</span>
+      <span className="text-[13px] font-bold text-success">Amigos</span>
     );
   }
   if (user.state === "pending_outgoing") {

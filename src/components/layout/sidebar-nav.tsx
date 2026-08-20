@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell, Home, Lock, Trophy, Users } from "lucide-react";
+import { Check, Dumbbell, Home, Lock, Trophy, Users } from "lucide-react";
 
+import { BrickRow } from "@/components/ui/bricks";
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
@@ -15,17 +16,15 @@ const topLinks: {
   exact?: boolean;
 }[] = [
   { href: "/app", label: "Inicio", icon: Home, exact: true },
-  { href: "/app/ejercicios", label: "Ejercicios", icon: Dumbbell },
-  { href: "/app/amigos", label: "Amigos", icon: Users },
+  { href: "/app/ejercicios", label: "Práctica", icon: Dumbbell },
   { href: "/app/logros", label: "Logros", icon: Trophy },
+  { href: "/app/amigos", label: "Amigos", icon: Users },
 ];
 
 /**
- * Índice del cuaderno. Arriba las secciones de la app; abajo el temario
- * como una lista numerada con canaleta, igual que el resto del producto:
- * el ordinal y el estado viven a la izquierda del filete, el título a la
- * derecha. La unidad activa se marca con una barra en la canaleta, no con
- * una píldora de color.
+ * Navegación de escritorio. Arriba las secciones; abajo el curso
+ * entero, cada unidad con su hilera de bloques. Desde el margen se ve
+ * de un vistazo cuánto se ha construido de cada módulo.
  */
 export function SidebarNav({
   units,
@@ -42,8 +41,8 @@ export function SidebarNav({
   const doneLessons = units.reduce((s, u) => s + u.completedCount, 0);
 
   return (
-    <nav className="flex flex-col gap-7">
-      <ul className="flex flex-col">
+    <nav className="flex flex-col gap-8">
+      <ul className="flex flex-col gap-1 px-3">
         {topLinks.map((link) => {
           const active = link.exact
             ? pathname === link.href
@@ -59,29 +58,21 @@ export function SidebarNav({
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex items-center gap-3 py-2 pl-4 pr-3 text-sm transition-colors",
+                  "flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-[15px] font-semibold transition-colors",
                   active
-                    ? "font-medium text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-primary-soft text-primary-soft-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
-                {active ? (
-                  <span
-                    aria-hidden
-                    className="absolute inset-y-1 left-0 w-0.5 bg-primary"
-                  />
-                ) : null}
                 <link.icon
-                  className={cn(
-                    "size-4 shrink-0",
-                    active ? "text-primary" : "text-muted-foreground/70",
-                  )}
+                  className={cn("size-[18px] shrink-0")}
+                  strokeWidth={active ? 2.4 : 2}
                   aria-hidden
                 />
                 <span className="flex-1">{link.label}</span>
                 {badge ? (
                   <span
-                    className="grid h-4 min-w-4 shrink-0 place-items-center rounded-[var(--radius-xs)] bg-primary px-1 font-mono text-[10px] font-medium tabular-nums text-primary-foreground"
+                    className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold tabular-nums text-primary-foreground"
                     aria-label={`${badge} solicitudes pendientes`}
                   >
                     {badge}
@@ -94,60 +85,64 @@ export function SidebarNav({
       </ul>
 
       {units.length > 0 ? (
-        <div>
-          <div className="mb-2 flex items-baseline gap-3 pl-4 pr-3">
-            <h3 className="label-micro text-muted-foreground">Temario</h3>
-            <span aria-hidden className="h-px flex-1 bg-border" />
+        <div className="min-w-0">
+          <div className="mb-3 flex items-baseline justify-between gap-3 px-6">
+            <h3 className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
+              Tu curso
+            </h3>
             {totalLessons > 0 ? (
-              <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+              <span className="text-[13px] font-semibold tabular-nums text-subtle-foreground">
                 {doneLessons}/{totalLessons}
               </span>
             ) : null}
           </div>
 
-          <ul className="gutter-list" style={{ ["--gutter-w" as string]: "2.5rem" }}>
+          <ul className="flex flex-col gap-0.5 px-3">
             {units.map((unit) => {
               const href = `/app/u/${unit.slug}`;
               const active = pathname.startsWith(href) && unit.published;
               const completed =
                 unit.lessonCount > 0 &&
                 unit.completedCount === unit.lessonCount;
+              const started = unit.completedCount > 0 && !completed;
 
               const body = (
                 <>
-                  <span className="relative flex items-center justify-center pr-3">
-                    {active ? (
-                      <span
-                        aria-hidden
-                        className="absolute inset-y-0.5 left-0 w-0.5 bg-primary"
-                      />
-                    ) : null}
+                  <span className="flex items-center gap-2.5">
                     <UnitMark
                       completed={completed}
                       locked={!unit.published}
-                      started={unit.completedCount > 0}
+                      started={started}
                       order={unit.order}
                       active={active}
                     />
-                  </span>
-                  <span className="flex min-w-0 items-center gap-2 pl-3">
                     <span className="min-w-0 flex-1 truncate">{unit.title}</span>
                     {unit.published && unit.lessonCount > 0 && !completed ? (
-                      <span className="shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground/80">
+                      <span className="shrink-0 text-[12px] font-semibold tabular-nums text-subtle-foreground">
                         {unit.completedCount}/{unit.lessonCount}
                       </span>
                     ) : null}
                   </span>
+                  {unit.published && unit.lessonCount > 0 ? (
+                    <BrickRow
+                      className="mt-2 ml-[26px]"
+                      size="sm"
+                      total={unit.lessonCount}
+                      done={unit.completedCount}
+                      tone={completed ? "success" : "primary"}
+                      srLabel={`${unit.completedCount} de ${unit.lessonCount} lecciones`}
+                    />
+                  ) : null}
                 </>
               );
 
               const rowClass = cn(
-                "gutter-row items-center py-1.5 text-[13px] transition-colors",
+                "block rounded-[var(--radius-md)] px-3 py-2.5 text-[14px] transition-colors",
                 unit.published
                   ? active
-                    ? "font-medium text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                  : "text-muted-foreground/55",
+                    ? "bg-accent font-bold text-foreground"
+                    : "font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+                  : "font-medium text-subtle-foreground",
               );
 
               return (
@@ -181,9 +176,8 @@ export function SidebarNav({
 }
 
 /**
- * Marca de estado en la canaleta: cuadro lleno = terminada, cuadro con
- * núcleo = empezada, ordinal tenue = sin empezar, candado = por publicar.
- * La forma distingue los estados aunque no se vea el color.
+ * Marca de estado de la unidad: palomita = terminada, punto lleno =
+ * en curso, número = por empezar, candado = sin publicar.
  */
 function UnitMark({
   completed,
@@ -199,24 +193,23 @@ function UnitMark({
   active: boolean;
 }) {
   if (locked) {
-    return <Lock className="size-3 text-muted-foreground/50" aria-hidden />;
+    return (
+      <span
+        aria-hidden
+        className="grid size-[18px] shrink-0 place-items-center rounded-[var(--radius-xs)] bg-surface-2 text-subtle-foreground"
+      >
+        <Lock className="size-3" />
+      </span>
+    );
   }
   if (completed) {
     return (
       <span
         aria-hidden
-        className="size-2.5 rounded-[1px] bg-success"
         title="Unidad completada"
-      />
-    );
-  }
-  if (started) {
-    return (
-      <span
-        aria-hidden
-        className="grid size-2.5 place-items-center rounded-[1px] border border-primary"
+        className="grid size-[18px] shrink-0 place-items-center rounded-[var(--radius-xs)] bg-success text-success-foreground"
       >
-        <span className="size-1 bg-primary" />
+        <Check className="size-3" strokeWidth={3.5} />
       </span>
     );
   }
@@ -224,11 +217,13 @@ function UnitMark({
     <span
       aria-hidden
       className={cn(
-        "font-mono text-[11px] tabular-nums",
-        active ? "text-primary" : "text-muted-foreground/60",
+        "grid size-[18px] shrink-0 place-items-center rounded-[var(--radius-xs)] text-[11px] font-bold tabular-nums",
+        started || active
+          ? "bg-primary text-primary-foreground"
+          : "bg-surface-2 text-subtle-foreground",
       )}
     >
-      {String(order).padStart(2, "0")}
+      {order}
     </span>
   );
 }

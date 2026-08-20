@@ -60,14 +60,14 @@ export function FormField({
       {error ? (
         <p
           id={errorId}
-          className="animate-fade-in flex items-start gap-1.5 text-xs font-medium text-destructive"
+          className="animate-fade-in flex items-start gap-1.5 text-[13px] font-semibold text-destructive"
           role="alert"
         >
-          <AlertCircle className="mt-0.5 size-3 shrink-0" aria-hidden />
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="text-xs text-muted-foreground">
+        <p id={hintId} className="text-[13px] text-muted-foreground">
           {hint}
         </p>
       ) : null}

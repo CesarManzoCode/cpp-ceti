@@ -33,7 +33,7 @@ export default function NotFound() {
           </Button>
           <Button asChild size="lg" variant="outline">
             <Link href="/app">
-              Mi panel
+              Mi curso
               <ArrowRight />
             </Link>
           </Button>

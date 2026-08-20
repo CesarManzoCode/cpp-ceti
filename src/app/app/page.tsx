@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, UserPlus } from "lucide-react";
+import { ArrowRight, Clock, Sparkles, UserPlus, Zap } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
+import { BrickColumn, BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
-import { Readout, ReadoutBar } from "@/components/ui/readout";
+import { LevelBar } from "@/components/ui/level-bar";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
@@ -18,10 +19,10 @@ import {
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
-import type { NextLesson } from "@/features/roadmap/types";
+import type { NextLesson, RoadmapUnit } from "@/features/roadmap/types";
 
 export const metadata = {
-  title: "Mi panel",
+  title: "Inicio",
 };
 
 export default async function AppHomePage() {
@@ -43,189 +44,256 @@ export default async function AppHomePage() {
     totalLessons === 0 ? 0 : Math.round((totalCompleted / totalLessons) * 100);
 
   const firstName = session.user.name.split(" ")[0] ?? session.user.name;
+  const currentUnit = nextLesson
+    ? (units.find((u) => u.slug === nextLesson.unitSlug) ?? null)
+    : null;
 
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-4xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
+      className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
-      <p className="text-sm text-muted-foreground">
+      <p className="text-[15px] font-medium text-muted-foreground">
         {greetingFor(new Date())}, {firstName}.
       </p>
 
-      {/* Lo único que importa al abrir: retomar el curso donde se quedó.
-          Va arriba, sin tarjeta y con la tipografía más grande de la
-          página — el resto del panel es contexto de esta acción. */}
-      <div className="mt-5">
-        {nextLesson ? (
-          <ContinuePanel next={nextLesson} />
-        ) : totalLessons > 0 ? (
-          <AllDonePanel />
-        ) : (
-          <EmptyCoursePanel />
-        )}
-      </div>
-
-      <ReadoutBar className="mt-9">
-        <Readout
-          label="XP totales"
-          value={<AnimatedNumber value={stats.totalXp} />}
-          sub={
-            stats.totalXp === 0
-              ? "Completa tu primera lección"
-              : "Cada lección vale 20–30 XP"
-          }
-        />
-        <Readout
-          label="Racha"
-          mark={<StreakFlame streak={stats.currentStreak} className="size-3.5" />}
-          value={
-            <>
-              <AnimatedNumber value={stats.currentStreak} />
-              <span className="ml-1 text-base text-muted-foreground">
-                {pluralize(stats.currentStreak, "día", "días")}
-              </span>
-            </>
-          }
-          sub={
-            stats.currentStreak === 0
-              ? "Empieza tu racha hoy"
-              : stats.longestStreak > stats.currentStreak
-                ? `Tu récord: ${stats.longestStreak} días`
-                : "Es tu mejor racha"
-          }
-        />
-        <Readout
-          className="col-span-2 sm:col-span-1"
-          label="Lecciones"
-          value={
-            <>
-              <AnimatedNumber value={totalCompleted} />
-              <span className="text-muted-foreground/70">/{totalLessons}</span>
-            </>
-          }
-          sub={`${overallPercent}% del curso`}
-        />
-      </ReadoutBar>
-
-      <section className="mt-10">
-        <SectionRule trailing={`${overallPercent}% completado`}>
-          Tu camino
-        </SectionRule>
-        <div className="mt-4">
-          <RoadmapUnits courseSlug={course?.slug ?? ""} units={units} />
-        </div>
-      </section>
-
-      <section className="mt-10">
-        <SectionRule
-          trailing={
-            friends.length > 0 ? (
-              <Link
-                href="/app/amigos"
-                className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
-              >
-                Ver todos
-              </Link>
-            ) : undefined
-          }
-        >
-          Actividad de tus amigos
-        </SectionRule>
-        <div className="mt-4">
-          {friends.length === 0 ? (
-            <FriendsEmpty />
+      <div className="mt-5 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-10">
+        <div className="min-w-0">
+          {nextLesson ? (
+            <ContinuePanel next={nextLesson} unit={currentUnit} />
+          ) : totalLessons > 0 ? (
+            <AllDonePanel />
           ) : (
-            <ActivityFeed events={feed} emptyHint="friends" />
+            <EmptyCoursePanel />
           )}
+
+          <section className="mt-10">
+            <SectionRule
+              trailing={`${totalCompleted}/${totalLessons} lecciones · ${overallPercent}%`}
+            >
+              Tu camino
+            </SectionRule>
+            <p className="mt-1.5 max-w-[58ch] text-[14px] leading-relaxed text-muted-foreground">
+              Cada bloque de la columna es una lección. Los sólidos ya los
+              colocaste.
+            </p>
+            <div className="mt-6">
+              <RoadmapUnits courseSlug={course?.slug ?? ""} units={units} />
+            </div>
+          </section>
         </div>
-      </section>
+
+        {/* Columna de contexto: apoya la acción principal, no compite. */}
+        <aside className="flex min-w-0 flex-col gap-8">
+          <section>
+            <SectionRule>Tu progreso</SectionRule>
+            <div className="mt-4 flex flex-col gap-3">
+              <LevelBar totalXp={stats.totalXp} />
+
+              <div className="grid grid-cols-2 gap-3">
+                <StatTile
+                  icon={
+                    <StreakFlame
+                      streak={stats.currentStreak}
+                      className="size-5"
+                    />
+                  }
+                  label="Racha"
+                  value={
+                    <>
+                      <AnimatedNumber value={stats.currentStreak} />
+                      <span className="ml-1 text-[15px] font-semibold text-muted-foreground">
+                        {pluralize(stats.currentStreak, "día", "días")}
+                      </span>
+                    </>
+                  }
+                  hint={
+                    stats.currentStreak === 0
+                      ? "Empieza hoy"
+                      : stats.longestStreak > stats.currentStreak
+                        ? `Récord: ${stats.longestStreak}`
+                        : "Tu mejor racha"
+                  }
+                />
+                <StatTile
+                  icon={<Zap className="size-5 text-warning" aria-hidden />}
+                  label="XP"
+                  value={<AnimatedNumber value={stats.totalXp} />}
+                  hint={
+                    stats.totalXp === 0
+                      ? "Tu primera lección"
+                      : "20–30 por lección"
+                  }
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <SectionRule
+              trailing={
+                friends.length > 0 ? (
+                  <Link
+                    href="/app/amigos"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    Ver todos
+                  </Link>
+                ) : undefined
+              }
+            >
+              Tus amigos
+            </SectionRule>
+            <div className="mt-4">
+              {friends.length === 0 ? (
+                <FriendsEmpty />
+              ) : (
+                <ActivityFeed events={feed} emptyHint="friends" />
+              )}
+            </div>
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }
 
-function ContinuePanel({ next }: { next: NextLesson }) {
+/**
+ * La acción principal de toda la aplicación. Es la pieza más grande,
+ * la única con el azul del producto de fondo y la única con un botón
+ * sólido de tamaño XL. Nada más en la portada compite con ella.
+ */
+function ContinuePanel({
+  next,
+  unit,
+}: {
+  next: NextLesson;
+  unit: RoadmapUnit | null;
+}) {
   const resume = next.status === "in_progress";
   const href = `/app/u/${next.unitSlug}/${next.lessonSlug}`;
+  const lessonNumber = unit ? unit.completedCount + 1 : null;
 
   return (
-    <section aria-labelledby="continuar-titulo" className="border-y border-border py-6">
-      <p className="label-micro text-primary">
-        {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
-      </p>
-
-      <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+    <section
+      aria-labelledby="continuar-titulo"
+      className="overflow-hidden rounded-[var(--radius-xl)] border border-primary/25 bg-primary-tint shadow-[var(--shadow-md)]"
+    >
+      <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-10">
         <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.07em] text-primary-soft-foreground">
+            <Sparkles className="size-4" aria-hidden />
+            {resume ? "Continúa donde te quedaste" : "Tu próxima lección"}
+          </p>
+
+          <p className="mt-4 text-[14px] font-bold text-primary-soft-foreground">
+            Unidad {next.unitOrder} · {next.unitTitle}
+          </p>
+
           <h1
             id="continuar-titulo"
-            className="text-balance text-[28px] font-semibold leading-[1.1] tracking-[-0.025em] sm:text-[36px]"
+            className="mt-1.5 text-balance text-[26px] font-extrabold leading-[1.12] tracking-[-0.032em] text-foreground sm:text-[34px]"
           >
-            <Link
-              href={href}
-              className="rounded-[var(--radius-xs)] decoration-border-strong decoration-2 underline-offset-[6px] hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-            >
-              <InlineCodeText>{next.lessonTitle}</InlineCodeText>
-            </Link>
+            <InlineCodeText>{next.lessonTitle}</InlineCodeText>
           </h1>
-          <p className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-            <span>
-              Unidad {String(next.unitOrder).padStart(2, "0")} · {next.unitTitle}
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-4" aria-hidden />
+              {next.estimatedMinutes} min aprox.
             </span>
-            <span aria-hidden className="text-muted-foreground/40">
-              ·
-            </span>
-            <span>{next.estimatedMinutes} min</span>
-          </p>
+            {unit && unit.lessonCount > 0 && lessonNumber ? (
+              <span>
+                Lección {Math.min(lessonNumber, unit.lessonCount)} de{" "}
+                {unit.lessonCount}
+              </span>
+            ) : null}
+          </div>
+
+          <Button asChild size="xl" className="mt-6 w-full sm:w-auto">
+            <Link href={href}>
+              {resume ? "Continuar lección" : "Empezar lección"}
+              <ArrowRight />
+            </Link>
+          </Button>
         </div>
 
-        <Button asChild size="xl" className="shrink-0 max-sm:w-full">
-          <Link href={href}>
-            {resume ? "Continuar lección" : "Empezar lección"}
-            <ArrowRight />
-          </Link>
-        </Button>
+        {/* El módulo en construcción: los bloques de esta unidad a
+            tamaño grande. Es el mismo objeto de la ruta, aquí como
+            retrato de dónde estás exactamente. */}
+        {unit && unit.lessonCount > 0 ? (
+          <div className="hidden shrink-0 flex-col items-center gap-3 rounded-[var(--radius-lg)] border border-primary/15 bg-card/70 px-6 py-5 lg:flex">
+            <BrickColumn
+              className="h-[168px] w-4"
+              total={unit.lessonCount}
+              done={unit.completedCount}
+              current={unit.completedCount}
+            />
+            <p className="text-center text-[13px] font-bold text-muted-foreground">
+              {unit.completedCount}/{unit.lessonCount}
+              <span className="block font-semibold text-subtle-foreground">
+                de esta unidad
+              </span>
+            </p>
+          </div>
+        ) : null}
       </div>
+
+      {unit && unit.lessonCount > 0 ? (
+        <div className="border-t border-primary/15 px-5 py-4 sm:px-7 lg:hidden">
+          <BrickRow
+            total={unit.lessonCount}
+            done={unit.completedCount}
+            current={unit.completedCount}
+            size="lg"
+            srLabel={`${unit.completedCount} de ${unit.lessonCount} lecciones de la unidad`}
+          />
+          <p className="mt-2.5 text-[13px] font-semibold text-muted-foreground">
+            {unit.completedCount} de {unit.lessonCount} lecciones de esta unidad
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 }
 
 function AllDonePanel() {
   return (
-    <section className="border-y border-border py-6">
-      <p className="label-micro text-success">Curso al día</p>
-      <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-        <div>
-          <h1 className="text-balance text-[26px] font-semibold leading-[1.12] tracking-[-0.025em] sm:text-[32px]">
-            Completaste todas las lecciones disponibles.
-          </h1>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Sigue afilando lo aprendido con ejercicios de práctica mientras
-            llega contenido nuevo.
-          </p>
-        </div>
-        <Button asChild size="lg" className="shrink-0 max-sm:w-full">
-          <Link href="/app/ejercicios">
-            Practicar ejercicios
-            <ArrowRight />
-          </Link>
-        </Button>
-      </div>
+    <section className="rounded-[var(--radius-xl)] border border-success/25 bg-success-soft/50 p-6 shadow-[var(--shadow-xs)] sm:p-7">
+      <p className="text-[12px] font-bold uppercase tracking-[0.07em] text-success">
+        Curso al día
+      </p>
+      <h1 className="mt-3 text-balance text-[26px] font-extrabold leading-[1.14] tracking-[-0.03em] sm:text-[32px]">
+        Completaste todas las lecciones disponibles.
+      </h1>
+      <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
+        Sigue afilando lo aprendido con ejercicios de práctica mientras llega
+        contenido nuevo.
+      </p>
+      <Button asChild size="xl" className="mt-6 w-full sm:w-auto">
+        <Link href="/app/ejercicios">
+          Practicar ejercicios
+          <ArrowRight />
+        </Link>
+      </Button>
     </section>
   );
 }
 
 function EmptyCoursePanel() {
   return (
-    <section className="border-y border-border py-6">
-      <p className="label-micro text-muted-foreground">Sin contenido todavía</p>
-      <h1 className="mt-3 text-[24px] font-semibold leading-[1.12] tracking-[-0.02em] sm:text-[28px]">
+    <section className="rounded-[var(--radius-xl)] border border-dashed border-border-strong bg-card p-6 sm:p-7">
+      <p className="text-[12px] font-bold uppercase tracking-[0.07em] text-muted-foreground">
+        Sin contenido todavía
+      </p>
+      <h1 className="mt-3 text-[24px] font-extrabold leading-[1.14] tracking-[-0.03em] sm:text-[28px]">
         Aún no hay lecciones publicadas.
       </h1>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
         Estamos preparando más contenido. Mientras tanto, puedes practicar con
         los ejercicios sueltos.
       </p>
-      <Button asChild variant="outline" size="lg" className="mt-5 max-sm:w-full">
+      <Button asChild variant="outline" size="lg" className="mt-6 w-full sm:w-auto">
         <Link href="/app/ejercicios">
           Ver ejercicios
           <ArrowRight />
@@ -235,16 +303,41 @@ function EmptyCoursePanel() {
   );
 }
 
+function StatTile({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  hint: string;
+}) {
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)]">
+      <p className="flex items-center gap-1.5 text-[13px] font-bold text-muted-foreground">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-2 text-[24px] font-extrabold leading-none tabular-nums tracking-[-0.03em] text-foreground">
+        {value}
+      </p>
+      <p className="mt-2 text-[12px] font-medium leading-snug text-subtle-foreground">
+        {hint}
+      </p>
+    </div>
+  );
+}
+
 function FriendsEmpty() {
   return (
-    <div className="flex flex-col items-start gap-4 border border-dashed border-border p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm font-medium">Agrega compañeros del CETI</p>
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-          Cuando acepten tu solicitud verás aquí en qué van.
-        </p>
-      </div>
-      <Button asChild variant="outline" size="sm" className="shrink-0 max-sm:w-full">
+    <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card p-5">
+      <p className="text-[15px] font-bold">Estudien juntos</p>
+      <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
+        Agrega compañeros del CETI y verás aquí en qué van.
+      </p>
+      <Button asChild variant="outline" size="sm" className="mt-4 w-full">
         <Link href="/app/amigos?tab=buscar">
           <UserPlus />
           Buscar amigos

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Figtree, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "@/components/ui/sonner";
@@ -7,21 +7,24 @@ import { env } from "@/env";
 import "./globals.css";
 
 /**
- * IBM Plex: una sola superfamilia para interfaz y código. La mono es
- * hermana de diseño de la sans, así que los ordinales de la canaleta,
- * los contadores y el código conviven sin costura tipográfica.
+ * Dos familias con papeles distintos:
+ *
+ * · Figtree — humanista, terminaciones abiertas, muy legible a 17px.
+ *   Es la voz que explica. Toda la interfaz y toda la prosa.
+ * · JetBrains Mono — sólo donde hay código real o una cifra que se
+ *   compara (XP, contadores). Nunca como decoración.
  */
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -60,8 +63,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#12151c" },
+    { media: "(prefers-color-scheme: light)", color: "#f2f4f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#13161f" },
   ],
 };
 
@@ -74,7 +77,7 @@ export default function RootLayout({
     <html
       lang="es-MX"
       suppressHydrationWarning
-      className={`${plexSans.variable} ${plexMono.variable}`}
+      className={`${figtree.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-dvh bg-background text-foreground antialiased">
         {/* Sin JS, los bloques con reveal-on-scroll deben verse igualmente. */}
@@ -83,7 +86,7 @@ export default function RootLayout({
         </noscript>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

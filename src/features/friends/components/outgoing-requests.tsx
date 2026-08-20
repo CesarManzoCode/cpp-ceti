@@ -19,10 +19,10 @@ export function OutgoingRequests({ requests }: OutgoingRequestsProps) {
   if (requests.length === 0) {
     return (
       <section className="space-y-2">
-        <h3 className="label-micro text-muted-foreground">Enviadas</h3>
+        <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Enviadas</h3>
         <div className="border border-dashed border-border px-5 py-6 text-center">
           <Send className="mx-auto size-5 text-muted-foreground/40" aria-hidden />
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2 text-[14px] text-muted-foreground">
             No tienes solicitudes pendientes por aceptar.
           </p>
         </div>
@@ -33,7 +33,7 @@ export function OutgoingRequests({ requests }: OutgoingRequestsProps) {
   return (
     <section className="space-y-2">
       <div className="flex items-baseline justify-between">
-        <h3 className="label-micro text-muted-foreground">Enviadas</h3>
+        <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Enviadas</h3>
         <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
           {requests.length}
         </span>
@@ -65,7 +65,7 @@ function OutgoingRow({ request }: { request: PendingRequest }) {
 
   if (cancelled) {
     return (
-      <li className="border-b border-border py-3 text-xs text-muted-foreground last:border-b-0">
+      <li className="border-b border-border py-3 text-[14px] text-muted-foreground last:border-b-0">
         Cancelaste la solicitud a @{request.user.username}.
       </li>
     );

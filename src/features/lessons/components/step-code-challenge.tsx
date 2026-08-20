@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   AlertTriangle,
   ArrowRight,
+  Code2,
   Eye,
   Play,
   Send,
@@ -36,6 +37,7 @@ import type {
   SubmissionState,
   VisibleTest,
 } from "@/components/exercise/types";
+import { StepKind } from "@/features/lessons/components/step-shell";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitExercise } from "@/features/lessons/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
@@ -137,18 +139,17 @@ export function StepCodeChallenge({
     <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
       {/* Enunciado — siempre primero (móvil y desktop col. izquierda) */}
       <section className="space-y-4">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p className="label-micro text-primary">Reto de código</p>
-          <span aria-hidden className="h-px w-4 bg-border" />
-          <Badge variant={DIFFICULTY_META[exercise.difficulty].variant} size="sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <StepKind label="Reto" icon={<Code2 aria-hidden />} tone="warning" />
+          <Badge variant={DIFFICULTY_META[exercise.difficulty].variant} size="md">
             {DIFFICULTY_META[exercise.difficulty].label}
           </Badge>
-          <span className="label-micro inline-flex items-center gap-1 text-warning">
-            <Zap className="size-3" aria-hidden />
+          <span className="inline-flex items-center gap-1 text-[13px] font-bold text-warning">
+            <Zap className="size-4" aria-hidden />
             +{exercise.xpReward} XP
           </span>
           {solutionRevealed ? (
-            <span className="label-micro text-muted-foreground">
+            <span className="text-[13px] font-semibold text-muted-foreground">
               Solución revelada
             </span>
           ) : null}
@@ -177,7 +178,7 @@ export function StepCodeChallenge({
               }}
               disabled={running || submitting}
               loading={running}
-              className="h-11 flex-1 sm:h-9 sm:flex-none"
+              className="h-12 flex-1 sm:h-10 sm:flex-none"
             >
               <Play className="fill-current" />
               Compilar
@@ -187,7 +188,7 @@ export function StepCodeChallenge({
               onClick={handleSubmit}
               disabled={submitting || running}
               loading={submitting}
-              className="h-11 flex-1 sm:h-9 sm:flex-none"
+              className="h-12 flex-1 sm:h-10 sm:flex-none"
             >
               <Send />
               Calificar solución
@@ -195,7 +196,7 @@ export function StepCodeChallenge({
           </div>
           {diagnostics.length > 0 ? (
             <p
-              className="flex items-center gap-1.5 text-xs text-destructive"
+              className="flex items-center gap-1.5 text-[13px] font-semibold text-destructive"
               role="status"
             >
               <AlertTriangle className="size-3 shrink-0" aria-hidden />
@@ -209,7 +210,7 @@ export function StepCodeChallenge({
               variant="ghost"
               size="sm"
               onClick={() => setShowSolutionDialog(true)}
-              className="h-9 w-full justify-center text-muted-foreground hover:text-foreground"
+              className="h-10 w-full justify-center text-muted-foreground hover:text-foreground"
             >
               <Eye />
               Ver solución
@@ -220,7 +221,7 @@ export function StepCodeChallenge({
               onClick={onNext}
               loading={isPending}
               variant="success"
-              className="h-11 w-full sm:h-9 sm:w-auto"
+              className="h-12 w-full sm:h-10 sm:w-auto"
             >
               Siguiente
               <ArrowRight />

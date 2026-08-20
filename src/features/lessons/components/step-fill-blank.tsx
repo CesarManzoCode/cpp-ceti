@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, CheckCircle2, Eye, Lightbulb, Pencil } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, Lightbulb, Pencil, SquarePen } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -67,13 +67,13 @@ export function StepFillBlank({
 
   return (
     <article className="space-y-7">
-      <StepHeader label="Completa el código">
+      <StepHeader label="Completa el código" icon={<SquarePen aria-hidden />} tone="warning">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h2 className="text-balance text-[20px] font-semibold leading-snug">
+          <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">
             Llena los espacios para que el programa compile.
           </h2>
         )}
@@ -82,23 +82,16 @@ export function StepFillBlank({
       <div
         key={feedbackKey}
         className={cn(
-          "overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal",
+          "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal",
           submitted && !allCorrect && "animate-shake",
           submitted && allCorrect && "animate-correct",
         )}
       >
-        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-terminal-elevated px-4 py-2 text-[11px] text-terminal-muted">
-          <span className="flex items-center gap-2 font-mono">
-            <span className="flex gap-1" aria-hidden>
-              <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
-              <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
-              <span className="size-2 rounded-[1px] bg-terminal-success/80" />
-            </span>
-            main.cpp
-          </span>
-          <span className="font-mono uppercase tracking-[0.1em]">edición</span>
+        <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2.5 text-[12px] font-semibold text-terminal-muted">
+          <span className="font-mono">main.cpp</span>
+          <span>Completa los huecos</span>
         </div>
-        <div className="overflow-x-auto py-4 font-mono text-[13px] leading-[1.7] text-terminal-fg">
+        <div className="overflow-x-auto py-4 font-mono text-[13.5px] leading-[1.9] text-terminal-fg sm:text-[14px]">
           {lines.map((nodes, idx) => (
             <div
               key={idx}
@@ -117,13 +110,15 @@ export function StepFillBlank({
 
       {content.blanks.some((b) => b.hint) ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">¿Atorado?</span>
+          <span className="text-[14px] font-semibold text-muted-foreground">
+            ¿Atorado?
+          </span>
           {content.blanks.map((blank, idx) =>
             blank.hint ? (
               <Button
                 key={idx}
-                variant="ghost"
-                size="xs"
+                variant="outline"
+                size="sm"
                 onClick={() => setShowHint(showHint === idx ? null : idx)}
               >
                 <Lightbulb className="text-warning" />

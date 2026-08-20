@@ -7,28 +7,33 @@ interface LogoProps {
 }
 
 /**
- * Marca: una placa cuadrada con `C++` en monoespaciada y el wordmark
- * `CETI` en la sans. Mismo par tipográfico que el resto del producto —
- * código y texto, la placa y la palabra. Sin degradado y sin esquinas
- * redondeadas: es un sello, no un botón.
+ * Marca. El glifo son tres bloques que se van apilando — el mismo
+ * objeto con el que el producto dibuja el progreso del curso. La
+ * identidad y el sistema de progreso son la misma idea.
  */
 export function Logo({ className, size = "default", glyphOnly = false }: LogoProps) {
   const layout = {
-    sm: { glyph: "h-6 px-1.5 text-[10px]", word: "text-[13px]", gap: "gap-2" },
-    default: { glyph: "h-7 px-2 text-[11px]", word: "text-[15px]", gap: "gap-2.5" },
-    lg: { glyph: "h-9 px-2.5 text-[14px]", word: "text-[19px]", gap: "gap-3" },
+    sm: { box: "size-7 rounded-[var(--radius-xs)]", word: "text-[15px]", gap: "gap-2" },
+    default: { box: "size-8 rounded-[var(--radius-sm)]", word: "text-[17px]", gap: "gap-2.5" },
+    lg: { box: "size-11 rounded-[var(--radius-md)]", word: "text-[22px]", gap: "gap-3" },
   }[size];
 
   const glyph = (
     <span
       aria-hidden={!glyphOnly}
       className={cn(
-        "inline-grid place-items-center rounded-[var(--radius-xs)] bg-primary font-mono font-semibold leading-none tracking-tight text-primary-foreground",
-        layout.glyph,
+        "inline-grid shrink-0 place-items-center bg-primary text-primary-foreground",
+        layout.box,
         glyphOnly && className,
       )}
     >
-      C++
+      <svg viewBox="0 0 24 24" className="size-[62%]" fill="currentColor">
+        {/* Tres piezas colocadas, de más corta a más larga: un programa
+            creciendo línea por línea. */}
+        <rect x="4" y="5" width="9" height="4" rx="1.4" opacity="0.55" />
+        <rect x="4" y="10" width="13" height="4" rx="1.4" opacity="0.8" />
+        <rect x="4" y="15" width="16" height="4" rx="1.4" />
+      </svg>
     </span>
   );
 
@@ -45,11 +50,11 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
       {glyph}
       <span
         className={cn(
-          "font-semibold tracking-[-0.01em] text-foreground",
+          "font-extrabold tracking-[-0.035em] text-foreground",
           layout.word,
         )}
       >
-        CETI
+        C++ CETI
       </span>
     </div>
   );

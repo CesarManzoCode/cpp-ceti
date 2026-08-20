@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Check, Lock } from "lucide-react";
+import { ArrowRight, Check, Clock, Layers, Lock, Zap } from "lucide-react";
 
+import { BrickRow } from "@/components/ui/bricks";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { cn } from "@/lib/utils";
 import type { RoadmapLesson, RoadmapLessonStatus } from "@/features/roadmap/types";
@@ -12,15 +13,15 @@ export interface RoadmapLessonsProps {
 }
 
 /**
- * Lecciones de la unidad, con la misma canaleta que el temario: el
- * ordinal y el estado a la izquierda del filete. La metadata (XP,
- * minutos, pasos) va monoespaciada y alineada, para poder comparar dos
- * lecciones de un vistazo sin leerlas.
+ * Las lecciones de una unidad, en la misma gramática que la ruta del
+ * curso pero un nivel más adentro: nudo de estado a la izquierda,
+ * pieza a la derecha. Cada lección muestra sus pasos como bloques, así
+ * que "cuánto me va a tomar" se ve antes de entrar.
  */
 export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
   if (lessons.length === 0) {
     return (
-      <p className="border border-dashed border-border px-5 py-8 text-center text-sm text-muted-foreground">
+      <p className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-6 py-10 text-center text-[15px] text-muted-foreground">
         Esta unidad aún no tiene lecciones publicadas.
       </p>
     );
@@ -29,72 +30,112 @@ export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
   const headIndex = findHeadIndex(lessons);
 
   return (
-    <ol className="gutter-list border-y border-border">
+    <ol className="flex flex-col gap-3">
       {lessons.map((lesson, idx) => {
         const isNext = idx === headIndex;
         const isLocked = headIndex !== -1 && idx > headIndex;
         const status = lesson.status;
+        const done = status === "completed";
+        const inProgress = status === "in_progress";
 
-        const label =
-          status === "completed"
-            ? { text: "Completada", tone: "text-success" }
-            : status === "in_progress"
-              ? { text: "En curso", tone: "text-primary" }
-              : isNext
-                ? { text: "Siguiente", tone: "text-primary" }
-                : isLocked
-                  ? { text: "Bloqueada", tone: "text-muted-foreground/70" }
-                  : null;
+        const label = done
+          ? { text: "Completada", className: "bg-success-soft text-success" }
+          : inProgress
+            ? { text: "En curso", className: "bg-primary text-primary-foreground" }
+            : isNext
+              ? { text: "Siguiente", className: "bg-primary text-primary-foreground" }
+              : null;
 
         const body = (
-          <>
-            <span className="flex items-start justify-center pt-4 pr-3">
-              <LessonMark
-                status={status}
-                isLocked={isLocked}
-                order={lesson.order}
-              />
-            </span>
+          <div
+            className={cn(
+              "flex items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
+              isLocked
+                ? "border-dashed border-border bg-transparent"
+                : inProgress || isNext
+                  ? "border-primary/30 bg-primary-tint shadow-[var(--shadow-xs)]"
+                  : "border-border bg-card shadow-[var(--shadow-xs)]",
+              !isLocked &&
+                "group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-[var(--shadow-md)]",
+            )}
+          >
+            <LessonNode
+              status={status}
+              isLocked={isLocked}
+              isNext={isNext}
+              order={lesson.order}
+            />
 
-            <span className="min-w-0 py-4 pl-4">
-              <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                <span
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                <h3
                   className={cn(
-                    "text-[15px] font-semibold leading-snug sm:text-base",
+                    "text-[16px] font-bold leading-snug tracking-[-0.012em] sm:text-[17px]",
                     isLocked ? "text-muted-foreground" : "text-foreground",
                   )}
                 >
                   <InlineCodeText>{lesson.title}</InlineCodeText>
-                </span>
+                </h3>
                 {label ? (
-                  <span className={cn("label-micro", label.tone)}>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                      label.className,
+                    )}
+                  >
                     {label.text}
                   </span>
                 ) : null}
-              </span>
+              </div>
 
               {lesson.description ? (
-                <span className="mt-1 line-clamp-1 block text-sm text-muted-foreground">
-                  {lesson.description}
-                </span>
+                <p className="mt-1.5 line-clamp-2 text-[14px] leading-relaxed text-muted-foreground">
+                  <InlineCodeText>{lesson.description}</InlineCodeText>
+                </p>
               ) : null}
 
-              <span className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] tabular-nums text-muted-foreground">
-                <span>{lesson.estimatedMinutes} min</span>
-                <span>
-                  {lesson.stepCount} {lesson.stepCount === 1 ? "paso" : "pasos"}
+              {lesson.stepCount > 0 ? (
+                <BrickRow
+                  className="mt-3 max-w-[220px]"
+                  size="sm"
+                  total={lesson.stepCount}
+                  done={done ? lesson.stepCount : 0}
+                  tone={done ? "success" : "primary"}
+                  srLabel={`${lesson.stepCount} pasos`}
+                />
+              ) : null}
+
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] font-semibold text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="size-4" aria-hidden />
+                  {lesson.estimatedMinutes} min
                 </span>
-                <span className="text-warning">+{lesson.xpReward} XP</span>
-              </span>
-            </span>
-          </>
+                <span className="inline-flex items-center gap-1.5">
+                  <Layers className="size-4" aria-hidden />
+                  {lesson.stepCount}{" "}
+                  {lesson.stepCount === 1 ? "paso" : "pasos"}
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-warning">
+                  <Zap className="size-4" aria-hidden />
+                  {lesson.xpReward} XP
+                </span>
+              </div>
+            </div>
+
+            {!isLocked ? (
+              <ArrowRight
+                className="mt-1 hidden size-5 shrink-0 text-subtle-foreground transition-transform duration-200 group-hover:translate-x-0.5 sm:block"
+                aria-hidden
+              />
+            ) : null}
+          </div>
         );
 
         return (
-          <li key={lesson.id} className="border-t border-border first:border-t-0">
+          <li key={lesson.id}>
             {isLocked ? (
               <div
-                className="gutter-row opacity-60"
+                className="group opacity-80"
                 aria-disabled="true"
                 aria-label={`Lección ${lesson.order}: ${lesson.title} (bloqueada — termina la anterior)`}
                 title="Termina la lección anterior para desbloquear"
@@ -105,7 +146,7 @@ export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
               <Link
                 href={`/app/u/${unitSlug}/${lesson.slug}`}
                 aria-label={`Lección ${lesson.order}: ${lesson.title}`}
-                className="gutter-row transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                className="group block rounded-[var(--radius-lg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {body}
               </Link>
@@ -129,44 +170,48 @@ function findHeadIndex(lessons: RoadmapLesson[]): number {
   return -1;
 }
 
-function LessonMark({
+function LessonNode({
   status,
   isLocked,
+  isNext,
   order,
 }: {
   status: RoadmapLessonStatus;
   isLocked: boolean;
+  isNext: boolean;
   order: number;
 }) {
   if (status === "completed") {
     return (
       <span
         aria-hidden
-        className="grid size-4 place-items-center rounded-[1px] bg-success text-success-foreground"
+        className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] bg-success text-success-foreground"
       >
-        <Check className="size-3" strokeWidth={3} />
-      </span>
-    );
-  }
-  if (status === "in_progress") {
-    return (
-      <span
-        aria-hidden
-        className="grid size-4 place-items-center rounded-[1px] border border-primary"
-      >
-        <span className="size-2 bg-primary" />
+        <Check className="size-[18px]" strokeWidth={3.2} />
       </span>
     );
   }
   if (isLocked) {
-    return <Lock className="size-3.5 text-muted-foreground/50" aria-hidden />;
+    return (
+      <span
+        aria-hidden
+        className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] border border-dashed border-border-strong text-subtle-foreground"
+      >
+        <Lock className="size-4" />
+      </span>
+    );
   }
   return (
     <span
       aria-hidden
-      className="font-mono text-[12px] tabular-nums text-muted-foreground/70"
+      className={cn(
+        "grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] text-[15px] font-extrabold tabular-nums",
+        status === "in_progress" || isNext
+          ? "bg-primary text-primary-foreground"
+          : "border border-border bg-card text-muted-foreground",
+      )}
     >
-      {String(order).padStart(2, "0")}
+      {order}
     </span>
   );
 }

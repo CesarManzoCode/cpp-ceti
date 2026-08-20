@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, Terminal } from "lucide-react";
+import { ArrowRight, Code2, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TerminalSurface } from "@/components/ui/terminal-surface";
 import { Markdown } from "@/components/shared/markdown";
 import { CodePlayground } from "@/components/editor/code-playground";
 import { CppEditor } from "@/components/editor/cpp-editor";
-import { StepActions } from "@/features/lessons/components/step-shell";
+import { StepActions, StepKind } from "@/features/lessons/components/step-shell";
 import type { CodeExampleStepContent } from "@/features/lessons/types";
 
 interface StepCodeExampleProps {
@@ -36,6 +36,8 @@ export function StepCodeExample({
 
   return (
     <article className="space-y-7">
+      <StepKind label="Ejemplo" icon={<Code2 aria-hidden />} tone="info" />
+
       <Markdown>{content.explanation}</Markdown>
 
       {content.runnable ? (
@@ -50,7 +52,7 @@ export function StepCodeExample({
 
       {content.expectedOutput && !content.runnable ? (
         <TerminalSurface title="Salida esperada" icon={Terminal}>
-          <pre className="whitespace-pre-wrap p-4 text-[13px] text-terminal-fg">
+          <pre className="whitespace-pre-wrap p-4 text-[14px] leading-relaxed text-terminal-fg">
             {content.expectedOutput}
           </pre>
         </TerminalSurface>

@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 
+import { ChromeSlot } from "@/components/layout/chrome-slot";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { TopbarSlot } from "@/components/layout/topbar-slot";
 import { getPendingIncomingCount } from "@/features/friends/queries";
 import { getDefaultCourse, getRoadmapUnits } from "@/features/roadmap/queries";
 import { getUserStats } from "@/lib/streak";
@@ -32,7 +33,7 @@ export default async function AppLayout({
     <div className="flex min-h-dvh bg-background">
       <Sidebar units={units} pendingFriendsCount={pendingFriendsCount} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopbarSlot>
+        <ChromeSlot>
           <Topbar
             user={{
               name: session.user.name,
@@ -45,8 +46,16 @@ export default async function AppLayout({
             units={units}
             pendingFriendsCount={pendingFriendsCount}
           />
-        </TopbarSlot>
-        <main className="flex-1">{children}</main>
+        </ChromeSlot>
+
+        {/* El colchón inferior deja libre la barra de navegación móvil. */}
+        <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+          {children}
+        </main>
+
+        <ChromeSlot>
+          <MobileNav pendingFriendsCount={pendingFriendsCount} />
+        </ChromeSlot>
       </div>
     </div>
   );

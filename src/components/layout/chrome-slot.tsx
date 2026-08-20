@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation";
 
 /**
- * Hides the global Topbar inside the lesson player (/app/u/[unit]/[lesson])
- * so the lesson keeps a single, focused top bar instead of stacking two.
- * The lesson route is the only place its own sticky header takes over.
+ * El reproductor de lecciones (/app/u/[unidad]/[leccion]) es una vista
+ * de concentración: se queda con su propia cabecera y sin barra
+ * inferior, para que nada compita con el contenido de estudio.
  */
-export function TopbarSlot({ children }: { children: React.ReactNode }) {
+export function ChromeSlot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const isLessonPlayer =

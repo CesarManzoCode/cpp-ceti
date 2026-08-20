@@ -64,14 +64,14 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-[var(--radius-xs)]"
+          className="rounded-full"
           aria-label="Abrir menú de usuario"
         >
-          <Avatar className="size-7 rounded-[var(--radius-xs)] ring-1 ring-inset ring-border">
+          <Avatar className="size-8 ring-1 ring-inset ring-border">
             {user.image ? (
               <AvatarImage src={user.image} alt={user.name} />
             ) : null}
-            <AvatarFallback className="rounded-[var(--radius-xs)] bg-primary-soft font-mono text-[11px] font-medium text-primary-soft-foreground">
+            <AvatarFallback className="bg-primary-soft text-[12px] font-bold text-primary-soft-foreground">
               {initials || <UserIcon className="size-4" />}
             </AvatarFallback>
           </Avatar>
@@ -84,15 +84,15 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
               {user.image ? (
                 <AvatarImage src={user.image} alt={user.name} />
               ) : null}
-              <AvatarFallback className="bg-primary-soft text-xs font-semibold text-primary-soft-foreground">
+              <AvatarFallback className="bg-primary-soft text-[13px] font-bold text-primary-soft-foreground">
                 {initials || <UserIcon className="size-4" />}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">
+              <p className="truncate text-[15px] font-bold text-foreground">
                 {user.name}
               </p>
-              <p className="truncate font-mono text-xs text-muted-foreground">
+              <p className="truncate font-mono text-[13px] text-muted-foreground">
                 @{user.username}
               </p>
             </div>
@@ -117,7 +117,7 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
           <Users className="size-4" />
           <span className="flex-1">Amigos</span>
           {pendingFriendsCount > 0 ? (
-            <span className="grid h-4 min-w-4 place-items-center rounded-[var(--radius-xs)] bg-primary px-1 font-mono text-[10px] font-medium tabular-nums text-primary-foreground">
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold tabular-nums text-primary-foreground">
               {pendingFriendsCount}
             </span>
           ) : null}

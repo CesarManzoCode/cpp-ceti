@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, Check, Eye, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, CircleHelp, Eye, RotateCcw, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
@@ -70,19 +70,18 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
 
   return (
     <article className="space-y-7">
-      <StepHeader label="Pregunta">
-        <h2 className="text-balance text-[20px] font-semibold leading-snug sm:text-[22px]">
+      <StepHeader label="Pregunta" icon={<CircleHelp aria-hidden />}>
+        <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[25px]">
           <InlineCodeText>{content.question}</InlineCodeText>
         </h2>
       </StepHeader>
 
-      {/* Opciones en lista con canaleta: la letra vive a la izquierda del
-          filete, igual que los ordinales del temario. El estado se ve por
-          la marca y por el icono, no sólo por el color de fondo. */}
+      {/* Cada opción es una pieza tomable, con área táctil holgada.
+          El estado se lee por la marca, el icono y el borde — no sólo
+          por el color de fondo. */}
       <ul
         key={feedbackKey}
-        className="gutter-list border-y border-border"
-        style={{ ["--gutter-w" as string]: "2.75rem" }}
+        className="flex flex-col gap-2.5"
         role="radiogroup"
         aria-label="Opciones"
       >
@@ -93,7 +92,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
           const showWrong = submitted && isSelected && !isThisCorrect;
 
           return (
-            <li key={idx} className="border-t border-border first:border-t-0">
+            <li key={idx}>
               <button
                 type="button"
                 role="radio"
@@ -101,61 +100,60 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
                 onClick={() => !submitted && setSelected(idx)}
                 disabled={submitted}
                 className={cn(
-                  "gutter-row w-full items-center text-left transition-colors",
-                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
-                  !submitted && "hover:bg-surface-2",
-                  isSelected && !submitted && "bg-primary-soft/40",
-                  showCorrect && "bg-success-soft/60",
-                  showWrong && "animate-shake bg-destructive-soft/60",
-                  submitted && !isSelected && !isThisCorrect && "opacity-45",
+                  "flex w-full items-center gap-3.5 rounded-[var(--radius-lg)] border bg-card p-3.5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 sm:p-4",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  !submitted &&
+                    "shadow-[var(--shadow-xs)] hover:-translate-y-px hover:border-primary/45 hover:shadow-[var(--shadow-sm)]",
+                  isSelected && !submitted && "border-primary bg-primary-tint",
+                  !isSelected && !submitted && "border-border",
+                  showCorrect && "border-success bg-success-soft/70",
+                  showWrong && "animate-shake border-destructive bg-destructive-soft/70",
+                  submitted && !isSelected && !isThisCorrect && "border-border opacity-55",
                 )}
               >
-                <span className="flex items-center justify-center pr-3">
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "grid size-6 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
-                      showCorrect
-                        ? "border-success bg-success text-success-foreground"
-                        : showWrong
-                          ? "border-destructive bg-destructive text-destructive-foreground"
-                          : isSelected
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border-strong bg-surface-2 text-muted-foreground",
-                    )}
-                  >
-                    {String.fromCharCode(65 + idx)}
-                  </span>
+                <span
+                  aria-hidden
+                  className={cn(
+                    "grid size-8 shrink-0 place-items-center rounded-[var(--radius-sm)] text-[13px] font-extrabold",
+                    showCorrect
+                      ? "bg-success text-success-foreground"
+                      : showWrong
+                        ? "bg-destructive text-destructive-foreground"
+                        : isSelected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-surface-2 text-muted-foreground",
+                  )}
+                >
+                  {String.fromCharCode(65 + idx)}
                 </span>
 
-                <span className="flex items-center gap-3 py-3.5 pl-4 pr-3">
-                  <span
-                    className={cn(
-                      "min-w-0 flex-1 text-[15px]",
-                      showCorrect
-                        ? "font-medium text-success"
-                        : showWrong
-                          ? "font-medium text-destructive"
-                          : "text-foreground",
-                    )}
-                  >
-                    <InlineCodeText>{option}</InlineCodeText>
-                  </span>
-                  {showCorrect ? (
-                    <Check
-                      className="size-4 shrink-0 text-success"
-                      strokeWidth={3}
-                      aria-hidden
-                    />
-                  ) : null}
-                  {showWrong ? (
-                    <X
-                      className="size-4 shrink-0 text-destructive"
-                      strokeWidth={3}
-                      aria-hidden
-                    />
-                  ) : null}
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 text-[16px] leading-snug",
+                    showCorrect
+                      ? "font-bold text-success"
+                      : showWrong
+                        ? "font-bold text-destructive"
+                        : "font-medium text-foreground",
+                  )}
+                >
+                  <InlineCodeText>{option}</InlineCodeText>
                 </span>
+
+                {showCorrect ? (
+                  <Check
+                    className="size-5 shrink-0 text-success"
+                    strokeWidth={3}
+                    aria-hidden
+                  />
+                ) : null}
+                {showWrong ? (
+                  <X
+                    className="size-5 shrink-0 text-destructive"
+                    strokeWidth={3}
+                    aria-hidden
+                  />
+                ) : null}
               </button>
             </li>
           );

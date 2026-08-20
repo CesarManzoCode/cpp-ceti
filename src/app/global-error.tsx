@@ -22,8 +22,8 @@ export default function GlobalError({
           padding: "2rem",
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-          background: "#14171e",
-          color: "#f2f2f0",
+          background: "#171e2d",
+          color: "#e9edf2",
         }}
       >
         <div style={{ maxWidth: 420, textAlign: "center" }}>
@@ -45,8 +45,8 @@ export default function GlobalError({
                 width: 34,
                 height: 26,
                 borderRadius: 2,
-                background: "#8fa8ee",
-                color: "#131a2b",
+                background: "#80a5ff",
+                color: "#171e2d",
                 fontWeight: 600,
                 fontFamily: "ui-monospace, SFMono-Regular, monospace",
                 fontSize: 11,
@@ -59,7 +59,7 @@ export default function GlobalError({
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             Algo salió mal
           </h1>
-          <p style={{ color: "#a3a8b4", fontSize: 14, marginBottom: 20 }}>
+          <p style={{ color: "#abb2be", fontSize: 14, marginBottom: 20 }}>
             Hubo un error inesperado. Intenta recargar la página.
           </p>
           {error?.digest ? (
@@ -67,7 +67,7 @@ export default function GlobalError({
               style={{
                 fontFamily: "ui-monospace, SFMono-Regular, monospace",
                 fontSize: 11,
-                color: "#767c8a",
+                color: "#8b93a3",
                 marginBottom: 20,
               }}
             >
@@ -77,8 +77,8 @@ export default function GlobalError({
           <button
             onClick={reset}
             style={{
-              background: "#8fa8ee",
-              color: "#131a2b",
+              background: "#80a5ff",
+              color: "#171e2d",
               border: 0,
               padding: "10px 18px",
               borderRadius: 2,

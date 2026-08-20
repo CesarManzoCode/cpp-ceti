@@ -19,7 +19,7 @@ export function LandingFooter() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-8 sm:flex-row sm:px-6">
         <div className="flex flex-col items-center gap-2 sm:items-start">
           <Logo size="sm" />
-          <p className="font-mono text-[11px] text-muted-foreground">
+          <p className="text-[13px] font-medium text-muted-foreground">
             Hecho en Guadalajara · {new Date().getFullYear()}
           </p>
         </div>
@@ -48,7 +48,7 @@ export function LandingFooter() {
           )}
         </nav>
 
-        <p className="text-center text-xs text-muted-foreground sm:text-right">
+        <p className="text-center text-[13px] text-muted-foreground sm:text-right">
           Proyecto independiente.{" "}
           <span className="text-foreground">No oficial del CETI.</span>
         </p>

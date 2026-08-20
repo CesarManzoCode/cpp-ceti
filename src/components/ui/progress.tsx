@@ -7,31 +7,34 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Barra de avance continua. Rectangular a propósito: es una regla que
- * se llena, no una píldora. Para secuencias discretas (los pasos de una
- * lección) usa `StepRuler`, que muestra cuántos faltan.
+ * Avance continuo (porcentajes, niveles). Para secuencias discretas —
+ * lecciones de una unidad, pasos de una lección — usa `BrickRow`, que
+ * muestra cuántas piezas faltan y no sólo cuánto llevas.
  */
-const progressVariants = cva("relative w-full overflow-hidden bg-surface-3", {
-  variants: {
-    size: {
-      xs: "h-[3px]",
-      sm: "h-1",
-      default: "h-1.5",
-      lg: "h-2",
+const progressVariants = cva(
+  "relative w-full overflow-hidden rounded-full bg-surface-3",
+  {
+    variants: {
+      size: {
+        xs: "h-1",
+        sm: "h-1.5",
+        default: "h-2",
+        lg: "h-2.5",
+      },
+      tone: {
+        primary: "",
+        success: "",
+        warning: "",
+      },
     },
-    tone: {
-      primary: "",
-      success: "",
-      warning: "",
-    },
+    defaultVariants: { size: "default", tone: "primary" },
   },
-  defaultVariants: { size: "default", tone: "primary" },
-});
+);
 
 const indicatorTones = {
   primary: "bg-primary",
   success: "bg-success",
-  warning: "bg-warning",
+  warning: "bg-warning-vivid",
 } as const;
 
 interface ProgressProps
@@ -54,7 +57,7 @@ function Progress({
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
         className={cn(
-          "h-full w-full flex-1 transition-transform duration-500 ease-out",
+          "h-full w-full flex-1 rounded-full transition-transform duration-700 ease-out",
           indicatorTones[tone ?? "primary"],
         )}
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}

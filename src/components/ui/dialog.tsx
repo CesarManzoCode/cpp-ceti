@@ -52,7 +52,7 @@ function DialogContent({
         <DialogPrimitive.Close
           aria-label="Cerrar"
           className={cn(
-            "absolute right-3 top-3 grid size-8 place-items-center rounded-[var(--radius-xs)]",
+            "absolute right-3 top-3 grid size-9 place-items-center rounded-[var(--radius-sm)]",
             "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             "disabled:pointer-events-none",
@@ -94,7 +94,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       className={cn(
-        "text-lg font-semibold leading-tight",
+        "text-[20px] font-bold leading-tight tracking-[-0.02em]",
         className,
       )}
       {...props}
@@ -108,7 +108,7 @@ function DialogDescription({
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-sm text-muted-foreground leading-relaxed", className)}
+      className={cn("text-[15px] leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );

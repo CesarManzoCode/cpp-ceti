@@ -14,7 +14,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "inline-flex h-10 items-center gap-1 border-b border-border text-muted-foreground",
+        "inline-flex items-center gap-1 rounded-full border border-border bg-surface-2 p-1 text-muted-foreground",
         className,
       )}
       {...props}
@@ -29,14 +29,13 @@ function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "relative -mb-px inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium",
-        "border-b-2 border-transparent transition-[color,border-color] duration-150",
+        "relative inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[14px] font-semibold",
+        "transition-[color,background-color,box-shadow] duration-150",
         "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:pointer-events-none disabled:opacity-50",
         "hover:text-foreground",
-        // Activo = pestaña subrayada. Continúa el filete de la lista en vez
-        // de flotar encima de él.
-        "data-[state=active]:border-primary data-[state=active]:text-foreground",
+        // Activo = pastilla elevada dentro del carril.
+        "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[var(--shadow-sm)]",
         className,
       )}
       {...props}

@@ -31,7 +31,7 @@ export default function RegisterPage() {
             Inicia sesión
           </Link>
         </p>
-        <p className="text-xs leading-relaxed text-muted-foreground/80">
+        <p className="text-[13px] leading-relaxed text-muted-foreground">
           Al registrarte aceptas que tus datos se usen únicamente para tu
           progreso académico.
         </p>

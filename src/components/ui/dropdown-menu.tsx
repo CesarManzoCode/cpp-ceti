@@ -83,7 +83,7 @@ function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        "relative flex cursor-pointer select-none items-center gap-2.5 rounded-[var(--radius-xs)] px-2.5 py-2 text-sm outline-none transition-colors",
+        "relative flex cursor-pointer select-none items-center gap-2.5 rounded-[var(--radius-sm)] px-3 py-2.5 text-[15px] font-medium outline-none transition-colors",
         "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         variant === "destructive" && "text-destructive focus:bg-destructive-soft focus:text-destructive [&_svg]:text-destructive/80",
@@ -153,7 +153,7 @@ function DropdownMenuLabel({
   return (
     <DropdownMenuPrimitive.Label
       className={cn(
-        "px-2.5 py-2 text-sm font-medium text-foreground",
+        "px-3 py-2.5 text-[15px] font-semibold text-foreground",
         inset && "pl-8",
         className,
       )}

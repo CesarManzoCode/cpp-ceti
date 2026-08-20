@@ -47,29 +47,29 @@ export default async function PerfilPage() {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-2xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
+      className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
-      <header className="flex items-center gap-4 border-b border-border pb-6">
-        <Avatar className="size-14 shrink-0 ring-1 ring-inset ring-border sm:size-16">
+      <header className="flex items-center gap-4">
+        <Avatar className="size-16 shrink-0 ring-1 ring-inset ring-border sm:size-20">
           {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-          <AvatarFallback className="bg-primary-soft text-lg text-primary-soft-foreground">
-            {initials || <UserIcon className="size-6" />}
+          <AvatarFallback className="bg-primary-soft text-xl font-bold text-primary-soft-foreground">
+            {initials || <UserIcon className="size-7" />}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h1 className="truncate text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px]">
+          <h1 className="truncate text-[24px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
             {user.name}
           </h1>
-          <p className="mt-1 truncate text-sm text-muted-foreground">
+          <p className="mt-1 truncate text-[15px] text-muted-foreground">
             {user.email}
           </p>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground/80">
+          <p className="mt-1 text-[13px] font-medium text-subtle-foreground">
             Miembro desde {memberSince}
           </p>
         </div>
       </header>
 
-      <LevelBar totalXp={stats.totalXp} className="mt-7 border-t-0" />
+      <LevelBar totalXp={stats.totalXp} className="mt-7" />
 
       <section className="mt-9">
         <SectionRule>Tu actividad</SectionRule>
@@ -81,12 +81,12 @@ export default async function PerfilPage() {
           <Readout
             label="Racha"
             mark={
-              <StreakFlame streak={stats.currentStreak} className="size-3.5" />
+              <StreakFlame streak={stats.currentStreak} className="size-4" />
             }
             value={
               <>
                 <AnimatedNumber value={stats.currentStreak} />
-                <span className="ml-1 text-base text-muted-foreground">
+                <span className="ml-1 text-[17px] font-semibold text-muted-foreground">
                   {pluralize(stats.currentStreak, "día", "días")}
                 </span>
               </>
@@ -105,11 +105,11 @@ export default async function PerfilPage() {
       <section className="mt-10">
         <SectionRule trailing="Beta">Cuenta</SectionRule>
 
-        <ul className="mt-4 border-y border-border">
-          <li className="flex flex-col gap-3 border-b border-border py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-[var(--shadow-xs)]">
+          <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
             <div className="min-w-0">
-              <p className="text-sm font-medium">Cerrar sesión</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              <p className="text-[15px] font-bold">Cerrar sesión</p>
+              <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">
                 Tu progreso queda guardado. Puedes volver cuando quieras.
               </p>
             </div>
@@ -117,10 +117,10 @@ export default async function PerfilPage() {
               <SignOutButton />
             </div>
           </li>
-          <li className="flex flex-col gap-3 border-b border-border py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
             <div className="min-w-0">
-              <p className="text-sm font-medium">Cambiar contraseña</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              <p className="text-[15px] font-bold">Cambiar contraseña</p>
+              <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">
                 Actualiza tu contraseña. Cerramos las sesiones en otros
                 dispositivos por seguridad.
               </p>
@@ -129,10 +129,10 @@ export default async function PerfilPage() {
               <ChangePasswordDialog />
             </div>
           </li>
-          <li className="flex flex-col gap-3 border-b border-border py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
             <div className="min-w-0">
-              <p className="text-sm font-medium">Eliminar cuenta</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              <p className="text-[15px] font-bold">Eliminar cuenta</p>
+              <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">
                 Borra tu cuenta y todos tus datos de forma permanente.
               </p>
             </div>
@@ -143,13 +143,13 @@ export default async function PerfilPage() {
         </ul>
       </section>
 
-      <p className="mt-8 text-xs text-muted-foreground">
+      <p className="mt-8 text-[14px] text-muted-foreground">
         ¿Encontraste un bug?{" "}
         <a
           href="https://github.com/CesarManzoCode/cpp-ceti/issues"
           target="_blank"
           rel="noreferrer noopener"
-          className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
+          className="font-semibold text-primary underline decoration-primary/35 decoration-2 underline-offset-4 hover:decoration-primary"
         >
           Repórtalo en GitHub
         </a>

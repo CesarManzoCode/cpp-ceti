@@ -5,16 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Botones a escuadra. La jerarquía la da el peso del relleno, no el
- * tamaño del radio ni una sombra: sólido = la acción de la pantalla,
- * contorno = alternativa, fantasma = navegación o descarte.
+ * Botón. La jerarquía la da el relleno, no el tamaño:
+ *
+ *  · sólido    — la única acción principal de la pantalla
+ *  · outline   — alternativa real
+ *  · soft      — acción frecuente pero no protagonista
+ *  · ghost     — navegación, descarte, utilidades
+ *
+ * Los tamaños están calibrados para el dedo: `lg` y `xl` superan los
+ * 44px de alto, que es el mínimo cómodo en móvil.
  */
 const buttonVariants = cva(
   [
-    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--radius-xs)]",
-    "transition-[background-color,color,border-color] duration-120 ease-[var(--ease-out-quart)]",
-    "disabled:pointer-events-none disabled:opacity-45",
+    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold",
+    "transition-[background-color,color,border-color,box-shadow,transform] duration-150 ease-[var(--ease-out-quart)]",
+    "active:translate-y-px",
+    // Deshabilitado = superficie apagada con texto legible; bajar la
+    // opacidad de un botón sólido dejaba texto blanco sobre azul claro.
+    "disabled:pointer-events-none disabled:border-transparent disabled:bg-surface-3 disabled:text-subtle-foreground disabled:shadow-none",
+    // Mientras carga conserva su color: sigue siendo la acción en curso.
+    "data-[loading]:!bg-primary data-[loading]:!text-primary-foreground",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0",
     "select-none",
@@ -22,27 +32,30 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/88",
+        default:
+          "bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:bg-primary-hover hover:shadow-[var(--shadow-md)]",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/88",
-        success: "bg-success text-success-foreground hover:bg-success/88",
+          "bg-destructive text-destructive-foreground shadow-[var(--shadow-sm)] hover:brightness-110 data-[loading]:!bg-destructive data-[loading]:!text-destructive-foreground",
+        success:
+          "bg-success text-success-foreground shadow-[var(--shadow-sm)] hover:brightness-110 data-[loading]:!bg-success data-[loading]:!text-success-foreground",
         outline:
-          "border border-border-strong bg-transparent text-foreground hover:bg-accent",
+          "border border-border-strong bg-card text-foreground shadow-[var(--shadow-xs)] hover:border-primary/45 hover:bg-primary-tint hover:text-primary-soft-foreground",
         secondary:
-          "border border-border bg-surface-2 text-secondary-foreground hover:bg-accent hover:border-border-strong",
-        soft: "bg-primary-soft text-primary-soft-foreground hover:bg-primary-soft/75",
-        ghost: "text-muted-foreground hover:bg-accent hover:text-foreground",
-        link: "text-foreground underline decoration-border-strong decoration-1 underline-offset-4 hover:decoration-current px-0 h-auto",
+          "border border-border bg-surface-2 text-secondary-foreground hover:border-border-strong hover:bg-accent",
+        soft: "bg-primary-soft text-primary-soft-foreground hover:brightness-[0.97]",
+        ghost:
+          "text-muted-foreground hover:bg-accent hover:text-foreground disabled:bg-transparent",
+        link: "disabled:bg-transparent text-primary underline decoration-primary/35 decoration-2 underline-offset-4 hover:decoration-primary px-0 h-auto",
       },
       size: {
-        xs: "h-7 px-2 text-xs gap-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "h-8 px-3 text-[13px]",
-        default: "h-9 px-3.5 text-sm",
-        lg: "h-10 px-4 text-sm",
-        xl: "h-12 px-5 text-[15px]",
-        icon: "h-9 w-9",
-        "icon-sm": "h-8 w-8",
-        "icon-xs": "h-7 w-7 [&_svg:not([class*='size-'])]:size-3.5",
+        xs: "h-7 rounded-[var(--radius-xs)] px-2.5 text-xs gap-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-9 rounded-[var(--radius-sm)] px-3 text-[13px]",
+        default: "h-10 rounded-[var(--radius-sm)] px-4 text-sm",
+        lg: "h-11 rounded-[var(--radius-md)] px-5 text-[15px]",
+        xl: "h-13 rounded-[var(--radius-lg)] px-6 text-base [&_svg:not([class*='size-'])]:size-5",
+        icon: "size-10 rounded-[var(--radius-sm)]",
+        "icon-sm": "size-9 rounded-[var(--radius-sm)]",
+        "icon-xs": "size-8 rounded-[var(--radius-xs)] [&_svg:not([class*='size-'])]:size-3.5",
       },
     },
     defaultVariants: {

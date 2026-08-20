@@ -32,20 +32,20 @@ export function StatusMessage({
   return (
     <div
       className={cn(
-        "w-full max-w-md border-l-2 pl-5",
-        tone === "error" ? "border-destructive" : "border-border-strong",
+        "w-full max-w-md rounded-[var(--radius-xl)] border bg-card p-6 shadow-[var(--shadow-sm)] sm:p-7",
+        tone === "error" ? "border-destructive/30" : "border-border",
         className,
       )}
     >
       <p
         className={cn(
-          "label-micro",
+          "text-[13px] font-bold uppercase tracking-[0.06em]",
           tone === "error" ? "text-destructive" : "text-muted-foreground",
         )}
       >
         {code}
       </p>
-      <h1 className="mt-3 text-balance text-[22px] font-semibold leading-snug tracking-[-0.02em] sm:text-[26px]">
+      <h1 className="mt-3 text-balance text-[23px] font-extrabold leading-snug tracking-[-0.028em] sm:text-[27px]">
         {title}
       </h1>
       {description ? (
@@ -54,7 +54,7 @@ export function StatusMessage({
         </p>
       ) : null}
       {reference ? (
-        <p className="mt-3 font-mono text-[11px] text-muted-foreground/70">
+        <p className="mt-3 font-mono text-[12px] text-subtle-foreground">
           ref: {reference}
         </p>
       ) : null}

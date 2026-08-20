@@ -4,175 +4,190 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   C++ CETI — sistema visual
+   C++ CETI — Sistema visual "Taller"
 
-   Dos materiales, nada más:
+   La metáfora es un TALLER DE PROGRAMACIÓN, no un IDE ni un panel
+   de control. Tres materiales:
 
-   1. PAPEL — la interfaz. Tinta sobre papel: filetes de 1px,
-      canaletas numeradas, cifras tabulares. Casi sin radios,
-      casi sin sombras, cero degradados. Es un cuaderno de
-      trabajo, no un dashboard.
+   1. LIENZO — un gris azulado muy claro. Es la mesa de trabajo.
+      Nunca compite con el contenido.
 
-   2. CONSOLA — el código. La superficie oscura del editor y la
-      salida del compilador, idéntica en ambos temas. Es el
-      único lugar con color saturado, porque ahí el color
-      significa algo (keyword, string, error).
+   2. PIEZAS — superficies blancas con esquinas generosas y sombra
+      suave. Cada lección, unidad o ejercicio es un objeto que se
+      puede tomar. Aquí vive la lectura larga.
 
-   El azul de tinta (--primary) es señalética: marca dónde estás
-   y cuál es la única acción principal de la pantalla. No rellena
-   espacio, no decora, no hace degradado.
+   3. CÓDIGO — superficie azul-pizarra oscura, idéntica en ambos
+      temas. Es el único lugar con color saturado libre, porque
+      allí el color significa algo (keyword, string, error).
+
+   El azul índigo (--primary) marca el camino: dónde estás y qué
+   sigue. El ámbar (--warning) es la recompensa: XP y racha. El
+   verde (--success) es lo terminado. Nada más compite.
    ============================================================ */
 
 :root {
-  /* Papel: neutro con un punto de calidez (hoja de examen) */
-  --background: oklch(0.981 0.004 92);
-  --foreground: oklch(0.205 0.012 262);
+  /* ---- Lienzo y superficies ---- */
+  --background: oklch(0.972 0.005 255);
+  --foreground: oklch(0.235 0.024 266);
 
   --surface: oklch(1 0 0);
-  --surface-2: oklch(0.958 0.005 92);
-  --surface-3: oklch(0.925 0.006 92);
+  --surface-2: oklch(0.968 0.006 255);
+  --surface-3: oklch(0.934 0.009 256);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0.012 262);
+  --card-foreground: oklch(0.235 0.024 266);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0.012 262);
+  --popover-foreground: oklch(0.235 0.024 266);
 
-  /* Azul de tinta — señalética, nunca decoración */
-  --primary: oklch(0.44 0.132 258);
-  --primary-foreground: oklch(0.985 0.005 258);
-  --primary-soft: oklch(0.935 0.032 258);
-  --primary-soft-foreground: oklch(0.38 0.13 258);
-  --primary-ring: oklch(0.44 0.132 258 / 0.22);
+  /* ---- Índigo: el camino ---- */
+  --primary: oklch(0.474 0.178 267);
+  --primary-foreground: oklch(0.99 0.005 267);
+  --primary-hover: oklch(0.418 0.172 267);
+  --primary-soft: oklch(0.945 0.032 267);
+  --primary-soft-foreground: oklch(0.4 0.16 267);
+  --primary-ring: oklch(0.474 0.178 267 / 0.25);
+  --primary-tint: oklch(0.972 0.018 267);
 
-  --secondary: oklch(0.958 0.005 92);
-  --secondary-foreground: oklch(0.24 0.012 262);
+  --secondary: oklch(0.958 0.007 255);
+  --secondary-foreground: oklch(0.28 0.022 266);
 
-  --muted: oklch(0.958 0.005 92);
-  --muted-foreground: oklch(0.468 0.011 262);
+  --muted: oklch(0.958 0.007 255);
+  /* Contraste ≈ 6.4:1 sobre blanco — el texto secundario se lee sin
+     esfuerzo, que es requisito duro de este producto. */
+  --muted-foreground: oklch(0.462 0.021 264);
+  --subtle-foreground: oklch(0.548 0.019 264);
 
-  --accent: oklch(0.945 0.006 92);
-  --accent-foreground: oklch(0.205 0.012 262);
+  --accent: oklch(0.952 0.012 262);
+  --accent-foreground: oklch(0.26 0.024 266);
 
-  /* Estados: los tres veredictos del compilador + el ámbar del XP */
-  --destructive: oklch(0.515 0.185 27);
-  --destructive-foreground: oklch(0.985 0.008 27);
-  --destructive-soft: oklch(0.955 0.03 27);
+  /* ---- Estados ---- */
+  --destructive: oklch(0.512 0.196 25);
+  --destructive-foreground: oklch(0.99 0.008 25);
+  --destructive-soft: oklch(0.958 0.03 25);
 
-  --success: oklch(0.505 0.125 152);
-  --success-foreground: oklch(0.985 0.008 152);
-  --success-soft: oklch(0.95 0.035 152);
+  --success: oklch(0.48 0.126 158);
+  --success-foreground: oklch(0.99 0.008 158);
+  --success-soft: oklch(0.948 0.045 158);
 
-  --warning: oklch(0.545 0.115 66); /* XP · racha */
-  --warning-foreground: oklch(0.985 0.008 66);
-  --warning-soft: oklch(0.955 0.04 80);
+  /* Ámbar = recompensa (XP, racha, logros) */
+  --warning: oklch(0.545 0.132 62);
+  --warning-foreground: oklch(0.99 0.008 62);
+  --warning-soft: oklch(0.958 0.045 75);
+  --warning-vivid: oklch(0.735 0.158 62);
+  --warning-ink: oklch(0.28 0.075 62);
 
-  --info: oklch(0.5 0.1 232);
-  --info-foreground: oklch(0.985 0.008 232);
-  --info-soft: oklch(0.95 0.03 232);
+  --info: oklch(0.508 0.122 232);
+  --info-foreground: oklch(0.99 0.008 232);
+  --info-soft: oklch(0.95 0.035 232);
 
-  /* Filetes: la principal herramienta de separación */
-  --border: oklch(0.885 0.005 92);
-  --border-strong: oklch(0.775 0.007 92);
-  --input: oklch(0.845 0.006 92);
-  --ring: oklch(0.44 0.132 258);
+  --border: oklch(0.907 0.008 258);
+  --border-strong: oklch(0.842 0.012 258);
+  --input: oklch(0.876 0.01 258);
+  --ring: oklch(0.474 0.178 267);
 
-  /* Radios: papel cortado a escuadra. 2 → 8px, nunca más. */
-  --radius: 0.375rem;
-  --radius-step: 0.125rem;
+  /* ---- Forma: el taller trabaja con piezas, no con hojas cortadas ---- */
+  --radius: 0.875rem;
 
-  /* Elevación: sólo lo que flota de verdad (diálogos, menús). */
-  --shadow-color: 262 25% 20%;
-  --shadow-xs: 0 0 0 0 transparent;
-  --shadow-sm: 0 0 0 0 transparent;
-  --shadow-md: 0 1px 2px hsl(var(--shadow-color) / 0.06);
-  --shadow-lg: 0 8px 24px -12px hsl(var(--shadow-color) / 0.18);
-  --shadow-xl: 0 16px 48px -16px hsl(var(--shadow-color) / 0.28);
+  /* ---- Elevación: azulada y suave, nunca gris sucio ---- */
+  --shadow-color: 262 45% 26%;
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.05);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.06), 0 2px 6px -2px hsl(var(--shadow-color) / 0.05);
+  --shadow-md: 0 2px 4px -1px hsl(var(--shadow-color) / 0.05), 0 8px 20px -6px hsl(var(--shadow-color) / 0.1);
+  --shadow-lg: 0 4px 8px -2px hsl(var(--shadow-color) / 0.05), 0 16px 40px -12px hsl(var(--shadow-color) / 0.16);
+  --shadow-xl: 0 8px 16px -4px hsl(var(--shadow-color) / 0.06), 0 32px 72px -20px hsl(var(--shadow-color) / 0.24);
 
-  /* Consola — oscura siempre, en ambos temas */
-  --terminal-bg: oklch(0.185 0.012 262);
-  --terminal-elevated: oklch(0.225 0.013 262);
-  --terminal-fg: oklch(0.93 0.005 92);
-  --terminal-muted: oklch(0.68 0.01 262);
-  --terminal-faint: oklch(0.5 0.012 262);
-  --terminal-border: oklch(0.28 0.012 262);
+  /* ---- Código: pizarra azul, igual en claro y oscuro ---- */
+  --terminal-bg: oklch(0.235 0.031 266);
+  --terminal-elevated: oklch(0.282 0.032 266);
+  --terminal-fg: oklch(0.945 0.008 255);
+  --terminal-muted: oklch(0.732 0.018 264);
+  --terminal-faint: oklch(0.618 0.024 264);
+  --terminal-border: oklch(0.338 0.031 266);
 
-  --terminal-success: oklch(0.8 0.15 155);
-  --terminal-danger: oklch(0.72 0.16 25);
-  --terminal-warning: oklch(0.84 0.14 84);
+  --terminal-success: oklch(0.82 0.15 158);
+  --terminal-danger: oklch(0.735 0.16 25);
+  --terminal-warning: oklch(0.855 0.14 84);
 
   /* Sintaxis C++ — refleja el tema de Monaco en cpp-editor.tsx.
      Si cambias esto, cambia allá también. */
-  --syntax-keyword: #f0967c;
-  --syntax-type: #90b8ec;
-  --syntax-string: #9ed6a6;
-  --syntax-number: #e9c46a;
-  --syntax-comment: #6d7686;
-  --syntax-operator: #b6bcc9;
+  --syntax-keyword: #f2a2c0;
+  --syntax-type: #8fc6f5;
+  --syntax-string: #a8dfb0;
+  --syntax-number: #f0c674;
+  --syntax-comment: #7d87a0;
+  --syntax-operator: #c4cbdb;
 }
 
 .dark {
-  /* Pantalla: grafito frío, nunca negro puro */
-  --background: oklch(0.158 0.008 262);
-  --foreground: oklch(0.955 0.004 92);
+  /* Noche: azul pizarra profundo. Nunca negro puro — el negro puro
+     cansa y hace vibrar el texto claro. */
+  --background: oklch(0.183 0.024 266);
+  --foreground: oklch(0.962 0.006 255);
 
-  --surface: oklch(0.188 0.009 262);
-  --surface-2: oklch(0.212 0.01 262);
-  --surface-3: oklch(0.25 0.011 262);
+  --surface: oklch(0.222 0.026 266);
+  --surface-2: oklch(0.248 0.027 266);
+  --surface-3: oklch(0.29 0.029 266);
 
-  --card: oklch(0.188 0.009 262);
-  --card-foreground: oklch(0.955 0.004 92);
-  --popover: oklch(0.212 0.01 262);
-  --popover-foreground: oklch(0.955 0.004 92);
+  --card: oklch(0.222 0.026 266);
+  --card-foreground: oklch(0.962 0.006 255);
+  --popover: oklch(0.248 0.027 266);
+  --popover-foreground: oklch(0.962 0.006 255);
 
-  --primary: oklch(0.735 0.13 258);
-  --primary-foreground: oklch(0.16 0.03 258);
-  --primary-soft: oklch(0.3 0.075 258);
-  --primary-soft-foreground: oklch(0.86 0.1 258);
-  --primary-ring: oklch(0.735 0.13 258 / 0.32);
+  --primary: oklch(0.735 0.145 267);
+  --primary-foreground: oklch(0.175 0.04 267);
+  --primary-hover: oklch(0.785 0.135 267);
+  --primary-soft: oklch(0.318 0.078 267);
+  --primary-soft-foreground: oklch(0.878 0.09 267);
+  --primary-ring: oklch(0.735 0.145 267 / 0.35);
+  --primary-tint: oklch(0.262 0.042 267);
 
-  --secondary: oklch(0.232 0.01 262);
-  --secondary-foreground: oklch(0.955 0.004 92);
+  --secondary: oklch(0.262 0.027 266);
+  --secondary-foreground: oklch(0.962 0.006 255);
 
-  --muted: oklch(0.232 0.01 262);
-  --muted-foreground: oklch(0.735 0.011 262);
+  --muted: oklch(0.262 0.027 266);
+  /* Contraste ≈ 6.8:1 sobre el fondo oscuro. */
+  --muted-foreground: oklch(0.762 0.018 262);
+  --subtle-foreground: oklch(0.672 0.02 262);
 
-  --accent: oklch(0.25 0.011 262);
-  --accent-foreground: oklch(0.955 0.004 92);
+  --accent: oklch(0.288 0.03 266);
+  --accent-foreground: oklch(0.962 0.006 255);
 
-  --destructive: oklch(0.71 0.17 25);
-  --destructive-foreground: oklch(0.16 0.04 25);
-  --destructive-soft: oklch(0.29 0.07 25);
+  --destructive: oklch(0.712 0.175 25);
+  --destructive-foreground: oklch(0.18 0.045 25);
+  --destructive-soft: oklch(0.318 0.075 25);
 
-  --success: oklch(0.75 0.15 155);
-  --success-foreground: oklch(0.16 0.04 155);
-  --success-soft: oklch(0.28 0.06 155);
+  --success: oklch(0.752 0.145 158);
+  --success-foreground: oklch(0.18 0.045 158);
+  --success-soft: oklch(0.305 0.062 158);
 
-  --warning: oklch(0.82 0.14 82);
-  --warning-foreground: oklch(0.17 0.04 82);
-  --warning-soft: oklch(0.29 0.06 82);
+  --warning: oklch(0.815 0.142 68);
+  --warning-foreground: oklch(0.185 0.045 68);
+  --warning-soft: oklch(0.318 0.062 68);
+  --warning-vivid: oklch(0.812 0.152 68);
+  --warning-ink: oklch(0.22 0.06 68);
 
-  --info: oklch(0.76 0.11 232);
-  --info-foreground: oklch(0.16 0.04 232);
-  --info-soft: oklch(0.27 0.06 232);
+  --info: oklch(0.768 0.115 232);
+  --info-foreground: oklch(0.18 0.045 232);
+  --info-soft: oklch(0.298 0.06 232);
 
-  --border: oklch(0.272 0.01 262);
-  --border-strong: oklch(0.375 0.013 262);
-  --input: oklch(0.3 0.011 262);
-  --ring: oklch(0.735 0.13 258);
+  --border: oklch(0.312 0.028 266);
+  --border-strong: oklch(0.412 0.032 266);
+  --input: oklch(0.345 0.03 266);
+  --ring: oklch(0.735 0.145 267);
 
-  --shadow-color: 262 60% 3%;
-  --shadow-xs: 0 0 0 0 transparent;
-  --shadow-sm: 0 0 0 0 transparent;
-  --shadow-md: 0 1px 2px hsl(var(--shadow-color) / 0.4);
-  --shadow-lg: 0 8px 24px -12px hsl(var(--shadow-color) / 0.6);
-  --shadow-xl: 0 16px 48px -16px hsl(var(--shadow-color) / 0.75);
+  --shadow-color: 266 60% 3%;
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.35);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.4), 0 2px 6px -2px hsl(var(--shadow-color) / 0.35);
+  --shadow-md: 0 2px 4px -1px hsl(var(--shadow-color) / 0.4), 0 8px 20px -6px hsl(var(--shadow-color) / 0.45);
+  --shadow-lg: 0 4px 8px -2px hsl(var(--shadow-color) / 0.4), 0 16px 40px -12px hsl(var(--shadow-color) / 0.55);
+  --shadow-xl: 0 8px 16px -4px hsl(var(--shadow-color) / 0.45), 0 32px 72px -20px hsl(var(--shadow-color) / 0.7);
 
-  --terminal-bg: oklch(0.128 0.01 262);
-  --terminal-elevated: oklch(0.178 0.011 262);
-  --terminal-fg: oklch(0.945 0.004 92);
-  --terminal-muted: oklch(0.66 0.01 262);
-  --terminal-faint: oklch(0.47 0.012 262);
-  --terminal-border: oklch(0.245 0.011 262);
+  --terminal-bg: oklch(0.192 0.026 266);
+  --terminal-elevated: oklch(0.242 0.028 266);
+  --terminal-fg: oklch(0.952 0.008 255);
+  --terminal-muted: oklch(0.732 0.018 264);
+  --terminal-faint: oklch(0.605 0.024 264);
+  --terminal-border: oklch(0.298 0.028 266);
 }
 
 @theme inline {
@@ -188,14 +203,17 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-foreground: var(--primary-soft-foreground);
   --color-primary-ring: var(--primary-ring);
+  --color-primary-tint: var(--primary-tint);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
@@ -210,6 +228,8 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
+  --color-warning-vivid: var(--warning-vivid);
+  --color-warning-ink: var(--warning-ink);
 
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
@@ -237,15 +257,14 @@
   --color-syntax-comment: var(--syntax-comment);
   --color-syntax-operator: var(--syntax-operator);
 
-  /* Jerarquía de forma: controles a escuadra (2px), paneles 4-6px,
-     overlays 8px. Nada es una píldora salvo lo que representa un
-     recuento (contadores, avatares). */
-  --radius-xs: 0.125rem;
-  --radius-sm: 0.1875rem;
-  --radius-md: 0.25rem;
-  --radius-lg: 0.375rem;
-  --radius-xl: 0.5rem;
-  --radius-2xl: 0.5rem;
+  /* Jerarquía de forma real: cuanto más grande el objeto, más abierta
+     la esquina. Piezas 20px · paneles 14px · controles 10px · fichas 8px. */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
 
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -253,205 +272,232 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
 
-  /* IBM Plex: una superfamilia. La sans para la interfaz y la mono
-     para todo lo que es dato o código — ordinales, contadores, XP,
-     salida del compilador. Prosa y código son el mismo documento,
-     que es justo la pedagogía del producto. */
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  /* Figtree para todo lo humano (explicar, titular, navegar) y JetBrains
+     Mono sólo donde hay código o una cifra que se compara. La interfaz
+     NO se escribe en monoespaciada. */
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-* {
-  border-color: var(--border);
-}
 
-html {
-  color-scheme: light dark;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
-  scroll-padding-top: 5rem;
-}
+/* Los estilos de elemento viven en la capa `base` y los helpers de clase
+   en `components`: así cualquier utilidad de Tailwind (que va en la capa
+   `utilities`, posterior) puede sobrescribirlos. Sin capas, estas reglas
+   ganarían siempre y `font-extrabold` o `text-[15px]` no tendrían efecto
+   sobre un h1 o sobre `.reading`. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 
-button,
-a,
-[role="button"],
-label,
-summary {
-  touch-action: manipulation;
-}
-
-@media (prefers-reduced-motion: no-preference) {
   html {
-    scroll-behavior: smooth;
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 5.5rem;
+  }
+
+  button,
+  a,
+  [role="button"],
+  label,
+  summary {
+    touch-action: manipulation;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Impide el overflow horizontal accidental en móvil. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.022em;
+    font-weight: 700;
+  }
+
+  h1 {
+    letter-spacing: -0.03em;
+  }
+
+  /* Títulos de portada: Figtree en 800 con tracking cerrado. */
+  .font-display {
+    font-weight: 800;
+    letter-spacing: -0.036em;
+    line-height: 1.03;
+  }
+
+  /* Etiqueta de sección o estado. Se usa poco y siempre con color propio.
+     No es decoración: nombra qué es lo que sigue. */
+  .label-micro,
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 20%, transparent);
+    color: var(--foreground);
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--border-strong) 85%, transparent);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+    background-clip: padding-box;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* El input dentro de un campo con adorno no dibuja su propio foco:
+     el marco lo pinta el contenedor, y dos anillos se ven como un error. */
+  [data-slot="input-wrapper"] > input:focus-visible {
+    outline: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
+@layer components {
+  /* ============================================================
+     Lectura larga
 
-h1,
-h2,
-h3,
-h4 {
-  letter-spacing: -0.018em;
-}
-
-/* Títulos de portada — sólo landing y auth. */
-.font-display {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-
-/* Etiqueta micro: la única mayúscula del sistema. Marca secciones y
-   estados; el color lo pone quien la usa. */
-.label-micro {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* Alias histórico — mismo estilo, se conserva para no romper usos. */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-::selection {
-  background: color-mix(in oklch, var(--primary) 22%, transparent);
-  color: var(--foreground);
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--border-strong) 80%, transparent);
-  border: 3px solid transparent;
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
-  background-clip: padding-box;
-}
-
-/* Foco: un marco cuadrado y evidente, del color de la señalética. */
-*:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-  border-radius: var(--radius-xs);
-}
-
-/* Enunciados de ejercicio — algo más grandes que el cuerpo normal. */
-.prose-instructions {
-  font-size: 1.0625rem;
-  line-height: 1.55;
-}
-.prose-instructions p {
-  margin: 0;
-  max-width: 62ch;
-}
-.prose-instructions p + p {
-  margin-top: 0.5rem;
-}
-.prose-instructions strong {
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-/* ============================================================
-   Canaleta — el motivo estructural del producto.
-
-   Toda secuencia ordenada (unidades, lecciones, pasos, ejercicios)
-   se lee como un archivo fuente: ordinales monoespaciados a la
-   izquierda, un filete continuo, y el estado marcado EN la canaleta.
-   ============================================================ */
-.gutter-list {
-  --gutter-w: 2.75rem;
-  position: relative;
-}
-@media (min-width: 640px) {
-  .gutter-list {
-    --gutter-w: 3.5rem;
+     Una lección se lee 30-60 minutos. El cuerpo va a 17px con
+     line-height 1.72 y la medida se limita a ~66 caracteres.
+     ============================================================ */
+  .reading {
+    font-size: 1.0625rem;
+    line-height: 1.72;
   }
-}
-/* El filete corre por el borde derecho de la canaleta, de la primera
-   fila a la última, y se recorta en los extremos para no "colgar". */
-.gutter-list::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--gutter-w) - 1px);
-  width: 1px;
-  background: var(--border);
-  pointer-events: none;
-}
-.gutter-row {
-  display: grid;
-  grid-template-columns: var(--gutter-w) minmax(0, 1fr);
+  @media (min-width: 640px) {
+    .reading {
+      font-size: 1.125rem;
+      line-height: 1.75;
+    }
+  }
+  .reading-measure {
+    max-width: 66ch;
+  }
+
+  /* Enunciado de un ejercicio: manda sobre lo demás de la pantalla. */
+  .prose-instructions {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+  .prose-instructions p {
+    margin: 0;
+    max-width: 62ch;
+  }
+  .prose-instructions p + p {
+    margin-top: 0.65rem;
+  }
+  .prose-instructions strong {
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  /* ============================================================
+     Código en línea (fuera de Monaco / Markdown)
+     ============================================================ */
+  /* Sin ligaduras en NINGÚN contexto de código: quien está aprendiendo
+     necesita ver `>=` y `!=` tal como se teclean, no un glifo compuesto. */
+  code,
+  pre,
+  kbd,
+  .font-mono,
+  [class*="font-mono"] {
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "calt" 0;
+  }
+
+  .code-inline {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    font-weight: 500;
+    padding: 0.12em 0.36em;
+    border-radius: var(--radius-xs);
+    background: var(--primary-tint);
+    color: var(--primary-soft-foreground);
+    border: 1px solid color-mix(in oklch, var(--primary) 14%, transparent);
+    white-space: nowrap;
+  }
+
+  .dark .code-inline {
+    background: var(--primary-tint);
+    border-color: color-mix(in oklch, var(--primary) 28%, transparent);
+    color: var(--primary-soft-foreground);
+  }
+
+  /* Dentro de un `pre` la ficha sobra: el panel ya es superficie de código. */
+  pre .code-inline {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    white-space: inherit;
+  }
+
+  /* En un título, la ficha de código baja de tamaño y de relleno: es
+     parte de la frase, no un botón dentro del encabezado. */
+  h1 .code-inline,
+  h2 .code-inline,
+  h3 .code-inline,
+  .font-display .code-inline {
+    font-size: 0.74em;
+    padding: 0.06em 0.24em;
+    font-weight: 600;
+    vertical-align: 0.04em;
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-xs);
+    background: var(--surface-2);
+    color: var(--foreground);
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    font-weight: 600;
+  }
+
 }
 
 /* ============================================================
-   Código en línea (fuera de Monaco / Markdown)
-   ============================================================ */
-.code-inline {
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-  padding: 0.1rem 0.3rem;
-  border-radius: var(--radius-xs);
-  background: var(--surface-2);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-}
-
-.dark .code-inline {
-  background: var(--surface-3);
-  border-color: var(--border-strong);
-}
-
-/* Un bloque de código sin lenguaje declarado llega aquí como
-   `pre > code.code-inline`. Dentro de un `pre` la píldora sobra: el
-   panel ya es la superficie de consola. */
-pre .code-inline {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-}
-
-kbd {
-  font-family: var(--font-mono);
-  font-size: 0.72em;
-  padding: 0.1rem 0.35rem;
-  border-radius: var(--radius-xs);
-  background: var(--surface-2);
-  color: var(--foreground);
-  border: 1px solid var(--border-strong);
-  font-weight: 500;
-}
-
-/* ============================================================
-   Movimiento — sólo cuando explica un cambio de estado
+   Movimiento — pocos momentos, todos explicando un cambio de estado
    ============================================================ */
 :root {
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -489,7 +535,7 @@ kbd {
 }
 
 @keyframes enter-fade-up {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -499,7 +545,7 @@ kbd {
 }
 
 @keyframes enter-scale {
-  from { opacity: 0; transform: scale(0.99); }
+  from { opacity: 0; transform: scale(0.985); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -515,26 +561,25 @@ kbd {
 
 @keyframes shake-x {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-4px); }
-  40% { transform: translateX(3px); }
-  60% { transform: translateX(-2px); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
   80% { transform: translateX(1px); }
 }
 
 @keyframes correct-burst {
   0% { transform: scale(1); }
-  40% { transform: scale(1.008); }
+  40% { transform: scale(1.012); }
   100% { transform: scale(1); }
 }
 
-/* Barrido del compilador: sólo mientras compila de verdad. */
 @keyframes scan-sweep {
   0% { transform: translateX(-110%); }
   100% { transform: translateX(110%); }
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(8px); }
+  from { opacity: 0; transform: translateX(10px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
@@ -552,14 +597,22 @@ kbd {
   75% { transform: scale(1.04) rotate(-0.5deg); filter: brightness(1.06); }
 }
 
+/* La pieza de la unidad en curso respira: es el único elemento con
+   movimiento permanente en toda la app, y sólo porque señala
+   "estás aquí". */
+@keyframes here-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--primary-ring); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+
 .animate-fade-up {
-  animation: enter-fade-up 260ms var(--ease-out-quart) both;
+  animation: enter-fade-up 300ms var(--ease-out-quart) both;
 }
 .animate-fade-in {
-  animation: enter-fade 180ms var(--ease-out-quart) both;
+  animation: enter-fade 200ms var(--ease-out-quart) both;
 }
 .animate-scale-in {
-  animation: enter-scale 200ms var(--ease-spring) both;
+  animation: enter-scale 220ms var(--ease-spring) both;
 }
 .animate-blink {
   animation: brand-caret 1s steps(2, start) infinite;
@@ -587,13 +640,13 @@ kbd {
   animation-delay: 0.3s;
 }
 .animate-shake {
-  animation: shake-x 340ms var(--ease-out-quart);
+  animation: shake-x 360ms var(--ease-out-quart);
 }
 .animate-correct {
-  animation: correct-burst 340ms var(--ease-out-back);
+  animation: correct-burst 360ms var(--ease-out-back);
 }
 .animate-slide-in-right {
-  animation: slide-in-right 220ms var(--ease-out-quart) both;
+  animation: slide-in-right 240ms var(--ease-out-quart) both;
 }
 .animate-flame {
   transform-origin: 50% 100%;
@@ -603,8 +656,10 @@ kbd {
   transform-origin: 50% 100%;
   animation: flame-flicker-strong 2s ease-in-out infinite;
 }
+.animate-here {
+  animation: here-pulse 2.6s var(--ease-out-quart) infinite;
+}
 
-/* Barrido que recorre la consola mientras el código compila. */
 .scan-sweep::before {
   content: "";
   position: absolute;
@@ -622,16 +677,16 @@ kbd {
 }
 
 [data-stagger] > * {
-  animation-delay: calc(var(--i, 0) * var(--stagger, 40ms));
+  animation-delay: calc(var(--i, 0) * var(--stagger, 45ms));
 }
 
 [data-page-enter] {
-  animation: enter-fade-up 240ms var(--ease-out-quart) both;
+  animation: enter-fade-up 280ms var(--ease-out-quart) both;
 }
 
-/* Cabecera pegajosa: el filete sólo aparece cuando hay contenido debajo. */
 [data-scrolled="true"] {
   border-bottom-color: var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {

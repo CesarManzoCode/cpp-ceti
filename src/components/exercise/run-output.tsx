@@ -16,11 +16,11 @@ export function RunOutput({ state, result, error }: RunOutputProps) {
     <TerminalSurface
       title="Salida"
       running={state === "running"}
-      headerClassName="py-1.5"
-      bodyClassName="max-h-72 space-y-2 overflow-auto p-3 text-[12px]"
+      headerClassName="py-2"
+      bodyClassName="max-h-72 space-y-2 overflow-auto p-4 text-[13.5px] leading-relaxed"
     >
       {state === "running" ? (
-        <p className="text-terminal-muted">Ejecutando…</p>
+        <p className="font-sans text-[13px] text-terminal-muted">Ejecutando…</p>
       ) : null}
       {error ? <p className="text-terminal-danger">{error}</p> : null}
       {result ? (
@@ -39,11 +39,11 @@ export function RunOutput({ state, result, error }: RunOutputProps) {
             </pre>
           ) : null}
           {!result.stdout && !result.compileOutput && !result.stderr ? (
-            <p className="italic text-terminal-faint">
+            <p className="font-sans text-[13px] text-terminal-faint">
               (programa ejecutado sin salida)
             </p>
           ) : null}
-          <p className="text-[10px] uppercase tracking-[0.1em] text-terminal-faint">
+          <p className="font-sans text-[12px] font-semibold text-terminal-faint">
             {result.message} · {result.durationMs}ms
           </p>
         </>

@@ -37,14 +37,13 @@ export default async function AmigosPage({
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-3xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
+      className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
-      <header className="border-b border-border pb-6">
-        <p className="label-micro text-muted-foreground">Comunidad</p>
-        <h1 className="mt-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.028em] sm:text-[34px]">
+      <header>
+        <h1 className="text-[30px] font-extrabold leading-[1.1] tracking-[-0.034em] sm:text-[38px]">
           Amigos
         </h1>
-        <p className="mt-3 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
+        <p className="mt-3 max-w-[56ch] text-[16px] leading-relaxed text-muted-foreground sm:text-[17px]">
           Agrega compañeros del CETI para ver su progreso y motivarse
           mutuamente.
         </p>
@@ -76,19 +75,22 @@ export default async function AmigosPage({
 
 function EmptyAmigos({ username }: { username: string }) {
   return (
-    <div className="mt-8 border-l-2 border-primary py-1 pl-4">
-      <p className="label-micro text-primary">Empieza aquí</p>
-      <h2 className="mt-2 text-balance text-[19px] font-semibold leading-snug">
+    <div className="mt-8 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-5 sm:p-6">
+      <h2 className="text-balance text-[19px] font-bold leading-snug">
         Aún no tienes amigos en C++ CETI.
       </h2>
-      <p className="mt-2 max-w-[54ch] text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
         Busca a tus compañeros por{" "}
-        <span className="font-mono text-foreground">@usuario</span> o mándales
-        tu link de invitación. Cuando acepten verás su progreso en tu inicio.
+        <span className="font-mono font-semibold text-foreground">@usuario</span>{" "}
+        o mándales tu link de invitación. Cuando acepten verás su progreso en
+        tu inicio.
       </p>
-      <p className="mt-2 text-xs text-muted-foreground">
+      <p className="mt-2.5 text-[14px] text-muted-foreground">
         Tu handle es{" "}
-        <span className="font-mono text-foreground">@{username}</span>.
+        <span className="font-mono font-semibold text-foreground">
+          @{username}
+        </span>
+        .
       </p>
     </div>
   );

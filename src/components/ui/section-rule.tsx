@@ -8,13 +8,9 @@ interface SectionRuleProps extends React.ComponentProps<"div"> {
 }
 
 /**
- * Encabezado de sección dentro de la app:
- *
- *   Título ───────────────────────────────── trailing
- *
- * El filete que une el título con el dato de la derecha es la misma
- * regla que separa todo lo demás: ata la sección al ritmo de la página
- * sin necesidad de meterla en una tarjeta.
+ * Encabezado de sección dentro de la app. Un título con peso real y,
+ * a la derecha, el dato que resume la sección. Sin filetes: la
+ * separación la da el espacio, que es más silencioso y escala mejor.
  */
 export function SectionRule({
   children,
@@ -25,15 +21,14 @@ export function SectionRule({
   return (
     <div
       data-slot="section-rule"
-      className={cn("flex items-center gap-4", className)}
+      className={cn("flex items-baseline justify-between gap-4", className)}
       {...props}
     >
-      <h2 className="shrink-0 text-[15px] font-semibold text-foreground">
+      <h2 className="text-[19px] font-bold tracking-[-0.02em] text-foreground">
         {children}
       </h2>
-      <span aria-hidden className="h-px min-w-4 flex-1 bg-border" />
       {trailing ? (
-        <span className="label-micro shrink-0 text-muted-foreground">
+        <span className="shrink-0 text-[13px] font-semibold text-muted-foreground">
           {trailing}
         </span>
       ) : null}

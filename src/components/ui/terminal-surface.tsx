@@ -8,8 +8,7 @@ interface TerminalSurfaceProps {
   title?: React.ReactNode;
   /** Icon rendered before the title. */
   icon?: LucideIcon;
-  /** macOS-style window dots, for editor-like surfaces. */
-  dots?: boolean;
+
   /** Right-aligned header content (status, meta). */
   trailing?: React.ReactNode;
   /** Diagonal scan sweep while compiling/running. */
@@ -30,7 +29,6 @@ interface TerminalSurfaceProps {
 export function TerminalSurface({
   title,
   icon: Icon,
-  dots,
   trailing,
   running,
   hideHeader,
@@ -42,7 +40,7 @@ export function TerminalSurface({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal font-mono text-terminal-fg",
+        "relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal font-mono text-terminal-fg",
         running && "scan-sweep",
         className,
       )}
@@ -50,23 +48,16 @@ export function TerminalSurface({
       {hideHeader ? null : (
         <div
           className={cn(
-            "relative flex items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4 py-2",
+            "relative flex items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4 py-2.5",
             headerClassName,
           )}
         >
-          <span className="label-micro flex min-w-0 items-center gap-2 text-terminal-muted">
-            {dots ? (
-              <span className="mr-1 flex gap-1.5" aria-hidden>
-                <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
-                <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
-                <span className="size-2 rounded-[1px] bg-terminal-success/80" />
-              </span>
-            ) : null}
+          <span className="flex min-w-0 items-center gap-2 font-sans text-[12px] font-bold uppercase tracking-[0.05em] text-terminal-muted">
             {Icon ? <Icon className="size-3.5 shrink-0" aria-hidden /> : null}
             {title ? <span className="truncate">{title}</span> : null}
           </span>
           {trailing ? (
-            <span className="shrink-0 text-[11px] text-terminal-muted">
+            <span className="shrink-0 font-sans text-[12px] font-semibold text-terminal-muted">
               {trailing}
             </span>
           ) : null}

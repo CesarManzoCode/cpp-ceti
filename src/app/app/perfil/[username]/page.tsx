@@ -74,22 +74,22 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-2xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
+      className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
-      <header className="border-b border-border pb-6">
+      <header>
         <div className="flex items-start gap-4">
-          <Avatar className="size-14 shrink-0 ring-1 ring-inset ring-border sm:size-16">
+          <Avatar className="size-16 shrink-0 ring-1 ring-inset ring-border sm:size-20">
             {profile.image ? (
               <AvatarImage src={profile.image} alt={profile.name} />
             ) : null}
-            <AvatarFallback className="bg-primary-soft text-lg text-primary-soft-foreground">
-              {initials || <UserIcon className="size-6" />}
+            <AvatarFallback className="bg-primary-soft text-xl font-bold text-primary-soft-foreground">
+              {initials || <UserIcon className="size-7" />}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-              <h1 className="truncate text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px]">
+              <h1 className="truncate text-[24px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
                 {profile.name}
               </h1>
               {isSelf ? (
@@ -98,10 +98,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
                 </Badge>
               ) : null}
             </div>
-            <p className="mt-1 font-mono text-sm text-muted-foreground">
+            <p className="mt-1 font-mono text-[15px] text-muted-foreground">
               @{profile.username}
             </p>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground/80">
+            <p className="mt-1 text-[13px] font-medium text-subtle-foreground">
               Miembro desde {memberSince}
             </p>
           </div>
@@ -120,7 +120,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
             {isSelf ? (
               <BioEditor initialBio={profile.bio ?? ""} />
             ) : (
-              <p className="max-w-[60ch] text-sm leading-relaxed text-foreground/90">
+              <p className="max-w-[60ch] text-[15px] leading-relaxed text-foreground">
                 {profile.bio}
               </p>
             )}
@@ -128,7 +128,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         ) : null}
       </header>
 
-      <LevelBar totalXp={profile.totalXp} className="mt-7 border-t-0" />
+      <LevelBar totalXp={profile.totalXp} className="mt-7" />
 
       <section className="mt-9">
         <SectionRule>Estadísticas</SectionRule>
@@ -140,12 +140,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
           <Readout
             label="Racha"
             mark={
-              <StreakFlame streak={profile.currentStreak} className="size-3.5" />
+              <StreakFlame streak={profile.currentStreak} className="size-4" />
             }
             value={
               <>
                 <AnimatedNumber value={profile.currentStreak} />
-                <span className="ml-1 text-base text-muted-foreground">
+                <span className="ml-1 text-[17px] font-semibold text-muted-foreground">
                   {pluralize(profile.currentStreak, "día", "días")}
                 </span>
               </>

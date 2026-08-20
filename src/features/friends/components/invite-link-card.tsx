@@ -57,8 +57,8 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs leading-relaxed text-muted-foreground">
+    <div className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
+      <p className="text-[14px] leading-relaxed text-muted-foreground">
         Cualquiera con este link puede mandarte solicitud con un clic.
       </p>
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -66,7 +66,7 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
           readOnly
           value={inviteUrl}
           onFocus={(e) => e.currentTarget.select()}
-          className="font-mono text-xs"
+          className="font-mono text-[13px]"
           aria-label="Link de invitación"
         />
         <div className="flex gap-2 sm:shrink-0">
