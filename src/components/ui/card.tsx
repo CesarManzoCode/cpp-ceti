@@ -3,23 +3,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Panel. Se usa poco a propósito: la separación por defecto en este
+ * producto es el espacio y el filete, no un rectángulo flotante. Un
+ * panel se justifica cuando su contenido es un objeto distinto del
+ * flujo de la página (un formulario, un diálogo embebido, un resultado).
+ */
 const cardVariants = cva(
-  "rounded-[var(--radius-lg)] border bg-card text-card-foreground transition-[border-color,box-shadow,background-color] duration-200 ease-[var(--ease-out-quart)]",
+  "rounded-[var(--radius-lg)] border bg-card text-card-foreground transition-[border-color,background-color] duration-150",
   {
     variants: {
       variant: {
-        default: "border-border shadow-[var(--shadow-xs)]",
-        flat: "border-border shadow-none",
+        default: "border-border",
+        flat: "border-border",
         elevated: "border-border shadow-[var(--shadow-md)]",
         interactive: [
-          "border-border shadow-[var(--shadow-xs)] cursor-pointer",
-          "hover:border-border-strong hover:shadow-[var(--shadow-sm)]",
-          "focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
+          "border-border cursor-pointer",
+          "hover:border-border-strong hover:bg-surface-2/60",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         ].join(" "),
-        muted: "border-border/60 bg-surface-2 shadow-none",
-        // Card con borde degradado animado (gradient-border utility en globals).
-        // El border-border es transparente — el contorno lo dibuja el ::before.
-        gradient: "border-transparent gradient-border shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]",
+        muted: "border-border bg-surface-2",
       },
     },
     defaultVariants: { variant: "default" },
@@ -44,7 +47,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-header"
-      className={cn("flex flex-col gap-1.5 p-6", className)}
+      className={cn("flex flex-col gap-1.5 p-5", className)}
       {...props}
     />
   );
@@ -54,10 +57,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn(
-        "text-base font-semibold leading-tight tracking-tight",
-        className,
-      )}
+      className={cn("text-base font-semibold leading-tight", className)}
       {...props}
     />
   );
@@ -77,7 +77,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("p-6 pt-0", className)}
+      className={cn("p-5 pt-0", className)}
       {...props}
     />
   );
@@ -87,7 +87,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center p-6 pt-0", className)}
+      className={cn("flex items-center p-5 pt-0", className)}
       {...props}
     />
   );

@@ -15,11 +15,11 @@ const links: { href: string; label: string; external?: boolean }[] = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border bg-surface-2/60">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-10 sm:px-6 sm:flex-row">
+    <footer className="bg-background">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-5 py-8 sm:flex-row sm:px-6">
         <div className="flex flex-col items-center gap-2 sm:items-start">
           <Logo size="sm" />
-          <p className="text-xs text-muted-foreground">
+          <p className="font-mono text-[11px] text-muted-foreground">
             Hecho en Guadalajara · {new Date().getFullYear()}
           </p>
         </div>
@@ -32,7 +32,7 @@ export function LandingFooter() {
                 href={l.href}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="transition-colors hover:text-foreground"
+                className="underline decoration-transparent underline-offset-4 transition-[color,text-decoration-color] hover:text-foreground hover:decoration-border-strong"
               >
                 {l.label}
               </a>
@@ -40,7 +40,7 @@ export function LandingFooter() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="transition-colors hover:text-foreground"
+                className="underline decoration-transparent underline-offset-4 transition-[color,text-decoration-color] hover:text-foreground hover:decoration-border-strong"
               >
                 {l.label}
               </Link>
@@ -50,9 +50,7 @@ export function LandingFooter() {
 
         <p className="text-center text-xs text-muted-foreground sm:text-right">
           Proyecto independiente.{" "}
-          <span className="font-medium text-foreground">
-            No oficial del CETI.
-          </span>
+          <span className="text-foreground">No oficial del CETI.</span>
         </p>
       </div>
     </footer>

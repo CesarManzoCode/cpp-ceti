@@ -4,8 +4,8 @@ import * as React from "react";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
 import { Markdown } from "@/components/shared/markdown";
+import { StepActions } from "@/features/lessons/components/step-shell";
 import type { TheoryStepContent } from "@/features/lessons/types";
 
 interface StepTheoryProps {
@@ -30,7 +30,7 @@ export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
       <Markdown>{content.markdown}</Markdown>
 
       {content.mediaUrl ? (
-        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface-2">
+        <div className="overflow-hidden border border-border bg-surface-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={content.mediaUrl}
@@ -40,21 +40,12 @@ export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">
-        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
-          <Kbd>Enter</Kbd>
-          para continuar
-        </span>
-        <Button
-          onClick={onNext}
-          loading={isPending}
-          size="lg"
-          className="ml-auto"
-        >
+      <StepActions hint="para continuar">
+        <Button onClick={onNext} loading={isPending} size="lg">
           Continuar
           <ArrowRight />
         </Button>
-      </div>
+      </StepActions>
     </article>
   );
 }

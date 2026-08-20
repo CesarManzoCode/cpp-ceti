@@ -26,17 +26,17 @@ export function Markdown({ children, className }: MarkdownProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h1 className="mb-4 mt-8 text-3xl font-bold tracking-tight first:mt-0">
+            <h1 className="mb-4 mt-8 text-[26px] font-semibold tracking-[-0.02em] first:mt-0">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="mb-3 mt-8 text-2xl font-semibold tracking-tight first:mt-0">
+            <h2 className="mb-3 mt-8 text-[21px] font-semibold tracking-[-0.018em] first:mt-0">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mb-2 mt-6 text-xl font-semibold first:mt-0">{children}</h3>
+            <h3 className="mb-2 mt-6 text-[17px] font-semibold first:mt-0">{children}</h3>
           ),
           p: ({ children }) => (
             <p className="my-4 max-w-[68ch] text-base leading-relaxed text-foreground/90 first:mt-0 last:mb-0">
@@ -59,7 +59,7 @@ export function Markdown({ children, className }: MarkdownProps) {
           a: ({ children, href }) => (
             <a
               href={href}
-              className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+              className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
               target={href?.startsWith("http") ? "_blank" : undefined}
               rel={href?.startsWith("http") ? "noreferrer noopener" : undefined}
             >
@@ -67,7 +67,7 @@ export function Markdown({ children, className }: MarkdownProps) {
             </a>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="my-4 max-w-[68ch] rounded-r-[var(--radius-xs)] border-l-[3px] border-primary bg-primary/8 px-4 py-2.5 italic text-foreground dark:bg-primary/12">
+            <blockquote className="my-4 max-w-[68ch] border-l-2 border-primary py-1 pl-4 text-foreground">
               {children}
             </blockquote>
           ),
@@ -92,22 +92,22 @@ export function Markdown({ children, className }: MarkdownProps) {
             );
           },
           pre: ({ children }) => (
-            <pre className="my-5 overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal p-4 font-mono text-[13px] leading-relaxed text-terminal-fg">
+            <pre className="my-5 overflow-x-auto rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal p-4 font-mono text-[13px] leading-relaxed text-terminal-fg">
               {children}
             </pre>
           ),
           table: ({ children }) => (
-            <div className="my-6 w-full overflow-x-auto rounded-[var(--radius-md)] border border-border">
+            <div className="my-6 w-full overflow-x-auto border-y border-border">
               <table className="w-full border-collapse text-sm">{children}</table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-border bg-surface-2/60 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <th className="label-micro border-b border-border bg-surface-2 px-3 py-2 text-left text-muted-foreground">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-border/60 px-3 py-2 text-sm">
+            <td className="border-b border-border px-3 py-2 text-sm">
               {children}
             </td>
           ),

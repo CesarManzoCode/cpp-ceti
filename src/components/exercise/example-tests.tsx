@@ -7,10 +7,9 @@ export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-baseline justify-between gap-3">
-        <h4 className="text-sm font-semibold tracking-tight text-foreground">
-          Ejemplos
-        </h4>
+      <div className="flex items-center gap-3">
+        <h4 className="label-micro text-muted-foreground">Ejemplos</h4>
+        <span aria-hidden className="h-px flex-1 bg-border" />
         <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
           {tests.length} {tests.length === 1 ? "caso" : "casos"}
         </span>
@@ -21,10 +20,10 @@ export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
             key={t.id}
             className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-card text-sm"
           >
-            <div className="border-b border-border/70 bg-surface-2/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Ejemplo {idx + 1}
+            <div className="label-micro flex flex-wrap items-baseline gap-2 border-b border-border bg-surface-2 px-3 py-2 text-muted-foreground">
+              Ejemplo {String(idx + 1).padStart(2, "0")}
               {t.description ? (
-                <span className="ml-2 font-normal normal-case tracking-normal text-muted-foreground/80">
+                <span className="font-sans text-[11px] normal-case tracking-normal text-muted-foreground/80">
                   {t.description}
                 </span>
               ) : null}

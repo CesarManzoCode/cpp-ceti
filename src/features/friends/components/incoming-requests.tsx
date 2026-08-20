@@ -21,8 +21,8 @@ export function IncomingRequests({ requests }: IncomingRequestsProps) {
   if (requests.length === 0) {
     return (
       <section className="space-y-2">
-        <h3 className="text-sm font-semibold tracking-tight">Entrantes</h3>
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-6 text-center">
+        <h3 className="label-micro text-muted-foreground">Entrantes</h3>
+        <div className="border border-dashed border-border px-5 py-6 text-center">
           <Inbox className="mx-auto size-6 text-muted-foreground/40" aria-hidden />
           <p className="mt-2 text-xs text-muted-foreground">
             No tienes solicitudes pendientes.
@@ -35,7 +35,7 @@ export function IncomingRequests({ requests }: IncomingRequestsProps) {
   return (
     <section className="space-y-2">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold tracking-tight">Entrantes</h3>
+        <h3 className="label-micro text-muted-foreground">Entrantes</h3>
         <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
           {requests.length}
         </span>
@@ -73,7 +73,7 @@ function IncomingRow({ request }: { request: PendingRequest }) {
 
   if (resolved) {
     return (
-      <li className="rounded-[var(--radius-lg)] border border-border/60 bg-surface-2/40 p-3 text-xs text-muted-foreground">
+      <li className="border-b border-border py-3 text-xs text-muted-foreground last:border-b-0">
         {resolved === "accepted"
           ? `Aceptaste a @${request.user.username}.`
           : `Rechazaste la solicitud de @${request.user.username}.`}
@@ -82,21 +82,21 @@ function IncomingRow({ request }: { request: PendingRequest }) {
   }
 
   return (
-    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 shadow-[var(--shadow-xs)]">
+    <li className="flex items-center gap-3 border-b border-border py-3 last:border-b-0">
       <Link
         href={`/app/perfil/${request.user.username}`}
-        className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="shrink-0 rounded-[var(--radius-xs)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <FriendAvatar name={request.user.name} image={request.user.image} />
       </Link>
       <div className="min-w-0 flex-1">
         <Link
           href={`/app/perfil/${request.user.username}`}
-          className="block truncate text-sm font-semibold tracking-tight hover:underline"
+          className="block truncate text-sm font-medium underline decoration-transparent underline-offset-4 hover:decoration-border-strong"
         >
           {request.user.name}
         </Link>
-        <p className="truncate text-xs text-muted-foreground">
+        <p className="truncate font-mono text-[11px] text-muted-foreground">
           @{request.user.username} · {relativeFromNow(request.createdAt)}
         </p>
       </div>

@@ -9,28 +9,29 @@ export const metadata = {
 export default function RegisterPage() {
   return (
     <div data-page-enter className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.025em] sm:text-[32px]">
-          Crea tu cuenta
+      <div>
+        <p className="label-micro text-muted-foreground">Crear cuenta</p>
+        <h1 className="mt-3 text-[26px] font-semibold leading-tight tracking-[-0.025em] sm:text-[30px]">
+          Empieza a escribir C++
         </h1>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          Empieza a programar C++ en menos de un minuto. Sin tarjeta.
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Toma menos de un minuto. Sin tarjeta.
         </p>
       </div>
 
       <RegisterForm />
 
-      <div className="space-y-3 border-t border-border/70 pt-5 text-center">
+      <div className="space-y-3 border-t border-border pt-5">
         <p className="text-sm text-muted-foreground">
           ¿Ya tienes cuenta?{" "}
           <Link
             href="/login"
-            className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+            className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
           >
             Inicia sesión
           </Link>
         </p>
-        <p className="text-xs text-muted-foreground/80">
+        <p className="text-xs leading-relaxed text-muted-foreground/80">
           Al registrarte aceptas que tus datos se usen únicamente para tu
           progreso académico.
         </p>

@@ -7,7 +7,8 @@ import { ChevronLeft, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { StepRuler } from "@/components/ui/step-ruler";
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { completeStep } from "@/features/lessons/actions";
 import { cn } from "@/lib/utils";
@@ -64,6 +65,7 @@ export function LessonViewer({
     url.searchParams.set("p", String(currentIndex + 1));
     window.history.replaceState(null, "", url.toString());
   }, [currentIndex]);
+
   const [isPending, startTransition] = React.useTransition();
   const [completedDialog, setCompletedDialog] = React.useState<{
     open: boolean;
@@ -73,12 +75,10 @@ export function LessonViewer({
   const router = useRouter();
   const total = lesson.steps.length;
   const currentStep = lesson.steps[currentIndex];
-  // "Trabajo completado": llena al avanzar de paso, llega a 100% solo al cerrar.
-  const progressPercent = (currentIndex / total) * 100;
   const isFirstStep = currentIndex === 0;
   // Los retos de código necesitan más ancho para el editor que la lectura.
   const isWideStep = currentStep?.type === "code_challenge";
-  const containerMax = isWideStep ? "max-w-6xl" : "max-w-4xl";
+  const containerMax = isWideStep ? "max-w-6xl" : "max-w-3xl";
 
   function scrollTop() {
     if (window.scrollY > 80) {
@@ -106,9 +106,7 @@ export function LessonViewer({
         }
       } catch (err) {
         toast.error(
-          err instanceof Error
-            ? err.message
-            : "No pudimos guardar tu progreso.",
+          err instanceof Error ? err.message : "No pudimos guardar tu progreso.",
         );
       }
     });
@@ -124,11 +122,13 @@ export function LessonViewer({
 
   return (
     <>
-      {/* Header sticky — fino y discreto (el Topbar global se oculta aquí) */}
-      <div className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+      {/* Barra del reproductor. La regla de pasos es el elemento central:
+          marca discreta por paso, la actual más alta. Contesta "¿cuánto
+          me falta?" sin tener que leer un porcentaje. */}
+      <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-sm">
         <div
           className={cn(
-            "mx-auto flex items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6",
+            "mx-auto flex items-center gap-3 px-3 py-2.5 sm:px-6",
             containerMax,
           )}
         >
@@ -137,11 +137,14 @@ export function LessonViewer({
               asChild
               size="sm"
               variant="ghost"
-              className="-ml-2 hidden sm:inline-flex"
+              className="-ml-2 shrink-0"
+              aria-label={`Volver a ${unit.title}`}
             >
               <Link href={`/app/u/${unit.slug}`}>
                 <ChevronLeft />
-                <span className="max-w-[20ch] truncate">{unit.title}</span>
+                <span className="hidden max-w-[18ch] truncate sm:inline">
+                  {unit.title}
+                </span>
               </Link>
             </Button>
           ) : (
@@ -151,72 +154,71 @@ export function LessonViewer({
               variant="ghost"
               onClick={handlePrev}
               disabled={isPending}
-              className="-ml-2"
+              className="-ml-2 shrink-0"
             >
               <ChevronLeft />
               <span className="hidden sm:inline">Anterior</span>
             </Button>
           )}
 
-          <div className="flex flex-1 items-center gap-3">
-            {!isFirstStep ? (
-              <span className="hidden min-w-0 truncate text-[13px] font-medium text-foreground/80 md:inline">
-                {lesson.title}
-              </span>
-            ) : null}
-            <Progress value={progressPercent} size="xs" className="flex-1" />
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <StepRuler total={total} current={currentIndex} className="flex-1" />
             <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
-              {currentIndex + 1}/{total}
+              {String(currentIndex + 1).padStart(2, "0")}
+              <span className="text-muted-foreground/50">
+                /{String(total).padStart(2, "0")}
+              </span>
             </span>
           </div>
 
-          <ReportBugDialog
-            target={
-              currentStep.type === "code_challenge" && currentStep.exercise
-                ? { kind: "exercise", exerciseId: currentStep.exercise.id }
-                : { kind: "lesson_step", lessonStepId: currentStep.id }
-            }
-          />
+          <div className="flex shrink-0 items-center">
+            <ReportBugDialog
+              target={
+                currentStep.type === "code_challenge" && currentStep.exercise
+                  ? { kind: "exercise", exerciseId: currentStep.exercise.id }
+                  : { kind: "lesson_step", lessonStepId: currentStep.id }
+              }
+            />
 
-          <Button
-            asChild
-            size="icon-sm"
-            variant="ghost"
-            aria-label="Salir de la lección"
-          >
-            <Link href="/app">
-              <X className="size-4" />
-            </Link>
-          </Button>
+            <Button
+              asChild
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Salir de la lección"
+            >
+              <Link href="/app">
+                <X className="size-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
       <div
         key={currentStep.id}
         className={cn(
-          "animate-slide-in-right mx-auto flex flex-col gap-8 px-5 py-7 sm:px-6 lg:py-9",
+          "animate-slide-in-right mx-auto flex flex-col gap-7 px-5 py-6 sm:px-6 lg:py-9",
           containerMax,
         )}
       >
-        {/* Title — solo en el primer paso para no repetir; resto muestra contexto */}
         {isFirstStep ? (
-          <header className="space-y-2">
-            <p className="eyebrow text-primary">
-              Unidad {unit.order.toString().padStart(2, "0")}
+          <header>
+            <p className="label-micro text-primary">
+              Unidad {unit.order.toString().padStart(2, "0")} · {unit.title}
             </p>
-            <h1 className="text-balance text-[26px] font-bold leading-tight tracking-[-0.025em] sm:text-[34px]">
-              {lesson.title}
+            <h1 className="mt-3 text-balance text-[26px] font-semibold leading-[1.12] tracking-[-0.025em] sm:text-[32px]">
+              <InlineCodeText>{lesson.title}</InlineCodeText>
             </h1>
             {lesson.description ? (
-              <p className="max-w-2xl text-pretty text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-2.5 max-w-[58ch] text-pretty text-[15px] leading-relaxed text-muted-foreground">
                 {lesson.description}
               </p>
             ) : null}
           </header>
         ) : (
           <header>
-            <p className="eyebrow text-muted-foreground">
-              Paso {currentIndex + 1} de {total} · {lesson.title}
+            <p className="label-micro text-muted-foreground">
+              {lesson.title.replace(/`/g, "")}
             </p>
           </header>
         )}

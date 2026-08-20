@@ -42,30 +42,30 @@ export function MobileSidebar({
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="flex w-[272px] flex-col bg-surface-2/30 p-0"
+        className="flex w-[276px] flex-col bg-background p-0"
       >
-        <SheetHeader className="flex h-16 justify-center border-b border-border/70 px-5">
+        <SheetHeader className="flex h-14 justify-center border-b border-border px-4">
           <SheetTitle>
             <Logo />
           </SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="flex-1 overflow-y-auto py-4">
           <SidebarNav
             units={units}
             onNavigate={handleNavigate}
             pendingFriendsCount={pendingFriendsCount}
           />
         </div>
-        <div className="border-t border-border/70 px-4 py-3">
+        <div className="border-t border-border px-4 py-2.5">
           <a
             href="https://github.com/CesarManzoCode/cpp-ceti/issues"
             target="_blank"
             rel="noreferrer noopener"
-            className="flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             <Bug className="size-3.5" aria-hidden />
             Reportar un bug
-            <span className="ml-auto text-[9px] font-medium uppercase tracking-wider opacity-70">
+            <span className="label-micro ml-auto text-muted-foreground/60">
               v0.1
             </span>
           </a>

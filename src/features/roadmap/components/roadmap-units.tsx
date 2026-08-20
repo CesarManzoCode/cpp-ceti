@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Check, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
@@ -11,66 +10,121 @@ export interface RoadmapUnitsProps {
 }
 
 /**
- * Roadmap del curso: cada unidad es una fila clara con número,
- * título, progreso y estado. Sin metáfora de git — sobrio, editorial.
+ * El temario como archivo fuente: canaleta con el ordinal y el estado a
+ * la izquierda del filete, contenido a la derecha. Es una lista, no una
+ * cuadrícula de tarjetas, porque las unidades son comparables y se leen
+ * en orden — el ojo baja por la columna de números.
  */
 export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
   void courseSlug;
 
   if (units.length === 0) {
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          Aún no hay unidades publicadas en el curso.
-        </p>
-      </div>
+      <p className="border border-dashed border-border px-5 py-8 text-center text-sm text-muted-foreground">
+        Aún no hay unidades publicadas en el curso.
+      </p>
     );
   }
 
   const headIndex = findHeadIndex(units);
 
   return (
-    <ol className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+    <ol className="gutter-list border-y border-border">
       {units.map((unit, idx) => {
         const completed =
           unit.lessonCount > 0 && unit.completedCount === unit.lessonCount;
         const inProgress =
           !completed && unit.completedCount > 0 && unit.published;
-        const isCurrent = idx === headIndex && unit.published;
-        const status: UnitStatus = completed
-          ? "completed"
-          : inProgress
-            ? "in_progress"
-            : "not_started";
+        const isNext = idx === headIndex && unit.published && !inProgress;
         const percent =
           unit.lessonCount === 0
             ? 0
             : Math.round((unit.completedCount / unit.lessonCount) * 100);
 
+        const status = completed
+          ? { text: "Completada", tone: "text-success" }
+          : inProgress
+            ? { text: "En curso", tone: "text-primary" }
+            : isNext
+              ? { text: "Siguiente", tone: "text-primary" }
+              : !unit.published
+                ? { text: "Próximamente", tone: "text-muted-foreground/70" }
+                : null;
+
+        const body = (
+          <>
+            <span className="flex items-start justify-center pr-3 pt-4">
+              <UnitMark
+                order={unit.order}
+                completed={completed}
+                inProgress={inProgress}
+                locked={!unit.published}
+              />
+            </span>
+
+            <span className="min-w-0 py-4 pl-4">
+              <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span className="label-micro text-muted-foreground">
+                  Unidad {String(unit.order).padStart(2, "0")}
+                </span>
+                {status ? (
+                  <span className={cn("label-micro", status.tone)}>
+                    {status.text}
+                  </span>
+                ) : null}
+              </span>
+
+              <span
+                className={cn(
+                  "mt-1.5 block text-[16px] font-semibold leading-snug sm:text-[17px]",
+                  unit.published ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {unit.title}
+              </span>
+
+              {unit.published && unit.lessonCount > 0 ? (
+                <span className="mt-2.5 flex max-w-[220px] items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="h-[3px] flex-1 overflow-hidden bg-surface-3"
+                  >
+                    <span
+                      className={cn(
+                        "block h-full transition-[width] duration-500",
+                        completed ? "bg-success" : "bg-primary",
+                      )}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
+                    {unit.completedCount}/{unit.lessonCount}
+                  </span>
+                </span>
+              ) : null}
+            </span>
+          </>
+        );
+
         return (
-          <li
-            key={unit.slug}
-            className="border-t border-border/70 first:border-t-0"
-          >
-            <UnitRow
-              href={unit.published ? `/app/u/${unit.slug}` : undefined}
-              order={unit.order}
-              title={unit.title}
-              completedCount={unit.completedCount}
-              lessonCount={unit.lessonCount}
-              percent={percent}
-              status={status}
-              isCurrent={isCurrent}
-              published={unit.published}
-            />
+          <li key={unit.slug} className="border-t border-border first:border-t-0">
+            {unit.published ? (
+              <Link
+                href={`/app/u/${unit.slug}`}
+                aria-label={`Unidad ${unit.order}: ${unit.title}`}
+                className="gutter-row transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+              >
+                {body}
+              </Link>
+            ) : (
+              <div className="gutter-row opacity-70">{body}</div>
+            )}
           </li>
         );
       })}
     </ol>
   );
 }
-
-type UnitStatus = "completed" | "in_progress" | "not_started";
 
 function findHeadIndex(units: RoadmapUnit[]): number {
   for (let i = 0; i < units.length; i++) {
@@ -83,143 +137,42 @@ function findHeadIndex(units: RoadmapUnit[]): number {
   return -1;
 }
 
-interface UnitRowProps {
-  href?: string;
-  order: number;
-  title: string;
-  completedCount: number;
-  lessonCount: number;
-  percent: number;
-  status: UnitStatus;
-  isCurrent: boolean;
-  published: boolean;
-}
-
-function UnitRow({
-  href,
+/**
+ * Marca de estado en la canaleta. La forma lleva la información: cuadro
+ * lleno = terminada, cuadro con núcleo = en curso, ordinal = pendiente,
+ * candado = sin publicar. El color sólo lo refuerza.
+ */
+function UnitMark({
   order,
-  title,
-  completedCount,
-  lessonCount,
-  percent,
-  status,
-  isCurrent,
-  published,
-}: UnitRowProps) {
-  const inner = (
-    <div
-      className={cn(
-        "group flex items-center gap-5 p-5 transition-colors sm:p-6",
-        href && "hover:bg-surface-2/60",
-        !published && "opacity-70",
-      )}
-    >
-      <UnitBadge
-        order={order}
-        status={status}
-        published={published}
-        isCurrent={isCurrent}
-      />
-
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="eyebrow text-muted-foreground">
-            Unidad {String(order).padStart(2, "0")}
-          </p>
-          {status === "in_progress" ? (
-            <span className="eyebrow text-primary">· En curso</span>
-          ) : isCurrent ? (
-            <span className="eyebrow text-primary">· Siguiente</span>
-          ) : null}
-          {status === "completed" ? (
-            <span className="eyebrow text-success">· Completada</span>
-          ) : null}
-          {!published ? (
-            <span className="eyebrow text-muted-foreground/80">
-              · Próximamente
-            </span>
-          ) : null}
-        </div>
-        <h3
-          className={cn(
-            "mt-1 text-[17px] font-semibold tracking-tight sm:text-lg",
-            (isCurrent || status === "in_progress") && "text-primary",
-          )}
-        >
-          {title}
-        </h3>
-        {published ? (
-          <div className="mt-3 flex items-center gap-3">
-            <Progress
-              value={percent}
-              size="sm"
-              tone={status === "completed" ? "success" : "primary"}
-              className="max-w-[220px] flex-1"
-            />
-            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-              {completedCount}/{lessonCount}
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      {href ? (
-        <ArrowRight
-          className="size-4 shrink-0 text-muted-foreground/50 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:text-muted-foreground/60"
-          aria-hidden
-        />
-      ) : null}
-    </div>
-  );
-
-  if (!href) return inner;
-
-  return (
-    <Link
-      href={href}
-      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-      aria-label={`Unidad ${order}: ${title}`}
-    >
-      {inner}
-    </Link>
-  );
-}
-
-function UnitBadge({
-  order,
-  status,
-  published,
-  isCurrent,
+  completed,
+  inProgress,
+  locked,
 }: {
   order: number;
-  status: UnitStatus;
-  published: boolean;
-  isCurrent: boolean;
+  completed: boolean;
+  inProgress: boolean;
+  locked: boolean;
 }) {
-  if (!published) {
-    return (
-      <span className="grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)] border border-dashed border-border bg-surface-2 text-muted-foreground/70">
-        <Lock className="size-4" aria-hidden />
-      </span>
-    );
+  if (locked) {
+    return <Lock className="size-3.5 text-muted-foreground/50" aria-hidden />;
   }
-  if (status === "completed") {
+  if (completed) {
+    return <span aria-hidden className="size-3 rounded-[1px] bg-success" />;
+  }
+  if (inProgress) {
     return (
-      <span className="grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)] bg-success text-success-foreground">
-        <Check className="size-5" strokeWidth={3} aria-hidden />
+      <span
+        aria-hidden
+        className="grid size-3 place-items-center rounded-[1px] border border-primary"
+      >
+        <span className="size-1.5 bg-primary" />
       </span>
     );
   }
   return (
     <span
-      className={cn(
-        "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)] font-mono text-[13px] font-bold tabular-nums",
-        status === "in_progress"
-          ? "bg-primary text-primary-foreground"
-          : isCurrent
-            ? "bg-primary-soft text-primary-soft-foreground ring-1 ring-inset ring-primary/30"
-            : "bg-surface-2 text-foreground/70",
-      )}
+      aria-hidden
+      className="font-mono text-[12px] tabular-nums text-muted-foreground/70"
     >
       {String(order).padStart(2, "0")}
     </span>

@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { Progress } from "@/components/ui/progress";
 import { RoadmapLessons } from "@/features/roadmap/components/roadmap-lessons";
 import { getDefaultCourse } from "@/features/roadmap/queries";
 import { getUnitBySlug } from "@/features/lessons/queries";
@@ -36,59 +33,58 @@ export default async function UnitPage({ params }: PageProps) {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-4xl space-y-8 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto max-w-3xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
     >
-      <header className="space-y-3">
-        <div className="flex items-center gap-3">
-          <ConsoleEyebrow tone="primary">
+      <header>
+        <p className="label-micro flex items-center gap-2.5 text-muted-foreground">
+          <span className="text-primary">
             Unidad {unit.order.toString().padStart(2, "0")}
-          </ConsoleEyebrow>
+          </span>
           {unitComplete ? (
-            <Badge variant="success" size="sm">
-              <Check className="size-3" strokeWidth={3} aria-hidden />
-              Completada
-            </Badge>
+            <>
+              <span aria-hidden className="h-px w-4 bg-border" />
+              <span className="text-success">Completada</span>
+            </>
           ) : null}
-        </div>
-        <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-[40px]">
+        </p>
+
+        <h1 className="mt-3 text-balance text-[28px] font-semibold leading-[1.1] tracking-[-0.028em] sm:text-[36px]">
           {unit.title}
         </h1>
+
         {unit.description ? (
-          <p className="max-w-2xl text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+          <p className="mt-3 max-w-[56ch] text-pretty text-[15px] leading-relaxed text-muted-foreground">
             {unit.description}
           </p>
         ) : null}
-        <div className="flex items-center gap-3 pt-2">
-          <Progress
-            value={percent}
-            tone={unitComplete ? "success" : "primary"}
-            className="max-w-xs"
-          />
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {completedCount}/{totalLessons}
-          </span>
-        </div>
+
+        {totalLessons > 0 ? (
+          <div className="mt-5 flex max-w-xs items-center gap-3">
+            <span aria-hidden className="h-[3px] flex-1 overflow-hidden bg-surface-3">
+              <span
+                className={
+                  "block h-full transition-[width] duration-500 " +
+                  (unitComplete ? "bg-success" : "bg-primary")
+                }
+                style={{ width: `${percent}%` }}
+              />
+            </span>
+            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+              {completedCount}/{totalLessons} lecciones
+            </span>
+          </div>
+        ) : null}
       </header>
 
       {unitComplete ? (
-        <div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-success/25 bg-success-soft/30 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-success text-success-foreground">
-              <Check className="size-5" strokeWidth={3} aria-hidden />
-            </span>
-            <div>
-              <p className="eyebrow text-success">Unidad completada</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Dominaste esta unidad. Sigue con lo que viene en tu camino.
-              </p>
-            </div>
+        <div className="mt-7 flex flex-col gap-4 border-l-2 border-success bg-success-soft/50 py-4 pl-4 pr-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="label-micro text-success">Unidad completada</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Dominaste esta unidad. Sigue con lo que viene en tu camino.
+            </p>
           </div>
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="self-start sm:self-auto"
-          >
+          <Button asChild variant="outline" size="sm" className="shrink-0 max-sm:w-full">
             <Link href="/app">
               Volver al inicio
               <ArrowRight />
@@ -97,21 +93,23 @@ export default async function UnitPage({ params }: PageProps) {
         </div>
       ) : null}
 
-      <RoadmapLessons
-        unitSlug={unit.slug}
-        unitOrder={unit.order}
-        lessons={unit.lessons.map((l) => ({
-          id: l.id,
-          slug: l.slug,
-          title: l.title,
-          description: l.description,
-          order: l.order,
-          xpReward: l.xpReward,
-          estimatedMinutes: l.estimatedMinutes,
-          stepCount: l.stepCount,
-          status: l.status,
-        }))}
-      />
+      <div className="mt-8">
+        <RoadmapLessons
+          unitSlug={unit.slug}
+          unitOrder={unit.order}
+          lessons={unit.lessons.map((l) => ({
+            id: l.id,
+            slug: l.slug,
+            title: l.title,
+            description: l.description,
+            order: l.order,
+            xpReward: l.xpReward,
+            estimatedMinutes: l.estimatedMinutes,
+            stepCount: l.stepCount,
+            status: l.status,
+          }))}
+        />
+      </div>
     </div>
   );
 }

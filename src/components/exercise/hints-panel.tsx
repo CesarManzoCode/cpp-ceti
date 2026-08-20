@@ -14,44 +14,48 @@ export function HintsPanel({ hints }: { hints: string[] }) {
   const remaining = hints.length - shown;
 
   return (
-    <div className="space-y-3 rounded-[var(--radius-md)] border border-warning/35 bg-warning-soft p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-semibold text-warning-foreground">
-          <Lightbulb className="size-4 text-warning" aria-hidden />
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <h4 className="label-micro flex items-center gap-1.5 text-warning">
+          <Lightbulb className="size-3.5" aria-hidden />
           Pistas
-          <span className="font-mono text-[11px] font-medium tabular-nums text-muted-foreground">
-            {shown}/{hints.length}
-          </span>
-        </p>
-        {remaining > 0 ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShown(shown + 1)}
-            className="-mr-1 text-warning-foreground hover:bg-warning/15 hover:text-warning-foreground"
-          >
-            {shown === 0 ? "Ver pista" : "Otra pista"}
-          </Button>
-        ) : null}
+        </h4>
+        <span aria-hidden className="h-px flex-1 bg-border" />
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+          {shown}/{hints.length}
+        </span>
       </div>
+
       {shown === 0 ? (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          ¿Atorado? Tenemos {hints.length}{" "}
-          {hints.length === 1 ? "pista" : "pistas"} progresivas. Se revelan una
-          por una para que sigas pensando.
+          ¿Atorado? Hay {hints.length}{" "}
+          {hints.length === 1 ? "pista" : "pistas"} y se revelan una por una,
+          para que sigas pensando entre cada una.
         </p>
       ) : (
-        <ul className="space-y-2 text-sm leading-relaxed text-foreground/90">
+        <ol className="space-y-2.5">
           {hints.slice(0, shown).map((hint, i) => (
             <li
               key={i}
-              className="rounded-[var(--radius-xs)] border-l-2 border-warning/70 bg-card/60 px-3 py-1.5"
+              className="flex gap-3 text-sm leading-relaxed text-foreground/90"
             >
-              {hint}
+              <span
+                aria-hidden
+                className="shrink-0 font-mono text-[11px] tabular-nums text-warning"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0">{hint}</span>
             </li>
           ))}
-        </ul>
+        </ol>
       )}
+
+      {remaining > 0 ? (
+        <Button size="sm" variant="outline" onClick={() => setShown(shown + 1)}>
+          {shown === 0 ? "Ver primera pista" : `Ver pista ${shown + 1}`}
+        </Button>
+      ) : null}
     </div>
   );
 }

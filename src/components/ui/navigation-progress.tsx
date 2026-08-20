@@ -155,7 +155,7 @@ export function NavigationProgress() {
       }}
     >
       <div
-        className="h-full origin-left bg-gradient-to-r from-primary via-primary to-primary/40 shadow-[0_0_8px_var(--primary)]"
+        className="h-full origin-left bg-primary"
         style={{
           transform: `scaleX(${progress / 100})`,
           transition: "transform 220ms cubic-bezier(0.22, 1, 0.36, 1)",

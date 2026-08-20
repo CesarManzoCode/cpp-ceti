@@ -51,15 +51,15 @@ export function CodePlayground({
 
       {showStdin ? (
         <div className="space-y-1.5">
-          <Label className="text-xs font-medium text-muted-foreground">
-            Entrada estándar (stdin)
+          <Label className="label-micro text-muted-foreground">
+            Entrada estándar · stdin
           </Label>
           <textarea
             value={stdin}
             onChange={(e) => setStdin(e.target.value)}
             placeholder="Valores que tu programa leerá con cin..."
             rows={3}
-            className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3 py-2 font-mono text-base transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-sm"
+            className="w-full rounded-[var(--radius-xs)] border border-input bg-surface px-3 py-2 font-mono text-base transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-sm"
           />
         </div>
       ) : null}
@@ -72,7 +72,7 @@ export function CodePlayground({
           size="lg"
         >
           <Play className="fill-current" />
-          {state === "running" ? "Ejecutando…" : "Ejecutar"}
+          {state === "running" ? "Compilando…" : "Compilar y ejecutar"}
         </Button>
         <Button
           onClick={handleReset}

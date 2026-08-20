@@ -2,61 +2,68 @@ import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
 
+/**
+ * Registro / inicio de sesión. El panel izquierdo no vende: recuerda qué
+ * es esto y qué vas a encontrar del otro lado. Sin fondos difusos —
+ * la misma tinta sobre papel que el resto del producto.
+ */
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
-      {/* Panel izquierdo: editorial con aurora + grid técnico */}
-      <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-border/60 bg-surface-2/40 p-12 lg:flex">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="aurora absolute inset-0 opacity-55 dark:opacity-85" />
-          <div className="bg-grid absolute inset-0 opacity-40 dark:opacity-25" />
-          <div className="bg-stars absolute inset-0 hidden opacity-40 dark:block" />
-        </div>
-
-        <Link href="/" className="relative z-10">
+    <div className="grid min-h-dvh lg:grid-cols-[1fr_1fr]">
+      <aside className="hidden flex-col justify-between border-r border-border bg-surface-2 p-10 lg:flex xl:p-14">
+        <Link
+          href="/"
+          className="-m-2 w-fit rounded-[var(--radius-xs)] p-2 transition-opacity hover:opacity-70"
+        >
           <Logo size="lg" />
         </Link>
 
-        <div className="relative z-10 max-w-md space-y-6">
-          <p className="eyebrow text-primary">Manifiesto</p>
-          <blockquote className="font-display text-balance text-[clamp(2rem,4vw,2.5rem)] font-bold leading-[1.08] tracking-[-0.035em] text-foreground">
-            Programar se aprende{" "}
-            <span className="text-gradient-primary">programando.</span>
-            <br />
-            <span className="text-muted-foreground">
-              Practicándolo hasta que se te queda.
-            </span>
-          </blockquote>
-          <p className="max-w-sm text-[15px] leading-relaxed text-muted-foreground">
-            Lecciones cortas, ejercicios reales y un compilador C++ en tu
+        <div className="max-w-md">
+          <p className="label-micro text-muted-foreground">La idea</p>
+          <p className="font-display mt-5 text-balance text-[clamp(1.75rem,3vw,2.25rem)]">
+            Programar se aprende programando.
+          </p>
+          <p className="mt-4 max-w-[44ch] text-[15px] leading-relaxed text-muted-foreground">
+            Lecciones cortas, ejercicios reales y un compilador de C++ en tu
             navegador. Hecho para estudiantes del CETI Guadalajara.
           </p>
+
+          <ul className="mt-9 border-t border-border">
+            {[
+              "Escribes código de verdad, no llenas cuestionarios",
+              "El compilador te dice qué falló y en qué línea",
+              "Tu avance, tu racha y tus XP quedan guardados",
+            ].map((item, i) => (
+              <li
+                key={item}
+                className="flex gap-4 border-b border-border py-3.5 text-sm leading-relaxed text-foreground/90"
+              >
+                <span
+                  aria-hidden
+                  className="shrink-0 font-mono text-[11px] tabular-nums text-primary"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <p className="relative z-10 text-xs text-muted-foreground">
+        <p className="font-mono text-[11px] text-muted-foreground">
           Proyecto independiente · No oficial del CETI
         </p>
       </aside>
 
-      {/* Panel derecho: form */}
-      <main className="relative flex flex-col px-5 py-8 sm:px-10">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 lg:hidden">
-          <div className="aurora absolute inset-0 opacity-40 dark:opacity-60" />
-          <div className="bg-grid absolute inset-0 opacity-30 dark:opacity-20" />
-        </div>
-        <div className="mb-9 lg:hidden">
+      <main className="flex flex-col px-5 py-8 sm:px-10">
+        <div className="mb-8 lg:hidden">
           <Link href="/" className="inline-block">
             <Logo />
           </Link>
-          <p className="eyebrow mt-5 text-primary/80">Manifiesto</p>
-          <p className="mt-1.5 max-w-sm text-[15px] font-medium leading-snug tracking-tight text-foreground">
-            Programar se aprende{" "}
-            <span className="text-gradient-primary">programando</span>.
-          </p>
         </div>
         <div className="m-auto w-full max-w-sm">{children}</div>
       </main>

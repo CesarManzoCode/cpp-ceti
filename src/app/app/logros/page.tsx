@@ -9,16 +9,14 @@ import {
   Lock,
   Sparkles,
   Star,
-  Trophy,
   Zap,
   type LucideIcon,
 } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
-import { Progress } from "@/components/ui/progress";
-import { StatTile } from "@/components/ui/stat-tile";
+import { Readout, ReadoutBar } from "@/components/ui/readout";
+import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import {
   getCompletedLessonsCount,
@@ -40,10 +38,10 @@ interface BadgeDef {
   tone: BadgeTone;
 }
 
-const TONE_TILE: Record<BadgeTone, string> = {
-  primary: "bg-primary-soft text-primary",
-  warning: "bg-warning-soft text-warning",
-  success: "bg-success-soft text-success",
+const TONE_MARK: Record<BadgeTone, string> = {
+  primary: "border-primary text-primary",
+  warning: "border-warning text-warning",
+  success: "border-success text-success",
 };
 
 export const metadata = {
@@ -166,47 +164,70 @@ export default async function LogrosPage() {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto max-w-3xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
     >
-      <header className="space-y-3">
-        <ConsoleEyebrow tone="primary">Logros</ConsoleEyebrow>
-        <h1 className="text-balance text-3xl font-bold tracking-[-0.025em] sm:text-[40px]">
-          Tu colección
+      <header className="border-b border-border pb-6">
+        <p className="label-micro text-muted-foreground">Tu colección</p>
+        <h1 className="mt-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.028em] sm:text-[34px]">
+          Logros
         </h1>
-        <p className="max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+        <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
           {unlocked.length === 0
-            ? "Cada lección y cada reto que completes desbloquea un trofeo. Tu colección empieza con un solo paso."
+            ? "Cada lección y cada reto que completes desbloquea un logro. La colección empieza con un solo paso."
             : `Llevas ${unlocked.length} de ${BADGES.length} ${pluralize(
                 BADGES.length,
                 "logro",
                 "logros",
               )}.`}
         </p>
-        {unlocked.length > 0 ? (
-          <div className="flex items-center gap-3 pt-2">
-            <Progress value={percent} tone="warning" className="max-w-xs" />
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {percent}%
-            </span>
-          </div>
-        ) : null}
+
+        <div className="mt-5 flex max-w-xs items-center gap-3">
+          <span aria-hidden className="h-[3px] flex-1 overflow-hidden bg-surface-3">
+            <span
+              className="block h-full bg-warning transition-[width] duration-500"
+              style={{ width: `${percent}%` }}
+            />
+          </span>
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+            {percent}%
+          </span>
+        </div>
       </header>
 
+      <ReadoutBar className="mt-8 border-t-0 pt-0">
+        <Readout
+          label="XP totales"
+          value={<AnimatedNumber value={stats.totalXp} />}
+        />
+        <Readout
+          label="Mejor racha"
+          mark={<StreakFlame streak={stats.longestStreak} className="size-3.5" />}
+          value={
+            <>
+              <AnimatedNumber value={stats.longestStreak} />
+              <span className="ml-1 text-base text-muted-foreground">
+                {pluralize(stats.longestStreak, "día", "días")}
+              </span>
+            </>
+          }
+        />
+        <Readout
+          className="col-span-2 sm:col-span-1"
+          label="Retos resueltos"
+          value={<AnimatedNumber value={exercisesPassed} />}
+        />
+      </ReadoutBar>
+
       {unlocked.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-[var(--radius-xl)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
-          <span className="grid size-12 place-items-center rounded-full bg-warning-soft text-warning">
-            <Trophy className="size-6" aria-hidden />
-          </span>
-          <div className="space-y-1">
-            <h2 className="text-base font-semibold">
-              Tu primer trofeo está a una lección de distancia
-            </h2>
-            <p className="mx-auto max-w-sm text-sm text-muted-foreground">
-              Completa cualquier lección para desbloquear “Primer paso” y echar
-              a andar tu racha.
-            </p>
-          </div>
-          <Button asChild size="sm" className="mt-1">
+        <div className="mt-8 border-l-2 border-primary py-1 pl-4">
+          <h2 className="text-[17px] font-semibold leading-snug">
+            Tu primer logro está a una lección de distancia
+          </h2>
+          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">
+            Completa cualquier lección para desbloquear “Primer paso” y echar a
+            andar tu racha.
+          </p>
+          <Button asChild size="sm" className="mt-4">
             <Link href="/app">
               Empezar una lección
               <ArrowRight />
@@ -215,138 +236,87 @@ export default async function LogrosPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-3" aria-label="Resumen">
-        <StatTile
-          icon={<Zap />}
-          label="XP totales"
-          value={<AnimatedNumber value={stats.totalXp} />}
-          tone="primary"
-        />
-        <StatTile
-          icon={<StreakFlame streak={stats.longestStreak} className="size-5" />}
-          label="Racha más larga"
-          value={
-            <>
-              <AnimatedNumber value={stats.longestStreak} />{" "}
-              <span className="text-base font-medium text-muted-foreground">
-                {pluralize(stats.longestStreak, "día", "días")}
-              </span>
-            </>
-          }
-          tone="warning"
-        />
-        <StatTile
-          icon={<Sparkles />}
-          label="Retos resueltos"
-          value={<AnimatedNumber value={exercisesPassed} />}
-          tone="success"
-        />
-      </section>
-
       {unlocked.length > 0 ? (
-        <section className="space-y-4">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Desbloqueados
-            </h2>
-            <span className="text-sm font-medium text-muted-foreground">
-              {unlocked.length}
-            </span>
-          </div>
-          <div
-            data-stagger
-            style={{ "--stagger": "40ms" } as CSSProperties}
-            className="grid gap-3 sm:grid-cols-2"
-          >
-            {unlocked.map((b, idx) => (
-              <div
-                key={b.id}
-                style={{ "--i": idx } as CSSProperties}
-                className="animate-fade-up"
-              >
-                <BadgeCard badge={b} unlocked />
-              </div>
-            ))}
-          </div>
+        <section className="mt-10">
+          <SectionRule trailing={`${unlocked.length}`}>
+            Desbloqueados
+          </SectionRule>
+          <BadgeList badges={unlocked} unlocked />
         </section>
       ) : null}
 
       {locked.length > 0 ? (
-        <section className="space-y-4">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Por desbloquear
-            </h2>
-            <span className="text-sm font-medium text-muted-foreground">
-              {locked.length}
-            </span>
-          </div>
-          <div
-            data-stagger
-            style={{ "--stagger": "30ms" } as CSSProperties}
-            className="grid gap-3 sm:grid-cols-2"
-          >
-            {locked.map((b, idx) => (
-              <div
-                key={b.id}
-                style={{ "--i": idx } as CSSProperties}
-                className="animate-fade-up"
-              >
-                <BadgeCard badge={b} unlocked={false} />
-              </div>
-            ))}
-          </div>
+        <section className="mt-10">
+          <SectionRule trailing={`${locked.length}`}>
+            Por desbloquear
+          </SectionRule>
+          <BadgeList badges={locked} unlocked={false} />
         </section>
       ) : null}
     </div>
   );
 }
 
-function BadgeCard({
-  badge,
+/**
+ * Logros como lista con canaleta: la marca de estado ocupa el mismo sitio
+ * que los ordinales del temario, así que "desbloqueado" se lee igual aquí
+ * que en el resto del producto.
+ */
+function BadgeList({
+  badges,
   unlocked,
 }: {
-  badge: BadgeDef;
+  badges: BadgeDef[];
   unlocked: boolean;
 }) {
-  const Icon = badge.icon;
   return (
-    <article
-      className={cn(
-        "flex items-start gap-4 rounded-[var(--radius-lg)] border bg-card p-5 transition-colors",
-        unlocked
-          ? "border-border hover:border-border-strong"
-          : "border-dashed border-border/80",
-      )}
+    <ul
+      data-stagger
+      style={{ "--stagger": "30ms" } as CSSProperties}
+      className="gutter-list mt-4 border-y border-border"
     >
-      <div
-        className={cn(
-          "grid size-11 shrink-0 place-items-center rounded-[var(--radius-md)]",
-          unlocked
-            ? TONE_TILE[badge.tone]
-            : "bg-surface-2 text-muted-foreground/70 ring-1 ring-inset ring-border/50",
-        )}
-      >
-        {unlocked ? (
-          <Icon className="size-5" aria-hidden />
-        ) : (
-          <Lock className="size-4" aria-hidden />
-        )}
-      </div>
+      {badges.map((badge, idx) => {
+        const Icon = badge.icon;
+        return (
+          <li
+            key={badge.id}
+            style={{ "--i": idx } as CSSProperties}
+            className="animate-fade-up gutter-row border-t border-border first:border-t-0"
+          >
+            <span className="flex items-start justify-center pr-3 pt-4">
+              <span
+                aria-hidden
+                className={cn(
+                  "grid size-7 place-items-center rounded-[var(--radius-xs)] border",
+                  unlocked
+                    ? TONE_MARK[badge.tone]
+                    : "border-dashed border-border text-muted-foreground/50",
+                )}
+              >
+                {unlocked ? (
+                  <Icon className="size-3.5" />
+                ) : (
+                  <Lock className="size-3" />
+                )}
+              </span>
+            </span>
 
-      <div className="min-w-0 flex-1 space-y-1">
-        <h3
-          className={cn(
-            "text-[15px] font-semibold tracking-tight",
-            unlocked ? "text-foreground" : "text-foreground/80",
-          )}
-        >
-          {badge.title}
-        </h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {unlocked ? badge.description : badge.hint}
-        </p>
-      </div>
-    </article>
+            <span className="min-w-0 py-4 pl-4">
+              <span
+                className={cn(
+                  "block text-[15px] font-semibold leading-snug",
+                  unlocked ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {badge.title}
+              </span>
+              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                {unlocked ? badge.description : badge.hint}
+              </span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

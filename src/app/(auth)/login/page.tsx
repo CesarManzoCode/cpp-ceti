@@ -12,11 +12,12 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div data-page-enter className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.025em] sm:text-[32px]">
+      <div>
+        <p className="label-micro text-muted-foreground">Iniciar sesión</p>
+        <h1 className="mt-3 text-[26px] font-semibold leading-tight tracking-[-0.025em] sm:text-[30px]">
           Bienvenido de nuevo
         </h1>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Continúa aprendiendo C++ donde lo dejaste.
         </p>
       </div>
@@ -25,13 +26,13 @@ export default function LoginPage() {
         <LoginForm />
       </Suspense>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="border-t border-border pt-5 text-sm text-muted-foreground">
         ¿No tienes cuenta?{" "}
         <Link
           href="/registro"
-          className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+          className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
         >
-          Regístrate gratis
+          Crea una gratis
         </Link>
       </p>
     </div>
@@ -41,7 +42,7 @@ export default function LoginPage() {
 function LoginFormSkeleton() {
   return (
     <div className="space-y-5">
-      <Skeleton className="h-11 w-full rounded-[var(--radius-sm)]" />
+      <Skeleton className="h-11 w-full" />
       <div className="flex items-center gap-3">
         <Skeleton className="h-px flex-1" />
         <Skeleton className="h-3 w-24" />
@@ -49,13 +50,13 @@ function LoginFormSkeleton() {
       </div>
       <div className="space-y-2">
         <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-11 w-full rounded-[var(--radius-sm)]" />
+        <Skeleton className="h-11 w-full" />
       </div>
       <div className="space-y-2">
         <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-11 w-full rounded-[var(--radius-sm)]" />
+        <Skeleton className="h-11 w-full" />
       </div>
-      <Skeleton className="h-11 w-full rounded-[var(--radius-sm)]" />
+      <Skeleton className="h-11 w-full" />
     </div>
   );
 }

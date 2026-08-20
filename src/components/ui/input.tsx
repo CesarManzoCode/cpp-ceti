@@ -33,7 +33,7 @@ function Input({
         "outline-none",
         hasAdornment
           ? "px-0"
-          : "rounded-[var(--radius-sm)] border border-input bg-surface px-3.5 transition-[border-color,box-shadow] focus-visible:border-primary/70 focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
+          : "rounded-[var(--radius-xs)] border border-input bg-surface px-3 transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)]",
         invalid && !hasAdornment && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20",
         className,
       )}
@@ -47,8 +47,8 @@ function Input({
     <div
       data-slot="input-wrapper"
       className={cn(
-        "flex h-11 w-full items-center gap-2.5 rounded-[var(--radius-sm)] border border-input bg-surface px-3.5 transition-[border-color,box-shadow]",
-        "focus-within:border-primary/70 focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
+        "flex h-11 w-full items-center gap-2.5 rounded-[var(--radius-xs)] border border-input bg-surface px-3 transition-[border-color,box-shadow]",
+        "focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
         invalid && "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
         props.disabled && "cursor-not-allowed opacity-60",
       )}

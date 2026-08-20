@@ -35,7 +35,7 @@ export function MobileNav({ links }: MobileNavProps) {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="flex w-[82%] max-w-xs flex-col p-0">
-        <SheetHeader className="border-b border-border/70 px-5 py-4">
+        <SheetHeader className="border-b border-border px-5 py-4">
           <SheetTitle>
             <Logo />
           </SheetTitle>
@@ -50,19 +50,19 @@ export function MobileNav({ links }: MobileNavProps) {
               key={link.href}
               href={link.href}
               onClick={close}
-              className="rounded-[var(--radius-sm)] px-3 py-2.5 text-[15px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="rounded-[var(--radius-xs)] px-3 py-3 text-[15px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex flex-col gap-2 border-t border-border/70 p-4">
+        <div className="flex flex-col gap-2 border-t border-border p-4">
           <Button asChild variant="outline" onClick={close}>
             <Link href="/login">Iniciar sesión</Link>
           </Button>
           <Button asChild onClick={close}>
-            <Link href="/registro">Empezar gratis</Link>
+            <Link href="/registro">Crear cuenta gratis</Link>
           </Button>
         </div>
       </SheetContent>

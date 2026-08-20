@@ -18,7 +18,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-foreground/40 backdrop-blur-md",
+        "fixed inset-0 z-50 bg-foreground/45",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className,
@@ -52,9 +52,9 @@ function DialogContent({
         <DialogPrimitive.Close
           aria-label="Cerrar"
           className={cn(
-            "absolute right-4 top-4 grid size-8 place-items-center rounded-full",
+            "absolute right-3 top-3 grid size-8 place-items-center rounded-[var(--radius-xs)]",
             "text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             "disabled:pointer-events-none",
           )}
         >
@@ -94,7 +94,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       className={cn(
-        "text-lg font-semibold leading-tight tracking-tight",
+        "text-lg font-semibold leading-tight",
         className,
       )}
       {...props}

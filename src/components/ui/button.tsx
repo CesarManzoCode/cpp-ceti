@@ -4,66 +4,44 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Botones a escuadra. La jerarquía la da el peso del relleno, no el
+ * tamaño del radio ni una sombra: sólido = la acción de la pantalla,
+ * contorno = alternativa, fantasma = navegación o descarte.
+ */
 const buttonVariants = cva(
   [
     "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--radius-sm)]",
-    "transition-[background,color,border-color,box-shadow,transform] duration-150 ease-[var(--ease-out-quart)]",
-    "disabled:pointer-events-none disabled:opacity-50",
-    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "rounded-[var(--radius-xs)]",
+    "transition-[background-color,color,border-color] duration-120 ease-[var(--ease-out-quart)]",
+    "disabled:pointer-events-none disabled:opacity-45",
+    "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0",
-    "select-none active:scale-[0.98] active:transition-transform active:duration-75",
+    "select-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        default: [
-          "bg-primary text-primary-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-primary/92 hover:shadow-[var(--shadow-sm)]",
-        ].join(" "),
-        // Premium gradient button — indigo→púrpura, inset highlight + sombra a color.
-        // Pensado para CTAs principales (hero, final-CTA, conversion moments).
-        // Si va envuelto en `<span class="glow-primary">`, el halo difuso se compone alrededor.
-        glow: [
-          "text-primary-foreground",
-          "bg-[linear-gradient(135deg,var(--primary)_0%,var(--brand-2)_100%)]",
-          "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.18),0_6px_22px_-6px_var(--brand-glow)]",
-          "hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.22),0_10px_30px_-6px_var(--brand-glow)]",
-          "border border-white/10",
-        ].join(" "),
-        destructive: [
-          "bg-destructive text-destructive-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-destructive/92 hover:shadow-[var(--shadow-sm)]",
-        ].join(" "),
-        success: [
-          "bg-success text-success-foreground shadow-[var(--shadow-xs)]",
-          "hover:bg-success/92 hover:shadow-[var(--shadow-sm)]",
-        ].join(" "),
-        outline: [
-          "border border-border bg-transparent text-foreground",
-          "hover:bg-accent hover:border-border-strong",
-        ].join(" "),
-        secondary: [
-          "bg-secondary text-secondary-foreground border border-border/60",
-          "hover:bg-accent hover:border-border",
-        ].join(" "),
-        soft: [
-          "bg-primary-soft text-primary-soft-foreground",
-          "hover:bg-primary-soft/80",
-        ].join(" "),
-        ghost: [
-          "text-muted-foreground hover:bg-accent hover:text-foreground",
-        ].join(" "),
-        link: "text-primary underline-offset-4 hover:underline px-0 h-auto active:scale-100",
+        default: "bg-primary text-primary-foreground hover:bg-primary/88",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/88",
+        success: "bg-success text-success-foreground hover:bg-success/88",
+        outline:
+          "border border-border-strong bg-transparent text-foreground hover:bg-accent",
+        secondary:
+          "border border-border bg-surface-2 text-secondary-foreground hover:bg-accent hover:border-border-strong",
+        soft: "bg-primary-soft text-primary-soft-foreground hover:bg-primary-soft/75",
+        ghost: "text-muted-foreground hover:bg-accent hover:text-foreground",
+        link: "text-foreground underline decoration-border-strong decoration-1 underline-offset-4 hover:decoration-current px-0 h-auto",
       },
       size: {
-        xs: "h-7 px-2.5 text-xs gap-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "h-9 px-3.5 text-sm",
-        default: "h-10 px-4 text-sm",
-        lg: "h-11 px-5 text-[15px]",
-        xl: "h-12 px-6 text-base rounded-[var(--radius-md)]",
-        icon: "h-10 w-10",
-        "icon-sm": "h-9 w-9",
+        xs: "h-7 px-2 text-xs gap-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-8 px-3 text-[13px]",
+        default: "h-9 px-3.5 text-sm",
+        lg: "h-10 px-4 text-sm",
+        xl: "h-12 px-5 text-[15px]",
+        icon: "h-9 w-9",
+        "icon-sm": "h-8 w-8",
         "icon-xs": "h-7 w-7 [&_svg:not([class*='size-'])]:size-3.5",
       },
     },

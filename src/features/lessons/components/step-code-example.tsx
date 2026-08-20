@@ -4,11 +4,11 @@ import * as React from "react";
 import { ArrowRight, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
 import { TerminalSurface } from "@/components/ui/terminal-surface";
 import { Markdown } from "@/components/shared/markdown";
 import { CodePlayground } from "@/components/editor/code-playground";
 import { CppEditor } from "@/components/editor/cpp-editor";
+import { StepActions } from "@/features/lessons/components/step-shell";
 import type { CodeExampleStepContent } from "@/features/lessons/types";
 
 interface StepCodeExampleProps {
@@ -56,16 +56,12 @@ export function StepCodeExample({
         </TerminalSurface>
       ) : null}
 
-      <div className="flex items-center justify-between gap-2 border-t border-border/70 pt-6">
-        <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
-          <Kbd>Enter</Kbd>
-          para continuar
-        </span>
-        <Button onClick={onNext} loading={isPending} size="lg" className="ml-auto">
+      <StepActions hint="para continuar">
+        <Button onClick={onNext} loading={isPending} size="lg">
           Continuar
           <ArrowRight />
         </Button>
-      </div>
+      </StepActions>
     </article>
   );
 }
