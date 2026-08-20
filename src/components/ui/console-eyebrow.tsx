@@ -17,8 +17,8 @@ const toneColor = {
 } as const;
 
 /**
- * Eyebrow editorial: uppercase, tight letterspacing, no decoration.
- * Used as section labels across landing + internal pages.
+ * Micro-etiqueta monoespaciada en versalitas. La única mayúscula del
+ * sistema: marca secciones y estados sin robarle peso al título.
  */
 export function ConsoleEyebrow({
   tone = "muted",
@@ -31,7 +31,7 @@ export function ConsoleEyebrow({
   return (
     <span
       data-slot="eyebrow"
-      className={cn("eyebrow inline-block", toneColor[tone], className)}
+      className={cn("label-micro inline-block", toneColor[tone], className)}
       {...props}
     >
       {children}

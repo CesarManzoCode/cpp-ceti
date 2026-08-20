@@ -288,7 +288,7 @@ export function RegisterForm() {
       {formError ? (
         <p
           key={errorNonce}
-          className="animate-fade-in flex items-start gap-2 rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft px-3 py-2 text-sm text-destructive"
+          className="animate-fade-in flex items-start gap-2 border-l-2 border-destructive py-1 pl-3 text-sm text-destructive"
           role="alert"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -343,7 +343,7 @@ function Divider({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative my-1 flex items-center">
       <span className="h-px flex-1 bg-border" aria-hidden />
-      <span className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+      <span className="label-micro px-3 text-muted-foreground">
         {children}
       </span>
       <span className="h-px flex-1 bg-border" aria-hidden />

@@ -4,28 +4,32 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Etiqueta de estado. Rectangular y monoespaciada: es un dato
+ * (dificultad, veredicto, disponibilidad), no un adorno. El color
+ * refuerza, pero el texto solo ya basta para leer el estado.
+ */
 const badgeVariants = cva(
   [
-    "inline-flex items-center gap-1 rounded-full border font-medium whitespace-nowrap",
-    "transition-[background-color,border-color,color] duration-150",
-    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] border whitespace-nowrap",
+    "font-mono font-medium uppercase tracking-[0.08em]",
+    "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
   ].join(" "),
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary-soft text-primary-soft-foreground",
+        default: "border-primary/30 bg-primary-soft text-primary-soft-foreground",
         secondary: "border-border bg-surface-2 text-muted-foreground",
-        success: "border-transparent bg-success-soft text-success",
-        warning: "border-transparent bg-warning-soft text-warning",
-        destructive: "border-transparent bg-destructive-soft text-destructive",
-        info: "border-transparent bg-info-soft text-info",
-        outline: "border-border text-foreground bg-transparent",
+        success: "border-success/30 bg-success-soft text-success",
+        warning: "border-warning/30 bg-warning-soft text-warning",
+        destructive: "border-destructive/30 bg-destructive-soft text-destructive",
+        info: "border-info/30 bg-info-soft text-info",
+        outline: "border-border-strong bg-transparent text-foreground",
       },
       size: {
-        sm: "px-2 py-0.5 text-[10px] tracking-wide [&_svg]:size-3",
-        md: "px-2.5 py-0.5 text-xs [&_svg]:size-3.5",
-        lg: "px-3 py-1 text-sm [&_svg]:size-4",
+        sm: "px-1.5 py-0.5 text-[10px] [&_svg]:size-2.5",
+        md: "px-2 py-0.5 text-[11px] [&_svg]:size-3",
+        lg: "px-2.5 py-1 text-xs [&_svg]:size-3.5",
       },
     },
     defaultVariants: { variant: "default", size: "md" },

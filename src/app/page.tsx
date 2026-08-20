@@ -18,8 +18,8 @@ export default function HomePage() {
         <StatsBar />
         <Why />
         <HowItWorks />
-        <LessonTypes />
         <Curriculum />
+        <LessonTypes />
         <Faq />
         <FinalCta />
       </main>

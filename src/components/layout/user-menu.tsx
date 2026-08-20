@@ -64,14 +64,14 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full"
+          className="rounded-[var(--radius-xs)]"
           aria-label="Abrir menú de usuario"
         >
-          <Avatar className="size-8 ring-1 ring-inset ring-border">
+          <Avatar className="size-7 rounded-[var(--radius-xs)] ring-1 ring-inset ring-border">
             {user.image ? (
               <AvatarImage src={user.image} alt={user.name} />
             ) : null}
-            <AvatarFallback className="bg-primary-soft text-xs font-semibold text-primary-soft-foreground">
+            <AvatarFallback className="rounded-[var(--radius-xs)] bg-primary-soft font-mono text-[11px] font-medium text-primary-soft-foreground">
               {initials || <UserIcon className="size-4" />}
             </AvatarFallback>
           </Avatar>
@@ -117,7 +117,7 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
           <Users className="size-4" />
           <span className="flex-1">Amigos</span>
           {pendingFriendsCount > 0 ? (
-            <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 font-mono text-[10px] font-semibold tabular-nums text-primary-foreground">
+            <span className="grid h-4 min-w-4 place-items-center rounded-[var(--radius-xs)] bg-primary px-1 font-mono text-[10px] font-medium tabular-nums text-primary-foreground">
               {pendingFriendsCount}
             </span>
           ) : null}

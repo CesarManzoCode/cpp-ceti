@@ -105,41 +105,42 @@ export function UserSearch({ meUsername }: UserSearchProps) {
       />
 
       {trimmed.length === 0 ? (
-        <p className="text-center text-xs text-muted-foreground">
-          Tu handle es <span className="font-mono text-foreground">@{meUsername}</span>.
+        <p className="text-xs text-muted-foreground">
+          Tu handle es{" "}
+          <span className="font-mono text-foreground">@{meUsername}</span>.
           Compártelo para que otros te encuentren.
         </p>
       ) : trimmed.length < 2 ? (
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Escribe al menos 2 caracteres.
         </p>
       ) : searching ? (
-        <p className="text-center text-xs text-muted-foreground">Buscando…</p>
+        <p className="text-xs text-muted-foreground">Buscando…</p>
       ) : displayResults.length === 0 && displayHasSearched ? (
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Nadie con ese nombre. Revisa la ortografía o invítalos por link.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="border-y border-border">
           {displayResults.map((user) => (
             <li
               key={user.id}
-              className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 shadow-[var(--shadow-xs)]"
+              className="flex items-center gap-3 border-b border-border py-3 last:border-b-0"
             >
               <Link
                 href={`/app/perfil/${user.username}`}
-                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="shrink-0 rounded-[var(--radius-xs)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <FriendAvatar name={user.name} image={user.image} />
               </Link>
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/app/perfil/${user.username}`}
-                  className="block truncate text-sm font-semibold tracking-tight hover:underline"
+                  className="block truncate text-sm font-medium underline decoration-transparent underline-offset-4 hover:decoration-border-strong"
                 >
                   {user.name}
                 </Link>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="truncate font-mono text-[11px] text-muted-foreground">
                   @{user.username}
                 </p>
               </div>
@@ -161,9 +162,7 @@ function ResultAction({
 }) {
   if (user.state === "friends") {
     return (
-      <span className="font-mono text-[10px] uppercase tracking-wider text-success">
-        Amigos
-      </span>
+      <span className="label-micro text-success">Amigos</span>
     );
   }
   if (user.state === "pending_outgoing") {

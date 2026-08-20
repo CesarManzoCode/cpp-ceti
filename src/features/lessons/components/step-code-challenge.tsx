@@ -134,19 +134,21 @@ export function StepCodeChallenge({
     !solutionRevealed;
 
   return (
-    <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start">
+    <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
       {/* Enunciado — siempre primero (móvil y desktop col. izquierda) */}
       <section className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p className="label-micro text-primary">Reto de código</p>
+          <span aria-hidden className="h-px w-4 bg-border" />
           <Badge variant={DIFFICULTY_META[exercise.difficulty].variant} size="sm">
             {DIFFICULTY_META[exercise.difficulty].label}
           </Badge>
-          <span className="eyebrow inline-flex items-center gap-1 text-warning">
+          <span className="label-micro inline-flex items-center gap-1 text-warning">
             <Zap className="size-3" aria-hidden />
             +{exercise.xpReward} XP
           </span>
           {solutionRevealed ? (
-            <span className="eyebrow inline-flex items-center gap-1 text-muted-foreground">
+            <span className="label-micro text-muted-foreground">
               Solución revelada
             </span>
           ) : null}
@@ -178,7 +180,7 @@ export function StepCodeChallenge({
               className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Play className="fill-current" />
-              Probar
+              Compilar
             </Button>
             <Button
               variant="outline"
@@ -188,7 +190,7 @@ export function StepCodeChallenge({
               className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Send />
-              Enviar solución
+              Calificar solución
             </Button>
           </div>
           {diagnostics.length > 0 ? (

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { BookOpen, Sparkles } from "lucide-react";
 
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { relativeFromNow } from "@/lib/relative-time";
 import type { ActivityEvent } from "@/features/friends/queries";
 import { FriendAvatar } from "./friend-avatar";
@@ -14,10 +14,9 @@ interface ActivityFeedProps {
 export function ActivityFeed({ events, emptyHint = "friends" }: ActivityFeedProps) {
   if (events.length === 0) {
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-6 text-center">
-        <Sparkles className="mx-auto size-6 text-muted-foreground/40" aria-hidden />
-        <p className="mt-2 text-sm font-medium">Nada por aquí todavía</p>
-        <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">
+      <div className="border border-dashed border-border px-5 py-6 text-center">
+        <p className="text-sm font-medium">Nada por aquí todavía</p>
+        <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-muted-foreground">
           {emptyHint === "self"
             ? "Cuando completes una lección aparecerá aquí."
             : emptyHint === "friend"
@@ -29,7 +28,7 @@ export function ActivityFeed({ events, emptyHint = "friends" }: ActivityFeedProp
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="border-y border-border">
       {events.map((event, idx) => (
         <FeedRow key={`${event.kind}-${event.at.toISOString()}-${idx}`} event={event} />
       ))}
@@ -40,37 +39,36 @@ export function ActivityFeed({ events, emptyHint = "friends" }: ActivityFeedProp
 function FeedRow({ event }: { event: ActivityEvent }) {
   if (event.kind === "lesson_completed") {
     return (
-      <li className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3 shadow-[var(--shadow-xs)]">
+      <li className="flex items-start gap-3 border-b border-border py-3 last:border-b-0">
         <FriendAvatar
           name={event.user.name}
           image={event.user.image}
           className="size-8"
         />
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <p className="text-sm">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm leading-snug">
             <Link
               href={`/app/perfil/${event.user.username}`}
-              className="font-semibold tracking-tight text-foreground hover:underline"
+              className="font-medium text-foreground underline decoration-transparent underline-offset-4 hover:decoration-border-strong"
             >
               {event.user.name}
             </Link>{" "}
             <span className="text-muted-foreground">completó</span>{" "}
             <Link
               href={`/app/u/${event.lesson.unitSlug}/${event.lesson.lessonSlug}`}
-              className="font-medium text-foreground hover:underline"
+              className="font-medium text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
             >
-              {event.lesson.title}
+              <InlineCodeText>{event.lesson.title}</InlineCodeText>
             </Link>
           </p>
-          <p className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <BookOpen className="size-3" aria-hidden />
-              {event.lesson.unitTitle}
-            </span>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">
+            <span>{event.lesson.unitTitle}</span>
             <span aria-hidden className="text-muted-foreground/40">·</span>
-            <span className="font-mono tabular-nums">+{event.lesson.xpReward} XP</span>
+            <span className="text-warning">+{event.lesson.xpReward} XP</span>
             <span aria-hidden className="text-muted-foreground/40">·</span>
-            <time dateTime={event.at.toISOString()}>{relativeFromNow(event.at)}</time>
+            <time dateTime={event.at.toISOString()}>
+              {relativeFromNow(event.at)}
+            </time>
           </p>
         </div>
       </li>

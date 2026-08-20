@@ -1,5 +1,3 @@
-import { Plus } from "lucide-react";
-
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -36,55 +34,48 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section
-      id="preguntas"
-      className="border-b border-border/60 py-20 lg:py-28"
-    >
-      <Reveal className="mx-auto max-w-3xl px-5 sm:px-6">
+    <section id="preguntas" className="border-b border-border py-14 lg:py-20">
+      <Reveal className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
-          align="center"
-          eyebrow="dudas"
-          title={
-            <>
-              Preguntas que{" "}
-              <span className="text-gradient-primary">se hace todo mundo.</span>
-            </>
-          }
-          description="Si la tuya no está aquí, escríbenos."
-          className="mx-auto items-center"
+          eyebrow="Dudas"
+          title="Preguntas que se hace todo mundo."
         />
 
-        <div className="mt-14 divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+        {/* `details` nativo: cero JavaScript, funciona sin hidratar y el
+            teclado lo abre solo. El signo de la derecha es el único
+            indicador y cambia de + a −. */}
+        <div className="mt-10 max-w-3xl border-y border-border">
           {faqs.map((f) => (
             <details
               key={f.q}
-              className="group p-5 transition-colors open:bg-surface-2/60 sm:p-6 [&_summary::-webkit-details-marker]:hidden"
+              className="group border-b border-border last:border-b-0 [&_summary::-webkit-details-marker]:hidden"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">
-                <h3 className="text-[15px] font-semibold tracking-tight transition-colors group-open:text-foreground sm:text-[17px]">
+              <summary className="flex cursor-pointer list-none items-baseline justify-between gap-5 py-4 text-left">
+                <h3 className="text-[15px] font-medium leading-snug sm:text-base">
                   {f.q}
                 </h3>
                 <span
                   aria-hidden
-                  className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-[transform,background,border-color,color,box-shadow] duration-200 group-open:rotate-45 group-open:border-transparent group-open:bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] group-open:text-primary-foreground group-open:shadow-[0_4px_14px_-4px_var(--brand-glow)]"
+                  className="shrink-0 font-mono text-base leading-none text-muted-foreground transition-colors group-hover:text-foreground group-open:text-primary"
                 >
-                  <Plus className="size-3.5" strokeWidth={2.5} />
+                  <span className="group-open:hidden">+</span>
+                  <span className="hidden group-open:inline">−</span>
                 </span>
               </summary>
-              <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-muted-foreground">
+              <p className="max-w-[62ch] pb-5 text-[15px] leading-relaxed text-muted-foreground">
                 {f.a}
               </p>
             </details>
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
+        <p className="mt-8 max-w-3xl text-sm text-muted-foreground">
           ¿Otra pregunta?{" "}
           <a
             href="https://github.com/CesarManzoCode/cpp-ceti/issues"
             target="_blank"
             rel="noreferrer noopener"
-            className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+            className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
           >
             Abre un issue en GitHub
           </a>

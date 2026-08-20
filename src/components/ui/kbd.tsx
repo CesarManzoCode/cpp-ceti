@@ -11,8 +11,7 @@ function Kbd({ className, children, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       className={cn(
         "inline-flex items-center font-mono text-[0.7em] font-semibold tabular-nums leading-none",
-        "px-1.5 py-0.5 rounded-md border border-border bg-surface-2 text-foreground",
-        "shadow-[inset_0_-1px_0_var(--border)]",
+        "px-1.5 py-0.5 rounded-[var(--radius-xs)] border border-border-strong bg-surface-2 text-foreground",
         className,
       )}
       {...props}

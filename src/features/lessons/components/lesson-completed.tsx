@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Button } from "@/components/ui/button";
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,11 @@ interface LessonCompletedProps {
   unitHref: string;
 }
 
+/**
+ * Cierre de lección. El XP ganado se muestra como cifra grande —
+ * es la recompensa, así que es lo único grande del diálogo — y debajo
+ * queda clarísimo cuál es el siguiente paso.
+ */
 export function LessonCompleted({
   open,
   onOpenChange,
@@ -32,46 +38,42 @@ export function LessonCompleted({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="overflow-hidden p-0 sm:max-w-md">
-        <div className="px-7 pb-2 pt-8 text-center">
-          <div className="relative mx-auto w-fit">
+      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-sm">
+        <div className="px-6 pb-6 pt-7">
+          <p className="label-micro flex items-center gap-2 text-success">
             <span
               aria-hidden
-              className="animate-pulse-soft absolute inset-0 rounded-full bg-success/25 blur-xl"
-            />
-            <div className="animate-scale-in relative grid size-14 place-items-center rounded-full bg-success-soft text-success ring-4 ring-success/15">
-              <CheckCircle2 className="size-7" aria-hidden />
-            </div>
-          </div>
-
-          <DialogTitle className="mt-5 text-balance text-[22px] font-bold tracking-[-0.02em]">
+              className="grid size-4 place-items-center rounded-[1px] bg-success text-success-foreground"
+            >
+              <Check className="size-3" strokeWidth={3} />
+            </span>
             Lección completada
+          </p>
+
+          <DialogTitle className="mt-4 font-mono text-[40px] font-medium leading-none tabular-nums text-foreground">
+            +<AnimatedNumber value={xpEarned} />
+            <span className="ml-2 font-sans text-base font-medium text-muted-foreground">
+              XP
+            </span>
           </DialogTitle>
-          <DialogDescription className="mt-2 text-[15px]">
-            Sumaste{" "}
-            <span className="inline-flex items-center gap-1 font-semibold text-warning">
-              <Sparkles className="size-3.5" aria-hidden />+
-              <AnimatedNumber value={xpEarned} /> XP
-            </span>{" "}
-            a tu progreso.
+
+          <DialogDescription className="mt-3 text-sm leading-relaxed">
+            Sumados a tu progreso del curso.
           </DialogDescription>
         </div>
 
         {nextLessonLink ? (
-          <div className="mx-6 mt-4 rounded-[var(--radius-md)] border border-border bg-surface-2/60 p-3.5 text-left">
-            <p className="eyebrow text-muted-foreground">Siguiente</p>
-            <p className="mt-1 truncate text-sm font-medium text-foreground">
-              {nextLessonLink.title}
+          <div className="border-t border-border px-6 py-3.5">
+            <p className="label-micro text-muted-foreground">Siguiente</p>
+            <p className="mt-1.5 truncate text-sm font-medium text-foreground">
+              <InlineCodeText>{nextLessonLink.title}</InlineCodeText>
             </p>
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-2 px-6 pb-6 pt-4">
+        <div className="flex flex-col gap-2 border-t border-border p-4">
           {nextLessonLink ? (
-            <Button
-              size="lg"
-              onClick={() => router.push(nextLessonLink.href)}
-            >
+            <Button size="lg" onClick={() => router.push(nextLessonLink.href)}>
               Siguiente lección
               <ArrowRight />
             </Button>

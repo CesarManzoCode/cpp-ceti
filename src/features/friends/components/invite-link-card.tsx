@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, Link2, Share2 } from "lucide-react";
+import { Check, Copy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -57,18 +57,10 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
   }
 
   return (
-    <div className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] sm:p-5">
-      <div className="flex items-start gap-3">
-        <div className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-soft-foreground">
-          <Link2 className="size-4" aria-hidden />
-        </div>
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <p className="text-sm font-semibold tracking-tight">Tu link de invitación</p>
-          <p className="text-xs text-muted-foreground">
-            Cualquiera con este link puede mandarte solicitud con un clic.
-          </p>
-        </div>
-      </div>
+    <div className="space-y-3">
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        Cualquiera con este link puede mandarte solicitud con un clic.
+      </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           readOnly

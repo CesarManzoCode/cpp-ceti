@@ -1,20 +1,17 @@
 import { notFound, redirect } from "next/navigation";
-import { Sparkles, Trophy, User as UserIcon, Zap } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { LevelBar } from "@/components/ui/level-bar";
+import { Readout, ReadoutBar } from "@/components/ui/readout";
 import { SectionRule } from "@/components/ui/section-rule";
-import { StatTile } from "@/components/ui/stat-tile";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import {
-  getActivityFeed,
-  getPublicProfile,
-} from "@/features/friends/queries";
+import { getActivityFeed, getPublicProfile } from "@/features/friends/queries";
 import { ProfileActions } from "@/features/friends/components/profile-actions";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
 import { BioEditor } from "@/features/profile/components/bio-editor";
-import { levelFromXp } from "@/lib/level";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
 import {
@@ -59,7 +56,6 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const isSelf = profile.state === "self";
   const isFriend = profile.state === "friends";
 
-  const lvl = levelFromXp(profile.totalXp);
   const memberSince = new Date(profile.joinedAt).toLocaleDateString("es-MX", {
     day: "numeric",
     month: "long",
@@ -78,37 +74,22 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-3xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto max-w-2xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
     >
-      <header className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-[var(--shadow-sm)] sm:p-8">
-        {/* Aurora corner muy sutil + shine top — eleva el header sin saturar */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-32 -top-32 size-72 rounded-full bg-gradient-to-br from-primary/15 to-[color:var(--brand-2)]/15 opacity-70 blur-3xl" />
-        </div>
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[15%] top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
-        />
-        <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-          {/* Avatar con halo */}
-          <div className="relative">
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -inset-2 rounded-full bg-gradient-to-br from-primary/30 to-[color:var(--brand-2)]/30 opacity-70 blur-md dark:opacity-90"
-            />
-            <Avatar className="relative size-16 ring-2 ring-card ring-offset-2 ring-offset-[color:var(--primary)]/40 sm:size-20">
-              {profile.image ? (
-                <AvatarImage src={profile.image} alt={profile.name} />
-              ) : null}
-              <AvatarFallback className="bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-xl font-semibold text-primary-foreground sm:text-2xl">
-                {initials || <UserIcon className="size-7 sm:size-8" />}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+      <header className="border-b border-border pb-6">
+        <div className="flex items-start gap-4">
+          <Avatar className="size-14 shrink-0 ring-1 ring-inset ring-border sm:size-16">
+            {profile.image ? (
+              <AvatarImage src={profile.image} alt={profile.name} />
+            ) : null}
+            <AvatarFallback className="bg-primary-soft text-lg text-primary-soft-foreground">
+              {initials || <UserIcon className="size-6" />}
+            </AvatarFallback>
+          </Avatar>
 
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-start">
-              <h1 className="truncate text-[26px] font-bold tracking-[-0.03em] sm:text-[34px]">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              <h1 className="truncate text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[28px]">
                 {profile.name}
               </h1>
               {isSelf ? (
@@ -117,16 +98,15 @@ export default async function PublicProfilePage({ params }: PageProps) {
                 </Badge>
               ) : null}
             </div>
-            <p className="font-mono text-sm text-muted-foreground">
+            <p className="mt-1 font-mono text-sm text-muted-foreground">
               @{profile.username}
             </p>
-            <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80">
-              <Sparkles className="size-3" aria-hidden />
+            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground/80">
               Miembro desde {memberSince}
             </p>
           </div>
 
-          <div className="sm:shrink-0">
+          <div className="shrink-0">
             <ProfileActions
               userId={profile.id}
               username={profile.username}
@@ -135,88 +115,62 @@ export default async function PublicProfilePage({ params }: PageProps) {
           </div>
         </div>
 
-        {(profile.bio || isSelf) ? (
-          <div className="relative mt-5 border-t border-border/60 pt-4">
+        {profile.bio || isSelf ? (
+          <div className="mt-5">
             {isSelf ? (
               <BioEditor initialBio={profile.bio ?? ""} />
             ) : (
-              <p className="text-sm text-foreground/90">{profile.bio}</p>
+              <p className="max-w-[60ch] text-sm leading-relaxed text-foreground/90">
+                {profile.bio}
+              </p>
             )}
           </div>
         ) : null}
       </header>
 
-      <section
-        className="relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] sm:p-6"
-        aria-label={`Nivel actual: ${lvl.level}`}
-      >
-        <div className="relative flex flex-wrap items-center gap-4">
-          {/* Level badge premium — gradient bg + glow inset */}
-          <div className="relative grid size-14 shrink-0 place-items-center rounded-[var(--radius-lg)] bg-[linear-gradient(135deg,var(--primary),var(--brand-2))] text-base font-bold text-primary-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_6px_20px_-6px_var(--brand-glow)] sm:size-16 sm:text-lg">
-            Nv {lvl.level}
-          </div>
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="text-sm font-semibold tracking-tight">
-                Nivel {lvl.level}
-              </p>
-              <p className="font-mono text-[11px] tabular-nums text-muted-foreground">
-                {lvl.xpInCurrentLevel}/{lvl.xpForNextLevel} XP
-              </p>
-            </div>
-            <div
-              className="relative h-2.5 overflow-hidden rounded-full bg-border/70"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={lvl.xpForNextLevel}
-              aria-valuenow={lvl.xpInCurrentLevel}
-            >
-              <div
-                className="relative h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--brand-2))] shadow-[0_0_12px_0_var(--brand-glow)] transition-[width] duration-700"
-                style={{ width: `${Math.min(100, lvl.progress * 100)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <LevelBar totalXp={profile.totalXp} className="mt-7 border-t-0" />
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold tracking-tight">Estadísticas</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StatTile
-            icon={<Zap />}
+      <section className="mt-9">
+        <SectionRule>Estadísticas</SectionRule>
+        <ReadoutBar className="mt-4">
+          <Readout
             label="XP totales"
             value={<AnimatedNumber value={profile.totalXp} />}
-            tone="primary"
           />
-          <StatTile
-            icon={<StreakFlame streak={profile.currentStreak} className="size-5" />}
+          <Readout
             label="Racha"
+            mark={
+              <StreakFlame streak={profile.currentStreak} className="size-3.5" />
+            }
             value={
               <>
-                <AnimatedNumber value={profile.currentStreak} />{" "}
-                <span className="text-base font-medium text-muted-foreground">
+                <AnimatedNumber value={profile.currentStreak} />
+                <span className="ml-1 text-base text-muted-foreground">
                   {pluralize(profile.currentStreak, "día", "días")}
                 </span>
               </>
             }
             sub={`Mejor: ${profile.longestStreak} ${pluralize(profile.longestStreak, "día", "días")}`}
-            tone="warning"
           />
-          <StatTile
-            icon={<Trophy />}
+          <Readout
+            className="col-span-2 sm:col-span-1"
             label="Lecciones"
             value={<AnimatedNumber value={profile.completedLessons} />}
-            sub={`${profile.completedExercises} ${pluralize(profile.completedExercises, "reto resuelto", "retos resueltos")}`}
-            tone="success"
+            sub={`${profile.completedExercises} ${pluralize(
+              profile.completedExercises,
+              "reto resuelto",
+              "retos resueltos",
+            )}`}
           />
-        </div>
+        </ReadoutBar>
       </section>
 
       {isSelf || isFriend ? (
-        <section className="space-y-4">
+        <section className="mt-10">
           <SectionRule>Actividad reciente</SectionRule>
-          <ActivityFeed events={feed} emptyHint={isSelf ? "self" : "friend"} />
+          <div className="mt-4">
+            <ActivityFeed events={feed} emptyHint={isSelf ? "self" : "friend"} />
+          </div>
         </section>
       ) : null}
     </div>

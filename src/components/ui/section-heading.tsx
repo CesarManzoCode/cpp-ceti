@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { ConsoleEyebrow } from "@/components/ui/console-eyebrow";
 
 interface SectionHeadingProps
   extends Omit<React.ComponentProps<"div">, "title"> {
@@ -12,9 +11,9 @@ interface SectionHeadingProps
 }
 
 /**
- * Section heading editorial:
- *   eyebrow (uppercase 11px) → title (3xl-4xl) → description (15px)
- *   Tighter stack, more deliberate spacing.
+ * Encabezado de sección del sitio público. El eyebrow va numerado y
+ * monoespaciado, alineado a la izquierda por defecto: la página se lee
+ * como un índice, no como una sucesión de slides centrados.
  */
 function SectionHeading({
   eyebrow,
@@ -34,15 +33,17 @@ function SectionHeading({
       )}
       {...props}
     >
-      {eyebrow ? <ConsoleEyebrow tone="primary">{eyebrow}</ConsoleEyebrow> : null}
-      <h2 className="text-balance text-[28px] font-bold leading-[1.08] tracking-[-0.03em] sm:text-[40px]">
+      {eyebrow ? (
+        <span className="label-micro text-muted-foreground">{eyebrow}</span>
+      ) : null}
+      <h2 className="max-w-[22ch] text-balance text-[26px] font-semibold leading-[1.12] tracking-[-0.025em] sm:text-[34px]">
         {title}
       </h2>
       {description ? (
         <p
           className={cn(
-            "text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base",
-            align === "center" && "max-w-xl",
+            "max-w-[52ch] text-pretty text-[15px] leading-relaxed text-muted-foreground",
+            align === "center" && "mx-auto",
           )}
         >
           {description}

@@ -43,7 +43,7 @@ export function RunOutput({ state, result, error }: RunOutputProps) {
               (programa ejecutado sin salida)
             </p>
           ) : null}
-          <p className="text-[10px] uppercase tracking-[0.14em] text-terminal-faint">
+          <p className="text-[10px] uppercase tracking-[0.1em] text-terminal-faint">
             {result.message} · {result.durationMs}ms
           </p>
         </>

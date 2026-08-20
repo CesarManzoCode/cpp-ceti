@@ -1,19 +1,15 @@
 "use client";
 
 import * as React from "react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Eye,
-  RotateCcw,
-  XCircle,
-} from "lucide-react";
+import { ArrowRight, Check, Eye, RotateCcw, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { Markdown } from "@/components/shared/markdown";
 import { cn } from "@/lib/utils";
 import type { QuizStepContent } from "@/features/lessons/types";
+
+import { StepActions, StepHeader, Verdict } from "./step-shell";
 
 interface StepQuizProps {
   content: QuizStepContent;
@@ -74,16 +70,19 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
 
   return (
     <article className="space-y-7">
-      <header className="space-y-2">
-        <p className="eyebrow text-primary">Pregunta</p>
-        <h3 className="text-balance text-[22px] font-semibold leading-snug tracking-tight">
-          {content.question}
-        </h3>
-      </header>
+      <StepHeader label="Pregunta">
+        <h2 className="text-balance text-[20px] font-semibold leading-snug sm:text-[22px]">
+          <InlineCodeText>{content.question}</InlineCodeText>
+        </h2>
+      </StepHeader>
 
+      {/* Opciones en lista con canaleta: la letra vive a la izquierda del
+          filete, igual que los ordinales del temario. El estado se ve por
+          la marca y por el icono, no sólo por el color de fondo. */}
       <ul
         key={feedbackKey}
-        className="space-y-2"
+        className="gutter-list border-y border-border"
+        style={{ ["--gutter-w" as string]: "2.75rem" }}
         role="radiogroup"
         aria-label="Opciones"
       >
@@ -94,7 +93,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
           const showWrong = submitted && isSelected && !isThisCorrect;
 
           return (
-            <li key={idx}>
+            <li key={idx} className="border-t border-border first:border-t-0">
               <button
                 type="button"
                 role="radio"
@@ -102,45 +101,61 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
                 onClick={() => !submitted && setSelected(idx)}
                 disabled={submitted}
                 className={cn(
-                  "group flex w-full items-center gap-4 rounded-[var(--radius-md)] border bg-card p-4 text-left text-[15px] font-medium transition-all",
-                  "border-border",
-                  !submitted &&
-                    "hover:border-border-strong hover:bg-surface-2/60",
-                  isSelected &&
-                    !submitted &&
-                    "border-primary bg-primary-soft/50",
-                  showCorrect && "border-success bg-success-soft text-success",
-                  showWrong &&
-                    "animate-shake border-destructive bg-destructive-soft text-destructive",
-                  submitted &&
-                    !isSelected &&
-                    !isThisCorrect &&
-                    "opacity-50",
+                  "gutter-row w-full items-center text-left transition-colors",
+                  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                  !submitted && "hover:bg-surface-2",
+                  isSelected && !submitted && "bg-primary-soft/40",
+                  showCorrect && "bg-success-soft/60",
+                  showWrong && "animate-shake bg-destructive-soft/60",
+                  submitted && !isSelected && !isThisCorrect && "opacity-45",
                 )}
               >
-                <span
-                  className={cn(
-                    "grid size-8 shrink-0 place-items-center rounded-full border font-mono text-xs font-bold",
-                    "border-border bg-surface-2 text-foreground",
-                    isSelected &&
-                      !submitted &&
-                      "border-primary bg-primary text-primary-foreground",
-                    showCorrect &&
-                      "border-success bg-success text-success-foreground",
-                    showWrong &&
-                      "border-destructive bg-destructive text-destructive-foreground",
-                  )}
-                  aria-hidden
-                >
-                  {String.fromCharCode(65 + idx)}
+                <span className="flex items-center justify-center pr-3">
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "grid size-6 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
+                      showCorrect
+                        ? "border-success bg-success text-success-foreground"
+                        : showWrong
+                          ? "border-destructive bg-destructive text-destructive-foreground"
+                          : isSelected
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border-strong bg-surface-2 text-muted-foreground",
+                    )}
+                  >
+                    {String.fromCharCode(65 + idx)}
+                  </span>
                 </span>
-                <span className="flex-1">{option}</span>
-                {showCorrect ? (
-                  <CheckCircle2 className="size-5 text-success" aria-hidden />
-                ) : null}
-                {showWrong ? (
-                  <XCircle className="size-5 text-destructive" aria-hidden />
-                ) : null}
+
+                <span className="flex items-center gap-3 py-3.5 pl-4 pr-3">
+                  <span
+                    className={cn(
+                      "min-w-0 flex-1 text-[15px]",
+                      showCorrect
+                        ? "font-medium text-success"
+                        : showWrong
+                          ? "font-medium text-destructive"
+                          : "text-foreground",
+                    )}
+                  >
+                    <InlineCodeText>{option}</InlineCodeText>
+                  </span>
+                  {showCorrect ? (
+                    <Check
+                      className="size-4 shrink-0 text-success"
+                      strokeWidth={3}
+                      aria-hidden
+                    />
+                  ) : null}
+                  {showWrong ? (
+                    <X
+                      className="size-4 shrink-0 text-destructive"
+                      strokeWidth={3}
+                      aria-hidden
+                    />
+                  ) : null}
+                </span>
               </button>
             </li>
           );
@@ -148,93 +163,55 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
       </ul>
 
       {perOptionFeedback ? (
-        <div className="rounded-[var(--radius-md)] border border-warning/40 bg-warning-soft p-4 text-sm">
-          <p className="mb-1 font-semibold text-warning-foreground">
-            No es por ahí:
-          </p>
-          <p className="text-foreground/90">{perOptionFeedback}</p>
-        </div>
+        <Verdict tone="hint" title="No es por ahí">
+          {perOptionFeedback}
+        </Verdict>
       ) : null}
 
       {submitted ? (
-        <div
+        <Verdict
           key={`fb-${feedbackKey}`}
-          className={cn(
-            "rounded-[var(--radius-md)] border p-5 animate-fade-up",
-            canProceed
-              ? "border-success/30 bg-success-soft"
-              : "border-warning/40 bg-warning-soft",
-            isCorrect && "animate-correct",
-          )}
+          tone={isCorrect ? "correct" : revealed ? "neutral" : "wrong"}
+          title={
+            isCorrect
+              ? "Correcto"
+              : revealed
+                ? "Respuesta revelada"
+                : "Aún no — repasa esto"
+          }
+          className={cn("animate-fade-up", isCorrect && "animate-correct")}
         >
-          <p
-            className={cn(
-              "mb-1.5 flex items-center gap-2 text-sm font-semibold",
-              canProceed ? "text-success" : "text-warning-foreground",
-            )}
-          >
-            {isCorrect ? (
-              <>
-                <CheckCircle2 className="size-4" aria-hidden />
-                Correcto
-              </>
-            ) : revealed ? (
-              <>
-                <Eye className="size-4" aria-hidden />
-                Respuesta revelada
-              </>
-            ) : (
-              <>
-                <XCircle className="size-4" aria-hidden />
-                Aún no — repasa esto
-              </>
-            )}
-          </p>
-          <div className="text-[15px] text-foreground/90">
-            <Markdown>{content.explanation}</Markdown>
-          </div>
-        </div>
+          <Markdown>{content.explanation}</Markdown>
+        </Verdict>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-6">
-        {canReveal ? (
-          <Button
-            onClick={revealAnswer}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Eye />
-            Ver respuesta correcta
+      <StepActions
+        hint={!submitted ? "para verificar" : canProceed ? "para continuar" : undefined}
+        leading={
+          canReveal ? (
+            <Button onClick={revealAnswer} variant="ghost" size="sm">
+              <Eye />
+              Ver respuesta correcta
+            </Button>
+          ) : null
+        }
+      >
+        {!submitted ? (
+          <Button onClick={handleCheck} disabled={selected === null} size="lg">
+            Verificar respuesta
           </Button>
-        ) : null}
-
-        <span className="ml-auto inline-flex items-center gap-3">
-          <span className="hidden text-xs text-muted-foreground sm:inline-flex sm:items-center sm:gap-1.5">
-            <Kbd>Enter</Kbd>
-            {!submitted ? "verificar" : canProceed ? "continuar" : ""}
-          </span>
-          {!submitted ? (
-            <Button onClick={handleCheck} disabled={selected === null} size="lg">
-              Verificar
-            </Button>
-          ) : canProceed ? (
-            <Button onClick={onNext} loading={isPending} size="lg">
-              Continuar
-              <ArrowRight />
-            </Button>
-          ) : (
-            <Button
-              onClick={() => setSubmitted(false)}
-              variant="outline"
-              size="lg"
-            >
-              <RotateCcw />
-              Intentar de nuevo
-            </Button>
-          )}
-        </span>
-      </div>
+        ) : canProceed ? (
+          <Button onClick={onNext} loading={isPending} size="lg">
+            Continuar
+            <ArrowRight />
+          </Button>
+        ) : (
+          <Button onClick={() => setSubmitted(false)} variant="outline" size="lg">
+            <RotateCcw />
+            Intentar de nuevo
+          </Button>
+        )}
+      </StepActions>
     </article>
   );
 }

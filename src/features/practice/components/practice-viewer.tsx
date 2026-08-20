@@ -117,7 +117,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <div className="mx-auto max-w-6xl space-y-6 px-5 py-5 sm:px-6 lg:px-8 lg:py-7">
       <header className="space-y-3">
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
           <Link href="/app/ejercicios">
@@ -126,14 +126,14 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
           </Link>
         </Button>
 
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-          <div className="space-y-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-border pb-4">
+          <div className="space-y-1.5">
             {exercise.unitTitle ? (
-              <p className="eyebrow text-muted-foreground">
+              <p className="label-micro text-muted-foreground">
                 {exercise.unitTitle}
               </p>
             ) : null}
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.025em] sm:text-[30px]">
               {exercise.title}
             </h1>
           </div>
@@ -164,7 +164,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         </div>
       </header>
 
-      <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-start">
+      <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
         {/* Enunciado — siempre primero */}
         <section className="space-y-4">
           <Markdown>{exercise.prompt}</Markdown>
@@ -189,7 +189,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
               className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Play className="fill-current" />
-              Probar
+              Compilar
             </Button>
             <Button
               variant="outline"
@@ -199,7 +199,7 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
               className="h-11 flex-1 sm:h-9 sm:flex-none"
             >
               <Send />
-              Enviar
+              Calificar
             </Button>
             <Button
               variant="ghost"

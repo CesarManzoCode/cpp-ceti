@@ -22,8 +22,8 @@ export default function GlobalError({
           padding: "2rem",
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-          background: "#0d1014",
-          color: "#e9eaee",
+          background: "#14171e",
+          color: "#f2f2f0",
         }}
       >
         <div style={{ maxWidth: 420, textAlign: "center" }}>
@@ -42,12 +42,12 @@ export default function GlobalError({
               style={{
                 display: "grid",
                 placeItems: "center",
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: "#7185f0",
-                color: "#0e1430",
-                fontWeight: 700,
+                width: 34,
+                height: 26,
+                borderRadius: 2,
+                background: "#8fa8ee",
+                color: "#131a2b",
+                fontWeight: 600,
                 fontFamily: "ui-monospace, SFMono-Regular, monospace",
                 fontSize: 11,
               }}
@@ -59,7 +59,7 @@ export default function GlobalError({
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             Algo salió mal
           </h1>
-          <p style={{ color: "#9ca3af", fontSize: 14, marginBottom: 20 }}>
+          <p style={{ color: "#a3a8b4", fontSize: 14, marginBottom: 20 }}>
             Hubo un error inesperado. Intenta recargar la página.
           </p>
           {error?.digest ? (
@@ -67,7 +67,7 @@ export default function GlobalError({
               style={{
                 fontFamily: "ui-monospace, SFMono-Regular, monospace",
                 fontSize: 11,
-                color: "#6b7280",
+                color: "#767c8a",
                 marginBottom: 20,
               }}
             >
@@ -77,11 +77,11 @@ export default function GlobalError({
           <button
             onClick={reset}
             style={{
-              background: "#7185f0",
-              color: "#0e1430",
+              background: "#8fa8ee",
+              color: "#131a2b",
               border: 0,
               padding: "10px 18px",
-              borderRadius: 10,
+              borderRadius: 2,
               fontWeight: 600,
               fontSize: 14,
               cursor: "pointer",

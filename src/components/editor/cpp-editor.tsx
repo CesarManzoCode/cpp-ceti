@@ -3,7 +3,6 @@
 import * as React from "react";
 import dynamic from "next/dynamic";
 import type * as Monaco from "monaco-editor";
-import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
 import { BrandSpinner } from "@/components/ui/brand-spinner";
@@ -52,9 +51,9 @@ export function CppEditor({
   diagnostics,
   ariaLabel,
 }: CppEditorProps) {
-  const { resolvedTheme } = useTheme();
-  const monacoTheme =
-    resolvedTheme === "dark" ? "cpp-ceti-dark" : "cpp-ceti-light";
+  // La consola es oscura en ambos temas — igual que TerminalSurface y el
+  // panel de salida. El código se lee sobre el mismo fondo siempre, así el
+  // resaltado de sintaxis significa lo mismo de día y de noche.
   const editorRef = React.useRef<Monaco.editor.IStandaloneCodeEditor | null>(
     null,
   );
@@ -107,26 +106,26 @@ export function CppEditor({
       role="region"
       aria-label={ariaLabel ?? "Editor de C++"}
       className={cn(
-        "group/editor flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] transition-colors focus-within:border-primary/70 focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
+        "group/editor flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-[var(--terminal-bg)] transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-[var(--primary-ring)]",
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3.5 py-2">
+      <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-3 py-2">
         <span className="flex items-center gap-2">
-          <span className="flex gap-1.5" aria-hidden>
-            <span className="size-2.5 rounded-full bg-terminal-danger/90" />
-            <span className="size-2.5 rounded-full bg-terminal-warning/90" />
-            <span className="size-2.5 rounded-full bg-terminal-success/90" />
+          <span className="flex gap-1" aria-hidden>
+            <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
+            <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
+            <span className="size-2 rounded-[1px] bg-terminal-success/80" />
           </span>
           <span className="font-mono text-[11px] text-terminal-muted">
             main.cpp
           </span>
         </span>
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-3">
           <span className="hidden font-mono text-[10px] text-terminal-faint sm:inline">
             Ctrl+Enter para ejecutar
           </span>
-          <span className="eyebrow text-terminal-faint">C++</span>
+          <span className="label-micro text-terminal-faint">C++</span>
         </span>
       </div>
       <div style={{ height: `min(${minHeight}px, 70svh)` }}>
@@ -134,50 +133,33 @@ export function CppEditor({
           height="100%"
           language="cpp"
           value={value}
-          theme={monacoTheme}
+          theme="cpp-ceti-dark"
           onChange={(v) => onChange?.(v ?? "")}
           beforeMount={(monaco) => {
             // Temas — defineTheme es idempotente (reemplaza con el mismo nombre).
+            // Paleta espejo de las variables --syntax-* de globals.css.
+            // Si cambias una, cambia la otra.
             monaco.editor.defineTheme("cpp-ceti-dark", {
               base: "vs-dark",
               inherit: true,
               rules: [
-                { token: "comment", foreground: "6b7280", fontStyle: "italic" },
-                { token: "keyword", foreground: "c084fc" },
-                { token: "string", foreground: "86efac" },
-                { token: "number", foreground: "fbbf24" },
-                { token: "type", foreground: "60a5fa" },
+                { token: "comment", foreground: "6d7686", fontStyle: "italic" },
+                { token: "keyword", foreground: "f0967c" },
+                { token: "string", foreground: "9ed6a6" },
+                { token: "number", foreground: "e9c46a" },
+                { token: "type", foreground: "90b8ec" },
               ],
               colors: {
-                "editor.background": "#0f141d",
-                "editor.foreground": "#e5e7eb",
-                "editorLineNumber.foreground": "#3f4754",
-                "editorLineNumber.activeForeground": "#9ca3af",
-                "editor.selectionBackground": "#3b82f64d",
-                "editor.lineHighlightBackground": "#1a2230",
-                "editor.lineHighlightBorder": "#1a223000",
-                "editorCursor.foreground": "#7aa2ff",
-                "editorIndentGuide.background": "#1f2937",
-                "editorIndentGuide.activeBackground": "#374151",
-              },
-            });
-            monaco.editor.defineTheme("cpp-ceti-light", {
-              base: "vs",
-              inherit: true,
-              rules: [
-                { token: "comment", foreground: "6b7280", fontStyle: "italic" },
-                { token: "keyword", foreground: "7c3aed" },
-                { token: "string", foreground: "15803d" },
-                { token: "number", foreground: "b45309" },
-                { token: "type", foreground: "1d4ed8" },
-              ],
-              colors: {
-                "editor.background": "#ffffff",
-                "editor.foreground": "#0f172a",
-                "editorLineNumber.foreground": "#cbd5e1",
-                "editorLineNumber.activeForeground": "#475569",
-                "editor.lineHighlightBackground": "#f8fafc",
-                "editor.lineHighlightBorder": "#f8fafc00",
+                "editor.background": "#14171e",
+                "editor.foreground": "#eceded",
+                "editorLineNumber.foreground": "#454c5a",
+                "editorLineNumber.activeForeground": "#9aa2b1",
+                "editor.selectionBackground": "#3f6bd44d",
+                "editor.lineHighlightBackground": "#1b1f28",
+                "editor.lineHighlightBorder": "#1b1f2800",
+                "editorCursor.foreground": "#8fb8f0",
+                "editorIndentGuide.background": "#232833",
+                "editorIndentGuide.activeBackground": "#39404e",
               },
             });
 
@@ -254,7 +236,7 @@ export function CppEditor({
           options={{
             fontSize,
             fontFamily:
-              "var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace",
+              "var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace",
             fontLigatures: true,
             minimap: { enabled: false },
             scrollBeyondLastLine: false,

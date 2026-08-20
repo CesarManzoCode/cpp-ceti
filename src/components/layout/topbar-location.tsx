@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import type { RoadmapUnit } from "@/features/roadmap/types";
@@ -10,6 +9,7 @@ import type { RoadmapUnit } from "@/features/roadmap/types";
 const STATIC_LABELS: Record<string, string> = {
   "/app": "Inicio",
   "/app/ejercicios": "Ejercicios",
+  "/app/amigos": "Amigos",
   "/app/logros": "Logros",
   "/app/perfil": "Perfil",
 };
@@ -29,6 +29,9 @@ function resolve(
   if (seg[1] === "ejercicios" && seg[2]) {
     return { label: "Ejercicio", hasParent: true };
   }
+  if (seg[1] === "perfil" && seg[2]) {
+    return { label: `@${seg[2]}`, hasParent: true };
+  }
   return { label: "Inicio", hasParent: false };
 }
 
@@ -46,7 +49,7 @@ export function TopbarLocation({ units }: { units: RoadmapUnit[] }) {
       <Link
         href="/app"
         aria-label="Ir a Inicio"
-        className="shrink-0 rounded-[var(--radius-sm)] transition-opacity hover:opacity-80 md:hidden"
+        className="shrink-0 rounded-[var(--radius-xs)] transition-opacity hover:opacity-70 md:hidden"
       >
         <Logo glyphOnly />
       </Link>
@@ -63,13 +66,15 @@ export function TopbarLocation({ units }: { units: RoadmapUnit[] }) {
             >
               Inicio
             </Link>
-            <ChevronRight
-              className="hidden size-3.5 shrink-0 text-muted-foreground/40 sm:block"
+            <span
               aria-hidden
-            />
+              className="hidden shrink-0 font-mono text-xs text-muted-foreground/50 sm:inline"
+            >
+              /
+            </span>
           </>
         ) : null}
-        <span className="truncate font-semibold tracking-tight text-foreground">
+        <span className="truncate font-medium text-foreground">
           {label}
         </span>
       </nav>

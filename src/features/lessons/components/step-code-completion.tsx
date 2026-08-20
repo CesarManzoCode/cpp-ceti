@@ -18,6 +18,8 @@ import { renderTokens, tokenizeCpp } from "@/features/lessons/lib/cpp-syntax";
 import { cn } from "@/lib/utils";
 import type { CodeCompletionStepContent } from "@/features/lessons/types";
 
+import { StepActions, StepHeader, Verdict } from "./step-shell";
+
 interface StepCodeCompletionProps {
   content: CodeCompletionStepContent;
   onNext: () => void;
@@ -97,30 +99,29 @@ export function StepCodeCompletion({
 
   return (
     <article className="space-y-7">
-      <header className="space-y-2">
-        <p className="eyebrow text-primary">Reordena el código</p>
+      <StepHeader label="Reordena el código">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h3 className="text-balance text-xl font-semibold tracking-tight">
+          <h2 className="text-balance text-[20px] font-semibold leading-snug">
             Acomoda las líneas en el orden correcto.
-          </h3>
+          </h2>
         )}
-      </header>
+      </StepHeader>
 
       <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--terminal-border)] bg-terminal">
         <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-terminal-elevated px-4 py-2 text-[11px] text-terminal-muted">
           <span className="flex items-center gap-2 font-mono">
-            <span className="flex gap-1.5" aria-hidden>
-              <span className="size-2.5 rounded-full bg-terminal-danger/90" />
-              <span className="size-2.5 rounded-full bg-terminal-warning/90" />
-              <span className="size-2.5 rounded-full bg-terminal-success/90" />
+            <span className="flex gap-1" aria-hidden>
+              <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
+              <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
+              <span className="size-2 rounded-[1px] bg-terminal-success/80" />
             </span>
             main.cpp
           </span>
-          <span className="font-mono uppercase tracking-[0.14em]">orden</span>
+          <span className="font-mono uppercase tracking-[0.1em]">orden</span>
         </div>
         <ol className="font-mono text-[13px] leading-[1.7] text-terminal-fg">
           {items.map((line, idx) => {
@@ -148,7 +149,7 @@ export function StepCodeCompletion({
                       onClick={() => move(idx, -1)}
                       disabled={idx === 0}
                       aria-label={`Subir línea ${idx + 1}`}
-                      className="grid size-7 place-items-center rounded text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
+                      className="grid size-8 place-items-center rounded-[1px] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
                     >
                       <ArrowUp className="size-3.5" aria-hidden />
                     </button>
@@ -157,7 +158,7 @@ export function StepCodeCompletion({
                       onClick={() => move(idx, 1)}
                       disabled={idx === items.length - 1}
                       aria-label={`Bajar línea ${idx + 1}`}
-                      className="grid size-7 place-items-center rounded text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
+                      className="grid size-8 place-items-center rounded-[1px] text-terminal-muted hover:bg-terminal-elevated hover:text-terminal-fg disabled:opacity-30"
                     >
                       <ArrowDown className="size-3.5" aria-hidden />
                     </button>
@@ -181,69 +182,56 @@ export function StepCodeCompletion({
       </div>
 
       {submitted ? (
-        <div
-          className={cn(
-            "rounded-[var(--radius-md)] border p-4 text-sm animate-fade-up",
-            canProceed
-              ? "border-success/30 bg-success-soft text-success"
-              : "border-warning/40 bg-warning-soft text-warning-foreground",
-          )}
-        >
-          <p className="flex items-center gap-2 font-semibold">
-            {isCorrect ? (
-              <>
-                <CheckCircle2 className="size-4" aria-hidden />
-                ¡Orden correcto!
-              </>
+        <Verdict
+          className="animate-fade-up"
+          tone={isCorrect ? "correct" : revealed ? "neutral" : "wrong"}
+          icon={
+            isCorrect ? (
+              <CheckCircle2 className="size-3.5" aria-hidden />
             ) : revealed ? (
-              <>
-                <Eye className="size-4" aria-hidden />
-                Orden revelado
-              </>
+              <Eye className="size-3.5" aria-hidden />
             ) : (
-              <>
-                <XCircle className="size-4" aria-hidden />
-                Algunas líneas siguen fuera de lugar
-              </>
-            )}
-          </p>
-          {content.explanation ? (
-            <p className="mt-1 text-foreground/85">{content.explanation}</p>
-          ) : null}
-        </div>
+              <XCircle className="size-3.5" aria-hidden />
+            )
+          }
+          title={
+            isCorrect
+              ? "Orden correcto"
+              : revealed
+                ? "Orden revelado"
+                : "Algunas líneas siguen fuera de lugar"
+          }
+        >
+          {content.explanation ?? null}
+        </Verdict>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-6">
-        {canReveal ? (
-          <Button
-            onClick={revealAnswer}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Eye />
-            Ver orden correcto
+      <StepActions
+        leading={
+          canReveal ? (
+            <Button onClick={revealAnswer} variant="ghost" size="sm">
+              <Eye />
+              Ver orden correcto
+            </Button>
+          ) : null
+        }
+      >
+        {!submitted ? (
+          <Button onClick={verify} size="lg">
+            Verificar orden
           </Button>
-        ) : null}
-
-        <div className="ml-auto flex gap-2">
-          {!submitted ? (
-            <Button onClick={verify} size="lg">
-              Verificar
-            </Button>
-          ) : canProceed ? (
-            <Button onClick={onNext} loading={isPending} size="lg">
-              Continuar
-              <ArrowRight />
-            </Button>
-          ) : (
-            <Button onClick={tryAgain} variant="outline" size="lg">
-              <RotateCcw />
-              Seguir intentando
-            </Button>
-          )}
-        </div>
-      </div>
+        ) : canProceed ? (
+          <Button onClick={onNext} loading={isPending} size="lg">
+            Continuar
+            <ArrowRight />
+          </Button>
+        ) : (
+          <Button onClick={tryAgain} variant="outline" size="lg">
+            <RotateCcw />
+            Seguir intentando
+          </Button>
+        )}
+      </StepActions>
     </article>
   );
 }

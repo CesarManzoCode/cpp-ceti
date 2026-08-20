@@ -14,7 +14,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-[var(--radius-md)] bg-muted p-1 text-muted-foreground",
+        "inline-flex h-10 items-center gap-1 border-b border-border text-muted-foreground",
         className,
       )}
       {...props}
@@ -29,14 +29,14 @@ function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium",
-        "transition-[background-color,color,box-shadow] duration-150",
-        "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "relative -mb-px inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium",
+        "border-b-2 border-transparent transition-[color,border-color] duration-150",
+        "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:pointer-events-none disabled:opacity-50",
-        // Active = raised pill. Light: white card + shadow over a grey track.
-        // Dark: elevation inverts, so lift with the lighter accent surface instead.
-        "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[var(--shadow-sm)]",
-        "dark:data-[state=active]:bg-accent dark:data-[state=active]:shadow-none",
+        "hover:text-foreground",
+        // Activo = pestaña subrayada. Continúa el filete de la lista en vez
+        // de flotar encima de él.
+        "data-[state=active]:border-primary data-[state=active]:text-foreground",
         className,
       )}
       {...props}
@@ -51,7 +51,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       className={cn(
-        "mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "mt-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         className,
       )}
       {...props}

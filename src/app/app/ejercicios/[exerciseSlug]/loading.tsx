@@ -2,25 +2,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function EjercicioLoading() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
-      <Skeleton className="h-9 w-32 rounded-[var(--radius-sm)]" />
+    <div className="mx-auto max-w-6xl px-5 py-5 sm:px-6 lg:px-8 lg:py-7">
+      <Skeleton className="h-8 w-28" />
 
-      <div className="space-y-2">
+      <div className="mt-3 space-y-3 border-b border-border pb-4">
         <Skeleton className="h-3 w-32" />
-        <Skeleton className="h-9 w-80 max-w-full" />
+        <Skeleton className="h-8 w-72 max-w-full" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-        <div className="space-y-4">
-          <Skeleton className="h-5 w-56" />
-          <Skeleton className="h-32 w-full rounded-[var(--radius-md)]" />
-          <Skeleton className="h-24 w-full rounded-[var(--radius-md)]" />
+      <div className="mt-6 grid gap-7 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8">
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-11/12" />
+          <Skeleton className="h-4 w-10/12" />
+          <Skeleton className="h-4 w-8/12" />
+          <Skeleton className="mt-6 h-28 w-full" />
         </div>
         <div className="space-y-3">
-          <Skeleton className="h-[420px] w-full rounded-[var(--radius-md)]" />
+          <Skeleton className="h-[420px] w-full" />
           <div className="flex gap-2">
-            <Skeleton className="h-9 w-24 rounded-[var(--radius-sm)]" />
-            <Skeleton className="h-9 w-24 rounded-[var(--radius-sm)]" />
+            <Skeleton className="h-9 w-28" />
+            <Skeleton className="h-9 w-28" />
           </div>
         </div>
       </div>

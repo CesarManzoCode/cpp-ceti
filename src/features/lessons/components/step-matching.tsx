@@ -5,9 +5,12 @@ import { ArrowRight, CheckCircle2, Eye, RotateCcw, XCircle } from "lucide-react"
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { Markdown } from "@/components/shared/markdown";
 import { cn } from "@/lib/utils";
 import type { MatchingStepContent } from "@/features/lessons/types";
+
+import { StepActions, StepHeader, Verdict } from "./step-shell";
 
 interface StepMatchingProps {
   content: MatchingStepContent;
@@ -118,21 +121,22 @@ export function StepMatching({
 
   return (
     <article className="space-y-7">
-      <header className="space-y-2">
-        <p className="eyebrow text-primary">Pareo</p>
+      <StepHeader label="Pareo">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h3 className="text-balance text-xl font-semibold tracking-tight">
+          <h2 className="text-balance text-[20px] font-semibold leading-snug">
             Empareja cada concepto con su descripción.
-          </h3>
+          </h2>
         )}
-      </header>
+      </StepHeader>
 
-      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-        <ul className="space-y-2" aria-label="Conceptos">
+      <div className="grid gap-5 sm:grid-cols-2 sm:gap-5">
+        <div>
+          <p className="label-micro mb-2 text-muted-foreground">Concepto</p>
+        <ul className="space-y-1.5" aria-label="Conceptos">
           {lefts.map((text, idx) => {
             const isSelected = selectedLeft === idx;
             const pair = pairings[idx];
@@ -147,12 +151,10 @@ export function StepMatching({
                   disabled={submitted}
                   aria-pressed={isPaired}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-[var(--radius-md)] border bg-card px-4 py-3 text-left text-sm font-medium transition-all",
+                    "flex w-full items-center gap-3 rounded-[var(--radius-xs)] border bg-card px-3 py-2.5 text-left text-sm font-medium transition-colors",
                     "border-border hover:border-border-strong",
                     isSelected && "border-primary ring-2 ring-[var(--primary-ring)]",
-                    isPaired &&
-                      !submitted &&
-                      "border-primary/60 bg-primary-soft/40",
+                    isPaired && !submitted && "border-primary bg-primary-soft/40",
                     isCorrect && "border-success bg-success-soft text-success",
                     isWrong &&
                       "animate-shake border-destructive bg-destructive-soft text-destructive",
@@ -160,8 +162,8 @@ export function StepMatching({
                 >
                   <span
                     className={cn(
-                      "grid size-7 shrink-0 place-items-center rounded-full border font-mono text-[11px] font-bold",
-                      "border-border bg-surface-2 text-foreground",
+                      "grid size-6 shrink-0 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
+                      "border-border-strong bg-surface-2 text-muted-foreground",
                       isPaired && !submitted && "border-primary bg-primary text-primary-foreground",
                       isCorrect && "border-success bg-success text-success-foreground",
                       isWrong && "border-destructive bg-destructive text-destructive-foreground",
@@ -170,9 +172,11 @@ export function StepMatching({
                   >
                     {idx + 1}
                   </span>
-                  <span className="flex-1">{text}</span>
+                  <span className="flex-1">
+                    <InlineCodeText>{text}</InlineCodeText>
+                  </span>
                   {isPaired ? (
-                    <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <span className="rounded-[var(--radius-xs)] border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                       {String.fromCharCode(65 + (pair as number))}
                     </span>
                   ) : null}
@@ -181,8 +185,11 @@ export function StepMatching({
             );
           })}
         </ul>
+        </div>
 
-        <ul className="space-y-2" aria-label="Descripciones">
+        <div>
+          <p className="label-micro mb-2 text-muted-foreground">Descripción</p>
+        <ul className="space-y-1.5" aria-label="Descripciones">
           {shuffledRight.map((rightIdx) => {
             const text = rights[rightIdx];
             const pairedLeft = pairings.findIndex((p) => p === rightIdx);
@@ -197,11 +204,11 @@ export function StepMatching({
                   onClick={() => handleRightClick(rightIdx)}
                   disabled={submitted || !isClickable}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-[var(--radius-md)] border bg-card px-4 py-3 text-left text-sm transition-all",
+                    "flex w-full items-center gap-3 rounded-[var(--radius-xs)] border bg-card px-3 py-2.5 text-left text-sm transition-colors",
                     "border-border",
                     isClickable && "hover:border-primary hover:bg-primary-soft/30",
                     !isClickable && !submitted && "cursor-default opacity-70",
-                    isPaired && !submitted && "border-primary/60 bg-primary-soft/40 opacity-100",
+                    isPaired && !submitted && "border-primary bg-primary-soft/40 opacity-100",
                     isCorrect && "border-success bg-success-soft text-success",
                     isWrong &&
                       "animate-shake border-destructive bg-destructive-soft text-destructive",
@@ -209,8 +216,8 @@ export function StepMatching({
                 >
                   <span
                     className={cn(
-                      "grid size-7 shrink-0 place-items-center rounded-full border font-mono text-[11px] font-bold",
-                      "border-border bg-surface-2 text-foreground",
+                      "grid size-6 shrink-0 place-items-center rounded-[var(--radius-xs)] border font-mono text-[11px] font-medium",
+                      "border-border-strong bg-surface-2 text-muted-foreground",
                       isPaired && !submitted && "border-primary bg-primary text-primary-foreground",
                       isCorrect && "border-success bg-success text-success-foreground",
                       isWrong && "border-destructive bg-destructive text-destructive-foreground",
@@ -219,78 +226,68 @@ export function StepMatching({
                   >
                     {String.fromCharCode(65 + rightIdx)}
                   </span>
-                  <span className="flex-1">{text}</span>
+                  <span className="flex-1">
+                    <InlineCodeText>{text}</InlineCodeText>
+                  </span>
                 </button>
               </li>
             );
           })}
         </ul>
+        </div>
       </div>
 
       {submitted ? (
-        <div
-          className={cn(
-            "rounded-[var(--radius-md)] border p-4 text-sm animate-fade-up",
-            canProceed
-              ? "border-success/30 bg-success-soft text-success"
-              : "border-warning/40 bg-warning-soft text-warning-foreground",
-          )}
-        >
-          <p className="flex items-center gap-2 font-semibold">
-            {allCorrect ? (
-              <>
-                <CheckCircle2 className="size-4" aria-hidden />
-                ¡Todo emparejado correctamente!
-              </>
+        <Verdict
+          className="animate-fade-up"
+          tone={allCorrect ? "correct" : revealed ? "neutral" : "wrong"}
+          icon={
+            allCorrect ? (
+              <CheckCircle2 className="size-3.5" aria-hidden />
             ) : revealed ? (
-              <>
-                <Eye className="size-4" aria-hidden />
-                Respuestas reveladas
-              </>
+              <Eye className="size-3.5" aria-hidden />
             ) : (
-              <>
-                <XCircle className="size-4" aria-hidden />
-                Hay errores — revisa los pares marcados en rojo
-              </>
-            )}
-          </p>
-          {content.explanation ? (
-            <p className="mt-1 text-foreground/85">{content.explanation}</p>
-          ) : null}
-        </div>
+              <XCircle className="size-3.5" aria-hidden />
+            )
+          }
+          title={
+            allCorrect
+              ? "Todo emparejado"
+              : revealed
+                ? "Respuestas reveladas"
+                : "Hay errores — revisa los pares en rojo"
+          }
+        >
+          {content.explanation ?? null}
+        </Verdict>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-6">
-        {canReveal ? (
-          <Button
-            onClick={revealAnswers}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Eye />
-            Ver respuestas
+      <StepActions
+        leading={
+          canReveal ? (
+            <Button onClick={revealAnswers} variant="ghost" size="sm">
+              <Eye />
+              Ver respuestas
+            </Button>
+          ) : null
+        }
+      >
+        {!submitted ? (
+          <Button onClick={verify} disabled={!allFilled} size="lg">
+            Verificar pares
           </Button>
-        ) : null}
-
-        <div className="ml-auto flex items-center gap-2">
-          {!submitted ? (
-            <Button onClick={verify} disabled={!allFilled} size="lg">
-              Verificar
-            </Button>
-          ) : canProceed ? (
-            <Button onClick={onNext} loading={isPending} size="lg">
-              Continuar
-              <ArrowRight />
-            </Button>
-          ) : (
-            <Button onClick={tryAgain} variant="outline" size="lg">
-              <RotateCcw />
-              Intentar de nuevo
-            </Button>
-          )}
-        </div>
-      </div>
+        ) : canProceed ? (
+          <Button onClick={onNext} loading={isPending} size="lg">
+            Continuar
+            <ArrowRight />
+          </Button>
+        ) : (
+          <Button onClick={tryAgain} variant="outline" size="lg">
+            <RotateCcw />
+            Intentar de nuevo
+          </Button>
+        )}
+      </StepActions>
     </article>
   );
 }

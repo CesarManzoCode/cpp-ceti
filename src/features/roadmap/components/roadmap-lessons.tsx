@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Check, Clock, Lock, Play, Zap } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 
+import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { cn } from "@/lib/utils";
 import type { RoadmapLesson, RoadmapLessonStatus } from "@/features/roadmap/types";
 
@@ -11,49 +12,104 @@ export interface RoadmapLessonsProps {
 }
 
 /**
- * Lista de lecciones de la unidad: cada lección es una fila clara
- * con número, estado, título y metadata mínima. Sin metáfora de git —
- * editorial, sobrio, fácil de escanear.
+ * Lecciones de la unidad, con la misma canaleta que el temario: el
+ * ordinal y el estado a la izquierda del filete. La metadata (XP,
+ * minutos, pasos) va monoespaciada y alineada, para poder comparar dos
+ * lecciones de un vistazo sin leerlas.
  */
-export function RoadmapLessons({
-  unitSlug,
-  lessons,
-}: RoadmapLessonsProps) {
+export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
   if (lessons.length === 0) {
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-surface-2/40 p-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          Esta unidad aún no tiene lecciones publicadas.
-        </p>
-      </div>
+      <p className="border border-dashed border-border px-5 py-8 text-center text-sm text-muted-foreground">
+        Esta unidad aún no tiene lecciones publicadas.
+      </p>
     );
   }
 
   const headIndex = findHeadIndex(lessons);
 
   return (
-    <ol className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
+    <ol className="gutter-list border-y border-border">
       {lessons.map((lesson, idx) => {
-        const isCurrent = idx === headIndex;
+        const isNext = idx === headIndex;
         const isLocked = headIndex !== -1 && idx > headIndex;
+        const status = lesson.status;
+
+        const label =
+          status === "completed"
+            ? { text: "Completada", tone: "text-success" }
+            : status === "in_progress"
+              ? { text: "En curso", tone: "text-primary" }
+              : isNext
+                ? { text: "Siguiente", tone: "text-primary" }
+                : isLocked
+                  ? { text: "Bloqueada", tone: "text-muted-foreground/70" }
+                  : null;
+
+        const body = (
+          <>
+            <span className="flex items-start justify-center pt-4 pr-3">
+              <LessonMark
+                status={status}
+                isLocked={isLocked}
+                order={lesson.order}
+              />
+            </span>
+
+            <span className="min-w-0 py-4 pl-4">
+              <span className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span
+                  className={cn(
+                    "text-[15px] font-semibold leading-snug sm:text-base",
+                    isLocked ? "text-muted-foreground" : "text-foreground",
+                  )}
+                >
+                  <InlineCodeText>{lesson.title}</InlineCodeText>
+                </span>
+                {label ? (
+                  <span className={cn("label-micro", label.tone)}>
+                    {label.text}
+                  </span>
+                ) : null}
+              </span>
+
+              {lesson.description ? (
+                <span className="mt-1 line-clamp-1 block text-sm text-muted-foreground">
+                  {lesson.description}
+                </span>
+              ) : null}
+
+              <span className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] tabular-nums text-muted-foreground">
+                <span>{lesson.estimatedMinutes} min</span>
+                <span>
+                  {lesson.stepCount} {lesson.stepCount === 1 ? "paso" : "pasos"}
+                </span>
+                <span className="text-warning">+{lesson.xpReward} XP</span>
+              </span>
+            </span>
+          </>
+        );
 
         return (
-          <li
-            key={lesson.id}
-            className="border-t border-border/70 first:border-t-0"
-          >
-            <LessonRow
-              href={`/app/u/${unitSlug}/${lesson.slug}`}
-              order={lesson.order}
-              title={lesson.title}
-              description={lesson.description}
-              xpReward={lesson.xpReward}
-              estimatedMinutes={lesson.estimatedMinutes}
-              stepCount={lesson.stepCount}
-              status={lesson.status}
-              isCurrent={isCurrent}
-              isLocked={isLocked}
-            />
+          <li key={lesson.id} className="border-t border-border first:border-t-0">
+            {isLocked ? (
+              <div
+                className="gutter-row opacity-60"
+                aria-disabled="true"
+                aria-label={`Lección ${lesson.order}: ${lesson.title} (bloqueada — termina la anterior)`}
+                title="Termina la lección anterior para desbloquear"
+              >
+                {body}
+              </div>
+            ) : (
+              <Link
+                href={`/app/u/${unitSlug}/${lesson.slug}`}
+                aria-label={`Lección ${lesson.order}: ${lesson.title}`}
+                className="gutter-row transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+              >
+                {body}
+              </Link>
+            )}
           </li>
         );
       })}
@@ -73,117 +129,7 @@ function findHeadIndex(lessons: RoadmapLesson[]): number {
   return -1;
 }
 
-interface RowProps {
-  href: string;
-  order: number;
-  title: string;
-  description: string | null;
-  xpReward: number;
-  estimatedMinutes: number;
-  stepCount: number;
-  status: RoadmapLessonStatus;
-  isCurrent: boolean;
-  isLocked: boolean;
-}
-
-function LessonRow({
-  href,
-  order,
-  title,
-  description,
-  xpReward,
-  estimatedMinutes,
-  stepCount,
-  status,
-  isCurrent,
-  isLocked,
-}: RowProps) {
-  const inner = (
-    <div
-      className={cn(
-        "group flex items-center gap-4 p-5 transition-colors sm:gap-5",
-        !isLocked && "hover:bg-surface-2/60",
-        isLocked && "opacity-70",
-      )}
-    >
-      <LessonBadge status={status} isLocked={isLocked} order={order} />
-
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-          <h3
-            className={cn(
-              "text-[15px] font-semibold tracking-tight sm:text-base",
-              status === "in_progress" && "text-primary",
-            )}
-          >
-            {title}
-          </h3>
-          {isCurrent && status === "not_started" ? (
-            <span className="eyebrow text-primary">· Siguiente</span>
-          ) : null}
-          {status === "completed" ? (
-            <span className="eyebrow text-success">· Completada</span>
-          ) : null}
-          {status === "in_progress" ? (
-            <span className="eyebrow text-primary">· En curso</span>
-          ) : null}
-        </div>
-        {description ? (
-          <p className="line-clamp-1 text-sm text-muted-foreground">
-            {description}
-          </p>
-        ) : null}
-        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 pt-0.5 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 font-mono tabular-nums">
-            <Zap className="size-3 text-primary/70" aria-hidden />
-            +{xpReward} XP
-          </span>
-          <span aria-hidden className="text-muted-foreground/40">·</span>
-          <span className="inline-flex items-center gap-1 font-mono tabular-nums">
-            <Clock className="size-3" aria-hidden />
-            {estimatedMinutes} min
-          </span>
-          <span aria-hidden className="text-muted-foreground/40">·</span>
-          <span className="font-mono tabular-nums">
-            {stepCount} {stepCount === 1 ? "paso" : "pasos"}
-          </span>
-        </div>
-      </div>
-
-      {!isLocked ? (
-        <ArrowRight
-          className="size-4 shrink-0 text-muted-foreground/50 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-foreground sm:text-muted-foreground/60"
-          aria-hidden
-        />
-      ) : null}
-    </div>
-  );
-
-  if (isLocked) {
-    return (
-      <div
-        className="cursor-not-allowed"
-        aria-disabled="true"
-        aria-label={`Lección ${order}: ${title} (bloqueada — termina la anterior)`}
-        title="Termina la lección anterior para desbloquear"
-      >
-        {inner}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href={href}
-      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-      aria-label={`Lección ${order}: ${title}`}
-    >
-      {inner}
-    </Link>
-  );
-}
-
-function LessonBadge({
+function LessonMark({
   status,
   isLocked,
   order,
@@ -194,27 +140,32 @@ function LessonBadge({
 }) {
   if (status === "completed") {
     return (
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-success text-success-foreground">
-        <Check className="size-4" strokeWidth={3} aria-hidden />
+      <span
+        aria-hidden
+        className="grid size-4 place-items-center rounded-[1px] bg-success text-success-foreground"
+      >
+        <Check className="size-3" strokeWidth={3} />
       </span>
     );
   }
   if (status === "in_progress") {
     return (
-      <span className="relative grid size-9 shrink-0 place-items-center rounded-full border-2 border-primary bg-card text-primary">
-        <Play className="size-3.5 fill-primary" aria-hidden />
+      <span
+        aria-hidden
+        className="grid size-4 place-items-center rounded-[1px] border border-primary"
+      >
+        <span className="size-2 bg-primary" />
       </span>
     );
   }
   if (isLocked) {
-    return (
-      <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-border bg-surface-2 text-muted-foreground/70">
-        <Lock className="size-3.5" aria-hidden />
-      </span>
-    );
+    return <Lock className="size-3.5 text-muted-foreground/50" aria-hidden />;
   }
   return (
-    <span className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-surface-2 font-mono text-xs font-bold tabular-nums text-foreground/80">
+    <span
+      aria-hidden
+      className="font-mono text-[12px] tabular-nums text-muted-foreground/70"
+    >
       {String(order).padStart(2, "0")}
     </span>
   );

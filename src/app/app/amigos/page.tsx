@@ -1,5 +1,3 @@
-import { UserPlus, Users } from "lucide-react";
-
 import { SectionRule } from "@/components/ui/section-rule";
 import { FriendsTabs } from "@/features/friends/components/friends-tabs";
 import { InviteLinkCard } from "@/features/friends/components/invite-link-card";
@@ -39,71 +37,59 @@ export default async function AmigosPage({
   return (
     <div
       data-page-enter
-      className="mx-auto max-w-4xl space-y-8 px-5 py-8 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto max-w-3xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9"
     >
-      <header className="space-y-2">
-        <p className="eyebrow inline-flex items-center gap-1.5 text-primary">
-          <Users className="size-3.5" aria-hidden />
-          Comunidad
-        </p>
-        <h1 className="text-3xl font-bold tracking-[-0.03em] sm:text-[36px]">
-          Tus <span className="text-gradient-primary">amigos.</span>
+      <header className="border-b border-border pb-6">
+        <p className="label-micro text-muted-foreground">Comunidad</p>
+        <h1 className="mt-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.028em] sm:text-[34px]">
+          Amigos
         </h1>
-        <p className="text-sm text-muted-foreground sm:text-base">
-          Agrega compañeros del CETI para ver su progreso y motivarse mutuamente.
+        <p className="mt-3 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
+          Agrega compañeros del CETI para ver su progreso y motivarse
+          mutuamente.
         </p>
       </header>
 
       {friends.length === 0 && incoming.length === 0 && outgoing.length === 0 ? (
-        <EmptyAmigosHero username={session.user.username} />
+        <EmptyAmigos username={session.user.username} />
       ) : null}
 
-      <FriendsTabs
-        initialTab={initialTab}
-        friends={friends}
-        incoming={incoming}
-        outgoing={outgoing}
-        meUsername={session.user.username}
-      />
+      <div className="mt-8">
+        <FriendsTabs
+          initialTab={initialTab}
+          friends={friends}
+          incoming={incoming}
+          outgoing={outgoing}
+          meUsername={session.user.username}
+        />
+      </div>
 
-      <section className="space-y-4">
+      <section className="mt-10">
         <SectionRule>Invita a alguien</SectionRule>
-        <InviteLinkCard username={session.user.username} />
+        <div className="mt-4">
+          <InviteLinkCard username={session.user.username} />
+        </div>
       </section>
     </div>
   );
 }
 
-function EmptyAmigosHero({ username }: { username: string }) {
+function EmptyAmigos({ username }: { username: string }) {
   return (
-    <div className="gradient-border relative overflow-hidden rounded-[var(--radius-xl)] bg-card p-6 shadow-[var(--shadow-md)] sm:p-8">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-20 -top-20 size-56 rounded-full bg-gradient-to-br from-primary/25 to-[color:var(--brand-2)]/20 opacity-70 blur-3xl" />
-      </div>
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[15%] top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
-      />
-      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
-          <p className="eyebrow inline-flex items-center gap-1.5 text-primary">
-            <UserPlus className="size-3.5" aria-hidden />
-            Empieza aquí
-          </p>
-          <h2 className="text-balance text-[22px] font-bold leading-tight tracking-[-0.025em] sm:text-[28px]">
-            Aún no tienes amigos en C++ CETI.
-          </h2>
-          <p className="max-w-md text-sm text-muted-foreground">
-            Busca a tus compañeros por <span className="font-mono">@usuario</span> o
-            mándales tu link de invitación. Cuando acepten verás su progreso
-            en tu inicio.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Tu handle es{" "}
-            <span className="font-mono font-semibold text-foreground">@{username}</span>.
-          </p>
-        </div>
-      </div>
+    <div className="mt-8 border-l-2 border-primary py-1 pl-4">
+      <p className="label-micro text-primary">Empieza aquí</p>
+      <h2 className="mt-2 text-balance text-[19px] font-semibold leading-snug">
+        Aún no tienes amigos en C++ CETI.
+      </h2>
+      <p className="mt-2 max-w-[54ch] text-sm leading-relaxed text-muted-foreground">
+        Busca a tus compañeros por{" "}
+        <span className="font-mono text-foreground">@usuario</span> o mándales
+        tu link de invitación. Cuando acepten verás su progreso en tu inicio.
+      </p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Tu handle es{" "}
+        <span className="font-mono text-foreground">@{username}</span>.
+      </p>
     </div>
   );
 }

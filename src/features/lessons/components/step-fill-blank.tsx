@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/shared/markdown";
+import { StepActions, StepHeader, Verdict } from "@/features/lessons/components/step-shell";
 import { cn } from "@/lib/utils";
 import type { FillBlankStepContent } from "@/features/lessons/types";
 import { isBlankCorrect } from "@/features/lessons/lib/cpp-validation";
@@ -66,18 +67,17 @@ export function StepFillBlank({
 
   return (
     <article className="space-y-7">
-      <header className="space-y-2">
-        <p className="eyebrow text-primary">Completa el código</p>
+      <StepHeader label="Completa el código">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
             <Markdown>{content.prompt}</Markdown>
           </div>
         ) : (
-          <h3 className="text-balance text-xl font-semibold tracking-tight">
+          <h2 className="text-balance text-[20px] font-semibold leading-snug">
             Llena los espacios para que el programa compile.
-          </h3>
+          </h2>
         )}
-      </header>
+      </StepHeader>
 
       <div
         key={feedbackKey}
@@ -89,14 +89,14 @@ export function StepFillBlank({
       >
         <div className="flex items-center justify-between border-b border-[var(--terminal-border)] bg-terminal-elevated px-4 py-2 text-[11px] text-terminal-muted">
           <span className="flex items-center gap-2 font-mono">
-            <span className="flex gap-1.5" aria-hidden>
-              <span className="size-2.5 rounded-full bg-terminal-danger/90" />
-              <span className="size-2.5 rounded-full bg-terminal-warning/90" />
-              <span className="size-2.5 rounded-full bg-terminal-success/90" />
+            <span className="flex gap-1" aria-hidden>
+              <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
+              <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
+              <span className="size-2 rounded-[1px] bg-terminal-success/80" />
             </span>
             main.cpp
           </span>
-          <span className="font-mono uppercase tracking-[0.14em]">edición</span>
+          <span className="font-mono uppercase tracking-[0.1em]">edición</span>
         </div>
         <div className="overflow-x-auto py-4 font-mono text-[13px] leading-[1.7] text-terminal-fg">
           {lines.map((nodes, idx) => (
@@ -135,80 +135,66 @@ export function StepFillBlank({
       ) : null}
 
       {showHint !== null && content.blanks[showHint]?.hint ? (
-        <div className="rounded-[var(--radius-md)] border border-warning/40 bg-warning-soft p-3 text-sm">
-          <strong className="font-semibold text-warning-foreground">
-            Pista:
-          </strong>{" "}
-          <span className="text-foreground/90">
-            {content.blanks[showHint].hint}
-          </span>
-        </div>
+        <Verdict tone="hint" title={`Pista ${showHint + 1}`}>
+          {content.blanks[showHint].hint}
+        </Verdict>
       ) : null}
 
       {submitted && !allCorrect ? (
-        <div className="rounded-[var(--radius-md)] border border-destructive/30 bg-destructive-soft p-3 text-sm text-destructive">
-          Algunas respuestas no son correctas. Revisa los campos marcados.
-        </div>
+        <Verdict tone="wrong" title="Todavía no compila">
+          Algunas respuestas no son correctas. Revisa los campos marcados en
+          rojo.
+        </Verdict>
       ) : null}
 
       {submitted && allCorrect ? (
-        <div className="flex items-start gap-2 rounded-[var(--radius-md)] border border-success/30 bg-success-soft p-3 text-sm text-success">
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <span>
-            ¡Perfecto! Eso es justo lo que faltaba.
-            {content.explanation ? (
-              <span className="text-foreground/85">
-                {" "}
-                — {content.explanation}
-              </span>
-            ) : null}
-          </span>
-        </div>
+        <Verdict
+          tone="correct"
+          title="Correcto"
+          icon={<CheckCircle2 className="size-3.5" aria-hidden />}
+        >
+          Eso es justo lo que faltaba.
+          {content.explanation ? <> {content.explanation}</> : null}
+        </Verdict>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-6">
-        {canShowSolution ? (
-          <Button
-            onClick={revealSolution}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Eye />
-            Ver solución
-          </Button>
-        ) : (
-          <span />
-        )}
-        <div className="ml-auto flex gap-2">
-          {!submitted || !allCorrect ? (
-            <>
-              {submitted && !allCorrect ? (
-                <Button
-                  onClick={() => setSubmitted(false)}
-                  variant="ghost"
-                  size="lg"
-                >
-                  <Pencil />
-                  Corregir
-                </Button>
-              ) : null}
+      <StepActions
+        leading={
+          canShowSolution ? (
+            <Button onClick={revealSolution} variant="ghost" size="sm">
+              <Eye />
+              Ver solución
+            </Button>
+          ) : null
+        }
+      >
+        {!submitted || !allCorrect ? (
+          <>
+            {submitted && !allCorrect ? (
               <Button
-                onClick={verify}
-                disabled={values.some((v) => !v.trim())}
+                onClick={() => setSubmitted(false)}
+                variant="ghost"
                 size="lg"
               >
-                Verificar
+                <Pencil />
+                Corregir
               </Button>
-            </>
-          ) : (
-            <Button onClick={onNext} loading={isPending} size="lg">
-              Continuar
-              <ArrowRight />
+            ) : null}
+            <Button
+              onClick={verify}
+              disabled={values.some((v) => !v.trim())}
+              size="lg"
+            >
+              Verificar código
             </Button>
-          )}
-        </div>
-      </div>
+          </>
+        ) : (
+          <Button onClick={onNext} loading={isPending} size="lg">
+            Continuar
+            <ArrowRight />
+          </Button>
+        )}
+      </StepActions>
     </article>
   );
 }
@@ -296,12 +282,12 @@ function renderTemplateLines(
         autoComplete="off"
         className={cn(
           // 16px en móvil evita el auto-zoom de iOS Safari al enfocar el input.
-          "mx-[2px] inline-block min-w-16 rounded border px-1.5 py-[1px] align-baseline font-mono text-[16px] outline-none transition-colors sm:text-[13px]",
+          "mx-[2px] inline-block min-w-16 rounded-[1px] border px-1.5 py-[1px] align-baseline font-mono text-[16px] outline-none transition-colors sm:text-[13px]",
           isWrong
             ? "border-destructive/70 bg-destructive/15 text-destructive"
             : isRight
               ? "border-success/70 bg-success/15 text-success"
-              : "border-[var(--terminal-border)] bg-terminal-elevated text-syntax-type focus:border-syntax-type focus:ring-2 focus:ring-syntax-type/30",
+              : "border-terminal-faint bg-terminal-elevated text-syntax-type focus:border-syntax-type focus:ring-2 focus:ring-syntax-type/30",
         )}
         style={{
           width: `${Math.max(value.length, expected.length, 6) + 1}ch`,

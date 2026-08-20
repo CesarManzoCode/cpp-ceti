@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
-import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Check, X } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IOBlock } from "@/components/exercise/io-block";
 import {
@@ -18,7 +17,12 @@ interface SubmissionResultsProps {
   onTryAgain: () => void;
 }
 
-/** Graded test-run results, shared by the lesson challenge and practice viewer. */
+/**
+ * Resultado de la calificación: se lee como la salida de un runner de
+ * tests. Veredicto arriba con el marcador `2/3`, y debajo un test por
+ * fila con su marca en la canaleta. El caso que falló se abre en su sitio
+ * con el esperado y lo obtenido lado a lado.
+ */
 export function SubmissionResults({
   submission,
   onTryAgain,
@@ -28,25 +32,20 @@ export function SubmissionResults({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-md)] border p-4 animate-fade-up",
+        "animate-fade-up border-l-2 pl-4",
         submission.passed
-          ? "border-success/30 bg-success-soft animate-correct"
-          : "border-warning/40 bg-warning-soft animate-shake",
+          ? "animate-correct border-success"
+          : "animate-shake border-destructive",
       )}
       aria-live="polite"
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex items-baseline justify-between gap-3">
         <p
           className={cn(
-            "flex items-center gap-2 text-sm font-semibold",
-            submission.passed ? "text-success" : "text-warning-foreground",
+            "text-sm font-medium",
+            submission.passed ? "text-success" : "text-destructive",
           )}
         >
-          {submission.passed ? (
-            <CheckCircle2 className="size-4 shrink-0" aria-hidden />
-          ) : (
-            <AlertTriangle className="size-4 shrink-0" aria-hidden />
-          )}
           {submission.feedback}
         </p>
         <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
@@ -57,58 +56,63 @@ export function SubmissionResults({
       <ul
         data-stagger
         style={{ "--stagger": "40ms" } as CSSProperties}
-        className="space-y-2"
+        className="mt-3 border-t border-border"
       >
         {submission.results.map((r, idx) => (
           <li
             key={r.testId}
             style={{ "--i": idx } as CSSProperties}
-            className={cn(
-              "animate-fade-up overflow-hidden rounded-[var(--radius-sm)] border bg-card text-xs",
-              r.passed ? "border-border" : "border-destructive/40",
-            )}
+            className="animate-fade-up border-b border-border"
           >
-            <div className="flex items-center justify-between gap-2 px-3 py-2">
-              <span className="inline-flex items-center gap-2 font-medium">
-                {r.passed ? (
-                  <CheckCircle2 className="size-3.5 text-success" aria-hidden />
-                ) : (
-                  <XCircle className="size-3.5 text-destructive" aria-hidden />
+            <div className="flex items-center gap-2.5 py-2">
+              <span
+                aria-hidden
+                className={cn(
+                  "grid size-4 shrink-0 place-items-center rounded-[1px]",
+                  r.passed
+                    ? "bg-success text-success-foreground"
+                    : "bg-destructive text-destructive-foreground",
                 )}
-                Test {idx + 1}
-                {!r.visible ? (
-                  <Badge variant="secondary" size="sm" className="uppercase">
-                    Oculto
-                  </Badge>
-                ) : null}
+              >
+                {r.passed ? (
+                  <Check className="size-3" strokeWidth={3} />
+                ) : (
+                  <X className="size-3" strokeWidth={3} />
+                )}
               </span>
-              <span className="font-mono text-[10.5px] text-muted-foreground">
+              <span className="font-mono text-xs tabular-nums text-foreground">
+                Test {String(idx + 1).padStart(2, "0")}
+              </span>
+              {!r.visible ? (
+                <span className="label-micro text-muted-foreground/70">
+                  oculto
+                </span>
+              ) : null}
+              <span className="ml-auto font-mono text-[10.5px] tabular-nums text-muted-foreground">
                 {r.durationMs}ms
               </span>
             </div>
 
             {!r.passed && r.visible ? (
-              <div className="grid gap-2 border-t border-border/70 bg-surface-2/40 p-3 sm:grid-cols-2">
+              <div className="grid gap-3 pb-3 sm:grid-cols-2">
                 <DiffedOutput
                   expected={r.expectedStdout}
                   actual={r.actualStdout}
                 />
                 {r.stderr ? (
                   <div className="sm:col-span-2">
-                    <p className="eyebrow mb-1 text-destructive/80">stderr</p>
-                    <pre className="max-h-40 overflow-auto rounded-md bg-destructive-soft px-2.5 py-1.5 font-mono text-[11.5px] text-destructive">
+                    <p className="label-micro mb-1 text-destructive">stderr</p>
+                    <pre className="max-h-40 overflow-auto rounded-[var(--radius-xs)] bg-destructive-soft px-2.5 py-1.5 font-mono text-[11.5px] text-destructive">
                       {r.stderr}
                     </pre>
                   </div>
                 ) : null}
               </div>
             ) : !r.passed && !r.visible ? (
-              <div className="border-t border-border/70 bg-surface-2/40 px-3 py-2.5">
-                <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  Caso oculto — no mostramos la entrada. Revisa tu lógica con los
-                  ejemplos de arriba.
-                </p>
-              </div>
+              <p className="pb-3 text-[12px] leading-relaxed text-muted-foreground">
+                Caso oculto — no mostramos la entrada. Revisa tu lógica con los
+                ejemplos de arriba.
+              </p>
             ) : null}
           </li>
         ))}
@@ -154,7 +158,7 @@ function DiffedOutput({
     <>
       <HighlightedOutput label="Esperado" value={expected} diff={diff} side="expected" />
       <HighlightedOutput label="Tu salida" value={actual} diff={diff} side="actual" />
-      <p className="sm:col-span-2 rounded-[var(--radius-xs)] bg-warning-soft px-2.5 py-1.5 text-[12px] leading-relaxed text-warning-foreground">
+      <p className="border-l-2 border-warning py-1 pl-3 text-[12px] leading-relaxed text-foreground/90 sm:col-span-2">
         {describeDiff(diff)}
       </p>
     </>
@@ -178,13 +182,13 @@ function HighlightedOutput({
   const diffLine = diff.line - 1;
   const markClass =
     side === "expected"
-      ? "rounded-[2px] bg-success/25 font-semibold"
-      : "rounded-[2px] bg-destructive/25 font-semibold";
+      ? "rounded-[1px] bg-success/25 font-medium"
+      : "rounded-[1px] bg-destructive/25 font-medium";
 
   return (
     <div className="min-w-0">
-      <p className="eyebrow mb-1 text-muted-foreground">{label}</p>
-      <pre className="max-h-44 overflow-auto rounded-[var(--radius-xs)] bg-surface-2 px-3 py-1.5 font-mono text-[12.5px] leading-[1.55]">
+      <p className="label-micro mb-1 text-muted-foreground">{label}</p>
+      <pre className="max-h-44 overflow-auto rounded-[var(--radius-xs)] border border-border bg-surface-2 px-3 py-1.5 font-mono text-[12.5px] leading-[1.55]">
         {lines.map((line, i) => {
           if (i !== diffLine) {
             return (

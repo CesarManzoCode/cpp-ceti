@@ -19,7 +19,7 @@ function SheetOverlay({
   return (
     <SheetPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-foreground/40 backdrop-blur-md",
+        "fixed inset-0 z-50 bg-foreground/45",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className,
       )}
@@ -62,7 +62,7 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close
           aria-label="Cerrar"
-          className="absolute right-4 top-4 grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="absolute right-3 top-3 grid size-8 place-items-center rounded-[var(--radius-xs)] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <X className="size-4" />
           <span className="sr-only">Cerrar</span>
@@ -87,7 +87,7 @@ function SheetTitle({
 }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
-      className={cn("text-base font-semibold tracking-tight", className)}
+      className={cn("text-base font-semibold", className)}
       {...props}
     />
   );

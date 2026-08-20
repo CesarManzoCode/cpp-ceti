@@ -54,12 +54,12 @@ export function TerminalSurface({
             headerClassName,
           )}
         >
-          <span className="eyebrow flex min-w-0 items-center gap-2 text-terminal-muted">
+          <span className="label-micro flex min-w-0 items-center gap-2 text-terminal-muted">
             {dots ? (
               <span className="mr-1 flex gap-1.5" aria-hidden>
-                <span className="size-2.5 rounded-full bg-terminal-danger/90" />
-                <span className="size-2.5 rounded-full bg-terminal-warning/90" />
-                <span className="size-2.5 rounded-full bg-terminal-success/90" />
+                <span className="size-2 rounded-[1px] bg-terminal-danger/80" />
+                <span className="size-2 rounded-[1px] bg-terminal-warning/80" />
+                <span className="size-2 rounded-[1px] bg-terminal-success/80" />
               </span>
             ) : null}
             {Icon ? <Icon className="size-3.5 shrink-0" aria-hidden /> : null}

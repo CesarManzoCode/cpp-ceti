@@ -2,25 +2,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LogrosLoading() {
   return (
-    <div className="mx-auto max-w-4xl space-y-10 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <Skeleton className="h-9 w-20 rounded-[var(--radius-sm)]" />
+    <div className="mx-auto max-w-3xl px-5 py-6 sm:px-6 lg:px-8 lg:py-9">
+      <div className="space-y-4 border-b border-border pb-6">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-4 w-80 max-w-full" />
+        <Skeleton className="h-1 w-64 max-w-full" />
+      </div>
 
-      <header className="space-y-4">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-5 w-96 max-w-full" />
-        <Skeleton className="h-2 w-72 max-w-full rounded-full" />
-      </header>
-
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="mt-8 grid grid-cols-2 gap-6 border-b border-border pb-5 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-[88px] rounded-[var(--radius-lg)]" />
+          <div key={i} className="space-y-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-7 w-16" />
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-[100px] rounded-[var(--radius-lg)]" />
+      <div className="mt-10 space-y-3">
+        <Skeleton className="h-4 w-36" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
         ))}
       </div>
     </div>
