@@ -56,7 +56,18 @@ export function withActionErrorHandling<TArgs extends unknown[], TResult>(
   };
 }
 
-/** Helper para detectar violación de UNIQUE constraint (P2002). */
+/**
+ * Helper para detectar violación de UNIQUE constraint (P2002).
+ *
+ * ⚠️ NO lo uses para "atrapar el duplicado y seguir" DENTRO de un
+ * `db.$transaction()`. En PostgreSQL el error ya abortó la transacción del
+ * lado del servidor y toda consulta posterior falla con 25P02
+ * ("current transaction is aborted"). Para insertar-si-no-existe dentro de
+ * una transacción usa `createMany({ data: [...], skipDuplicates: true })`,
+ * que compila a `INSERT ... ON CONFLICT DO NOTHING` (ver `@/lib/completions`).
+ *
+ * Sigue siendo válido para escrituras sueltas FUERA de una transacción.
+ */
 export function isUniqueViolation(err: unknown): boolean {
   return (
     err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"

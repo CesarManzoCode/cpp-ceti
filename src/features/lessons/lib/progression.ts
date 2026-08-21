@@ -71,21 +71,27 @@ export async function markStepCompletedInTx(
     };
   }
 
-  // No había row aún (caso defensive): el usuario completó todos los pasos
-  // sin tener registro de progreso. Creamos como completed y otorgamos XP.
-  const existing = await tx.userLessonProgress.findUnique({
-    where: { userId_lessonId: { userId, lessonId } },
-  });
-  if (!existing) {
-    await tx.userLessonProgress.create({
-      data: {
+  // `count === 0` significa una de dos: (a) no existe la fila todavía —caso
+  // defensive: el usuario completó todos los pasos sin registro de progreso—,
+  // o (b) ya estaba en `completed`. Distinguirlo con findUnique + create sería
+  // un read-then-write con race (dos requests concurrentes leerían "no existe"
+  // y el segundo `create` reventaría con P2002, abortando la transacción de
+  // Postgres). `createMany({ skipDuplicates })` lo resuelve atómicamente:
+  // inserta sólo si no había fila, y nunca lanza.
+  const created = await tx.userLessonProgress.createMany({
+    data: [
+      {
         userId,
         lessonId,
         status: "completed",
         completedAt: new Date(),
         xpEarned: lessonXpReward,
       },
-    });
+    ],
+    skipDuplicates: true,
+  });
+
+  if (created.count === 1) {
     return {
       allStepsDone: true,
       lessonJustCompleted: true,
