@@ -42,7 +42,7 @@ al ejemplo. Las pistas se revelan una por una.
 
 ## Qué hay construido
 
-| | |
+| Qué | Cuánto |
 | --- | --- |
 | Unidades | 10, del primer `cout` a las matrices |
 | Lecciones | 67 |
