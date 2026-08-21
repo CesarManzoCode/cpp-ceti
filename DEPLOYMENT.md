@@ -7,8 +7,8 @@ Esta guía te lleva de cero a tener la plataforma corriendo en producción.
 ```
 Supabase (DB)  ──┐
                  ├──► Vercel (Next.js)
-DigitalOcean ────┘
-(Judge0)
+Ejecutor C++  ───┘
+(Wandbox público por defecto; Piston o Judge0 self-hosted si lo prefieres)
 ```
 
 ---
@@ -74,7 +74,13 @@ Verifica en Supabase (**Table Editor**) que aparecieron las tablas `course`,
 
 ## 5. Levantar Judge0 en un Droplet de DigitalOcean
 
-**Recomendado para producción.** En desarrollo puedes empezar con RapidAPI
+**Este paso es opcional.** El proveedor por defecto del ejecutor es la API pública
+de **Wandbox** (`CODE_EXECUTOR_PROVIDER="wandbox"`), que no pide llave ni tarjeta y
+sirve para arrancar en producción. Ver todos los proveedores en
+[docs/configuracion.md](docs/configuracion.md).
+
+Judge0 self-hosted es la opción de control total: tu propia cola, tus propios
+límites y sin depender de un servicio público. En desarrollo también existe RapidAPI
 (`CODE_EXECUTOR_PROVIDER="judge0-rapidapi"`), pero ese plan tiene límite de
 50 ejecuciones/día.
 

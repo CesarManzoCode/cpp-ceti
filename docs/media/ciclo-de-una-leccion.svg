@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 486" width="1240" height="486" role="img" aria-label="El ciclo de una lección en C++ CETI: teoría, ejemplo ejecutable, pregunta, completar código y reto; el reto se compila y se corre contra casos de prueba, y sólo al pasarlos suma XP y avanza el progreso.">
+  <style>
+    .t   { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+    .mono{ font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; }
+    .ink { fill:#141a26; }
+    .mut { fill:#5b6478; }
+    .kick{ fill:#5b6478; font-size:12px; letter-spacing:1.6px; }
+  </style>
+  <rect width="1240" height="486" fill="#f3f6f9"/>
+  <text class="t kick" x="40" y="42">EL CICLO DE UNA LECCIÓN</text>
+  <text class="t ink" x="40" y="76" font-size="26" font-weight="600">Se explica corto, se escribe C++ y la máquina decide</text>
+  <line x1="40" y1="100" x2="1200" y2="100" stroke="#dde3ea"/>
+  <g transform="translate(40,128)">
+    <rect width="208" height="74" rx="12" fill="#ffffff" stroke="#dde3ea" stroke-width="1.5"/>
+    <text class="t" x="18" y="32" font-size="14.5" font-weight="600" fill="#141a26">Teoría</text>
+    <text class="t" x="18" y="55" font-size="12.5" fill="#5b6478">10 pasos</text>
+  </g>
+  <line x1="250" y1="165" x2="262" y2="165" stroke="#9aa4b8" stroke-width="1.5"/>
+  <path d="M262 160 L270 165 L262 170 Z" fill="#9aa4b8"/>
+  <g transform="translate(268,128)">
+    <rect width="208" height="74" rx="12" fill="#ffffff" stroke="#dde3ea" stroke-width="1.5"/>
+    <text class="t" x="18" y="32" font-size="14.5" font-weight="600" fill="#141a26">Ejemplo ejecutable</text>
+    <text class="t" x="18" y="55" font-size="12.5" fill="#5b6478">69 pasos</text>
+  </g>
+  <line x1="478" y1="165" x2="490" y2="165" stroke="#9aa4b8" stroke-width="1.5"/>
+  <path d="M490 160 L498 165 L490 170 Z" fill="#9aa4b8"/>
+  <g transform="translate(496,128)">
+    <rect width="208" height="74" rx="12" fill="#ffffff" stroke="#dde3ea" stroke-width="1.5"/>
+    <text class="t" x="18" y="32" font-size="14.5" font-weight="600" fill="#141a26">Pregunta</text>
+    <text class="t" x="18" y="55" font-size="12.5" fill="#5b6478">52 pasos</text>
+  </g>
+  <line x1="706" y1="165" x2="718" y2="165" stroke="#9aa4b8" stroke-width="1.5"/>
+  <path d="M718 160 L726 165 L718 170 Z" fill="#9aa4b8"/>
+  <g transform="translate(724,128)">
+    <rect width="208" height="74" rx="12" fill="#ffffff" stroke="#dde3ea" stroke-width="1.5"/>
+    <text class="t" x="18" y="32" font-size="14.5" font-weight="600" fill="#141a26">Completa el código</text>
+    <text class="t" x="18" y="55" font-size="12.5" fill="#5b6478">67 pasos</text>
+  </g>
+  <line x1="934" y1="165" x2="946" y2="165" stroke="#9aa4b8" stroke-width="1.5"/>
+  <path d="M946 160 L954 165 L946 170 Z" fill="#9aa4b8"/>
+  <g transform="translate(952,128)">
+    <rect width="208" height="74" rx="12" fill="#233fa8" stroke="#233fa8" stroke-width="1.5"/>
+    <text class="t" x="18" y="32" font-size="14.5" font-weight="600" fill="#ffffff">Reto con tests</text>
+    <text class="t" x="18" y="55" font-size="12.5" fill="#c3ccef">116 retos</text>
+  </g>
+  <text class="t mut" x="40" y="228" font-size="12.5">Los pasos de cada lección, y cuántos hay en las 10 unidades del curso. Ninguna lección es sólo lectura: todas terminan escribiendo código.</text>
+  <g transform="translate(40,262)">
+    <rect width="1160" height="184" rx="14" fill="#ffffff" stroke="#dde3ea" stroke-width="1.5"/>
+    <text class="t kick" x="24" y="32">QUÉ PASA AL ENVIAR UN RETO</text>
+    <g transform="translate(24,52)">
+      <rect width="252" height="62" rx="10" fill="#f7f9fb" stroke="#dde3ea"/>
+      <text class="t" x="16" y="27" font-size="13.5" font-weight="600" fill="#141a26">Tu código</text>
+      <text class="t" x="16" y="47" font-size="11.5" fill="#5b6478">main.cpp en el editor</text>
+    </g>
+    <g transform="translate(300,52)">
+      <rect width="252" height="62" rx="10" fill="#171e2d" stroke="#171e2d"/>
+      <text class="t" x="16" y="27" font-size="13.5" font-weight="600" fill="#ffffff">Compilar y ejecutar</text>
+      <text class="mono" x="16" y="47" font-size="11.5" fill="#95a3c4">g++ del servicio de ejecución</text>
+    </g>
+    <g transform="translate(576,52)">
+      <rect width="252" height="62" rx="10" fill="#f7f9fb" stroke="#dde3ea"/>
+      <text class="t" x="16" y="27" font-size="13.5" font-weight="600" fill="#141a26">171 casos de prueba</text>
+      <text class="t" x="16" y="47" font-size="11.5" fill="#5b6478">entrada → salida esperada</text>
+    </g>
+      <line x1="280" y1="83" x2="292" y2="83" stroke="#9aa4b8" stroke-width="1.5"/>
+      <path d="M292 78 L300 83 L292 88 Z" fill="#9aa4b8"/>
+      <line x1="556" y1="83" x2="568" y2="83" stroke="#9aa4b8" stroke-width="1.5"/>
+      <path d="M568 78 L576 83 L568 88 Z" fill="#9aa4b8"/>
+    <g transform="translate(872,44)">
+      <rect width="264" height="36" rx="9" fill="#fdf0f1" stroke="#e7bcc0"/>
+      <text class="t" x="14" y="23" font-size="12.5" fill="#8c2f38">Falla → qué línea y columna difieren</text>
+      <rect y="46" width="264" height="36" rx="9" fill="#eef7f1" stroke="#b5d9c3"/>
+      <text class="t" x="14" y="69" font-size="12.5" fill="#1d6a41">Pasa → +XP, racha y lección marcada</text>
+    </g>
+      <line x1="832" y1="83" x2="864" y2="83" stroke="#9aa4b8" stroke-width="1.5"/>
+      <path d="M864 78 L872 83 L864 88 Z" fill="#9aa4b8"/>
+    <path d="M1004 128 L1004 160 L120 160 L120 118" fill="none" stroke="#c8d0dd" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <path d="M115 124 L120 114 L125 124 Z" fill="#c8d0dd"/>
+    <text class="t mut" x="240" y="150" font-size="12">se corrige y se vuelve a enviar — los casos ocultos no muestran su entrada</text>
+  </g>
+</svg>
