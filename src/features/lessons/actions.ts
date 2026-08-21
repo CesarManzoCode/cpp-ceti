@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ActionError, isUniqueViolation, withActionErrorHandling } from "@/lib/action-error";
+import { ActionError, withActionErrorHandling } from "@/lib/action-error";
+import { claimExerciseCompletion } from "@/lib/completions";
 import { db } from "@/lib/db";
 import { buildFeedback, getCodeExecutor } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
@@ -71,8 +72,9 @@ export const completeStep = withActionErrorHandling(
  * Envía un intento de un ejercicio de lección. Compila, corre tests,
  * guarda intento, y otorga XP **sólo en el primer pase**. La detección
  * de "primer pase" es atómica vía `UserExerciseCompletion` con UNIQUE
- * (userId, exerciseId): bajo race, sólo un envío gana, los demás
- * detectan P2002 y no duplican XP.
+ * (userId, exerciseId) + `INSERT ... ON CONFLICT DO NOTHING`: bajo race,
+ * sólo un envío inserta la fila y gana el XP; los demás obtienen count 0
+ * sin abortar la transacción.
  */
 export const submitExercise = withActionErrorHandling(
   "submitExercise",
@@ -119,17 +121,12 @@ export const submitExercise = withActionErrorHandling(
     const stepIdsForProgression = lesson.steps.map((s) => s.id);
 
     const xpEarned = await db.$transaction(async (tx) => {
-      let firstPass = false;
-      if (allPassed) {
-        try {
-          await tx.userExerciseCompletion.create({
-            data: { userId, exerciseId: exercise.id },
-          });
-          firstPass = true;
-        } catch (err) {
-          if (!isUniqueViolation(err)) throw err;
-        }
-      }
+      // OJO: nada de create() + catch(P2002) aquí. Un UNIQUE violado aborta
+      // la transacción de Postgres y todo lo que sigue (el attempt, la
+      // progresión, el XP) moriría con 25P02. Ver `@/lib/completions`.
+      const firstPass = allPassed
+        ? await claimExerciseCompletion(tx, userId, exercise.id)
+        : false;
 
       await tx.userExerciseAttempt.create({
         data: {

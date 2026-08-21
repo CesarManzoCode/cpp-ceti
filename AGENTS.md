@@ -64,6 +64,17 @@ con un editor anexo: somos un sistema de práctica con teoría justo-a-tiempo.
    - `submitExercise` — corre tests y guarda intentos.
    No dupliques esa lógica en API routes.
 
+9. **Nunca atrapes un P2002 dentro de `db.$transaction()`.** En PostgreSQL,
+   una violación de UNIQUE aborta la transacción completa: aunque el `catch`
+   de JavaScript se trague el error, la siguiente consulta de esa misma
+   transacción falla con `25P02 current transaction is aborted`. Para
+   insertar-si-no-existe usa
+   `createMany({ data: [...], skipDuplicates: true })` (→ `INSERT ... ON
+   CONFLICT DO NOTHING`) y decide con el `count`. Los helpers de "primer
+   aprobado" viven en `src/lib/completions.ts`, y
+   `tests/architecture/no-catch-inside-transaction.test.ts` falla si el
+   antipatrón vuelve.
+
 ## Convenciones de código
 
 - Componentes shadcn van en `src/components/ui/` (no en `ui/shadcn/` u otro).

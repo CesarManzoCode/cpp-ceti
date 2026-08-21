@@ -4,11 +4,7 @@ import { FriendStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import {
-  ActionError,
-  isUniqueViolation,
-  withActionErrorHandling,
-} from "@/lib/action-error";
+import { ActionError, withActionErrorHandling } from "@/lib/action-error";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/get-session";
 import { logger } from "@/lib/logger";
@@ -78,19 +74,20 @@ export const sendFriendRequest = withActionErrorHandling(
         return { status: "accepted" as const };
       }
 
-      try {
-        await tx.friendship.create({
-          data: {
+      // `createMany({ skipDuplicates })` = INSERT ... ON CONFLICT DO NOTHING:
+      // resuelve la race (alguien creó la fila entre el findMany y esto) sin
+      // lanzar P2002, que dejaría la transacción de Postgres abortada.
+      const inserted = await tx.friendship.createMany({
+        data: [
+          {
             requesterId: me,
             addresseeId: target.id,
             status: FriendStatus.pending,
           },
-        });
-      } catch (err) {
-        // Race: alguien creó la fila entre el findMany y el create.
-        if (isUniqueViolation(err)) return { status: "already" as const };
-        throw err;
-      }
+        ],
+        skipDuplicates: true,
+      });
+      if (inserted.count === 0) return { status: "already" as const };
 
       logger.info({ me, other: target.id }, "friend request sent");
       return { status: "sent" as const };

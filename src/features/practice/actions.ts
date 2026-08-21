@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ActionError, isUniqueViolation, withActionErrorHandling } from "@/lib/action-error";
+import { ActionError, withActionErrorHandling } from "@/lib/action-error";
+import { claimPracticeCompletion } from "@/lib/completions";
 import { db } from "@/lib/db";
 import { buildFeedback, getCodeExecutor } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
@@ -69,17 +70,12 @@ export const submitPracticeExercise = withActionErrorHandling(
     const feedback = buildFeedback(results);
 
     const { xpEarned, firstPass } = await db.$transaction(async (tx) => {
-      let isFirstPass = false;
-      if (allPassed) {
-        try {
-          await tx.userPracticeCompletion.create({
-            data: { userId, exerciseId: exercise.id },
-          });
-          isFirstPass = true;
-        } catch (err) {
-          if (!isUniqueViolation(err)) throw err;
-        }
-      }
+      // OJO: nada de create() + catch(P2002) aquí. Un UNIQUE violado aborta
+      // la transacción de Postgres y el `userPracticeAttempt.create` de abajo
+      // moriría con 25P02. Ver `@/lib/completions`.
+      const isFirstPass = allPassed
+        ? await claimPracticeCompletion(tx, userId, exercise.id)
+        : false;
 
       await tx.userPracticeAttempt.create({
         data: {
