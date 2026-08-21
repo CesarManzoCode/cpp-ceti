@@ -2,6 +2,8 @@
 
 > Plataforma interactiva para aprender C++ — pensada para estudiantes del **CETI Guadalajara**.
 > Filosofía: **90 % práctica, 10 % teoría.** Cada concepto se sigue de un ejercicio que TÚ escribes.
+>
+> El contenido actual cubre **10 unidades**, desde el primer programa hasta matrices.
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
@@ -55,7 +57,7 @@ cp .env.example .env.local
 # 3. Aplicar schema a la DB
 npm run db:push
 
-# 4. Cargar contenido del curso (Unidad 1 + Unidad 2)
+# 4. Cargar el contenido completo del curso (Unidades 1 a 10)
 npm run db:seed
 
 # 5. Arrancar dev server
