@@ -32,6 +32,10 @@ model User {
   /// Bio opcional mostrada en el perfil público. Texto plano.
   bio           String?   @db.VarChar(160)
   image         String?
+  /// Rol de producto. `admin` habilita /app/admin (analytics + triage de
+  /// reportes). La autorización SIEMPRE se resuelve leyendo esta columna en
+  /// el servidor (`requireAdmin`), nunca desde el payload de la sesión.
+  role          UserRole  @default(student)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -49,7 +53,11 @@ model User {
   practiceCompletions  UserPracticeCompletion[]
   hintsViewed          UserHintViewed[]
   studySessions        StudySession[]
-  bugReports           BugReport[]
+  bugReports           BugReport[]              @relation("BugReportAuthor")
+  handledBugReports    BugReport[]              @relation("BugReportHandler")
+  feedback             Feedback[]               @relation("FeedbackAuthor")
+  handledFeedback      Feedback[]               @relation("FeedbackHandler")
+  productEvents        ProductEvent[]
   streak               UserStreak?
 
   // Relaciones sociales
@@ -57,7 +65,14 @@ model User {
   friendshipsReceived Friendship[] @relation("FriendshipAddressee")
 
   @@index([email])
+  /// Altas por ventana temporal en el panel interno.
+  @@index([createdAt])
   @@map("user")
+}
+
+enum UserRole {
+  student
+  admin
 }
 
 model Session {
@@ -160,11 +175,18 @@ model Lesson {
   xpReward         Int      @default(20)
   estimatedMinutes Int      @default(5)
   published        Boolean  @default(true)
+  /// Hash corto derivado de las revisiones de sus pasos: cambia cuando cambia
+  /// CUALQUIER paso de la lección. Permite comparar funnels antes/después de
+  /// una reescritura. Lo escribe el seed.
+  contentRevision   String?
+  contentRevisionAt DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  steps    LessonStep[]
-  progress UserLessonProgress[]
+  steps         LessonStep[]
+  progress      UserLessonProgress[]
+  feedback      Feedback[]
+  productEvents ProductEvent[]
 
   @@unique([unitId, slug])
   @@index([unitId, order])
@@ -190,9 +212,16 @@ model LessonStep {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  exercise   Exercise?
-  progress   UserStepProgress[]
-  bugReports BugReport[]
+  /// Hash corto del contenido pedagógico vigente (ver `src/lib/content-revision.ts`).
+  /// Lo escribe el seed. Los eventos y los intentos guardan la revisión que el
+  /// alumno tenía enfrente, para poder comparar antes/después de un cambio.
+  contentRevision   String?
+  contentRevisionAt DateTime?
+
+  exercise      Exercise?
+  progress      UserStepProgress[]
+  bugReports    BugReport[]
+  productEvents ProductEvent[]
 
   @@unique([lessonId, order])
   @@index([lessonId, order])
@@ -224,6 +253,11 @@ model Exercise {
   completions      UserExerciseCompletion[]
   hintsViewed      UserHintViewed[]
   bugReports       BugReport[]
+  productEvents    ProductEvent[]
+  /// Hash corto del contenido vigente (prompt + starter + solución + hints +
+  /// tests). Lo escribe el seed; ver `src/lib/content-revision.ts`.
+  contentRevision   String?
+  contentRevisionAt DateTime?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
@@ -283,6 +317,8 @@ model UserLessonProgress {
 
   @@unique([userId, lessonId])
   @@index([userId, status])
+  /// Funnel de lecciones: completadas dentro de una ventana.
+  @@index([status, completedAt])
   @@map("user_lesson_progress")
 }
 
@@ -299,7 +335,11 @@ model UserStepProgress {
   stepId      String
   step        LessonStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   completedAt DateTime   @default(now())
-  attempts    Int        @default(1)
+  /// ⚠️ NO es "intentos del estudiante". Cuenta cuántas veces `completeStep`
+  /// marcó este paso (avanzar, volver atrás y volver a avanzar lo incrementa).
+  /// Los intentos pedagógicos reales viven en `ProductEvent.lesson_step_attempt`
+  /// (steps interactivos) y en `UserExerciseAttempt` (retos de código).
+  completionCount Int     @default(1)
 
   @@unique([userId, stepId])
   @@map("user_step_progress")
@@ -316,12 +356,21 @@ model UserExerciseAttempt {
   feedback     String?  // resumen del por qué pasó o falló
   testsPassed  Int      @default(0)
   testsTotal   Int      @default(0)
+  /// ⚠️ LATENCIA DEL EJECUTOR (compilar + correr todos los tests), en ms.
+  /// NO es el tiempo que el alumno tardó en resolver. Para tiempo de estudio
+  /// usa `StudySession.engagedMs`. Ver `docs/product-analytics.md`.
   durationMs   Int?
+  /// Revisión del contenido del ejercicio en el momento del envío.
+  contentRevision String?
   /** True solo en el primer intento que aprobó (consistente con UserExerciseCompletion). */
   awardedXp    Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   @@index([userId, exerciseId, createdAt])
+  /// Analytics por ventana temporal (el índice de arriba guía por userId
+  /// y no sirve para "todos los envíos entre dos fechas").
+  @@index([createdAt])
+  @@index([exerciseId, createdAt])
   @@map("user_exercise_attempt")
 }
 
@@ -368,11 +417,17 @@ model PracticeExercise {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  testCases    PracticeTestCase[]
-  attempts     UserPracticeAttempt[]
-  completions  UserPracticeCompletion[]
-  hintsViewed  UserHintViewed[]
-  bugReports   BugReport[]
+  /// Hash corto del contenido vigente. Ver `src/lib/content-revision.ts`.
+  contentRevision   String?
+  contentRevisionAt DateTime?
+
+  testCases     PracticeTestCase[]
+  attempts      UserPracticeAttempt[]
+  completions   UserPracticeCompletion[]
+  hintsViewed   UserHintViewed[]
+  bugReports    BugReport[]
+  feedback      Feedback[]
+  productEvents ProductEvent[]
 
   @@index([unitSlug, position])
   @@map("practice_exercise")
@@ -403,12 +458,18 @@ model UserPracticeAttempt {
   feedback    String?
   testsPassed Int              @default(0)
   testsTotal  Int              @default(0)
+  /// ⚠️ LATENCIA DEL EJECUTOR, no tiempo de resolución. Ver `UserExerciseAttempt.durationMs`.
   durationMs  Int?
+  /// Revisión del contenido del ejercicio en el momento del envío.
+  contentRevision String?
   /** True solo en el primer intento que aprobó (consistente con UserPracticeCompletion). */
   awardedXp   Boolean          @default(false)
   createdAt   DateTime         @default(now())
 
   @@index([userId, exerciseId, createdAt])
+  /// Analytics por ventana temporal. Ver `UserExerciseAttempt`.
+  @@index([createdAt])
+  @@index([exerciseId, createdAt])
   @@map("user_practice_attempt")
 }
 
@@ -423,6 +484,8 @@ model UserPracticeCompletion {
   completedAt DateTime         @default(now())
 
   @@unique([userId, exerciseId])
+  /// Funnel de práctica: aprobados dentro de una ventana.
+  @@index([completedAt])
   @@map("user_practice_completion")
 }
 
@@ -443,25 +506,60 @@ model UserStreak {
 //  SEÑALES PEDAGÓGICAS — sesiones, hints, reportes de contenido
 // =====================================================================
 
-// Sesión de estudio. La abre el cliente al entrar a una lección/práctica
-// y la cierra (set `endedAt`) al salir o al expirar el heartbeat.
-// Sirve para medir tiempo real dedicado por estudiante.
+// Sesión de estudio: una visita continua a un recurso (lección o ejercicio
+// de práctica). La abre el cliente al montar el reproductor y la cierra al
+// salir; si el cliente nunca cierra (cerró la pestaña, se quedó sin red), el
+// barrido de huérfanas la cierra en `lastPingAt`.
+//
+// SEMÁNTICA DEL TIEMPO — leer antes de usar en un dashboard:
+//   · `startedAt`..`endedAt` es TIEMPO DE PARED. NO es tiempo de estudio.
+//   · `engagedMs` es tiempo ACTIVO APROXIMADO: la suma de los intervalos
+//     entre heartbeats consecutivos, y el cliente sólo emite heartbeat si la
+//     pestaña está visible y hubo actividad real (teclado/mouse/scroll) en la
+//     ventana reciente. Cada intervalo se acota en el servidor a
+//     `MAX_HEARTBEAT_CREDIT_MS`. El cierre acredita el último tramo SÓLO si
+//     el cliente afirma actividad reciente (misma regla), así que una pestaña
+//     abierta y olvidada termina en 0 — cerrar no es evidencia de estudiar.
+//   · El reloj SIEMPRE es del servidor (`now()`); el cliente nunca manda
+//     duraciones.
 model StudySession {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  /** "lesson" | "practice" | "free-code". */
+  /** "lesson" | "practice". */
   surface     String
   /** Referencia opcional al recurso (lessonId, practiceExerciseId, etc.). */
   resourceId  String?
+  /**
+   * Clave de idempotencia generada por el cliente (una por montaje del
+   * reproductor). El UNIQUE (userId, clientKey) hace que React StrictMode,
+   * un reintento de red o un doble click NO creen dos sesiones.
+   */
+  clientKey   String?
   startedAt   DateTime @default(now())
   endedAt     DateTime?
-  /** Última señal de actividad para detectar sesiones huérfanas. */
+  endedReason StudySessionEndReason?
+  /** Última señal de actividad; también es el cierre efectivo de una huérfana. */
   lastPingAt  DateTime @default(now())
+  /** Tiempo activo aproximado acumulado, en ms. Ver nota de semántica arriba. */
+  engagedMs   Int      @default(0)
 
+  hintsViewed   UserHintViewed[]
+  productEvents ProductEvent[]
+
+  @@unique([userId, clientKey])
   @@index([userId, startedAt])
   @@index([userId, surface, startedAt])
+  @@index([surface, startedAt])
+  @@index([lastPingAt])
   @@map("study_session")
+}
+
+enum StudySessionEndReason {
+  /** El cliente avisó que se iba (unmount, pagehide, navegación). */
+  closed
+  /** Nadie avisó: el barrido la cerró por falta de heartbeats. */
+  expired
 }
 
 // Una fila por (usuario, ejercicio, hint que vio). UNIQUE evita inflar
@@ -476,11 +574,18 @@ model UserHintViewed {
   exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   practiceExerciseId String?
   practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: Cascade)
+  /** Sesión de estudio en la que se reveló (para reconstruir la línea de tiempo). */
+  studySessionId     String?
+  studySession       StudySession?     @relation(fields: [studySessionId], references: [id], onDelete: SetNull)
+  /** Revisión del contenido del ejercicio cuando se reveló la pista. */
+  contentRevision    String?
   viewedAt           DateTime          @default(now())
 
   @@unique([userId, exerciseId, hintIndex])
   @@unique([userId, practiceExerciseId, hintIndex])
   @@index([userId, viewedAt])
+  /// Uso de pistas por ventana temporal (sin filtrar por usuario).
+  @@index([viewedAt])
   @@map("user_hint_viewed")
 }
 
@@ -489,7 +594,7 @@ model UserHintViewed {
 model BugReport {
   id                 String            @id @default(cuid())
   userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User              @relation("BugReportAuthor", fields: [userId], references: [id], onDelete: Cascade)
   /** Solo uno de los tres debe estar presente — se valida vía CHECK constraint. */
   lessonStepId       String?
   lessonStep         LessonStep?       @relation(fields: [lessonStepId], references: [id], onDelete: SetNull)
@@ -498,7 +603,18 @@ model BugReport {
   practiceExerciseId String?
   practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
   message            String
-  status             BugReportStatus   @default(open)
+  status             ReportStatus      @default(open)
+  /** Evidencia del cierre: por qué se resolvió/descartó. */
+  resolutionNote     String?
+  /** Issue de GitHub asociado (URL completa). */
+  issueUrl           String?
+  /** PR que implementó el cambio (URL completa). */
+  prUrl              String?
+  triagedAt          DateTime?
+  resolvedAt         DateTime?
+  /** Admin que movió el reporte por última vez. */
+  handledById        String?
+  handledBy          User?             @relation("BugReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
@@ -507,12 +623,163 @@ model BugReport {
   @@map("bug_report")
 }
 
-enum BugReportStatus {
+/// Estado compartido por `BugReport` y `Feedback`. `open` → `triaged` →
+/// `resolved` | `duplicate` | `wontfix`.
+enum ReportStatus {
   open
   triaged
   resolved
   duplicate
   wontfix
+}
+
+// ---------------------------------------------------------------------
+//  FEEDBACK GENERAL
+// ---------------------------------------------------------------------
+//  Distinto de BugReport: no apunta a un contenido roto concreto, sino a la
+//  experiencia ("esto me confundió", "estaría bueno que..."). El contexto
+//  (ruta, superficie, recurso) se captura solo — al alumno no se le pide
+//  que describa dónde estaba.
+model Feedback {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation("FeedbackAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  kind               FeedbackKind
+  message            String
+  /** Ruta de la app donde se abrió el widget, SIN query string ni fragmento. */
+  path               String?
+  surface            ProductSurface?
+  lessonId           String?
+  lesson             Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  practiceExerciseId String?
+  practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
+  status             ReportStatus      @default(open)
+  resolutionNote     String?
+  issueUrl           String?
+  prUrl              String?
+  triagedAt          DateTime?
+  resolvedAt         DateTime?
+  handledById        String?
+  handledBy          User?             @relation("FeedbackHandler", fields: [handledById], references: [id], onDelete: SetNull)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("feedback")
+}
+
+enum FeedbackKind {
+  /** "no entendí esto" */
+  confusing
+  /** sugerencia / idea */
+  idea
+  /** algo que le gustó */
+  praise
+  other
+}
+
+// ---------------------------------------------------------------------
+//  EVENTOS DE PRODUCTO (append-only)
+// ---------------------------------------------------------------------
+//  Capa MÍNIMA para el comportamiento que NO se puede inferir de las tablas
+//  de dominio. Todo lo que ya está bien representado (envíos, completions,
+//  pistas, reportes) NO se duplica aquí.
+//
+//  Reglas:
+//   · `name` es un enum cerrado — la taxonomía es explícita y limitada.
+//   · `occurredAt` es hora del SERVIDOR. El cliente nunca manda timestamps.
+//   · `props` se valida en el servidor con un contrato por evento
+//     (`src/lib/analytics/events.ts`). No es un JSON libre.
+//   · `dedupeKey` + UNIQUE (userId, dedupeKey) da idempotencia donde un
+//     re-render, un reintento o un doble click podrían duplicar.
+//   · NUNCA guardamos código fuente, teclas, ni texto libre del alumno aquí.
+model ProductEvent {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               ProductEventName
+  surface            ProductSurface
+  /** Recursos: FK reales (integridad referencial), nunca un id suelto. */
+  lessonId           String?
+  lesson             Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  lessonStepId       String?
+  lessonStep         LessonStep?       @relation(fields: [lessonStepId], references: [id], onDelete: SetNull)
+  exerciseId         String?
+  exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+  practiceExerciseId String?
+  practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
+  studySessionId     String?
+  studySession       StudySession?     @relation(fields: [studySessionId], references: [id], onDelete: SetNull)
+  /** Revisión del contenido que el usuario tenía enfrente. */
+  contentRevision    String?
+  /** Clave de idempotencia (null = evento sin dedupe). */
+  dedupeKey          String?
+  /** Hora del servidor. Fuente autoritativa. */
+  occurredAt         DateTime          @default(now())
+  props              Json              @default("{}")
+
+  @@unique([userId, dedupeKey])
+  @@index([name, occurredAt])
+  @@index([userId, occurredAt])
+  @@index([lessonId, name, occurredAt])
+  @@index([exerciseId, name, occurredAt])
+  @@index([practiceExerciseId, name, occurredAt])
+  @@index([studySessionId])
+  @@map("product_event")
+}
+
+enum ProductEventName {
+  /** Abrió el reproductor de una lección. */
+  lesson_view
+  /** Primera interacción real dentro de la lección (no sólo abrirla). */
+  lesson_engaged
+  /** Llegó a un paso concreto de la lección. */
+  lesson_step_view
+  /** Intento pedagógico en un paso interactivo (quiz, fill_blank, ...). */
+  lesson_step_attempt
+  /** Pidió ver la respuesta/solución de un paso. */
+  lesson_step_answer_revealed
+  /** Abrió un ejercicio de práctica. */
+  practice_view
+  /** Primera interacción real en el ejercicio de práctica. */
+  practice_engaged
+  /** Compiló/ejecutó en el playground SIN calificar. Lo emite el servidor. */
+  code_run
+}
+
+enum ProductSurface {
+  lesson
+  practice
+  playground
+  app
+}
+
+// ---------------------------------------------------------------------
+//  REVISIONES DE CONTENIDO
+// ---------------------------------------------------------------------
+//  Bitácora append-only: cuándo apareció por primera vez cada revisión de un
+//  paso/ejercicio. Con esto una comparación antes/después tiene ventanas
+//  temporales defendibles (y no mezcla intentos de dos redacciones distintas).
+//  Lo escribe el seed. No es un CMS: no versiona el contenido, sólo el hash.
+model ContentRevision {
+  id         String            @id @default(cuid())
+  targetType ContentTargetType
+  targetId   String
+  /** Hash corto (sha256 truncado) del contenido. */
+  revision   String
+  firstSeenAt DateTime         @default(now())
+
+  @@unique([targetType, targetId, revision])
+  @@index([targetType, targetId, firstSeenAt])
+  @@map("content_revision")
+}
+
+enum ContentTargetType {
+  lesson
+  lesson_step
+  exercise
+  practice_exercise
 }
 
 // =====================================================================

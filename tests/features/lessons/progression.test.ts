@@ -60,7 +60,7 @@ describe("markStepCompletedInTx", () => {
     // ahora es createMany({ skipDuplicates }) → ni P2002 ni transacción
     // abortada si otro request se adelanta.
     db.seed("userStepProgress", [
-      { id: "sp_1", userId: USER, stepId: STEPS[0], attempts: 1 },
+      { id: "sp_1", userId: USER, stepId: STEPS[0], completionCount: 1 },
     ]);
 
     const res = await mark(STEPS[1]!);
@@ -73,7 +73,7 @@ describe("markStepCompletedInTx", () => {
 
   it("si la fila ya está completed no vuelve a otorgar XP", async () => {
     db.seed("userStepProgress", [
-      { id: "sp_1", userId: USER, stepId: STEPS[0], attempts: 1 },
+      { id: "sp_1", userId: USER, stepId: STEPS[0], completionCount: 1 },
     ]);
     db.seed("userLessonProgress", [
       {

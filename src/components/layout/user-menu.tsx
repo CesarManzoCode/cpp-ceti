@@ -1,10 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Dumbbell,
   LogOut,
+  MessageSquarePlus,
   Settings,
+  ShieldCheck,
   Trophy,
   User as UserIcon,
   Users,
@@ -25,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { authClient } from "@/lib/auth-client";
 
 interface UserMenuProps {
@@ -35,10 +39,20 @@ interface UserMenuProps {
     username: string;
   };
   pendingFriendsCount?: number;
+  /**
+   * Sólo controla si se MUESTRA el acceso a /app/admin. La autorización real
+   * es server-side (`requireAdmin`): ocultar un link no protege nada.
+   */
+  isAdmin?: boolean;
 }
 
-export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
+export function UserMenu({
+  user,
+  pendingFriendsCount = 0,
+  isAdmin = false,
+}: UserMenuProps) {
   const router = useRouter();
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -130,12 +144,30 @@ export function UserMenu({ user, pendingFriendsCount = 0 }: UserMenuProps) {
           <Settings className="size-4" />
           Configuración
         </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            // El menú se cierra al elegir; abrimos el diálogo aparte para que
+            // no se desmonte con él.
+            event.preventDefault();
+            setFeedbackOpen(true);
+          }}
+        >
+          <MessageSquarePlus className="size-4" />
+          Enviar comentario
+        </DropdownMenuItem>
+        {isAdmin ? (
+          <DropdownMenuItem onClick={() => router.push("/app/admin")}>
+            <ShieldCheck className="size-4" />
+            Panel interno
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
           <LogOut className="size-4" />
           Cerrar sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </DropdownMenu>
   );
 }

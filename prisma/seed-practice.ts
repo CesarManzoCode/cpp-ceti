@@ -1,6 +1,7 @@
 import { type PrismaClient } from "@prisma/client";
 
 import { allPracticeSets } from "./content/exercises";
+import { contentRevision, trackRevision } from "./seed-revisions";
 
 /**
  * Carga los ejercicios de práctica a la DB. Idempotente:
@@ -66,6 +67,35 @@ export async function seedPracticeExercises(db: PrismaClient) {
           },
         });
       }
+
+      // Revisión del ejercicio (enunciado + starter + solución + pistas +
+      // tests). Los intentos guardan esta revisión: sin ella, un before/after
+      // mezclaría dos ejercicios distintos con el mismo slug.
+      await trackRevision(
+        db,
+        "practice_exercise",
+        dbExercise.id,
+        dbExercise.contentRevision,
+        contentRevision({
+          prompt: ex.prompt,
+          starterCode: ex.starterCode,
+          solutionCode: ex.solutionCode,
+          hints: ex.hints ?? [],
+          difficulty: ex.difficulty,
+          xpReward: ex.xpReward ?? 15,
+          testCases: ex.testCases.map((tc) => ({
+            stdin: tc.stdin ?? "",
+            expectedStdout: tc.expectedStdout,
+            visible: tc.visible ?? true,
+            description: tc.description ?? null,
+          })),
+        }),
+        (revision) =>
+          db.practiceExercise.update({
+            where: { id: dbExercise.id },
+            data: { contentRevision: revision, contentRevisionAt: new Date() },
+          }),
+      );
     }
   }
 }

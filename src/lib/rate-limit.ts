@@ -16,6 +16,14 @@ const LIMITS = {
   "submit-lesson-exercise": { limit: 20, windowSec: 60 },
   /** Envíos calificados de un ejercicio de práctica. */
   "submit-practice": { limit: 20, windowSec: 60 },
+  /**
+   * Telemetría de producto: heartbeats (2/min), vistas, intentos de steps.
+   * El tope existe para acotar el abuso del endpoint, no para frenar el uso
+   * normal — una lección intensa no pasa de ~20 llamadas por minuto.
+   */
+  telemetry: { limit: 90, windowSec: 60 },
+  /** Envío de feedback general. */
+  feedback: { limit: 5, windowSec: 60 },
 } satisfies Record<string, { limit: number; windowSec: number }>;
 
 export type RateLimitEndpoint = keyof typeof LIMITS;

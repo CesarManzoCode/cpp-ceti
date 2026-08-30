@@ -11,11 +11,13 @@ import { cn } from "@/lib/utils";
 import type { MatchingStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
+import type { StepSignalHandler } from "./step-signal";
 
 interface StepMatchingProps {
   content: MatchingStepContent;
   onNext: () => void;
   isPending: boolean;
+  onSignal?: StepSignalHandler;
 }
 
 const ATTEMPTS_BEFORE_REVEAL = 3;
@@ -30,6 +32,7 @@ export function StepMatching({
   content,
   onNext,
   isPending,
+  onSignal,
 }: StepMatchingProps) {
   const lefts = content.pairs.map((p) => p.left);
   const rights = content.pairs.map((p) => p.right);
@@ -104,6 +107,7 @@ export function StepMatching({
     if (!allCorrect) {
       setFailedAttempts((n) => n + 1);
     }
+    onSignal?.({ kind: "attempt", correct: allCorrect });
   }
 
   function tryAgain() {
@@ -116,6 +120,7 @@ export function StepMatching({
     setPairings(content.pairs.map((_, i) => i));
     setRevealed(true);
     setSubmitted(true);
+    onSignal?.({ kind: "reveal", failedAttempts });
     toast.info("Te dejamos las respuestas. Léelas con calma.");
   }
 

@@ -24,9 +24,13 @@ export async function markStepCompletedInTx(
   /** XP de lección a otorgar (sólo > 0 cuando lessonJustCompleted). */
   lessonXpEarned: number;
 }> {
+  // OJO: `completionCount` NO son intentos del estudiante — cuenta cuántas
+  // veces se marcó completado este paso (volver atrás y avanzar de nuevo lo
+  // incrementa). Los intentos pedagógicos reales viven en `ProductEvent`
+  // (`lesson_step_attempt`) y en `UserExerciseAttempt`.
   await tx.userStepProgress.upsert({
     where: { userId_stepId: { userId, stepId } },
-    update: { attempts: { increment: 1 } },
+    update: { completionCount: { increment: 1 } },
     create: { userId, stepId },
   });
 

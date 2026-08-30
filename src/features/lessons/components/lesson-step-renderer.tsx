@@ -9,11 +9,14 @@ import { StepFillBlank } from "./step-fill-blank";
 import { StepCodeChallenge } from "./step-code-challenge";
 import { StepMatching } from "./step-matching";
 import { StepCodeCompletion } from "./step-code-completion";
+import type { StepSignalHandler } from "./step-signal";
 
 interface LessonStepRendererProps {
   step: ViewerStep;
   onNext: () => void;
   isPending: boolean;
+  /** Señales pedagógicas del paso (intento / respuesta revelada). */
+  onSignal?: StepSignalHandler;
 }
 
 /**
@@ -25,6 +28,7 @@ export function LessonStepRenderer({
   step,
   onNext,
   isPending,
+  onSignal,
 }: LessonStepRendererProps) {
   switch (step.type) {
     case "theory":
@@ -51,6 +55,7 @@ export function LessonStepRenderer({
           content={step.content as Extract<StepContent, { type: "quiz" }>}
           onNext={onNext}
           isPending={isPending}
+          onSignal={onSignal}
         />
       );
     case "fill_blank":
@@ -61,6 +66,7 @@ export function LessonStepRenderer({
           }
           onNext={onNext}
           isPending={isPending}
+          onSignal={onSignal}
         />
       );
     case "code_challenge": {
@@ -76,6 +82,7 @@ export function LessonStepRenderer({
           exercise={step.exercise}
           onNext={onNext}
           isPending={isPending}
+          onSignal={onSignal}
         />
       );
     }
@@ -85,6 +92,7 @@ export function LessonStepRenderer({
           content={step.content as Extract<StepContent, { type: "matching" }>}
           onNext={onNext}
           isPending={isPending}
+          onSignal={onSignal}
         />
       );
     case "code_completion":
@@ -95,6 +103,7 @@ export function LessonStepRenderer({
           }
           onNext={onNext}
           isPending={isPending}
+          onSignal={onSignal}
         />
       );
     default:

@@ -4,14 +4,43 @@ import * as React from "react";
 import { Lightbulb } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { recordHintViewed } from "@/features/analytics/actions";
+import {
+  useHintsTarget,
+  useStudySession,
+} from "@/features/analytics/telemetry";
 
-/** Progressive hint reveal, shared by the lesson challenge and practice viewer. */
+/**
+ * Revelado progresivo de pistas, compartido por el reto de lección y la
+ * práctica.
+ *
+ * Telemetría: cada pista revelada se registra UNA vez por (usuario,
+ * ejercicio, pista) en `UserHintViewed`. El panel no recibe props de
+ * telemetría: lee el ejercicio del contexto (`HintsTargetProvider`), así
+ * que sigue sirviendo tal cual en cualquier pantalla. Sin contexto,
+ * simplemente no registra nada y las pistas funcionan igual.
+ */
 export function HintsPanel({ hints }: { hints: string[] }) {
   const [shown, setShown] = React.useState(0);
+  const target = useHintsTarget();
+  const { studySessionId } = useStudySession();
 
   if (hints.length === 0) return null;
 
   const remaining = hints.length - shown;
+
+  function revealNext() {
+    const hintIndex = shown;
+    setShown(hintIndex + 1);
+    if (!target) return;
+    void recordHintViewed({
+      target,
+      hintIndex,
+      ...(studySessionId ? { studySessionId } : {}),
+    }).catch(() => {
+      /* la pista ya se mostró; la telemetría no puede estorbar */
+    });
+  }
 
   return (
     <div className="space-y-3">
@@ -51,7 +80,7 @@ export function HintsPanel({ hints }: { hints: string[] }) {
       )}
 
       {remaining > 0 ? (
-        <Button size="default" variant="outline" onClick={() => setShown(shown + 1)}>
+        <Button size="default" variant="outline" onClick={revealNext}>
           {shown === 0 ? "Ver primera pista" : `Ver pista ${shown + 1}`}
         </Button>
       ) : null}

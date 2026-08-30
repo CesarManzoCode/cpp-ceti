@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import { BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
+import {
+  StudySessionProvider,
+  useStudySession,
+} from "@/features/analytics/telemetry";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { completeStep } from "@/features/lessons/actions";
 import { cn } from "@/lib/utils";
@@ -16,6 +20,16 @@ import type { ViewerStep } from "@/features/lessons/types";
 
 import { LessonCompleted } from "./lesson-completed";
 import { LessonStepRenderer } from "./lesson-step-renderer";
+import type { StepSignal } from "./step-signal";
+
+/** Tipos de step con señal pedagógica propia (ver `step-signal.ts`). */
+const INTERACTIVE_STEP_TYPES = new Set([
+  "quiz",
+  "fill_blank",
+  "matching",
+  "code_completion",
+  "code_challenge",
+]);
 
 export interface LessonViewerProps {
   lesson: {
@@ -35,7 +49,20 @@ export interface LessonViewerProps {
   initialStepIndex?: number | null;
 }
 
-export function LessonViewer({
+/**
+ * Envoltura de telemetría: abre la `StudySession` de esta lección para todo
+ * lo que se renderice adentro (pasos, retos, pistas). El reproductor real es
+ * `LessonPlayer`.
+ */
+export function LessonViewer(props: LessonViewerProps) {
+  return (
+    <StudySessionProvider surface="lesson" resourceId={props.lesson.id}>
+      <LessonPlayer {...props} />
+    </StudySessionProvider>
+  );
+}
+
+function LessonPlayer({
   lesson,
   unit,
   nextLessonLink,
@@ -55,6 +82,7 @@ export function LessonViewer({
   }, [lesson.steps, initialStepIndex]);
 
   const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
+  const { track, markEngaged, studySessionId } = useStudySession();
 
   // Mantener la URL sincronizada con el paso actual para soportar deep-link
   // y refresh sin perder posición. Usamos history.replaceState para no inflar
@@ -65,6 +93,66 @@ export function LessonViewer({
     url.searchParams.set("p", String(currentIndex + 1));
     window.history.replaceState(null, "", url.toString());
   }, [currentIndex]);
+
+  const currentStepForView = lesson.steps[currentIndex];
+
+  // Vista del paso. `studySessionId` está en las dependencias A PROPÓSITO: al
+  // montar todavía no existe la sesión, y sin esto la vista del PRIMER paso
+  // (justo la que sostiene el funnel) se perdía para siempre. El dedupe vive
+  // en el servidor —una vista por paso y por sesión—, así que reintentar
+  // cuando llega el id no duplica nada.
+  React.useEffect(() => {
+    if (!currentStepForView || !studySessionId) return;
+    track({
+      name: "lesson_step_view",
+      lessonId: lesson.id,
+      lessonStepId: currentStepForView.id,
+      stepType: currentStepForView.type,
+      stepIndex: currentIndex,
+    });
+  }, [track, studySessionId, lesson.id, currentStepForView, currentIndex]);
+
+  // Ordinal de intento POR PASO Y POR VISITA. Vive aquí, no en el componente
+  // de paso: al volver atrás y regresar, React remonta el paso (`key` = id) y
+  // su contador local vuelve a 1. Con eso, el segundo intento reusaba el
+  // dedupeKey del primero y se perdía en silencio.
+  const attemptOrdinalsRef = React.useRef<Map<string, number>>(new Map());
+
+  const handleStepSignal = React.useCallback(
+    (signal: StepSignal) => {
+      const step = lesson.steps[currentIndex];
+      if (!step || !INTERACTIVE_STEP_TYPES.has(step.type)) return;
+      markEngaged("step_interaction");
+      const stepType = step.type as
+        | "quiz"
+        | "fill_blank"
+        | "matching"
+        | "code_completion"
+        | "code_challenge";
+      if (signal.kind === "attempt") {
+        const attemptNumber =
+          (attemptOrdinalsRef.current.get(step.id) ?? 0) + 1;
+        attemptOrdinalsRef.current.set(step.id, attemptNumber);
+        track({
+          name: "lesson_step_attempt",
+          lessonId: lesson.id,
+          lessonStepId: step.id,
+          stepType,
+          attemptNumber,
+          correct: signal.correct,
+        });
+        return;
+      }
+      track({
+        name: "lesson_step_answer_revealed",
+        lessonId: lesson.id,
+        lessonStepId: step.id,
+        stepType,
+        failedAttempts: signal.failedAttempts,
+      });
+    },
+    [track, markEngaged, lesson.id, lesson.steps, currentIndex],
+  );
 
   const [isPending, startTransition] = React.useTransition();
   const [completedDialog, setCompletedDialog] = React.useState<{
@@ -94,6 +182,7 @@ export function LessonViewer({
 
   function handleNext() {
     if (!currentStep) return;
+    markEngaged("step_advance");
 
     startTransition(async () => {
       try {
@@ -231,6 +320,7 @@ export function LessonViewer({
             step={currentStep}
             onNext={handleNext}
             isPending={isPending}
+            onSignal={handleStepSignal}
           />
         </div>
       </div>

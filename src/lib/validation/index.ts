@@ -35,9 +35,32 @@ export const stepCompletionSchema = z.object({
   stepId: cuidSchema,
 });
 
+/**
+ * Contexto de producto de una ejecución sin calificar. Es OPCIONAL y sólo
+ * sirve para atribuir el evento `code_run`: si viene mal, la ejecución se
+ * hace igual y el evento se descarta.
+ */
+export const runContextSchema = z
+  .object({
+    surface: z.enum(["lesson", "practice", "playground"]),
+    lessonId: cuidSchema.nullish(),
+    exerciseId: cuidSchema.nullish(),
+    practiceExerciseId: cuidSchema.nullish(),
+    studySessionId: cuidSchema.nullish(),
+  })
+  // Un run pertenece a UN ejercicio. Aceptar los dos haría que el mismo run
+  // se contara en el reporte de lección y en el de práctica.
+  .refine(
+    (context) => !(context.exerciseId && context.practiceExerciseId),
+    "Un run no puede pertenecer a dos ejercicios",
+  );
+
+export type RunContextInput = z.infer<typeof runContextSchema>;
+
 export const runCodeSchema = z.object({
   sourceCode: sourceCodeSchema,
   stdin: stdinSchema,
+  context: runContextSchema.optional(),
 });
 
 export type RunCodeInput = z.infer<typeof runCodeSchema>;

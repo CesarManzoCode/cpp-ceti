@@ -75,6 +75,24 @@ con un editor anexo: somos un sistema de práctica con teoría justo-a-tiempo.
    `tests/architecture/no-catch-inside-transaction.test.ts` falla si el
    antipatrón vuelve.
 
+10. **La telemetría de producto tiene contrato escrito.** La taxonomía de
+   eventos vive en `src/lib/analytics/events.ts` (enum cerrado + Zod), la
+   escritura idempotente en `src/lib/analytics/record.ts`, y la semántica
+   exacta de CADA métrica en `docs/product-analytics.md`. Antes de agregar un
+   evento o de interpretar un número del panel, lee ese documento. Dos trampas
+   ya documentadas ahí: `durationMs` de los intentos es **latencia del
+   ejecutor** (no tiempo de resolución), y `UserStepProgress.completionCount`
+   **no** son intentos del estudiante.
+
+11. **`StudySession` mide tiempo activo aproximado, no tiempo de pared.**
+   `engagedMs` sólo acumula con heartbeats (pestaña visible + actividad
+   reciente), acotados en SQL. Las sesiones huérfanas se cierran en su último
+   latido. No sumes `endedAt - startedAt` como si fuera estudio.
+
+12. **El panel interno (`/app/admin`) se autoriza en el servidor.**
+   `requireAdmin()` / `requireAdminPage()` en CADA página y CADA Server Action.
+   Un layout no protege un POST directo a una action.
+
 ## Convenciones de código
 
 - Componentes shadcn van en `src/components/ui/` (no en `ui/shadcn/` u otro).

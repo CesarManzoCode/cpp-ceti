@@ -30,6 +30,11 @@ import type {
   SubmissionState,
   VisibleTest,
 } from "@/components/exercise/types";
+import {
+  HintsTargetProvider,
+  StudySessionProvider,
+  useStudySession,
+} from "@/features/analytics/telemetry";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitPracticeExercise } from "@/features/practice/actions";
@@ -53,7 +58,19 @@ interface PracticeViewerProps {
   };
 }
 
+/**
+ * Envoltura de telemetría: abre la `StudySession` del ejercicio de práctica.
+ * El reproductor real es `PracticePlayer`.
+ */
 export function PracticeViewer({ exercise }: PracticeViewerProps) {
+  return (
+    <StudySessionProvider surface="practice" resourceId={exercise.id}>
+      <PracticePlayer exercise={exercise} />
+    </StudySessionProvider>
+  );
+}
+
+function PracticePlayer({ exercise }: PracticeViewerProps) {
   // Borrador local + mejor intento del servidor + fallback al starter.
   const [code, setCode, resetCode] = useCodeDraft({
     key: exercise.id,
@@ -67,7 +84,15 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
     | null
   >(null);
 
-  const playground = useRunCode();
+  const { studySessionId, markEngaged } = useStudySession();
+
+  // "Compilar" sin "Calificar" no dejaba ninguna señal: ahora sí, y sin
+  // duplicar `UserPracticeAttempt` (que sigue siendo el registro del envío).
+  const playground = useRunCode({
+    surface: "practice",
+    practiceExerciseId: exercise.id,
+    studySessionId,
+  });
   const running = playground.state === "running";
 
   const diagnostics = React.useMemo(() => {
@@ -78,11 +103,13 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
   }, [submission, playground.result]);
 
   function handleRun() {
+    markEngaged("code_run");
     setSubmission(null);
-    playground.run(code);
+    void playground.run(code);
   }
 
   async function handleSubmit() {
+    markEngaged("code_run");
     setSubmitting(true);
     try {
       const res = await submitPracticeExercise({
@@ -174,7 +201,10 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         <section className="space-y-3 lg:col-start-2 lg:row-span-2">
           <CppEditor
             value={code}
-            onChange={setCode}
+            onChange={(next) => {
+              markEngaged("code_edit");
+              setCode(next);
+            }}
             onRun={handleRun}
             minHeight={420}
             diagnostics={diagnostics}
@@ -244,7 +274,11 @@ export function PracticeViewer({ exercise }: PracticeViewerProps) {
         {/* Referencia — ejemplos y pistas: bajo el editor en móvil, izquierda en desktop */}
         <section className="space-y-5 lg:col-start-1">
           <ExampleTests tests={exercise.visibleTests} />
-          <HintsPanel hints={exercise.hints} />
+          <HintsTargetProvider
+            target={{ kind: "practice", practiceExerciseId: exercise.id }}
+          >
+            <HintsPanel hints={exercise.hints} />
+          </HintsTargetProvider>
         </section>
       </article>
     </div>

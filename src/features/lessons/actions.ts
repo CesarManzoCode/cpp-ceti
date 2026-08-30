@@ -137,7 +137,11 @@ export const submitExercise = withActionErrorHandling(
           feedback,
           testsPassed: passedCount,
           testsTotal: results.length,
+          // Latencia del ejecutor, NO tiempo de resolución del alumno.
           durationMs,
+          // Revisión del contenido con la que se resolvió: sin esto no se
+          // pueden comparar intentos de antes y después de un cambio.
+          contentRevision: exercise.contentRevision,
           awardedXp: firstPass,
         },
       });
