@@ -37,10 +37,16 @@ import type {
   SubmissionState,
   VisibleTest,
 } from "@/components/exercise/types";
+import {
+  HintsTargetProvider,
+  useStudySession,
+} from "@/features/analytics/telemetry";
 import { StepKind } from "@/features/lessons/components/step-shell";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitExercise } from "@/features/lessons/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
+
+import type { StepSignalHandler } from "./step-signal";
 
 interface StepCodeChallengeProps {
   exercise: {
@@ -56,6 +62,7 @@ interface StepCodeChallengeProps {
   };
   onNext: () => void;
   isPending: boolean;
+  onSignal?: StepSignalHandler;
 }
 
 const ATTEMPTS_BEFORE_SOLUTION = 3;
@@ -64,6 +71,7 @@ export function StepCodeChallenge({
   exercise,
   onNext,
   isPending,
+  onSignal,
 }: StepCodeChallengeProps) {
   const [code, setCode] = useCodeDraft({
     key: exercise.id,
@@ -80,7 +88,17 @@ export function StepCodeChallenge({
   );
   const resultRef = React.useRef<HTMLDivElement>(null);
 
-  const playground = useRunCode();
+  const { studySessionId, surface, resourceId, markEngaged } =
+    useStudySession();
+
+  // Los envíos calificados ya viven en `UserExerciseAttempt`: aquí sólo
+  // instrumentamos lo que NO queda registrado allá (compilar sin calificar).
+  const playground = useRunCode({
+    surface: "lesson",
+    lessonId: surface === "lesson" ? resourceId : null,
+    exerciseId: exercise.id,
+    studySessionId,
+  });
 
   React.useEffect(() => {
     if (attempt > 0) {
@@ -99,6 +117,7 @@ export function StepCodeChallenge({
   }, [submission, playground.result]);
 
   async function handleSubmit() {
+    markEngaged("code_run");
     setSubmitting(true);
     try {
       const res = await submitExercise({
@@ -120,6 +139,9 @@ export function StepCodeChallenge({
   }
 
   function revealSolution() {
+    // Señal pedagógica: rendirse tras N intentos NO puede quedar
+    // indistinguible de resolverlo a la primera.
+    onSignal?.({ kind: "reveal", failedAttempts });
     setCode(exercise.solutionCode);
     setSolutionRevealed(true);
     setShowSolutionDialog(false);
@@ -162,8 +184,14 @@ export function StepCodeChallenge({
       <section className="space-y-3 lg:col-start-2 lg:row-span-2">
         <CppEditor
           value={code}
-          onChange={setCode}
-          onRun={() => playground.run(code)}
+          onChange={(next) => {
+            markEngaged("code_edit");
+            setCode(next);
+          }}
+          onRun={() => {
+            markEngaged("code_run");
+            void playground.run(code);
+          }}
           minHeight={380}
           diagnostics={diagnostics}
           ariaLabel="Editor del reto. Ctrl+Enter para ejecutar, botón Enviar para calificar."
@@ -173,8 +201,9 @@ export function StepCodeChallenge({
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
+                markEngaged("code_run");
                 setSubmission(null);
-                playground.run(code);
+                void playground.run(code);
               }}
               disabled={running || submitting}
               loading={running}
@@ -249,7 +278,11 @@ export function StepCodeChallenge({
       {/* Referencia — ejemplos y pistas: bajo el editor en móvil, col. izquierda en desktop */}
       <section className="space-y-5 lg:col-start-1">
         <ExampleTests tests={exercise.visibleTests} />
-        <HintsPanel hints={exercise.hints} />
+        <HintsTargetProvider
+          target={{ kind: "exercise", exerciseId: exercise.id }}
+        >
+          <HintsPanel hints={exercise.hints} />
+        </HintsTargetProvider>
       </section>
 
       <Dialog

@@ -10,19 +10,27 @@ import { cn } from "@/lib/utils";
 import type { QuizStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
+import type { StepSignalHandler } from "./step-signal";
 
 interface StepQuizProps {
   content: QuizStepContent;
   onNext: () => void;
   isPending: boolean;
+  onSignal?: StepSignalHandler;
 }
 
 const ATTEMPTS_BEFORE_REVEAL = 3;
 
-export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
+export function StepQuiz({
+  content,
+  onNext,
+  isPending,
+  onSignal,
+}: StepQuizProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
+  const [attempts, setAttempts] = React.useState(0);
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [revealed, setRevealed] = React.useState(false);
 
@@ -33,11 +41,15 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
 
   function handleCheck() {
     if (selected === null) return;
+    const attemptNumber = attempts + 1;
+    setAttempts(attemptNumber);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
-    if (selected !== content.correctIndex) {
+    const correct = selected === content.correctIndex;
+    if (!correct) {
       setFailedAttempts((n) => n + 1);
     }
+    onSignal?.({ kind: "attempt", correct, attemptNumber });
   }
 
   function revealAnswer() {
@@ -45,6 +57,7 @@ export function StepQuiz({ content, onNext, isPending }: StepQuizProps) {
     setRevealed(true);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
+    onSignal?.({ kind: "reveal", failedAttempts });
   }
 
   React.useEffect(() => {

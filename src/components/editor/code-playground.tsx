@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { CppEditor } from "@/components/editor/cpp-editor";
 import { diagnosticsFromExecution } from "@/components/editor/diagnostics";
 import { OutputPanel } from "@/components/editor/output-panel";
+import { useStudySession } from "@/features/analytics/telemetry";
 import { useRunCode } from "@/hooks/use-run-code";
 import { cn } from "@/lib/utils";
 
@@ -28,9 +29,20 @@ export function CodePlayground({
 }: CodePlaygroundProps) {
   const [code, setCode] = React.useState(initialCode);
   const [stdin, setStdin] = React.useState("");
-  const { state, result, error, run, reset } = useRunCode();
+  const { studySessionId, surface, resourceId, markEngaged } =
+    useStudySession();
+
+  // Playground libre (dentro de un ejemplo de código): la ejecución se
+  // atribuye a la lección, pero NO a un ejercicio — no contamina el
+  // denominador de "run → submit" de los retos.
+  const { state, result, error, run, reset } = useRunCode({
+    surface: "playground",
+    lessonId: surface === "lesson" ? resourceId : null,
+    studySessionId,
+  });
 
   function handleRun() {
+    markEngaged("code_run");
     void run(code, stdin);
   }
 

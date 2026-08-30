@@ -20,11 +20,13 @@ import { cn } from "@/lib/utils";
 import type { CodeCompletionStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
+import type { StepSignalHandler } from "./step-signal";
 
 interface StepCodeCompletionProps {
   content: CodeCompletionStepContent;
   onNext: () => void;
   isPending: boolean;
+  onSignal?: StepSignalHandler;
 }
 
 const ATTEMPTS_BEFORE_REVEAL = 3;
@@ -41,10 +43,12 @@ export function StepCodeCompletion({
   content,
   onNext,
   isPending,
+  onSignal,
 }: StepCodeCompletionProps) {
   const correctOrder = content.lines;
   const [items, setItems] = React.useState<string[]>(() => [...correctOrder]);
   const [submitted, setSubmitted] = React.useState(false);
+  const [attempts, setAttempts] = React.useState(0);
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [revealed, setRevealed] = React.useState(false);
 
@@ -83,8 +87,11 @@ export function StepCodeCompletion({
   }
 
   function verify() {
+    const attemptNumber = attempts + 1;
+    setAttempts(attemptNumber);
     setSubmitted(true);
     if (!isCorrect) setFailedAttempts((n) => n + 1);
+    onSignal?.({ kind: "attempt", correct: isCorrect, attemptNumber });
   }
 
   function tryAgain() {
@@ -95,6 +102,7 @@ export function StepCodeCompletion({
     setItems([...correctOrder]);
     setRevealed(true);
     setSubmitted(true);
+    onSignal?.({ kind: "reveal", failedAttempts });
     toast.info("Te dejamos el orden correcto.");
   }
 

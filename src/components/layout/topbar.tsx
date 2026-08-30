@@ -12,6 +12,8 @@ export interface TopbarProps {
   streak: number;
   units: RoadmapUnit[];
   pendingFriendsCount?: number;
+  /** Muestra el acceso al panel interno (la autorización es server-side). */
+  isAdmin?: boolean;
 }
 
 /**
@@ -24,6 +26,7 @@ export function Topbar({
   streak,
   units,
   pendingFriendsCount = 0,
+  isAdmin = false,
 }: TopbarProps) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-background/90 px-4 backdrop-blur-md sm:px-6">
@@ -57,7 +60,11 @@ export function Topbar({
 
       <div className="ml-1 flex items-center gap-0.5 sm:ml-2">
         <ThemeToggle />
-        <UserMenu user={user} pendingFriendsCount={pendingFriendsCount} />
+        <UserMenu
+          user={user}
+          pendingFriendsCount={pendingFriendsCount}
+          isAdmin={isAdmin}
+        />
       </div>
     </header>
   );

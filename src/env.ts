@@ -24,6 +24,14 @@ const baseSchema = z.object({
   BETTER_AUTH_SECRET: nonEmpty,
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
 
+  /**
+   * Correos con acceso al panel interno (/app/admin), separados por coma.
+   * Sirve para el arranque en frío: sin esto no habría forma de nombrar al
+   * primer admin sin entrar a la BD a mano. El camino durable es la columna
+   * `user.role`; ambos se verifican SIEMPRE en el servidor.
+   */
+  ADMIN_EMAILS: optionalNonEmpty,
+
   GOOGLE_CLIENT_ID: optionalNonEmpty,
   GOOGLE_CLIENT_SECRET: optionalNonEmpty,
 

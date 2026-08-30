@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { getPendingIncomingCount } from "@/features/friends/queries";
 import { getDefaultCourse, getRoadmapUnits } from "@/features/roadmap/queries";
+import { getAdminContext } from "@/lib/admin";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 
@@ -20,10 +21,13 @@ export default async function AppLayout({
   }
 
   // Paralelizar: course/stats/pending son independientes; units depende de course.
-  const [course, stats, pendingFriendsCount] = await Promise.all([
+  const [course, stats, pendingFriendsCount, adminContext] = await Promise.all([
     getDefaultCourse(),
     getUserStats(session.user.id),
     getPendingIncomingCount(session.user.id),
+    // Sólo decide si se muestra el acceso al panel; la autorización real la
+    // hace cada página/acción de /app/admin.
+    getAdminContext(),
   ]);
   const units = course
     ? await getRoadmapUnits(course.id, session.user.id)
@@ -45,6 +49,7 @@ export default async function AppLayout({
             streak={stats.currentStreak}
             units={units}
             pendingFriendsCount={pendingFriendsCount}
+            isAdmin={adminContext !== null}
           />
         </ChromeSlot>
 

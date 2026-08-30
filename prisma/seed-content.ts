@@ -1,6 +1,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { allCourses } from "./content";
+import { contentRevision, trackRevision } from "./seed-revisions";
 import type {
   CourseDefinition,
   LessonDefinition,
@@ -101,8 +102,9 @@ async function upsertLesson(
   // Upsert por (lessonId, order). Esto preserva los IDs de los pasos y
   // por extensión todo el UserStepProgress / UserExerciseAttempt asociado.
   // Cambiar texto, hints o test cases NO resetea el progreso del usuario.
+  const stepRevisions: string[] = [];
   for (let i = 0; i < lesson.steps.length; i++) {
-    await upsertStep(db, dbLesson.id, lesson.steps[i], i);
+    stepRevisions.push(await upsertStep(db, dbLesson.id, lesson.steps[i], i));
   }
 
   // Si una lección se acortó (menos pasos que antes), purgar los sobrantes.
@@ -110,14 +112,31 @@ async function upsertLesson(
   await db.lessonStep.deleteMany({
     where: { lessonId: dbLesson.id, order: { gt: lesson.steps.length } },
   });
+
+  // Revisión de la lección = hash de las revisiones de sus pasos, en orden.
+  // Cambiar cualquier paso (o reordenarlos) cambia la revisión de la lección,
+  // que es la unidad de comparación de los funnels.
+  await trackRevision(
+    db,
+    "lesson",
+    dbLesson.id,
+    dbLesson.contentRevision,
+    contentRevision(stepRevisions),
+    (revision) =>
+      db.lesson.update({
+        where: { id: dbLesson.id },
+        data: { contentRevision: revision, contentRevisionAt: new Date() },
+      }),
+  );
 }
 
+/** @returns la revisión de contenido del paso (para la revisión de lección). */
 async function upsertStep(
   db: PrismaClient,
   lessonId: string,
   step: StepDefinition,
   index: number,
-) {
+): Promise<string> {
   const content = buildStepContent(step);
   const order = index + 1;
 
@@ -135,7 +154,12 @@ async function upsertStep(
     },
   });
 
-  if (step.type !== "code_challenge") return;
+  const baseRevision = contentRevision({ type: step.type, content });
+
+  if (step.type !== "code_challenge") {
+    await saveStepRevision(db, dbStep.id, dbStep.contentRevision, baseRevision);
+    return baseRevision;
+  }
 
   const ex = step.exercise;
   const dbExercise = await db.exercise.upsert({
@@ -175,6 +199,59 @@ async function upsertStep(
       },
     });
   }
+
+  // La revisión del ejercicio incluye los tests: cambiar un `expectedStdout`
+  // cambia el ejercicio para efectos de comparación, aunque el enunciado no
+  // se haya tocado.
+  const exerciseRevision = contentRevision({
+    prompt: ex.prompt,
+    starterCode: ex.starterCode,
+    solutionCode: ex.solutionCode,
+    hints: ex.hints ?? [],
+    difficulty: ex.difficulty ?? "easy",
+    xpReward: ex.xpReward ?? 15,
+    testCases: ex.testCases.map((tc) => ({
+      stdin: tc.stdin ?? "",
+      expectedStdout: tc.expectedStdout,
+      visible: tc.visible ?? true,
+      description: tc.description ?? null,
+    })),
+  });
+  await trackRevision(
+    db,
+    "exercise",
+    dbExercise.id,
+    dbExercise.contentRevision,
+    exerciseRevision,
+    (revision) =>
+      db.exercise.update({
+        where: { id: dbExercise.id },
+        data: { contentRevision: revision, contentRevisionAt: new Date() },
+      }),
+  );
+
+  // El reto es parte del paso: si cambia el ejercicio, cambia el paso.
+  const stepRevision = contentRevision({
+    step: baseRevision,
+    exercise: exerciseRevision,
+  });
+  await saveStepRevision(db, dbStep.id, dbStep.contentRevision, stepRevision);
+  return stepRevision;
+}
+
+/** Guarda la revisión del paso y la registra en la bitácora si cambió. */
+async function saveStepRevision(
+  db: PrismaClient,
+  stepId: string,
+  current: string | null,
+  next: string,
+): Promise<void> {
+  await trackRevision(db, "lesson_step", stepId, current, next, (revision) =>
+    db.lessonStep.update({
+      where: { id: stepId },
+      data: { contentRevision: revision, contentRevisionAt: new Date() },
+    }),
+  );
 }
 
 /**

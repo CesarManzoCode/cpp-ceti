@@ -36,6 +36,12 @@ const UNIQUES: Record<string, string[][]> = {
   userStreak: [["userId"]],
   friendship: [["requesterId", "addresseeId"]],
   practiceExercise: [["slug"]],
+  productEvent: [["userId", "dedupeKey"]],
+  studySession: [["userId", "clientKey"]],
+  userHintViewed: [
+    ["userId", "exerciseId", "hintIndex"],
+    ["userId", "practiceExerciseId", "hintIndex"],
+  ],
 };
 
 /** Valores por defecto que aplica el schema y que algún test podría leer. */
@@ -83,6 +89,14 @@ function sameValue(a: unknown, b: unknown): boolean {
 export interface FakeDb {
   /** Ejecuta una transacción interactiva (serializada, ver nota abajo). */
   $transaction<T>(fn: (tx: FakeDb) => Promise<T>): Promise<T>;
+  /**
+   * Stub de SQL crudo: NO ejecuta nada, sólo registra la sentencia y sus
+   * parámetros en `rawQueries` para que los tests puedan afirmar sobre los
+   * guardas (ej. `WHERE "endedAt" IS NULL`).
+   */
+  $executeRaw(query: unknown, ...values: unknown[]): Promise<number>;
+  /** Sentencias crudas registradas por `$executeRaw`. */
+  rawQueries: { sql: string; values: unknown[] }[];
   /** Vacía todas las tablas y el registro de consultas abortadas. */
   reset(): void;
   /** Inserta filas crudas sin validar (setup de tests). */
@@ -110,11 +124,19 @@ class FakeDbImpl {
   self: FakeDb | null = null;
 
   abortedQueries: string[] = [];
+  rawQueries: { sql: string; values: unknown[] }[] = [];
+
+  $executeRaw(query: unknown, ...values: unknown[]): Promise<number> {
+    const sql = readSql(query);
+    this.rawQueries.push({ sql, values: readSqlValues(query, values) });
+    return Promise.resolve(0);
+  }
 
   reset(): void {
     this.tables.clear();
     this.modelApis.clear();
     this.abortedQueries = [];
+    this.rawQueries = [];
     this.ids = 0;
     this.inTx = false;
     this.aborted = false;
@@ -240,11 +262,18 @@ class FakeDbImpl {
     return { ...row };
   }
 
-  /** Devuelve las columnas del índice UNIQUE violado, o `null`. */
+  /**
+   * Devuelve las columnas del índice UNIQUE violado, o `null`.
+   *
+   * Igual que Postgres: si alguna columna del índice es NULL, la fila NO
+   * compite por ese índice (dos NULL no son iguales entre sí). De eso
+   * depende, por ejemplo, que `product_event` permita muchos eventos sin
+   * `dedupeKey`.
+   */
   private conflictOf(model: string, data: Row): string[] | null {
     const t = this.tableState(model);
     for (const cols of t.uniques) {
-      if (cols.some((c) => data[c] === undefined)) continue;
+      if (cols.some((c) => data[c] === undefined || data[c] === null)) continue;
       const hit = t.rows.some((r) => cols.every((c) => sameValue(r[c], data[c])));
       if (hit) return cols;
     }
@@ -319,6 +348,10 @@ class FakeDbImpl {
         if ("in" in value) return (value.in as unknown[]).some((v) => sameValue(row[key], v));
         if ("not" in value) return !sameValue(row[key], value.not);
         if ("equals" in value) return sameValue(row[key], value.equals);
+        // Filtro sobre una relación anidada (ej. `unit: { slug }`): la fila
+        // sembrada trae el objeto embebido y comparamos recursivamente.
+        const nested = row[key];
+        if (isPlainObject(nested)) return this.matches(model, nested, value);
         return false;
       }
       return sameValue(row[key], value);
@@ -345,6 +378,27 @@ class FakeDbImpl {
       t.rows = snap.get(name) ?? [];
     }
   }
+}
+
+/** Texto de una plantilla SQL de Prisma (`Prisma.sql`) o de un tagged template. */
+function readSql(query: unknown): string {
+  if (typeof query === "string") return query;
+  if (Array.isArray(query)) return query.join("?");
+  if (query && typeof query === "object") {
+    const q = query as { sql?: unknown; text?: unknown; strings?: unknown };
+    if (typeof q.sql === "string") return q.sql;
+    if (typeof q.text === "string") return q.text;
+    if (Array.isArray(q.strings)) return q.strings.join("?");
+  }
+  return "";
+}
+
+function readSqlValues(query: unknown, values: unknown[]): unknown[] {
+  if (query && typeof query === "object" && "values" in query) {
+    const v = (query as { values?: unknown }).values;
+    if (Array.isArray(v)) return v;
+  }
+  return values;
 }
 
 function applyData(row: Row, data: Row): void {

@@ -86,7 +86,9 @@ export const submitPracticeExercise = withActionErrorHandling(
           feedback,
           testsPassed: passedCount,
           testsTotal: results.length,
+          // Latencia del ejecutor, NO tiempo de resolución del alumno.
           durationMs,
+          contentRevision: exercise.contentRevision,
           awardedXp: isFirstPass,
         },
       });

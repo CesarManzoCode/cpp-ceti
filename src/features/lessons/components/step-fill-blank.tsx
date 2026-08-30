@@ -12,10 +12,13 @@ import type { FillBlankStepContent } from "@/features/lessons/types";
 import { isBlankCorrect } from "@/features/lessons/lib/cpp-validation";
 import { renderTokens, tokenizeCpp } from "@/features/lessons/lib/cpp-syntax";
 
+import type { StepSignalHandler } from "./step-signal";
+
 interface StepFillBlankProps {
   content: FillBlankStepContent;
   onNext: () => void;
   isPending: boolean;
+  onSignal?: StepSignalHandler;
 }
 
 const ATTEMPTS_BEFORE_SOLUTION = 3;
@@ -24,6 +27,7 @@ export function StepFillBlank({
   content,
   onNext,
   isPending,
+  onSignal,
 }: StepFillBlankProps) {
   const [values, setValues] = React.useState<string[]>(
     () => content.blanks.map(() => ""),
@@ -31,6 +35,7 @@ export function StepFillBlank({
   const [submitted, setSubmitted] = React.useState(false);
   const [showHint, setShowHint] = React.useState<number | null>(null);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
+  const [attempts, setAttempts] = React.useState(0);
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [solutionRevealed, setSolutionRevealed] = React.useState(false);
 
@@ -39,11 +44,14 @@ export function StepFillBlank({
   );
 
   function verify() {
+    const attemptNumber = attempts + 1;
+    setAttempts(attemptNumber);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
     if (!allCorrect) {
       setFailedAttempts((n) => n + 1);
     }
+    onSignal?.({ kind: "attempt", correct: allCorrect, attemptNumber });
   }
 
   function revealSolution() {
@@ -51,6 +59,7 @@ export function StepFillBlank({
     setSolutionRevealed(true);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
+    onSignal?.({ kind: "reveal", failedAttempts });
     toast.info("Te dejamos las respuestas. Léelas y entiende el porqué.");
   }
 
