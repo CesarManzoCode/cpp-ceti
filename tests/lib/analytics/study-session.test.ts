@@ -157,10 +157,30 @@ describe("heartbeat y cierre", () => {
   });
 
   it("el cierre es idempotente por construcción (WHERE endedAt IS NULL)", async () => {
-    await endStudySession(asPrisma, "user_1", "sess_1");
+    await endStudySession(asPrisma, "user_1", "sess_1", true);
     const raw = (db as FakeDb).rawQueries.at(-1);
     expect(raw?.sql).toContain('"endedAt" = now()');
     expect(raw?.sql).toContain("'closed'");
     expect(raw?.sql).toContain('"endedAt" IS NULL');
+  });
+
+  it("cerrar con actividad reciente acredita el último tramo, acotado", async () => {
+    await endStudySession(asPrisma, "user_1", "sess_1", true);
+    const raw = (db as FakeDb).rawQueries.at(-1);
+    expect(raw?.sql).toContain("LEAST");
+    expect(raw?.values).toContain(MAX_HEARTBEAT_CREDIT_MS);
+  });
+
+  it("cerrar SIN actividad no regala tiempo: una pestaña olvidada suma 0", async () => {
+    // Regresión: antes el cierre aplicaba la misma regla que el latido, así
+    // que abrir una lección, irse 20 minutos y cerrar la pestaña acreditaba
+    // 60 s de "estudio" que nunca ocurrieron (y vaciaba el indicador de
+    // sesiones sin interacción).
+    await endStudySession(asPrisma, "user_1", "sess_1", false);
+    const raw = (db as FakeDb).rawQueries.at(-1);
+    expect(raw?.sql).toContain('"engagedMs" = "engagedMs" + 0');
+    expect(raw?.sql).not.toContain("LEAST");
+    expect(raw?.values).not.toContain(MAX_HEARTBEAT_CREDIT_MS);
+    expect(raw?.sql).toContain('"endedAt" = now()');
   });
 });

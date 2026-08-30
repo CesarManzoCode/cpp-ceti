@@ -92,6 +92,33 @@ describe("trackEvent", () => {
     expect(fake.table("productEvent")).toHaveLength(0);
   });
 
+  it("no pierde el segundo intento si el alumno vuelve al paso", async () => {
+    // Regresión: el ordinal del intento vivía en el estado del componente de
+    // paso, que se remonta al navegar atrás y adelante. El intento 1 de la
+    // segunda pasada reusaba el dedupeKey del primero y se descartaba.
+    const attempt = (attemptNumber: number, correct: boolean) =>
+      trackEvent({
+        name: "lesson_step_attempt",
+        lessonId: "lesson_1",
+        lessonStepId: "step_1",
+        studySessionId: "sess_1",
+        stepType: "quiz",
+        attemptNumber,
+        correct,
+      });
+
+    expect(await attempt(1, false)).toEqual({ recorded: true });
+    // El reproductor lleva el ordinal por paso y por visita: al regresar,
+    // el siguiente intento es el 2, no otra vez el 1.
+    expect(await attempt(2, true)).toEqual({ recorded: true });
+    const events = fake.table("productEvent");
+    expect(events).toHaveLength(2);
+    expect(events.map((e) => e.props)).toEqual([
+      { stepType: "quiz", attemptNumber: 1, correct: false },
+      { stepType: "quiz", attemptNumber: 2, correct: true },
+    ]);
+  });
+
   it("distingue un quiz fallado y revelado de uno acertado a la primera", async () => {
     for (const attemptNumber of [1, 2, 3]) {
       await trackEvent({

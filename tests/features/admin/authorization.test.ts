@@ -140,6 +140,40 @@ describe("triage de reportes", () => {
     expect(row.triagedAt).toEqual(triagedAt);
   });
 
+  it("una actualización parcial no borra la evidencia ya guardada", async () => {
+    getSession.mockResolvedValue({ user: { id: "admin" } });
+    await updateReportStatus({
+      kind: "bug",
+      id: "bug_1",
+      status: "resolved",
+      resolutionNote: "Corregido",
+      issueUrl: "https://github.com/org/repo/issues/1",
+    });
+    // Cambiar sólo el estado no puede tirar la nota ni el issue.
+    await updateReportStatus({ kind: "bug", id: "bug_1", status: "triaged" });
+
+    const row = fake.table("bugReport")[0];
+    expect(row.resolutionNote).toBe("Corregido");
+    expect(row.issueUrl).toBe("https://github.com/org/repo/issues/1");
+  });
+
+  it("un string vacío sí limpia el campo (borrado explícito desde la UI)", async () => {
+    getSession.mockResolvedValue({ user: { id: "admin" } });
+    await updateReportStatus({
+      kind: "bug",
+      id: "bug_1",
+      status: "triaged",
+      resolutionNote: "Nota vieja",
+    });
+    await updateReportStatus({
+      kind: "bug",
+      id: "bug_1",
+      status: "triaged",
+      resolutionNote: "",
+    });
+    expect(fake.table("bugReport")[0].resolutionNote).toBeNull();
+  });
+
   it("un reporte inexistente no revienta con un error interno", async () => {
     getSession.mockResolvedValue({ user: { id: "admin" } });
     await expect(

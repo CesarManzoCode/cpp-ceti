@@ -44,7 +44,6 @@ export function StepMatching({
   );
   const [selectedLeft, setSelectedLeft] = React.useState<number | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
-  const [attempts, setAttempts] = React.useState(0);
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [revealed, setRevealed] = React.useState(false);
 
@@ -104,13 +103,11 @@ export function StepMatching({
   }
 
   function verify() {
-    const attemptNumber = attempts + 1;
-    setAttempts(attemptNumber);
     setSubmitted(true);
     if (!allCorrect) {
       setFailedAttempts((n) => n + 1);
     }
-    onSignal?.({ kind: "attempt", correct: allCorrect, attemptNumber });
+    onSignal?.({ kind: "attempt", correct: allCorrect });
   }
 
   function tryAgain() {

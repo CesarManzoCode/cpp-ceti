@@ -35,7 +35,6 @@ export function StepFillBlank({
   const [submitted, setSubmitted] = React.useState(false);
   const [showHint, setShowHint] = React.useState<number | null>(null);
   const [feedbackKey, setFeedbackKey] = React.useState(0);
-  const [attempts, setAttempts] = React.useState(0);
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [solutionRevealed, setSolutionRevealed] = React.useState(false);
 
@@ -44,14 +43,12 @@ export function StepFillBlank({
   );
 
   function verify() {
-    const attemptNumber = attempts + 1;
-    setAttempts(attemptNumber);
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
     if (!allCorrect) {
       setFailedAttempts((n) => n + 1);
     }
-    onSignal?.({ kind: "attempt", correct: allCorrect, attemptNumber });
+    onSignal?.({ kind: "attempt", correct: allCorrect });
   }
 
   function revealSolution() {

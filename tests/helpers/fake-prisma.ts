@@ -46,7 +46,7 @@ const UNIQUES: Record<string, string[][]> = {
 
 /** Valores por defecto que aplica el schema y que algún test podría leer. */
 const DEFAULTS: Record<string, Row> = {
-  userStepProgress: { attempts: 1 },
+  userStepProgress: { completionCount: 1 },
   userLessonProgress: { status: "in_progress", xpEarned: 0, completedAt: null },
   userStreak: { currentStreak: 0, longestStreak: 0, totalXp: 0, lastActiveDate: null },
 };

@@ -240,6 +240,28 @@ describe("uso de pistas", () => {
     expect(row.firstPassRateWithoutHints).toBe(1);
   });
 
+  it("el número y el porcentaje de la celda hablan de lo mismo", () => {
+    // Regresión: el numerador contaba a TODOS los que abrieron una pista y
+    // la tasa sólo a los que además enviaron, así que la celda podía decir
+    // "5 (20%)" con 10 usuarios.
+    const attempts = [
+      { userId: "u1", exerciseId: "e1", passed: true, createdAt: d("2026-08-01T10:00:00Z") },
+      { userId: "u2", exerciseId: "e1", passed: false, createdAt: d("2026-08-01T10:00:00Z") },
+    ];
+    const hints = [
+      { userId: "u2", exerciseId: "e1", hintIndex: 0 },
+      // Vio pistas y nunca envió: no entra en las tasas, se reporta aparte.
+      { userId: "u9", exerciseId: "e1", hintIndex: 0 },
+    ];
+
+    const [row] = computeHintUsage(attempts, hints);
+    expect(row.users).toBe(2);
+    expect(row.usersWithHints).toBe(1);
+    expect(row.hintUsageRate).toBeCloseTo(0.5);
+    expect(row.usersWithHints / row.users).toBeCloseTo(row.hintUsageRate);
+    expect(row.hintViewersWithoutSubmission).toBe(1);
+  });
+
   it("no divide entre cero cuando nadie usó pistas", () => {
     const [row] = computeHintUsage(
       [{ userId: "u1", exerciseId: "e1", passed: true, createdAt: d("2026-08-01T10:00:00Z") }],

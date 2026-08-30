@@ -6,6 +6,11 @@
  * la primera. El componente de paso reporta la señal; el reproductor la
  * traduce a un evento de producto (ver `src/lib/analytics/events.ts`).
  *
+ * El ORDINAL del intento no viaja aquí a propósito: lo lleva el reproductor
+ * (`LessonViewer`), que sobrevive a que el alumno vaya y vuelva al paso. El
+ * contador local de un componente se reinicia al remontarse, y con él se
+ * repetía la clave de idempotencia del intento anterior.
+ *
  * Sólo señales pedagógicas: nada de clicks de UI, foco o teclas.
  */
 export type StepSignal =
@@ -13,8 +18,6 @@ export type StepSignal =
       kind: "attempt";
       /** ¿La respuesta enviada era correcta? */
       correct: boolean;
-      /** Ordinal dentro de la visita: 1 = primer intento. */
-      attemptNumber: number;
     }
   | {
       kind: "reveal";

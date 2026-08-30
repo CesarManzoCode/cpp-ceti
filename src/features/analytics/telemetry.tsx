@@ -101,7 +101,12 @@ export function StudySessionProvider({
   const clientKeyRef = React.useRef<string | null>(null);
   const startedRef = React.useRef(false);
   const engagedRef = React.useRef(false);
-  // Se inicializa en el efecto de actividad (montar ya cuenta como actividad).
+  /**
+   * Momento de la última interacción REAL (puntero, teclado, scroll).
+   * Arranca en 0 a propósito: abrir la página NO es actividad. Si contara,
+   * una lección abierta y abandonada en el acto se llevaría unos segundos de
+   * "tiempo activo" y el indicador de sesiones sin interacción nunca sería 0.
+   */
   const lastActivityRef = React.useRef<number>(0);
   const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -188,6 +193,13 @@ export function StudySessionProvider({
     [sendEngaged],
   );
 
+  // ¿Hubo actividad real hace poco? Misma condición que usa el latido; el
+  // cierre la reutiliza para no regalar tiempo activo a una pestaña olvidada.
+  const hasRecentActivity = React.useCallback(
+    () => Date.now() - lastActivityRef.current <= ACTIVITY_WINDOW_MS,
+    [],
+  );
+
   // --- Arranque + cierre -------------------------------------------------
   React.useEffect(() => {
     if (closeTimerRef.current !== null) {
@@ -218,16 +230,18 @@ export function StudySessionProvider({
         closeTimerRef.current = null;
         const id = sessionIdRef.current;
         if (!id) return;
-        void closeStudySession({ studySessionId: id }).catch(() => {});
+        void closeStudySession({
+          studySessionId: id,
+          active: hasRecentActivity(),
+        }).catch(() => {});
       }, 0);
     };
     // `flushPending` es estable (depende sólo de surface/resourceId, que ya
     // están aquí): incluirlo no re-abre sesiones de más.
-  }, [surface, resourceId, flushPending]);
+  }, [surface, resourceId, flushPending, hasRecentActivity]);
 
   // --- Actividad del usuario --------------------------------------------
   React.useEffect(() => {
-    lastActivityRef.current = Date.now();
     function mark() {
       lastActivityRef.current = Date.now();
     }
@@ -255,11 +269,11 @@ export function StudySessionProvider({
   React.useEffect(() => {
     if (!studySessionId) return;
     function handlePageHide() {
-      sendSessionEndBeacon(studySessionId as string);
+      sendSessionEndBeacon(studySessionId as string, hasRecentActivity());
     }
     window.addEventListener("pagehide", handlePageHide);
     return () => window.removeEventListener("pagehide", handlePageHide);
-  }, [studySessionId]);
+  }, [studySessionId, hasRecentActivity]);
 
   // Vista del recurso: una sola vez por sesión de estudio (el dedupe del
   // servidor lo garantiza aunque este efecto vuelva a correr).
@@ -375,8 +389,11 @@ function createClientKey(): string {
  * garantiza al cerrar la pestaña; si no existe, se intenta un fetch con
  * `keepalive`.
  */
-function sendSessionEndBeacon(studySessionId: string): void {
-  const payload = JSON.stringify({ studySessionId });
+function sendSessionEndBeacon(
+  studySessionId: string,
+  active: boolean,
+): void {
+  const payload = JSON.stringify({ studySessionId, active });
   const url = "/api/telemetry/session-end";
   try {
     if (typeof navigator !== "undefined" && "sendBeacon" in navigator) {

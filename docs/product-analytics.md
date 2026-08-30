@@ -50,8 +50,10 @@ Notas:
 - `lesson_step_attempt` **no** se emite para retos de código: esos envíos ya
   viven en `UserExerciseAttempt`. Lo que sí se emite para un reto es
   `lesson_step_answer_revealed` cuando el alumno pide la solución.
-- `attemptNumber` es un ordinal dentro de la visita (1 = primer intento).
-  Sirve para el dedupe: un reintento de red con el mismo ordinal cuenta una vez.
+- `attemptNumber` es un ordinal **por paso y por visita** (1 = primer intento).
+  Lo lleva el reproductor, no el componente del paso: si el alumno retrocede y
+  vuelve, el paso se remonta pero el ordinal sigue avanzando. Sirve además
+  para el dedupe: un reintento de red con el mismo ordinal cuenta una vez.
 - Todos los eventos guardan `contentRevision` (§7), resuelta **en el servidor**
   leyendo el recurso.
 - El servidor descarta el evento (y lo registra en el log) si la
@@ -70,8 +72,8 @@ Ciclo de vida (`src/lib/analytics/study-session.ts`):
 | Fase | Mecanismo |
 |---|---|
 | Abrir | El reproductor la abre al montarse, con un `clientKey` único por montaje. UNIQUE `(userId, clientKey)` ⇒ StrictMode/reintentos/doble montaje no duplican sesiones. |
-| Latir | Cada **30 s**, y **sólo si** la pestaña está visible **y** hubo teclado/mouse/scroll en los últimos **60 s**. |
-| Cerrar | Al desmontar o en `pagehide` (`sendBeacon`). Idempotente: `WHERE endedAt IS NULL`. |
+| Latir | Cada **30 s**, y **sólo si** la pestaña está visible **y** hubo teclado/mouse/scroll en los últimos **60 s**. Abrir la página **no** cuenta como actividad: el reloj arranca con la primera interacción real. |
+| Cerrar | Al desmontar o en `pagehide` (`sendBeacon`). Idempotente: `WHERE endedAt IS NULL`. Acredita el último tramo **sólo si el cliente afirma actividad reciente**, con la misma regla del latido: cerrar no es evidencia de haber estudiado. |
 | Huérfanas | Si nadie cerró, el barrido las cierra **en `lastPingAt`** con `endedReason = 'expired'` tras **5 min** sin latidos. Se ejecuta al abrir la siguiente sesión del mismo usuario. |
 
 ### Tiempo
@@ -79,12 +81,16 @@ Ciclo de vida (`src/lib/analytics/study-session.ts`):
 - **`startedAt` → `endedAt` es TIEMPO DE PARED. No es tiempo de estudio.**
 - **`engagedMs` es tiempo activo aproximado**: la suma de los huecos entre
   latidos consecutivos, cada uno acotado a **60 s** en SQL
-  (`LEAST(now() - lastPingAt, 60s)`). El nombre dice "engaged", no "estudiado",
-  a propósito.
+  (`LEAST(now() - lastPingAt, 60s)`). El cierre suma un último tramo con la
+  misma cota, y **sólo** si hubo actividad en los últimos 60 s; si no, suma 0.
+  El nombre dice "engaged", no "estudiado", a propósito.
 
 Qué implica esto en la práctica:
 
 - Una pestaña abierta 40 minutos con el alumno ausente 35 suma ≈ 5 minutos, no 40.
+- Abrir una lección, no tocar nada y cerrar la pestaña suma **0**, y la sesión
+  cuenta en "Sesiones sin interacción" — sin importar cuánto tiempo estuvo
+  abierta.
 - Una sesión abandonada **no crece para siempre**: sin latidos no hay crédito,
   y el barrido la cierra en su último latido.
 - Leer sin tocar nada durante más de 60 s deja de acumular tiempo. Es una
@@ -213,6 +219,12 @@ no se toque.
 - "Con pistas" significa **"vio al menos una pista de ese ejercicio"**, no
   necesariamente antes de ese envío concreto. Es una aproximación; para el
   orden temporal exacto están `UserHintViewed.viewedAt` y `studySessionId`.
+- **Denominador**: usuarios con al menos un envío. Quien vio pistas y nunca
+  calificó no entra en ninguna tasa (no hay resultado que comparar) y se
+  reporta aparte como "Pistas sin enviar".
+- El **first-pass rate de esta tabla usa la misma definición y el mismo
+  historial** que la tabla de fricción (todo el historial del ejercicio hasta
+  el fin de la ventana). Las dos tablas del panel no pueden contradecirse.
 
 ### Compilar → Calificar
 
@@ -285,8 +297,9 @@ un POST directo. Admin = `user.role = 'admin'` en la BD, o correo en
 
 Honestidad por delante:
 
-1. **`engagedMs` subestima.** Leer sin tocar nada más de 60 s no acumula. Es
-   una cota inferior del tiempo real de estudio, no una medida exacta.
+1. **`engagedMs` subestima.** Leer sin tocar nada (ni scroll) no acumula, y
+   abrir la página tampoco cuenta como interacción. Es una cota inferior del
+   tiempo real de estudio, no una medida exacta.
 2. **`engagedMs` es auto-reportado por el cliente.** Un alumno con la consola
    abierta podría inflar *su propio* tiempo. No hay XP ni ranking atados a esta
    métrica, así que el incentivo es nulo — pero no la uses como si fuera
@@ -298,16 +311,21 @@ Honestidad por delante:
    que pasan por Server Actions, son mucho más confiables.
 5. **Sin bloqueador de anuncios de por medio, pero sí con JS obligatorio**: sin
    JavaScript no hay `StudySession` ni eventos.
-6. **Tope de filas.** Las consultas del panel traen hasta `MAX_ROWS` (50 000)
+6. **bfcache**: si el navegador restaura la página desde su caché de
+   retroceso, la sesión ya se cerró en el `pagehide` previo y el resto de esa
+   permanencia no se mide (la sesión queda `closed`). Subestima, no infla.
+7. **Tope de filas.** Las consultas del panel traen hasta `MAX_ROWS` (50 000)
    filas por fuente y agregan en memoria. A escala de un plantel sobra; si un
-   día no alcanza, hay que mover esas agregaciones a SQL.
-7. **"Con pistas" no está alineado por intento** (ver §8).
-8. **`stepIndex`** viene del cliente y refleja la posición en el reproductor en
+   día no alcanza, hay que mover esas agregaciones a SQL. **El truncamiento es
+   silencioso**: el panel no avisa cuando se alcanza el tope.
+8. **"Con pistas" no está alineado por intento** (ver §8): sabemos que vio
+   pistas de ese ejercicio, no que las vio antes de ese envío.
+9. **`stepIndex`** viene del cliente y refleja la posición en el reproductor en
    ese momento; si una lección cambia de orden, los `stepIndex` viejos siguen
    siendo los de entonces. Para comparar, usa `contentRevision`.
-9. **Todo es UTC.** Los días y las semanas se cortan en UTC, no en horario de
+10. **Todo es UTC.** Los días y las semanas se cortan en UTC, no en horario de
    Guadalajara. Un uso a las 19:00 CST cae en el día siguiente UTC.
-10. **Ventana de retención**: sólo se leen hasta `MAX_ROWS` eventos históricos
+11. **Ventana de retención**: sólo se leen hasta `MAX_ROWS` eventos históricos
     para calcular la primera actividad.
 
 ---

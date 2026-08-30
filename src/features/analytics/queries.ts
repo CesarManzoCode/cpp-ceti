@@ -32,8 +32,10 @@ import {
  * Estrategia: traer filas ACOTADAS POR VENTANA con `select` mínimo y agregar
  * en `metrics.ts` (funciones puras y probadas). A la escala de un plantel del
  * CETI eso es más simple y mucho más testeable que SQL a mano; `MAX_ROWS`
- * evita que una ventana enorme se coma la memoria, y la UI avisa cuando se
- * alcanzó el tope.
+ * evita que una ventana enorme se coma la memoria. OJO: al alcanzar el tope
+ * el resultado queda truncado SIN aviso — está documentado como limitación
+ * conocida en `docs/product-analytics.md`; si el plantel crece hasta ahí, hay
+ * que mover estas agregaciones a SQL.
  *
  * Nada aquí hace N+1: los títulos se resuelven con UNA consulta por conjunto
  * de ids, nunca dentro de un bucle.
@@ -395,52 +397,9 @@ export async function getFriction(
   range: AnalyticsRange,
   limit = 10,
 ): Promise<FrictionReport> {
-  const [activeLessonExercises, activePracticeExercises] = await Promise.all([
-    db.userExerciseAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
-      select: { exerciseId: true },
-      distinct: ["exerciseId"],
-      take: 500,
-    }),
-    db.userPracticeAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
-      select: { exerciseId: true },
-      distinct: ["exerciseId"],
-      take: 500,
-    }),
-  ]);
-
-  const lessonIds = activeLessonExercises.map((a) => a.exerciseId);
-  const practiceIds = activePracticeExercises.map((a) => a.exerciseId);
-
   const [lessonAttempts, practiceAttempts] = await Promise.all([
-    lessonIds.length
-      ? db.userExerciseAttempt.findMany({
-          where: { exerciseId: { in: lessonIds }, createdAt: { lte: range.to } },
-          select: {
-            userId: true,
-            exerciseId: true,
-            passed: true,
-            createdAt: true,
-          },
-          take: MAX_ROWS,
-        })
-      : Promise.resolve([]),
-    practiceIds.length
-      ? db.userPracticeAttempt.findMany({
-          where: {
-            exerciseId: { in: practiceIds },
-            createdAt: { lte: range.to },
-          },
-          select: {
-            userId: true,
-            exerciseId: true,
-            passed: true,
-            createdAt: true,
-          },
-          take: MAX_ROWS,
-        })
-      : Promise.resolve([]),
+    fetchLessonAttemptHistory(range),
+    fetchPracticeAttemptHistory(range),
   ]);
 
   const lessonRows = rankFriction(computeExerciseFriction(lessonAttempts)).slice(
@@ -478,27 +437,24 @@ export async function getHintUsage(
   range: AnalyticsRange,
   limit = 10,
 ): Promise<HintReport> {
-  const [hints, lessonAttempts, practiceAttempts] = await Promise.all([
-    db.userHintViewed.findMany({
-      where: { viewedAt: { gte: range.from, lte: range.to } },
-      select: {
-        userId: true,
-        hintIndex: true,
-        exerciseId: true,
-        practiceExerciseId: true,
-      },
-      take: MAX_ROWS,
-    }),
-    db.userExerciseAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
-      select: { userId: true, exerciseId: true, passed: true, createdAt: true },
-      take: MAX_ROWS,
-    }),
-    db.userPracticeAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
-      select: { userId: true, exerciseId: true, passed: true, createdAt: true },
-      take: MAX_ROWS,
-    }),
+  const hints = await db.userHintViewed.findMany({
+    where: { viewedAt: { gte: range.from, lte: range.to } },
+    select: {
+      userId: true,
+      hintIndex: true,
+      exerciseId: true,
+      practiceExerciseId: true,
+    },
+    take: MAX_ROWS,
+  });
+
+  // MISMO criterio que `getFriction`: historial completo hasta `to` de los
+  // ejercicios activos en la ventana. Si aquí usáramos sólo los intentos de
+  // la ventana, "first-pass" significaría dos cosas distintas en dos tablas
+  // del mismo panel.
+  const [lessonAttempts, practiceAttempts] = await Promise.all([
+    fetchLessonAttemptHistory(range),
+    fetchPracticeAttemptHistory(range),
   ]);
 
   const lessonHints = hints
@@ -629,6 +585,52 @@ export async function getRunReport(
     ),
     totalRuns: runs.length,
   };
+}
+
+/**
+ * Historial COMPLETO (hasta `to`) de los ejercicios de lección con envíos
+ * dentro de la ventana. Dos consultas fijas, sin N+1: primero los ids
+ * activos, luego sus intentos.
+ *
+ * Por qué el historial completo y no sólo la ventana: si un alumno ya había
+ * aprobado el ejercicio la semana pasada, sus envíos de esta semana lo harían
+ * aparecer como "no lo logró a la primera".
+ */
+async function fetchLessonAttemptHistory(
+  range: AnalyticsRange,
+): Promise<AttemptRow[]> {
+  const active = await db.userExerciseAttempt.findMany({
+    where: { createdAt: { gte: range.from, lte: range.to } },
+    select: { exerciseId: true },
+    distinct: ["exerciseId"],
+    take: 500,
+  });
+  const ids = active.map((a) => a.exerciseId);
+  if (ids.length === 0) return [];
+  return db.userExerciseAttempt.findMany({
+    where: { exerciseId: { in: ids }, createdAt: { lte: range.to } },
+    select: { userId: true, exerciseId: true, passed: true, createdAt: true },
+    take: MAX_ROWS,
+  });
+}
+
+/** Análogo para práctica. Ver `fetchLessonAttemptHistory`. */
+async function fetchPracticeAttemptHistory(
+  range: AnalyticsRange,
+): Promise<AttemptRow[]> {
+  const active = await db.userPracticeAttempt.findMany({
+    where: { createdAt: { gte: range.from, lte: range.to } },
+    select: { exerciseId: true },
+    distinct: ["exerciseId"],
+    take: 500,
+  });
+  const ids = active.map((a) => a.exerciseId);
+  if (ids.length === 0) return [];
+  return db.userPracticeAttempt.findMany({
+    where: { exerciseId: { in: ids }, createdAt: { lte: range.to } },
+    select: { userId: true, exerciseId: true, passed: true, createdAt: true },
+    take: MAX_ROWS,
+  });
 }
 
 // =====================================================================

@@ -13,7 +13,10 @@ import type { db as prismaDb } from "@/lib/db";
  *    y hubo actividad real en los últimos 60 s. Acredita el hueco desde el
  *    último ping, acotado a `MAX_HEARTBEAT_CREDIT_MS`.
  * 3. `endStudySession` — al desmontar o al `pagehide`. Idempotente
- *    (`WHERE endedAt IS NULL`).
+ *    (`WHERE endedAt IS NULL`). Sólo acredita el último tramo si el cliente
+ *    afirma que hubo actividad reciente: cerrar NO es evidencia de haber
+ *    estudiado, y sin esta condición una pestaña abierta y olvidada se
+ *    llevaba 60 s de regalo.
  * 4. `closeStaleStudySessions` — red de seguridad para cuando el paso 3
  *    nunca ocurre (pestaña cerrada de golpe, batería, pérdida de red). Cierra
  *    la sesión EN `lastPingAt`, no en `now()`: una sesión abandonada no puede
@@ -29,6 +32,10 @@ export const HEARTBEAT_INTERVAL_MS = 30_000;
 /**
  * Ventana de inactividad del cliente: si no hubo teclado/mouse/scroll en este
  * lapso, el cliente DEJA de latir (aunque la pestaña siga visible).
+ *
+ * Abrir la página no cuenta como actividad: el reloj arranca con la primera
+ * interacción real. Es una subestimación deliberada — preferimos no medir
+ * lectura pasiva antes que inventar tiempo de estudio.
  */
 export const ACTIVITY_WINDOW_MS = 60_000;
 
@@ -170,17 +177,26 @@ export async function heartbeatStudySession(
 }
 
 /**
- * Cierra la sesión acreditando el último hueco con la misma regla del
- * latido. Idempotente: si ya estaba cerrada, no hace nada.
+ * Cierra la sesión. Idempotente: si ya estaba cerrada, no hace nada.
+ *
+ * `creditActivity` replica la condición del latido: el cliente sólo lo manda
+ * en `true` si hubo actividad real (teclado/mouse/scroll) dentro de
+ * `ACTIVITY_WINDOW_MS`. En `false` —el caso de "abrí la lección, me fui, y al
+ * volver cerré la pestaña"— la sesión se cierra SIN acreditar nada, y queda
+ * correctamente contada como sesión sin interacción.
  */
 export async function endStudySession(
   db: Db,
   userId: string,
   sessionId: string,
+  creditActivity: boolean,
 ): Promise<boolean> {
+  const credit = creditActivity
+    ? creditExpression()
+    : Prisma.sql`0`;
   const updated = await db.$executeRaw(Prisma.sql`
     UPDATE "study_session"
-       SET "engagedMs" = "engagedMs" + ${creditExpression()},
+       SET "engagedMs" = "engagedMs" + ${credit},
            "lastPingAt" = now(),
            "endedAt" = now(),
            "endedReason" = 'closed'::"StudySessionEndReason"

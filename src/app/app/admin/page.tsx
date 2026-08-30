@@ -286,6 +286,11 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
       {/* ---------------- Pistas ---------------- */}
       <section className="space-y-3">
         <h2 className="text-[18px] font-extrabold">Uso de pistas</h2>
+        <p className="text-[13px] text-muted-foreground">
+          Denominador: usuarios con al menos un envío. «Pistas sin enviar» son
+          quienes vieron pistas y nunca calificaron — quedan fuera de las tasas
+          porque no hay resultado que comparar.
+        </p>
         <Table
           head={[
             "Ejercicio",
@@ -294,6 +299,7 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
             "Pistas prom.",
             "1er intento OK con pistas",
             "sin pistas",
+            "Pistas sin enviar",
           ]}
         >
           {[...hints.lesson, ...hints.practice].slice(0, 15).map((row) => (
@@ -306,6 +312,7 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
               <Td>{row.avgHintsWhenUsed.toFixed(1)}</Td>
               <Td>{formatPct(row.firstPassRateWithHints)}</Td>
               <Td>{formatPct(row.firstPassRateWithoutHints)}</Td>
+              <Td>{row.hintViewersWithoutSubmission}</Td>
             </tr>
           ))}
         </Table>

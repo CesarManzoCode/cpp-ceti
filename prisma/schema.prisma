@@ -65,6 +65,8 @@ model User {
   friendshipsReceived Friendship[] @relation("FriendshipAddressee")
 
   @@index([email])
+  /// Altas por ventana temporal en el panel interno.
+  @@index([createdAt])
   @@map("user")
 }
 
@@ -315,6 +317,8 @@ model UserLessonProgress {
 
   @@unique([userId, lessonId])
   @@index([userId, status])
+  /// Funnel de lecciones: completadas dentro de una ventana.
+  @@index([status, completedAt])
   @@map("user_lesson_progress")
 }
 
@@ -363,6 +367,10 @@ model UserExerciseAttempt {
   createdAt    DateTime @default(now())
 
   @@index([userId, exerciseId, createdAt])
+  /// Analytics por ventana temporal (el índice de arriba guía por userId
+  /// y no sirve para "todos los envíos entre dos fechas").
+  @@index([createdAt])
+  @@index([exerciseId, createdAt])
   @@map("user_exercise_attempt")
 }
 
@@ -459,6 +467,9 @@ model UserPracticeAttempt {
   createdAt   DateTime         @default(now())
 
   @@index([userId, exerciseId, createdAt])
+  /// Analytics por ventana temporal. Ver `UserExerciseAttempt`.
+  @@index([createdAt])
+  @@index([exerciseId, createdAt])
   @@map("user_practice_attempt")
 }
 
@@ -473,6 +484,8 @@ model UserPracticeCompletion {
   completedAt DateTime         @default(now())
 
   @@unique([userId, exerciseId])
+  /// Funnel de práctica: aprobados dentro de una ventana.
+  @@index([completedAt])
   @@map("user_practice_completion")
 }
 
@@ -504,7 +517,9 @@ model UserStreak {
 //     entre heartbeats consecutivos, y el cliente sólo emite heartbeat si la
 //     pestaña está visible y hubo actividad real (teclado/mouse/scroll) en la
 //     ventana reciente. Cada intervalo se acota en el servidor a
-//     `MAX_HEARTBEAT_CREDIT_MS`, así que una pestaña olvidada suma 0.
+//     `MAX_HEARTBEAT_CREDIT_MS`. El cierre acredita el último tramo SÓLO si
+//     el cliente afirma actividad reciente (misma regla), así que una pestaña
+//     abierta y olvidada termina en 0 — cerrar no es evidencia de estudiar.
 //   · El reloj SIEMPRE es del servidor (`now()`); el cliente nunca manda
 //     duraciones.
 model StudySession {
@@ -569,6 +584,8 @@ model UserHintViewed {
   @@unique([userId, exerciseId, hintIndex])
   @@unique([userId, practiceExerciseId, hintIndex])
   @@index([userId, viewedAt])
+  /// Uso de pistas por ventana temporal (sin filtrar por usuario).
+  @@index([viewedAt])
   @@map("user_hint_viewed")
 }
 

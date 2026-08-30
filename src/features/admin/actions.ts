@@ -62,11 +62,15 @@ export const updateReportStatus = withActionErrorHandling(
     const admin = await requireAdmin();
 
     const now = new Date();
+    // Campos ausentes = "no los toques". Sólo un string vacío explícito
+    // (que es lo que manda el formulario al borrarlos) limpia la evidencia:
+    // una invocación parcial no puede perder la nota o el PR de un reporte
+    // que ya se cerró.
     const data = {
       status: parsed.status,
-      resolutionNote: emptyToNull(parsed.resolutionNote),
-      issueUrl: emptyToNull(parsed.issueUrl),
-      prUrl: emptyToNull(parsed.prUrl),
+      ...optionalField("resolutionNote", parsed.resolutionNote),
+      ...optionalField("issueUrl", parsed.issueUrl),
+      ...optionalField("prUrl", parsed.prUrl),
       handledById: admin.userId,
       // `triagedAt` marca la primera vez que alguien lo miró; no se pisa.
       ...(parsed.status === "open" ? {} : { triagedAt: now }),
@@ -100,7 +104,11 @@ export const updateReportStatus = withActionErrorHandling(
   },
 );
 
-function emptyToNull(value: string | undefined): string | null {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
+function optionalField(
+  key: string,
+  value: string | undefined,
+): Record<string, string | null> {
+  if (value === undefined) return {};
+  const trimmed = value.trim();
+  return { [key]: trimmed ? trimmed : null };
 }

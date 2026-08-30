@@ -30,17 +30,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const studySessionId =
-    body && typeof body === "object" && "studySessionId" in body
-      ? (body as { studySessionId?: unknown }).studySessionId
-      : undefined;
+  const payload = (body ?? {}) as {
+    studySessionId?: unknown;
+    active?: unknown;
+  };
+  const studySessionId = payload.studySessionId;
+  // Sólo se acredita el último tramo si el cliente afirma actividad reciente
+  // (misma regla que el latido). Cualquier otro valor cuenta como "no".
+  const creditActivity = payload.active === true;
 
   if (typeof studySessionId !== "string" || studySessionId.length === 0) {
     return NextResponse.json({ error: "Sesión inválida" }, { status: 400 });
   }
 
   try {
-    await endStudySession(db, session.user.id, studySessionId);
+    await endStudySession(db, session.user.id, studySessionId, creditActivity);
   } catch (err) {
     logger.error(
       { err, userId: session.user.id },

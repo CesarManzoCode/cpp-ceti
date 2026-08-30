@@ -71,6 +71,15 @@ export const openStudySession = withActionErrorHandling(
 
 const sessionIdSchema = z.object({ studySessionId: cuidSchema });
 
+const closeSessionSchema = z.object({
+  studySessionId: cuidSchema,
+  /**
+   * ¿Hubo actividad real justo antes de cerrar? Misma condición que el
+   * latido. Si falta, se asume que NO: preferimos medir de menos.
+   */
+  active: z.boolean().optional().default(false),
+});
+
 /** Latido: el alumno sigue ahí y estuvo activo. Ver `study-session.ts`. */
 export const pingStudySession = withActionErrorHandling(
   "pingStudySession",
@@ -90,10 +99,18 @@ export const pingStudySession = withActionErrorHandling(
 /** Cierra la sesión. Idempotente. */
 export const closeStudySession = withActionErrorHandling(
   "closeStudySession",
-  async (input: { studySessionId: string }): Promise<{ closed: boolean }> => {
-    const { studySessionId } = parseOrThrow(sessionIdSchema, input);
+  async (input: {
+    studySessionId: string;
+    active?: boolean;
+  }): Promise<{ closed: boolean }> => {
+    const { studySessionId, active } = parseOrThrow(closeSessionSchema, input);
     const session = await requireSession();
-    const closed = await endStudySession(db, session.user.id, studySessionId);
+    const closed = await endStudySession(
+      db,
+      session.user.id,
+      studySessionId,
+      active,
+    );
     return { closed };
   },
 );

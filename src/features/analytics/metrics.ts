@@ -434,10 +434,20 @@ export interface HintViewRow {
 
 export interface HintUsageRow {
   exerciseId: string;
-  /** Usuarios con al menos un envío (denominador). */
+  /** Usuarios con al menos un envío (denominador de TODAS las tasas). */
   users: number;
+  /**
+   * Usuarios que enviaron Y vieron al menos una pista. Es el numerador de
+   * `hintUsageRate` — no "todos los que abrieron una pista", para que el
+   * número y el porcentaje de la misma celda hablen de lo mismo.
+   */
   usersWithHints: number;
   hintUsageRate: number;
+  /**
+   * Usuarios que vieron pistas pero nunca enviaron nada. Quedan fuera de las
+   * tasas (no tienen resultado que comparar) y se reportan aparte.
+   */
+  hintViewersWithoutSubmission: number;
   /** Promedio de pistas entre quienes usaron al menos una. */
   avgHintsWhenUsed: number;
   /** First-pass rate de quienes vieron pistas antes de aprobar. */
@@ -451,6 +461,11 @@ export interface HintUsageRow {
  * Limitación honesta: `UserHintViewed` guarda una fila por pista (no una por
  * intento), así que "con pistas" significa "vio al menos una pista de este
  * ejercicio", no necesariamente antes de ese envío concreto.
+ *
+ * `first-pass` se define IGUAL que en `computeExerciseFriction`: el primer
+ * envío del usuario para ese ejercicio dentro del conjunto de intentos que
+ * reciba esta función. La capa de queries le pasa el historial completo para
+ * que ambas tablas no puedan contradecirse.
  */
 export function computeHintUsage(
   attempts: readonly AttemptRow[],
@@ -511,8 +526,11 @@ export function computeHintUsage(
     rows.push({
       exerciseId,
       users: users.size,
-      usersWithHints: hintUsers.size,
+      usersWithHints: withHints,
       hintUsageRate: ratio(withHints, users.size),
+      hintViewersWithoutSubmission: [...hintUsers.keys()].filter(
+        (userId) => !users.has(userId),
+      ).length,
       avgHintsWhenUsed:
         hintCounts.length === 0
           ? 0

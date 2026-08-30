@@ -112,6 +112,12 @@ function LessonPlayer({
     });
   }, [track, studySessionId, lesson.id, currentStepForView, currentIndex]);
 
+  // Ordinal de intento POR PASO Y POR VISITA. Vive aquí, no en el componente
+  // de paso: al volver atrás y regresar, React remonta el paso (`key` = id) y
+  // su contador local vuelve a 1. Con eso, el segundo intento reusaba el
+  // dedupeKey del primero y se perdía en silencio.
+  const attemptOrdinalsRef = React.useRef<Map<string, number>>(new Map());
+
   const handleStepSignal = React.useCallback(
     (signal: StepSignal) => {
       const step = lesson.steps[currentIndex];
@@ -124,12 +130,15 @@ function LessonPlayer({
         | "code_completion"
         | "code_challenge";
       if (signal.kind === "attempt") {
+        const attemptNumber =
+          (attemptOrdinalsRef.current.get(step.id) ?? 0) + 1;
+        attemptOrdinalsRef.current.set(step.id, attemptNumber);
         track({
           name: "lesson_step_attempt",
           lessonId: lesson.id,
           lessonStepId: step.id,
           stepType,
-          attemptNumber: signal.attemptNumber,
+          attemptNumber,
           correct: signal.correct,
         });
         return;

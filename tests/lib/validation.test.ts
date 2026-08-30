@@ -130,3 +130,32 @@ describe("runCodeSchema", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("runContextSchema (contexto de una ejecución sin calificar)", () => {
+  const base = { surface: "practice" as const };
+
+  it("acepta un contexto con un solo ejercicio", () => {
+    expect(
+      runCodeSchema.safeParse({
+        sourceCode: "int main(){}",
+        context: { ...base, practiceExerciseId: "p1" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rechaza un run atribuido a dos ejercicios a la vez", () => {
+    // Si pasara, `getRunReport` contaría el mismo run en el reporte de
+    // lección y en el de práctica.
+    const parsed = runCodeSchema.safeParse({
+      sourceCode: "int main(){}",
+      context: { ...base, exerciseId: "e1", practiceExerciseId: "p1" },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it("el contexto es opcional: sin él la ejecución sigue siendo válida", () => {
+    expect(
+      runCodeSchema.safeParse({ sourceCode: "int main(){}" }).success,
+    ).toBe(true);
+  });
+});

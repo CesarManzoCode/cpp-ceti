@@ -52,9 +52,10 @@ CREATE INDEX "study_session_surface_startedAt_idx"
 CREATE INDEX "study_session_lastPingAt_idx"
   ON "study_session"("lastPingAt");
 
--- Defensa a nivel BD: el tiempo activo nunca es negativo, y no puede
--- exceder el tiempo de pared transcurrido desde el inicio (+1 min de
--- holgura por el crédito del último heartbeat).
+-- Defensa a nivel BD: el tiempo activo nunca es negativo y una sesión no
+-- puede terminar antes de empezar. (No hay cota superior contra el tiempo
+-- de pared: el reloj del servidor y el redondeo del crédito la harían
+-- frágil; la cota real la impone el crédito acotado por latido.)
 ALTER TABLE "study_session"
   ADD CONSTRAINT "study_session_engagedMs_nonnegative" CHECK ("engagedMs" >= 0);
 
@@ -250,3 +251,30 @@ ALTER TABLE "product_event"
 ALTER TABLE "product_event"
   ADD CONSTRAINT "product_event_studySessionId_fkey"
   FOREIGN KEY ("studySessionId") REFERENCES "study_session"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- ---------------------------------------------------------------------
+-- 10) Índices para las consultas del panel sobre tablas de dominio
+-- ---------------------------------------------------------------------
+--  El panel filtra por ventana temporal SIN filtrar por usuario, así que
+--  los índices existentes (guiados por "userId") no le sirven. Sin estos,
+--  cada carga de /app/admin hace seq scan sobre las tablas más grandes.
+CREATE INDEX "user_createdAt_idx" ON "user"("createdAt");
+
+CREATE INDEX "user_lesson_progress_status_completedAt_idx"
+  ON "user_lesson_progress"("status", "completedAt");
+
+CREATE INDEX "user_practice_completion_completedAt_idx"
+  ON "user_practice_completion"("completedAt");
+
+CREATE INDEX "user_exercise_attempt_createdAt_idx"
+  ON "user_exercise_attempt"("createdAt");
+CREATE INDEX "user_exercise_attempt_exerciseId_createdAt_idx"
+  ON "user_exercise_attempt"("exerciseId", "createdAt");
+
+CREATE INDEX "user_practice_attempt_createdAt_idx"
+  ON "user_practice_attempt"("createdAt");
+CREATE INDEX "user_practice_attempt_exerciseId_createdAt_idx"
+  ON "user_practice_attempt"("exerciseId", "createdAt");
+
+CREATE INDEX "user_hint_viewed_viewedAt_idx"
+  ON "user_hint_viewed"("viewedAt");
