@@ -1,5 +1,7 @@
 import type { CourseDefinition } from "./types";
 
+import { cursoCsharpPoo1 } from "./csharp";
+
 import { unidad01 } from "./unidad-01-primer-programa";
 import { unidad02 } from "./unidad-02-cin";
 import { unidad03 } from "./unidad-03-variables";
@@ -42,4 +44,4 @@ export const cursoCpp: CourseDefinition = {
  * en el selector de curso. Cada curso es independiente: su progreso, sus
  * unidades, sus prácticas y su compilador.
  */
-export const allCourses: CourseDefinition[] = [cursoCpp];
+export const allCourses: CourseDefinition[] = [cursoCpp, cursoCsharpPoo1];
