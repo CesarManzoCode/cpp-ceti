@@ -268,6 +268,11 @@ model Exercise {
   starterCode       String // código pre-cargado en el editor
   solutionCode      String // referencia (no se muestra al user)
   hints             String[] // pistas progresivas
+  /// Contrato ESTRUCTURAL del reto (ver `src/lib/structure`). Cuando existe,
+  /// la salida correcta no basta: el código debe contener además las clases,
+  /// miembros, visibilidad, constructores, relaciones o herencia que el
+  /// enunciado pide. `null` = el reto sólo evalúa comportamiento.
+  structureContract Json?
   difficulty        Difficulty               @default(easy)
   xpReward          Int                      @default(15)
   testCases         TestCase[]
@@ -362,6 +367,14 @@ model UserStepProgress {
   /// Los intentos pedagógicos reales viven en `ProductEvent.lesson_step_attempt`
   /// (steps interactivos) y en `UserExerciseAttempt` (retos de código).
   completionCount Int        @default(1)
+  /// El paso se completó DESPUÉS de revelar la respuesta o la solución.
+  /// Se recalcula en cada `completeStep`: volver a resolverlo sin revelar
+  /// nada lo devuelve a `false` (dominio autónomo). No afecta al XP —
+  /// la ayuda no se castiga, sólo se distingue.
+  assisted        Boolean    @default(false)
+  /// Cuántas veces se reveló la ayuda de este paso. Nunca se reinicia: es
+  /// el registro de que la ayuda existió, aunque después se resolviera solo.
+  helpRevealCount Int        @default(0)
 
   @@unique([userId, stepId])
   @@map("user_step_progress")
@@ -388,6 +401,8 @@ model UserExerciseAttempt {
    * True solo en el primer intento que aprobó (consistente con UserExerciseCompletion).
    */
   awardedXp       Boolean  @default(false)
+  /// El envío se hizo con la solución revelada a la vista.
+  assisted        Boolean  @default(false)
   createdAt       DateTime @default(now())
 
   @@index([userId, exerciseId, createdAt])
@@ -425,31 +440,33 @@ model UserExerciseCompletion {
 //  contra el material de su unidad.
 
 model PracticeExercise {
-  id           String     @id @default(cuid())
+  id                String     @id @default(cuid())
   /// Curso dueño del ejercicio. Sin él, dos cursos con una unidad llamada
   /// igual colisionarían y un intento podría colgarse del ejercicio de otro
   /// curso. Se derivó por backfill al curso C++ existente en la migración
   /// `add_course_language`.
-  courseId     String
-  course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  unitSlug     String // contexto pedagógico: "primer-programa", "arreglos", etc.
+  courseId          String
+  course            Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  unitSlug          String // contexto pedagógico: "primer-programa", "arreglos", etc.
   /// Unidad dueña, resuelta por (curso, slug de unidad). La relación compuesta
   /// hace imposible apuntar a la unidad de otro curso.
-  unit         Unit       @relation(fields: [courseId, unitSlug], references: [courseId, slug], onDelete: Cascade)
+  unit              Unit       @relation(fields: [courseId, unitSlug], references: [courseId, slug], onDelete: Cascade)
   /// Único DENTRO del curso: `arreglos-suma` puede existir en C++ y en C#.
-  slug         String
-  title        String
-  description  String
-  prompt       String // markdown
-  starterCode  String
-  solutionCode String
-  hints        String[]
-  difficulty   Difficulty @default(easy)
-  xpReward     Int        @default(15)
-  position     Int        @default(0)
-  published    Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  slug              String
+  title             String
+  description       String
+  prompt            String // markdown
+  starterCode       String
+  solutionCode      String
+  hints             String[]
+  /// Contrato estructural del ejercicio. Ver `Exercise.structureContract`.
+  structureContract Json?
+  difficulty        Difficulty @default(easy)
+  xpReward          Int        @default(15)
+  position          Int        @default(0)
+  published         Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   /// Hash corto del contenido vigente. Ver `src/lib/content-revision.ts`.
   contentRevision   String?
@@ -502,6 +519,8 @@ model UserPracticeAttempt {
    * True solo en el primer intento que aprobó (consistente con UserPracticeCompletion).
    */
   awardedXp       Boolean          @default(false)
+  /// El envío se hizo con la solución revelada a la vista.
+  assisted        Boolean          @default(false)
   createdAt       DateTime         @default(now())
 
   @@index([userId, exerciseId, createdAt])

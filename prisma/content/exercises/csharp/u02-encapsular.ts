@@ -61,7 +61,16 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 20,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Credencial",
+            properties: [{ name: "Codigo", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "CETI-01\n",
           expectedStdout: "Código: CETI-01\n",
@@ -123,7 +132,16 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 22,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Audio",
+            properties: [{ name: "Nivel", visibility: "public", type: "int" }],
+            methods: [{ name: "EstablecerVolumen", visibility: "public", paramCount: 1 }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "40\n80\n",
           expectedStdout: "80\n",
@@ -205,7 +223,20 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 28,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Ticket",
+            properties: [
+              { name: "Concepto", visibility: "public", type: "string" },
+              { name: "Importe", visibility: "public", type: "decimal" },
+            ],
+            constructors: [{ paramCount: 1 }, { paramCount: 2 }],
+            methods: [{ name: "Mostrar", visibility: "public" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Copias\n12.5\n",
           expectedStdout: "Copias: 0.00\nCopias: 12.50\n",
@@ -266,7 +297,18 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 36,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Conversor",
+            methods: [
+              { name: "Convertir", visibility: "public", paramCount: 1, returnType: "int" },
+              { name: "Convertir", visibility: "public", paramCount: 2, returnType: "int" },
+            ],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "3\n2\n15\n",
           expectedStdout: "180\n135\n",

@@ -67,7 +67,18 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 20,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Estudiante",
+            fields: [{ name: "registro", visibility: "private", type: "string" }],
+            properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Presentar", visibility: "public", returnType: "string" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "2210\nSara\n",
           expectedStdout: "2210 - Sara\n",
@@ -132,7 +143,20 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 22,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Cuenta",
+            fields: [{ name: "saldo", visibility: "private", type: "decimal" }],
+            constructors: [{ paramCount: 1 }],
+            methods: [
+              { name: "Depositar", visibility: "public", paramCount: 1, returnType: "void" },
+              { name: "Consultar", visibility: "public", returnType: "decimal" },
+            ],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "10\n2.5\n",
           expectedStdout: "12.50\n",
@@ -198,7 +222,18 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 28,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Pelicula",
+            fields: [{ name: "duracion", visibility: "private", type: "int" }],
+            properties: [{ name: "Titulo", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "EsLarga", visibility: "public", returnType: "bool" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Norte\n121\n",
           expectedStdout: "Norte | larga\n",
@@ -207,107 +242,6 @@ class Program
         {
           stdin: "Límite\n120\n",
           expectedStdout: "Límite | corta\n",
-          visible: false,
-        },
-      ],
-    },
-    {
-      slug: "csharp-poo-requisito-bicicleta",
-      title: "Requisito a modelo: renta de bicicleta",
-      description: "Distribuye una regla entre estado y operación.",
-      prompt: "Bicicleta conserva código y tarifa por hora; CotizadorRenta recibe una bicicleta y calcula horas*tarifa, rechazando horas <=0 con \"Horas invalidas\". Lee código, tarifa y horas; imprime \"COD: X.XX\" o error.",
-      starterCode: `using System;
-class Bicicleta
-{
-}
-
-class CotizadorRenta
-{
-}
-
-class Program
-{
-    static void Main()
-    {
-    }
-}`,
-      solutionCode: `using System;
-class Bicicleta
-{
-    public string Codigo
-    {
-        get;
-        private set;
-    }
-    public decimal Tarifa
-    {
-        get;
-        private set;
-    }
-    public Bicicleta(string c, decimal t)
-    {
-        Codigo=c;
-        Tarifa=t;
-    }
-}
-
-class CotizadorRenta
-{
-    private Bicicleta bici;
-    public CotizadorRenta(Bicicleta b)
-    {
-        bici=b;
-    }
-    public decimal Calcular(int h)
-    {
-        if(h<=0)throw new ArgumentException("Horas invalidas");
-        return bici.Tarifa*h;
-    }
-    public string Codigo()
-    {
-        return bici.Codigo;
-    }
-}
-
-class Program
-{
-    static void Main()
-    {
-        string c=Console.ReadLine();
-        decimal t=decimal.Parse(Console.ReadLine());
-        int h=int.Parse(Console.ReadLine());
-        try
-        {
-            CotizadorRenta x=new CotizadorRenta(new Bicicleta(c, t));
-            Console.WriteLine(x.Codigo()+": "+x.Calcular(h).ToString("0.00"));
-        }
-        catch(ArgumentException ex)
-        {
-            Console.WriteLine("Error: "+ex.Message);
-        }
-    }
-}`,
-      hints: [
-        "Bicicleta posee la tarifa.",
-        "CotizadorRenta conoce la bicicleta.",
-        "La validación vive en Calcular.",
-      ],
-      difficulty: "hard",
-      xpReward: 36,
-      testCases: [
-        {
-          stdin: "B-8\n25\n3\n",
-          expectedStdout: "B-8: 75.00\n",
-          visible: true,
-        },
-        {
-          stdin: "X\n10.5\n1\n",
-          expectedStdout: "X: 10.50\n",
-          visible: false,
-        },
-        {
-          stdin: "X\n10\n0\n",
-          expectedStdout: "Error: Horas invalidas\n",
           visible: false,
         },
       ],

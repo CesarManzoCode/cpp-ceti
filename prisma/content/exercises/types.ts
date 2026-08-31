@@ -23,6 +23,10 @@
 //   el ejercicio y no hay algoritmo que saltarse.
 // =====================================================================
 
+import type { StructureContract } from "../../../src/lib/structure/contract";
+
+export type { StructureContract };
+
 export type Difficulty = "easy" | "medium" | "hard";
 
 export interface PracticeTestCaseDefinition {
@@ -43,6 +47,11 @@ export interface PracticeExerciseDefinition {
   difficulty: Difficulty;
   xpReward?: number;
   testCases: PracticeTestCaseDefinition[];
+  /**
+   * Contrato estructural. Ver `ExerciseDefinition.structure` en
+   * `prisma/content/types.ts`: mismo significado y mismo evaluador.
+   */
+  structure?: StructureContract;
 }
 
 /**

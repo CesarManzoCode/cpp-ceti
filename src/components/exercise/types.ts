@@ -19,4 +19,11 @@ export interface SubmissionState {
   passed: boolean;
   results: TestCaseResult[];
   feedback: string;
+  /**
+   * Requisitos ESTRUCTURALES del enunciado que el código no cumple (clases,
+   * miembros, visibilidad, herencia…). Vacío cuando el reto sólo evalúa
+   * comportamiento. Un error de diseño nunca se reduce a "salida
+   * incorrecta": se dice cuál es.
+   */
+  structureFailures?: string[];
 }

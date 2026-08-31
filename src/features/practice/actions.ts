@@ -10,6 +10,7 @@ import { buildFeedback, getExecutorForProfile } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak } from "@/lib/streak";
 import { codeSubmissionSchema, parseOrThrow } from "@/lib/validation";
 
@@ -26,14 +27,20 @@ export const submitPracticeExercise = withActionErrorHandling(
   async (input: {
     exerciseId: string;
     sourceCode: string;
+    /** El envío se hizo con la solución revelada a la vista. */
+    assisted?: boolean;
   }): Promise<{
     passed: boolean;
     results: TestCaseResult[];
     feedback: string;
     xpEarned: number;
     firstPass: boolean;
+    structureFailures: string[];
   }> => {
-    const { exerciseId, sourceCode } = parseOrThrow(codeSubmissionSchema, input);
+    const { exerciseId, sourceCode, assisted } = parseOrThrow(
+      codeSubmissionSchema,
+      input,
+    );
     const session = await requireSession();
     const userId = session.user.id;
     await enforceRateLimit(userId, "submit-practice");
@@ -75,8 +82,19 @@ export const submitPracticeExercise = withActionErrorHandling(
     const durationMs = Date.now() - startedAt;
 
     const passedCount = results.filter((r) => r.passed).length;
-    const allPassed = passedCount === results.length;
-    const feedback = buildFeedback(results);
+    const testsPassed = passedCount === results.length;
+
+    // Mismo contrato que en el reto de lección: cuando el objetivo es
+    // estructural, la salida correcta no basta.
+    const structure = checkStructure(
+      exercise.structureContract,
+      sourceCode,
+      target.language,
+    );
+    const allPassed = testsPassed && structure.satisfied;
+    const feedback = structure.satisfied
+      ? buildFeedback(results)
+      : buildStructureFeedback(structure, testsPassed);
 
     const { xpEarned, firstPass } = await db.$transaction(async (tx) => {
       // OJO: nada de create() + catch(P2002) aquí. Un UNIQUE violado aborta
@@ -99,6 +117,7 @@ export const submitPracticeExercise = withActionErrorHandling(
           durationMs,
           contentRevision: exercise.contentRevision,
           awardedXp: isFirstPass,
+          assisted,
         },
       });
 
@@ -120,6 +139,7 @@ export const submitPracticeExercise = withActionErrorHandling(
       feedback,
       xpEarned,
       firstPass,
+      structureFailures: structure.failures,
     };
   },
 );

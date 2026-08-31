@@ -24,15 +24,23 @@ export const stdinSchema = z
 
 export const cuidSchema = z.string().min(1, "Identificador inválido");
 
+/**
+ * `assisted` es una declaración del cliente sobre ESTE envío: "lo mandé con
+ * la solución revelada". No cambia el XP —la ayuda no se castiga— pero sí
+ * el estado que se muestra después. Default `false` para que un cliente
+ * viejo siga funcionando.
+ */
 export const codeSubmissionSchema = z.object({
   exerciseId: cuidSchema,
   sourceCode: sourceCodeSchema,
+  assisted: z.boolean().optional().default(false),
 });
 
 export type CodeSubmission = z.infer<typeof codeSubmissionSchema>;
 
 export const stepCompletionSchema = z.object({
   stepId: cuidSchema,
+  assisted: z.boolean().optional().default(false),
 });
 
 /**

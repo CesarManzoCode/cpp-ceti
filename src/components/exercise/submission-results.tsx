@@ -53,6 +53,24 @@ export function SubmissionResults({
         </span>
       </div>
 
+      {submission.structureFailures && submission.structureFailures.length > 0 ? (
+        <div className="mt-4 rounded-[var(--radius-md)] border border-warning/35 bg-warning-soft/50 p-3.5">
+          <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-warning">
+            El diseño que pide el enunciado
+          </p>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {submission.structureFailures.map((failure) => (
+              <li
+                key={failure}
+                className="text-[14px] leading-relaxed text-foreground"
+              >
+                {failure}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <ul
         data-stagger
         style={{ "--stagger": "40ms" } as CSSProperties}

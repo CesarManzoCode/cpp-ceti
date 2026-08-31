@@ -1,13 +1,17 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 03 — Variables y tipos de datos
+ * Variables y tipos de datos — segunda unidad del curso.
+ *
+ * Va ANTES de `cin`: es el puente que esa unidad daba por sabido. El
+ * nombre del archivo conserva el 03 histórico y el slug
+ * (`variables-y-tipos`) no cambia.
  *
  * Estructura por lección: code_example → fill_blank → code_challenge.
  * Sin theory steps puros. Ejercicios anclados al contexto CETI
  * (calificaciones, materias, semestre, grupos, créditos).
  */
-export const unidad03: UnitDefinition = {
+export const unidadVariables: UnitDefinition = {
   slug: "variables-y-tipos",
   title: "Variables y tipos de datos",
   description:

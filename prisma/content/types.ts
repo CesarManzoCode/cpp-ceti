@@ -7,8 +7,9 @@ import type {
   ExecutionProfileId,
   LanguageId,
 } from "../../src/lib/code-languages";
+import type { StructureContract } from "../../src/lib/structure/contract";
 
-export type { ExecutionProfileId, LanguageId };
+export type { ExecutionProfileId, LanguageId, StructureContract };
 
 /**
  * Un curso es la unidad de identidad del producto: define QUÉ se enseña y
@@ -143,6 +144,16 @@ export interface ExerciseDefinition {
   difficulty?: "easy" | "medium" | "hard";
   xpReward?: number;
   testCases: TestCaseDefinition[];
+  /**
+   * Contrato ESTRUCTURAL del reto (sólo cursos con lector estructural; hoy,
+   * C#). Declararlo convierte el objetivo del reto en "comportamiento +
+   * estructura": la salida correcta deja de bastar y el alumno recibe
+   * feedback de qué clase, miembro, visibilidad o relación falta.
+   *
+   * Se declara SÓLO en retos cuyo objetivo es estructural. Un reto que
+   * enseña un algoritmo se queda sin contrato y se evalúa por salida.
+   */
+  structure?: StructureContract;
 }
 
 export interface TestCaseDefinition {

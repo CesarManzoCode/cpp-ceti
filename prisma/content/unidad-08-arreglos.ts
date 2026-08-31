@@ -368,22 +368,32 @@ printf("Mayo:    %i\\n", dias[{{6}}]);`,
             "Con `{}` defines TODOS los valores al declarar. La cantidad de valores debe coincidir con el tamaño entre `[]` (o dejar `[]` vacíos para que el compilador cuente).",
         },
         // -----------------------------------------------------------------
-        // Reto 1 (fácil): Arreglo de strings con %s
+        // Reto 1 (fácil): Inicializar y leer por índice
+        //
+        // Antes este reto pedía `const char* fin[2]` y `%s`: punteros y
+        // cadenas al estilo C, que no se enseñan ni aquí ni antes. El
+        // objetivo de la lección es INICIALIZAR CON LLAVES, así que el reto
+        // se queda con el tipo que la unidad ya usa.
         // -----------------------------------------------------------------
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Reto 1 — Fin de semana
+            prompt: `## Reto 1 — Alumnos por grupo
 
-Declara un arreglo de cadenas con \`const char* fin[2] = {"Sabado", "Domingo"};\`
-e imprime cada elemento en una línea separada usando \`printf\` con el
-especificador **\`%s\`** (para cadenas).
+Declara un arreglo de enteros inicializado con llaves:
+
+\`\`\`cpp
+int grupos[3] = {28, 31, 25};
+\`\`\`
+
+Imprime los tres elementos, cada uno en su propia línea, usando \`printf\` con \`%i\`.
 
 Salida esperada:
 
 \`\`\`
-Sabado
-Domingo
+28
+31
+25
 \`\`\``,
             difficulty: "easy",
             xpReward: 25,
@@ -392,21 +402,22 @@ Domingo
             solutionCode: `#include <stdio.h>
 
 int main() {
-  const char* fin[2] = {"Sabado", "Domingo"};
-  printf("%s\\n", fin[0]);
-  printf("%s\\n", fin[1]);
+  int grupos[3] = {28, 31, 25};
+  printf("%i\\n", grupos[0]);
+  printf("%i\\n", grupos[1]);
+  printf("%i\\n", grupos[2]);
   return 0;
 }`,
             hints: [
               "Falta el `int main() { ... return 0; }`.",
-              "Para arreglos de cadenas en estilo C usa `const char*` (no `string`).",
-              "`%s` es el especificador para imprimir cadenas con `printf`.",
+              "Inicializa en una sola línea: `int grupos[3] = {28, 31, 25};`.",
+              "Los índices van de 0 a 2: `grupos[0]`, `grupos[1]`, `grupos[2]`.",
             ],
             testCases: [
               {
-                expectedStdout: "Sabado\nDomingo\n",
+                expectedStdout: "28\n31\n25\n",
                 visible: true,
-                description: "Imprime los dos días",
+                description: "Imprime los tres grupos",
               },
             ],
           },

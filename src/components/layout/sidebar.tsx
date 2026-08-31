@@ -4,6 +4,7 @@ import { Bug, MessageSquarePlus } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
+import type { CourseSwitcherItem } from "@/features/courses/components/course-switcher";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
@@ -13,12 +14,12 @@ import type { RoadmapUnit } from "@/features/roadmap/types";
  */
 export function Sidebar({
   courseSlug,
-  courseTitle,
+  courses = [],
   units,
   pendingFriendsCount = 0,
 }: {
   courseSlug: string | null;
-  courseTitle?: string | null;
+  courses?: CourseSwitcherItem[];
   units: RoadmapUnit[];
   pendingFriendsCount?: number;
 }) {
@@ -43,7 +44,7 @@ export function Sidebar({
         <div className="flex-1 overflow-y-auto pb-6">
           <SidebarNav
             courseSlug={courseSlug}
-            courseTitle={courseTitle}
+            courses={courses}
             units={units}
             pendingFriendsCount={pendingFriendsCount}
           />

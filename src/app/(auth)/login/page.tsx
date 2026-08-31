@@ -18,7 +18,7 @@ export default function LoginPage() {
           Bienvenido de nuevo
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Continúa tu curso donde lo dejaste.
+          Continúa tus cursos donde los dejaste. Una sola cuenta lleva los dos.
         </p>
       </div>
 

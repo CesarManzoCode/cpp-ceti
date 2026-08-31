@@ -227,6 +227,9 @@ async function upsertStep(
       starterCode: ex.starterCode,
       solutionCode: ex.solutionCode,
       hints: ex.hints ?? [],
+      // `DbNull` y no `undefined`: quitar el contrato en el contenido tiene
+      // que BORRARLO en la base, no dejar el viejo calificando.
+      structureContract: ex.structure ?? Prisma.DbNull,
       difficulty: ex.difficulty ?? "easy",
       xpReward: ex.xpReward ?? 15,
     },
@@ -236,6 +239,7 @@ async function upsertStep(
       starterCode: ex.starterCode,
       solutionCode: ex.solutionCode,
       hints: ex.hints ?? [],
+      structureContract: ex.structure ?? Prisma.DbNull,
       difficulty: ex.difficulty ?? "easy",
       xpReward: ex.xpReward ?? 15,
     },
@@ -267,6 +271,9 @@ async function upsertStep(
     starterCode: ex.starterCode,
     solutionCode: ex.solutionCode,
     hints: ex.hints ?? [],
+    // El contrato entra en el preimage: endurecer la evaluación cambia el
+    // ejercicio para efectos de comparación antes/después.
+    structure: ex.structure ?? null,
     difficulty: ex.difficulty ?? "easy",
     xpReward: ex.xpReward ?? 15,
     testCases: ex.testCases.map((tc) => ({

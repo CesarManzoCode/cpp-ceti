@@ -65,7 +65,20 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 20,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Formateador",
+            methods: [{ name: "Mayusculas", visibility: "public", paramCount: 1, returnType: "string" }],
+          },
+          {
+            name: "Reporte",
+            methods: [{ name: "Imprimir", visibility: "public", paramCount: 2 }],
+            notStores: [{ type: "Formateador" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "hola ceti\n",
           expectedStdout: "HOLA CETI\n",
@@ -146,7 +159,23 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 22,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Entrenador",
+            properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+          {
+            name: "Equipo",
+            properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Mostrar", visibility: "public" }],
+            stores: [{ type: "Entrenador" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Halcones\nRita\n",
           expectedStdout: "Halcones entrenado por Rita\n",
@@ -225,7 +254,22 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 29,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Silla",
+            properties: [{ name: "Codigo", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+          {
+            name: "Sala",
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Mostrar", visibility: "public" }],
+            stores: [{ type: "Silla" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "A\nS1\nS2\n",
           expectedStdout: "Sala A: S1,S2 (2)\n",
@@ -301,7 +345,22 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 38,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Portada",
+            properties: [{ name: "Folio", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+          {
+            name: "Expediente",
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Resumen", visibility: "public" }],
+            stores: [{ type: "Portada" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "E-1\nIngreso\n",
           expectedStdout: "E-1 | Ingreso\n",

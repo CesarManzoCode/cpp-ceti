@@ -94,17 +94,20 @@ export const getLessonBySlug = cache(async (
   });
   if (!lesson || !lesson.published) notFound();
 
-  // Pasos ya completados por el usuario
-  const completedStepIds = new Set(
-    (
-      await db.userStepProgress.findMany({
-        where: {
-          userId,
-          stepId: { in: lesson.steps.map((s) => s.id) },
-        },
-        select: { stepId: true },
-      })
-    ).map((s) => s.stepId),
+  // Pasos ya completados por el usuario, y cuáles se completaron con
+  // ayuda revelada. `completionCount > 0` excluye las filas que sólo
+  // registran un reveal sin haber terminado el paso.
+  const stepProgress = await db.userStepProgress.findMany({
+    where: {
+      userId,
+      stepId: { in: lesson.steps.map((s) => s.id) },
+      completionCount: { gt: 0 },
+    },
+    select: { stepId: true, assisted: true },
+  });
+  const completedStepIds = new Set(stepProgress.map((s) => s.stepId));
+  const assistedStepIds = new Set(
+    stepProgress.filter((s) => s.assisted).map((s) => s.stepId),
   );
 
   // Último intento por ejercicio (para hidratar el editor al volver).
@@ -180,6 +183,8 @@ export const getLessonBySlug = cache(async (
       steps: lesson.steps.map((s) => ({
         ...s,
         completed: completedStepIds.has(s.id),
+        /** Se completó con la respuesta o la solución revelada. */
+        assisted: assistedStepIds.has(s.id),
         bestAttemptCode: s.exercise
           ? (latestCodeByExercise.get(s.exercise.id) ?? null)
           : null,

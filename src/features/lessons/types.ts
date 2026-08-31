@@ -122,6 +122,12 @@ export interface ViewerStep {
   type: StepContent["type"];
   content: StepContent;
   completed: boolean;
+  /**
+   * El paso se completó con la respuesta o la solución revelada. No es un
+   * castigo —el XP no cambia— sino la diferencia entre "lo domino" y "lo
+   * vi": el alumno necesita saber qué le toca repasar.
+   */
+  assisted?: boolean;
   exercise?: {
     id: string;
     prompt: string;

@@ -1,14 +1,16 @@
 import type { UnitDefinition } from "./types";
 
 /**
- * Unidad 02 — Leer datos con cin
+ * Leer datos con `cin` — tercera unidad del curso.
  *
- * En el CETI cin se enseña inmediatamente después de cout — el programa
- * deja de solo hablar y empieza a escuchar. Patrón estable:
+ * Va DESPUÉS de "Variables y tipos": leer un dato exige antes saber en qué
+ * variable cae y qué operaciones admite. El nombre del archivo conserva el
+ * 02 histórico; la posición la decide `content/index.ts`, y el slug
+ * (`leer-datos`) no cambia nunca. Patrón estable:
  *   code_example → fill_blank → (quiz) → code_challenge.
  * Ejemplos del CETI: pedir nombre, edad, calificación, número de control.
  */
-export const unidad02: UnitDefinition = {
+export const unidadCin: UnitDefinition = {
   slug: "leer-datos",
   title: "Leer datos del usuario con cin",
   description:

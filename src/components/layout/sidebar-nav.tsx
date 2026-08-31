@@ -6,6 +6,10 @@ import { usePathname } from "next/navigation";
 import { Check, Dumbbell, Home, Lock, Trophy, Users } from "lucide-react";
 
 import { BrickRow } from "@/components/ui/bricks";
+import {
+  CourseSwitcher,
+  type CourseSwitcherItem,
+} from "@/features/courses/components/course-switcher";
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
@@ -51,13 +55,14 @@ function topLinksFor(courseSlug: string | null): {
  */
 export function SidebarNav({
   courseSlug,
-  courseTitle,
+  courses = [],
   units,
   onNavigate,
   pendingFriendsCount = 0,
 }: {
   courseSlug: string | null;
-  courseTitle?: string | null;
+  /** Cursos publicados: alimentan el selector de curso actual. */
+  courses?: CourseSwitcherItem[];
   units: RoadmapUnit[];
   onNavigate?: () => void;
   pendingFriendsCount?: number;
@@ -70,6 +75,14 @@ export function SidebarNav({
 
   return (
     <nav className="flex flex-col gap-8">
+      {courses.length > 0 ? (
+        /* El curso actual es un control, no un rótulo: desde aquí se ve
+           cuál está activo y se cambia sin salir de la pantalla. */
+        <div className="px-3">
+          <CourseSwitcher courses={courses} activeSlug={courseSlug} />
+        </div>
+      ) : null}
+
       <ul className="flex flex-col gap-1 px-3">
         {topLinks.map((link) => {
           const active = link.exact
@@ -116,7 +129,7 @@ export function SidebarNav({
         <div className="min-w-0">
           <div className="mb-3 flex items-baseline justify-between gap-3 px-6">
             <h3 className="min-w-0 flex-1 truncate text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
-              {courseTitle ?? "Tu curso"}
+              Unidades del curso
             </h3>
             {totalLessons > 0 ? (
               <span className="text-[13px] font-semibold tabular-nums text-subtle-foreground">

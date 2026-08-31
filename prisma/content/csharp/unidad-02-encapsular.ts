@@ -157,6 +157,19 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 30,
+            structure: {
+              classes: [
+                {
+                  name: "Inventario",
+                  fields: [{ name: "existencias", visibility: "private", type: "int" }],
+                  methods: [
+                    { name: "Agregar", visibility: "public", paramCount: 1 },
+                    { name: "Retirar", visibility: "public", paramCount: 1, returnType: "bool" },
+                    { name: "Consultar", visibility: "public", returnType: "int" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "10\n4\n3\n",
@@ -323,6 +336,15 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 30,
+            structure: {
+              classes: [
+                {
+                  name: "Calificacion",
+                  fields: [{ name: "valor", visibility: "private", type: "double" }],
+                  properties: [{ name: "Valor", visibility: "public", type: "double" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "8.5\n12\n",
@@ -471,6 +493,18 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 30,
+            structure: {
+              classes: [
+                {
+                  name: "Pedido",
+                  properties: [
+                    { name: "Folio", visibility: "public", type: "int" },
+                    { name: "Total", visibility: "public", type: "double" },
+                  ],
+                  constructors: [{ paramCount: 2 }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "104\n250.5\n",
@@ -624,6 +658,17 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 32,
+            structure: {
+              classes: [
+                {
+                  name: "CalculadoraEnvio",
+                  methods: [
+                    { name: "Calcular", visibility: "public", paramCount: 1, returnType: "double" },
+                    { name: "Calcular", visibility: "public", paramCount: 2, returnType: "double" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "2.5\n1\n",
@@ -642,6 +687,211 @@ class Program
                 expectedStdout: "Normal: 0.00\nElegido: 50.00\n",
                 visible: false,
                 description: "Peso cero",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    /**
+     * Referencias e identidad. Vive AQUÍ y no en U1 a propósito (ver
+     * `CS-01`): `b = a` sólo se entiende cuando el alumno ya distingue
+     * identidad, estado e independencia entre instancias, y ya construye
+     * objetos con constructor. Antes de eso, aliasing es ruido.
+     *
+     * El orden interno también importa: primero se VE el caso (dos
+     * variables, un objeto), luego se PREDICE, y sólo al final se escribe
+     * código.
+     */
+    {
+      slug: "referencias-identidad",
+      title: "Referencias: dos variables, un objeto",
+      description: "Distingue copiar una referencia de crear otro objeto.",
+      estimatedMinutes: 9,
+      xpReward: 40,
+      steps: [
+        {
+          type: "theory",
+          markdown: `# La variable no es el objeto
+
+Cuando escribes \`Locker a = new Locker();\` pasan dos cosas distintas:
+
+1. \`new Locker()\` crea **el objeto** en algún lugar de la memoria.
+2. \`a\` guarda **una referencia** a ese objeto: una flecha que apunta hacia él.
+
+La variable no *contiene* el objeto: lo *señala*.
+
+Eso explica un caso que hasta ahora no habíamos tocado:
+
+\`\`\`csharp
+Locker a = new Locker();   //  a ──▶ [objeto 1]
+Locker b = a;              //  b ──▶ [objeto 1]   (la MISMA flecha)
+\`\`\`
+
+Contra este otro:
+
+\`\`\`csharp
+Locker a = new Locker();   //  a ──▶ [objeto 1]
+Locker b = new Locker();   //  b ──▶ [objeto 2]   (dos objetos)
+\`\`\`
+
+**Cuenta los \`new\`: hay tantos objetos como \`new\`.** En el primer caso hay uno solo, con dos nombres.`,
+        },
+        {
+          type: "code_example",
+          code: `using System;
+
+class Locker
+{
+    public int Numero;
+}
+
+class Program
+{
+    static void Main()
+    {
+        Locker a = new Locker();
+        a.Numero = 12;
+
+        Locker b = a;          // copia la REFERENCIA, no el objeto
+        b.Numero = 99;
+
+        Locker c = new Locker();  // este si es otro objeto
+        c.Numero = 7;
+
+        Console.WriteLine(a.Numero);
+        Console.WriteLine(b.Numero);
+        Console.WriteLine(c.Numero);
+    }
+}`,
+          explanation: "Hay dos `new`, así que hay dos objetos. `a` y `b` apuntan al mismo: cambiar `b.Numero` cambia lo que ve `a`. `c` es independiente. Cambia `Locker b = a;` por `Locker b = new Locker();` y observa cómo las dos primeras líneas dejan de moverse juntas.",
+          runnable: true,
+          expectedOutput: `99
+99
+7`,
+        },
+        {
+          type: "quiz",
+          question: "Después de `Cuenta x = new Cuenta(); Cuenta y = x; y.Saldo = 500;`, ¿cuánto vale `x.Saldo`?",
+          options: [
+            "500: x e y son dos nombres del mismo objeto.",
+            "0: y trabaja sobre una copia del objeto.",
+            "Depende de cuál se lea primero.",
+            "No compila: no se pueden asignar objetos entre variables.",
+          ],
+          feedbackPerOption: [
+            "",
+            "Asignar una variable de clase copia la flecha, no el objeto al que apunta.",
+            "El orden de lectura no cambia el estado: hay un solo objeto.",
+            "Sí compila: es una asignación de referencia, algo perfectamente normal.",
+          ],
+          correctIndex: 0,
+          explanation: "Hubo un solo `new`, así que hay un solo objeto. `y = x` copió la referencia y las dos variables lo señalan.",
+        },
+        {
+          type: "fill_blank",
+          prompt: "Completa el código para que `original` y `copia` terminen siendo DOS objetos independientes.",
+          template: `Cuenta original = new Cuenta("Ana");
+Cuenta copia = {{0}} Cuenta({{1}}.Titular);`,
+          blanks: [
+            { answer: "new", hint: "Para que sea otro objeto tiene que haber otro..." },
+            { answer: "original", hint: "El titular se toma de la cuenta que ya existe." },
+          ],
+          explanation: "Sin un segundo `new` habría un solo objeto con dos nombres. Con él hay dos objetos que sólo comparten el dato copiado.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Uno o dos objetos
+
+\`Ficha\` ya está escrita, con constructor y propiedad. En \`Main\`:
+
+1. crea una ficha con el nombre leído;
+2. crea un **alias** de esa misma ficha (sin \`new\`) y cámbiale el nombre al leído en segundo lugar;
+3. crea una ficha **independiente** con el tercer nombre;
+4. imprime, en este orden, el nombre de la ficha original, el del alias y el de la independiente.
+
+Si el alias está bien hecho, las dos primeras líneas salen iguales.`,
+            starterCode: `using System;
+
+class Ficha
+{
+    public string Nombre { get; set; }
+    public Ficha(string nombre) { Nombre = nombre; }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string primero = Console.ReadLine();
+        string cambio = Console.ReadLine();
+        string tercero = Console.ReadLine();
+
+        // 1) ficha original   2) alias (sin new) + cambio   3) ficha aparte
+    }
+}`,
+            solutionCode: `using System;
+
+class Ficha
+{
+    public string Nombre { get; set; }
+    public Ficha(string nombre) { Nombre = nombre; }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string primero = Console.ReadLine();
+        string cambio = Console.ReadLine();
+        string tercero = Console.ReadLine();
+
+        Ficha original = new Ficha(primero);
+        Ficha alias = original;
+        alias.Nombre = cambio;
+
+        Ficha aparte = new Ficha(tercero);
+
+        Console.WriteLine(original.Nombre);
+        Console.WriteLine(alias.Nombre);
+        Console.WriteLine(aparte.Nombre);
+    }
+}`,
+            hints: [
+              "El alias se crea SIN new: Ficha alias = original;",
+              "Cambiarle el nombre al alias cambia el del original: es el mismo objeto.",
+              "La ficha independiente sí lleva su propio new.",
+            ],
+            difficulty: "easy",
+            xpReward: 25,
+            structure: {
+              classes: [
+                {
+                  name: "Ficha",
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "Ana\nSofia\nLuis\n",
+                expectedStdout: "Sofia\nSofia\nLuis\n",
+                visible: true,
+                description: "El alias arrastra al original",
+              },
+              {
+                stdin: "A\nB\nC\n",
+                expectedStdout: "B\nB\nC\n",
+                visible: false,
+                description: "Nombres cortos",
+              },
+              {
+                stdin: "Equipo 1\nEquipo 2\nEquipo 3\n",
+                expectedStdout: "Equipo 2\nEquipo 2\nEquipo 3\n",
+                visible: false,
+                description: "Nombres con espacio",
               },
             ],
           },

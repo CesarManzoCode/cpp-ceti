@@ -14,7 +14,7 @@ import {
   useStudySession,
 } from "@/features/analytics/telemetry";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
-import { completeStep } from "@/features/lessons/actions";
+import { completeStep, markStepAssisted } from "@/features/lessons/actions";
 import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 import type { ViewerStep } from "@/features/lessons/types";
@@ -129,6 +129,17 @@ function LessonPlayer({
   // dedupeKey del primero y se perdía en silencio.
   const attemptOrdinalsRef = React.useRef<Map<string, number>>(new Map());
 
+  // Pasos cuya respuesta/solución se reveló en esta sesión de estudio. El
+  // registro DURADERO lo hace `markStepAssisted` en el servidor; este set
+  // es lo que viaja con el completado, para que "completado" no signifique
+  // lo mismo después de copiar una solución que después de resolverla.
+  // Arranca VACÍO a propósito: para avanzar, cada paso interactivo exige
+  // responderlo otra vez, así que completarlo en esta visita sin revelar
+  // nada es una resolución autónoma y debe poder limpiar el estado previo.
+  const [assistedSteps, setAssistedSteps] = React.useState<Set<string>>(
+    () => new Set<string>(),
+  );
+
   const handleStepSignal = React.useCallback(
     (signal: StepSignal) => {
       const step = lesson.steps[currentIndex];
@@ -161,6 +172,14 @@ function LessonPlayer({
         stepType,
         failedAttempts: signal.failedAttempts,
       });
+      // Persistir el reveal AHORA, no al completar: el diálogo promete que
+      // quedará marcado como asistido y esa promesa no puede depender de
+      // que el alumno termine el paso.
+      setAssistedSteps((prev) => new Set(prev).add(step.id));
+      void markStepAssisted(step.id).catch(() => {
+        // Un fallo aquí no puede bloquear el aprendizaje: el completado
+        // manda igual la bandera y el estado se corrige entonces.
+      });
     },
     [track, markEngaged, lesson.id, lesson.steps, currentIndex],
   );
@@ -175,6 +194,11 @@ function LessonPlayer({
   const total = lesson.steps.length;
   const currentStep = lesson.steps[currentIndex];
   const isFirstStep = currentIndex === 0;
+  // Asistido si se reveló ayuda en esta visita, o si así quedó registrado
+  // la última vez que se completó.
+  const stepAssisted = currentStep
+    ? assistedSteps.has(currentStep.id) || currentStep.assisted === true
+    : false;
   // Los retos de código necesitan más ancho para el editor que la lectura.
   const isWideStep = currentStep?.type === "code_challenge";
   const containerMax = isWideStep ? "max-w-6xl" : "max-w-[46rem]";
@@ -197,7 +221,9 @@ function LessonPlayer({
 
     startTransition(async () => {
       try {
-        const res = await completeStep(currentStep.id);
+        const res = await completeStep(currentStep.id, {
+          assisted: assistedSteps.has(currentStep.id),
+        });
         if (res.lessonCompleted) {
           setCompletedDialog({ open: true, xp: res.xpEarned });
         } else if (currentIndex < total - 1) {
@@ -274,6 +300,14 @@ function LessonPlayer({
               {currentIndex + 1}
               <span className="text-subtle-foreground">/{total}</span>
             </span>
+            {/* "Completado" no puede significar lo mismo después de copiar
+                una solución que después de resolverla. El XP no cambia; lo
+                que cambia es saber qué te toca repasar. */}
+            {stepAssisted ? (
+              <span className="hidden shrink-0 rounded-full bg-warning-soft px-2.5 py-1 text-[12px] font-bold text-warning sm:inline">
+                Con ayuda
+              </span>
+            ) : null}
           </div>
 
           <div className="flex shrink-0 items-center">

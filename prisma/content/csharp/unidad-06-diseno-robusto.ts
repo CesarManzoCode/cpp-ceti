@@ -92,6 +92,18 @@ class Program
             ],
             difficulty: "easy",
             xpReward: 24,
+            structure: {
+              classes: [
+                {
+                  name: "Entrada",
+                  properties: [
+                    { name: "Total", visibility: "public", type: "int", static: true },
+                    { name: "Folio", visibility: "public", type: "string" },
+                  ],
+                  constructors: [{ paramCount: 1 }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "A1\nA2\n",
@@ -199,6 +211,15 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 32,
+            structure: {
+              classes: [
+                {
+                  name: "Termometro",
+                  properties: [{ name: "Celsius", visibility: "public", type: "double" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "20\n",
@@ -305,6 +326,29 @@ class Program
             ],
             difficulty: "hard",
             xpReward: 42,
+            structure: {
+              classes: [
+                {
+                  name: "Alumno",
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "Laboratorio",
+                  properties: [
+                    { name: "Nombre", visibility: "public", type: "string" },
+                    { name: "Tarifa", visibility: "public", type: "decimal" },
+                  ],
+                  constructors: [{ paramCount: 2 }],
+                },
+                {
+                  name: "Reserva",
+                  constructors: [{ paramCount: 3 }],
+                  methods: [{ name: "Resumen", visibility: "public", returnType: "string" }],
+                  stores: [{ type: "Alumno" }, { type: "Laboratorio" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Mia\nL2\n75\n3\n",

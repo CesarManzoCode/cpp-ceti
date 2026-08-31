@@ -521,19 +521,26 @@ G3-A1 G3-A2 `,
             "`i * j` imprime la tabla. El `endl` AL TERMINAR el ciclo interior cambia de fila.",
         },
         {
+          // El reto anterior ("tabla del 2") permitía explícitamente
+          // resolverlo con UN solo `for`, y su solución usaba uno: el reto
+          // final de la lección desactivaba el concepto que la titula. Éste
+          // exige una salida bidimensional donde AMBAS variables afectan el
+          // resultado, así que un ciclo solo no alcanza.
           type: "code_challenge",
           exercise: {
-            prompt: `## Tabla del 2
+            prompt: `## Rejilla de asientos
 
-Usa dos \`for\` anidados (o uno solo con multiplicación, como prefieras) para imprimir las primeras 5 multiplicaciones de la tabla del 2:
+El auditorio tiene 3 filas y 4 asientos por fila. Imprime la rejilla completa: una fila por renglón, con el código de cada asiento separado por un espacio.
+
+Cada código es la fila y el asiento juntos: \`F1A1\`, \`F1A2\`, …
 
 \`\`\`
-2 x 1 = 2
-2 x 2 = 4
-2 x 3 = 6
-2 x 4 = 8
-2 x 5 = 10
-\`\`\``,
+F1A1 F1A2 F1A3 F1A4
+F2A1 F2A2 F2A3 F2A4
+F3A1 F3A2 F3A3 F3A4
+\`\`\`
+
+Necesitas **dos ciclos anidados**: el exterior recorre las filas y el interior, los asientos de esa fila. Cada línea termina justo después del último asiento (sin espacio al final).`,
             difficulty: "medium",
             xpReward: 30,
             starterCode: `#include <iostream>
@@ -547,21 +554,28 @@ int main() {
 using namespace std;
 
 int main() {
-  for (int i = 1; i <= 5; i++) {
-    cout << "2 x " << i << " = " << 2 * i << endl;
+  for (int fila = 1; fila <= 3; fila++) {
+    for (int asiento = 1; asiento <= 4; asiento++) {
+      cout << "F" << fila << "A" << asiento;
+      if (asiento < 4) {
+        cout << " ";
+      }
+    }
+    cout << endl;
   }
   return 0;
 }`,
             hints: [
-              "Un solo `for` de 1 a 5 con un cout encadenado adentro.",
-              "La operación se calcula DENTRO del cout, sin variable extra.",
+              "El `for` exterior lleva la fila (1 a 3); el interior, el asiento (1 a 4).",
+              "El código de cada asiento usa LAS DOS variables: \"F\" << fila << \"A\" << asiento.",
+              "El `endl` va al terminar el ciclo interior, no dentro de él: cierra la fila.",
             ],
             testCases: [
               {
                 expectedStdout:
-                  "2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n",
+                  "F1A1 F1A2 F1A3 F1A4\nF2A1 F2A2 F2A3 F2A4\nF3A1 F3A2 F3A3 F3A4\n",
                 visible: true,
-                description: "Tabla del 2 del 1 al 5",
+                description: "Rejilla de 3 filas por 4 asientos",
               },
             ],
           },
