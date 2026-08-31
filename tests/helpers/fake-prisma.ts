@@ -36,6 +36,7 @@ const UNIQUES: Record<string, string[][]> = {
   userStreak: [["userId"]],
   friendship: [["requesterId", "addresseeId"]],
   practiceExercise: [["courseId", "slug"]],
+  unit: [["courseId", "slug"]],
   productEvent: [["userId", "dedupeKey"]],
   studySession: [["userId", "clientKey"]],
   userHintViewed: [
@@ -348,6 +349,11 @@ class FakeDbImpl {
         if ("in" in value) return (value.in as unknown[]).some((v) => sameValue(row[key], v));
         if ("not" in value) return !sameValue(row[key], value.not);
         if ("equals" in value) return sameValue(row[key], value.equals);
+        // Comparadores numéricos (ej. `completionCount: { gt: 0 }`).
+        if ("gt" in value) return Number(row[key]) > Number(value.gt);
+        if ("gte" in value) return Number(row[key]) >= Number(value.gte);
+        if ("lt" in value) return Number(row[key]) < Number(value.lt);
+        if ("lte" in value) return Number(row[key]) <= Number(value.lte);
         // Filtro sobre una relación anidada (ej. `unit: { slug }`): la fila
         // sembrada trae el objeto embebido y comparamos recursivamente.
         const nested = row[key];

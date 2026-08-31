@@ -5,6 +5,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { getCourseChoices } from "@/features/courses/queries";
+import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
 import { getPendingIncomingCount } from "@/features/friends/queries";
 import { getRoadmapUnits } from "@/features/roadmap/queries";
 import { getAdminContext } from "@/lib/admin";
@@ -44,11 +45,22 @@ export default async function AppLayout({
     ? await getRoadmapUnits(course.id, session.user.id)
     : [];
 
+  // El selector de curso vive en el shell: rail en escritorio, barra
+  // superior en móvil. Así "cambiar de curso" existe en cualquier ruta
+  // autenticada y no sólo en la pantalla de selección.
+  const courseOptions = courses.map((c) => ({
+    slug: c.slug,
+    title: c.title,
+    languageLabel: isLanguageId(c.language)
+      ? LANGUAGE_PROFILES[c.language].label
+      : c.language,
+  }));
+
   return (
     <div className="flex min-h-dvh bg-background">
       <Sidebar
         courseSlug={course?.slug ?? null}
-        courseTitle={course?.title ?? null}
+        courses={courseOptions}
         units={units}
         pendingFriendsCount={pendingFriendsCount}
       />
@@ -56,6 +68,7 @@ export default async function AppLayout({
         <ChromeSlot>
           <Topbar
             courseSlug={course?.slug ?? null}
+            courses={courseOptions}
             user={{
               name: session.user.name,
               email: session.user.email,

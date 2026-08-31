@@ -25,6 +25,10 @@ export interface PracticeUnitGroup {
  * del usuario. El orden de los grupos sigue el orden de las unidades del
  * curso. El `courseId` es obligatorio: sin él, dos cursos con una unidad
  * llamada igual mezclarían sus ejercicios en el mismo grupo.
+ *
+ * La publicación es JERÁRQUICA: una práctica publicada bajo una unidad
+ * "Próximamente" no existe para el alumno. Publicar la unidad la abre sin
+ * ninguna operación extra sobre la práctica.
  */
 export async function getPracticeGroups(
   courseId: string,
@@ -46,7 +50,7 @@ export async function getPracticeGroups(
       },
     }),
     db.unit.findMany({
-      where: { courseId },
+      where: { courseId, published: true },
       select: { slug: true, title: true, icon: true, order: true },
       orderBy: { order: "asc" },
     }),
@@ -74,13 +78,16 @@ export async function getPracticeGroups(
   const groups = new Map<string, PracticeUnitGroup>();
   for (const ex of exercises) {
     const meta = unitMeta.get(ex.unitSlug);
+    // Sin unidad publicada que la respalde, la práctica no se lista. Ni
+    // siquiera como grupo huérfano: sería justo el contenido bloqueado.
+    if (!meta) continue;
     const key = ex.unitSlug;
     if (!groups.has(key)) {
       groups.set(key, {
         unitSlug: ex.unitSlug,
-        unitTitle: meta?.title ?? ex.unitSlug,
-        unitIcon: meta?.icon ?? null,
-        unitOrder: meta?.order ?? 999,
+        unitTitle: meta.title,
+        unitIcon: meta.icon,
+        unitOrder: meta.order,
         exercises: [],
       });
     }
@@ -127,6 +134,11 @@ export interface PracticeDetail {
  * renderizar el editor. Incluye el último intento del usuario si existe
  * (para que pueda continuar donde lo dejó). El slug es único DENTRO del
  * curso, así que el curso no es opcional.
+ *
+ * Devuelve `null` —y la página responde 404— si la unidad dueña no está
+ * publicada: una URL directa no puede revelar prompt, solución ni tests de
+ * contenido bloqueado. La ejecución tiene su propio guard en
+ * `resolveExecutionTarget`; éste es el de lectura.
  */
 export async function getPracticeBySlug(
   courseId: string,
@@ -144,7 +156,7 @@ export async function getPracticeBySlug(
   const [unit, latestAttempt, anyPass] = await Promise.all([
     db.unit.findUnique({
       where: { courseId_slug: { courseId, slug: ex.unitSlug } },
-      select: { title: true },
+      select: { title: true, published: true },
     }),
     db.userPracticeAttempt.findFirst({
       where: { userId, exerciseId: ex.id },
@@ -157,11 +169,14 @@ export async function getPracticeBySlug(
     }),
   ]);
 
+  // Publicación efectiva del padre.
+  if (!unit?.published) return null;
+
   return {
     id: ex.id,
     slug: ex.slug,
     unitSlug: ex.unitSlug,
-    unitTitle: unit?.title ?? null,
+    unitTitle: unit.title,
     title: ex.title,
     description: ex.description,
     prompt: ex.prompt,

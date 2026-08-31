@@ -9,6 +9,7 @@ import type { RoadmapUnit } from "@/features/roadmap/types";
 
 const ACCOUNT_LABELS: Record<string, string> = {
   "/app": "Tus cursos",
+  "/app/cursos": "Tus cursos",
   "/app/amigos": "Amigos",
   "/app/logros": "Logros",
   "/app/perfil": "Perfil",
