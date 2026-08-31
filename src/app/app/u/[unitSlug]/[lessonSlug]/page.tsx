@@ -71,6 +71,7 @@ export default async function LessonPage({
 
   return (
     <LessonViewer
+      language={course.language}
       lesson={{
         id: data.lesson.id,
         title: data.lesson.title,

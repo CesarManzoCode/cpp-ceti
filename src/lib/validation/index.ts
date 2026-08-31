@@ -36,31 +36,73 @@ export const stepCompletionSchema = z.object({
 });
 
 /**
- * Contexto de producto de una ejecución sin calificar. Es OPCIONAL y sólo
- * sirve para atribuir el evento `code_run`: si viene mal, la ejecución se
- * hace igual y el evento se descarta.
+ * Campos que el cliente NO puede mandar en una petición de ejecución.
+ *
+ * El lenguaje y el compilador los deriva el servidor del curso al que
+ * pertenece el recurso. Aceptarlos "informativamente" invita a que alguien
+ * los use: un alumno podría pedir GCC para un recurso de C#, o al revés.
+ * Se rechazan explícitamente en vez de ignorarse en silencio, para que el
+ * intento sea visible en vez de parecer que funcionó.
  */
-export const runContextSchema = z
-  .object({
-    surface: z.enum(["lesson", "practice", "playground"]),
-    lessonId: cuidSchema.nullish(),
-    exerciseId: cuidSchema.nullish(),
-    practiceExerciseId: cuidSchema.nullish(),
-    studySessionId: cuidSchema.nullish(),
-  })
-  // Un run pertenece a UN ejercicio. Aceptar los dos haría que el mismo run
-  // se contara en el reporte de lección y en el de práctica.
-  .refine(
-    (context) => !(context.exerciseId && context.practiceExerciseId),
-    "Un run no puede pertenecer a dos ejercicios",
-  );
+export const FORBIDDEN_RUN_FIELDS = [
+  "language",
+  "profileId",
+  "executionProfile",
+  "compiler",
+  "compilerOptions",
+  "languageId",
+] as const;
 
-export type RunContextInput = z.infer<typeof runContextSchema>;
+/** Lanza si el cuerpo trae algún campo de compilador. */
+export function rejectCompilerFields(body: unknown): void {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return;
+  const record = body as Record<string, unknown>;
+  for (const field of FORBIDDEN_RUN_FIELDS) {
+    if (field in record) {
+      throw new Error(
+        `El campo "${field}" no se acepta: el entorno de ejecución lo determina el curso.`,
+      );
+    }
+  }
+  // El target tampoco puede colar un compilador por la puerta de atrás.
+  if (record.target) rejectCompilerFields(record.target);
+}
+
+/**
+ * Objetivo de una ejecución sin calificar. EXACTAMENTE un recurso.
+ *
+ * No hay ejecución sin recurso: es la única forma de derivar el curso y,
+ * con él, el compilador. `lessonId` es opcional y sólo sirve para
+ * verificación cruzada — si no corresponde al recurso, la petición se
+ * rechaza en el servidor.
+ */
+export const runTargetSchema = z
+  .object({
+    stepId: cuidSchema.optional(),
+    exerciseId: cuidSchema.optional(),
+    practiceExerciseId: cuidSchema.optional(),
+    lessonId: cuidSchema.optional(),
+  })
+  .refine((target) => {
+    const targets = [
+      target.stepId,
+      target.exerciseId,
+      target.practiceExerciseId,
+    ].filter(Boolean);
+    return targets.length === 1;
+  }, "Una ejecución debe nombrar exactamente un recurso (paso, ejercicio o práctica)");
+
+export type RunTargetInput = z.infer<typeof runTargetSchema>;
 
 export const runCodeSchema = z.object({
   sourceCode: sourceCodeSchema,
   stdin: stdinSchema,
-  context: runContextSchema.optional(),
+  target: runTargetSchema,
+  /**
+   * Sesión de estudio para atribuir el evento. Se verifica que sea del
+   * usuario; si no lo es, el evento se atribuye sin ella.
+   */
+  studySessionId: cuidSchema.nullish(),
 });
 
 export type RunCodeInput = z.infer<typeof runCodeSchema>;

@@ -4,6 +4,7 @@ import {
   diagnosticsFromExecution,
   diagnosticsFromSubmission,
   parseCppDiagnostics,
+  parseDiagnostics,
 } from "@/components/editor/diagnostics";
 import type { ExecutionResult, TestCaseResult } from "@/lib/executor";
 
@@ -137,5 +138,101 @@ describe("diagnosticsFromSubmission", () => {
     ]);
     expect(out).toHaveLength(1);
     expect(out[0].line).toBe(5);
+  });
+});
+
+// =====================================================================
+// C# (Mono / Roslyn). Los fixtures son salida REAL de `mcs`, salvo los
+// marcados como Roslyn, que usan sus códigos documentados.
+// =====================================================================
+
+describe("diagnósticos de C#", () => {
+  it("ubica el error de Roslyn del contrato del handoff", () => {
+    const [d] = parseDiagnostics(
+      "Program.cs(5,2): error CS1002: ; expected",
+      "csharp",
+    );
+    expect(d).toEqual({
+      line: 5,
+      column: 2,
+      severity: "error",
+      code: "CS1002",
+      message: "; expected",
+    });
+  });
+
+  it("acepta el nombre de archivo que usa Wandbox", () => {
+    const [d] = parseDiagnostics(
+      "prog.cs(5,2): error CS1002: ; expected",
+      "csharp",
+    );
+    expect(d.line).toBe(5);
+    expect(d.column).toBe(2);
+  });
+
+  it("parsea la salida real de Mono y normaliza sus comillas", () => {
+    const [d] = parseDiagnostics(
+      "b.cs(2,56): error CS0103: The name `total' does not exist in the current context",
+      "csharp",
+    );
+    expect(d.code).toBe("CS0103");
+    expect(d.line).toBe(2);
+    expect(d.message).toBe(
+      "The name 'total' does not exist in the current context",
+    );
+  });
+
+  it("captura warnings con su código", () => {
+    const [d] = parseDiagnostics(
+      "Program.cs(7,13): warning CS0219: The variable `x' is assigned but never used",
+      "csharp",
+    );
+    expect(d.severity).toBe("warning");
+    expect(d.code).toBe("CS0219");
+  });
+
+  it("ignora la línea de 'symbol related to previous error'", () => {
+    const output = [
+      "e.cs(3,49): error CS1502: The best overloaded method match for `Caja.Poner(int)' has some invalid arguments",
+      "e.cs(2,26): (Location of the symbol related to previous error)",
+      "Compilation failed: 1 error(s), 0 warnings",
+    ].join("\n");
+    const parsed = parseDiagnostics(output, "csharp");
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].code).toBe("CS1502");
+  });
+
+  it("no usa el parser de GCC para C# ni al revés", () => {
+    // Un mensaje de Mono no debe producir diagnósticos con reglas de GCC…
+    expect(
+      parseDiagnostics("Program.cs(5,2): error CS1002: ; expected", "cpp"),
+    ).toEqual([]);
+    // …y un mensaje de GCC no debe producirlos con las de C#.
+    expect(
+      parseDiagnostics(
+        "main.cpp:3:5: error: 'cout' was not declared in this scope",
+        "csharp",
+      ),
+    ).toEqual([]);
+  });
+
+  it("texto sin formato reconocible no inventa marcadores", () => {
+    expect(
+      parseDiagnostics("Compilation failed: 1 error(s), 0 warnings", "csharp"),
+    ).toEqual([]);
+  });
+
+  it("diagnosticsFromExecution respeta el lenguaje", () => {
+    const result = {
+      status: "compile_error" as const,
+      stdout: "",
+      stderr: "",
+      compileOutput: "Program.cs(4,9): error CS0246: The type or namespace name `Cliente' could not be found",
+      durationMs: 0,
+      memoryKb: 0,
+      message: "Error de compilación",
+    };
+    expect(diagnosticsFromExecution(result, "csharp")).toHaveLength(1);
+    expect(diagnosticsFromExecution(result, "cpp")).toHaveLength(0);
   });
 });

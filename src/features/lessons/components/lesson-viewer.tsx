@@ -15,6 +15,7 @@ import {
 } from "@/features/analytics/telemetry";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { completeStep } from "@/features/lessons/actions";
+import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 import type { ViewerStep } from "@/features/lessons/types";
 
@@ -32,6 +33,12 @@ const INTERACTIVE_STEP_TYPES = new Set([
 ]);
 
 export interface LessonViewerProps {
+  /**
+   * Lenguaje del curso al que pertenece la lección. Viaja desde el servidor
+   * hasta cada paso con código: editor, resaltado, sugerencias y parser de
+   * errores salen de aquí.
+   */
+  language: LanguageId;
   lesson: {
     id: string;
     title: string;
@@ -63,6 +70,7 @@ export function LessonViewer(props: LessonViewerProps) {
 }
 
 function LessonPlayer({
+  language,
   lesson,
   unit,
   nextLessonLink,
@@ -318,6 +326,8 @@ function LessonPlayer({
         <div className="min-h-[280px]">
           <LessonStepRenderer
             step={currentStep}
+            language={language}
+            lessonId={lesson.id}
             onNext={handleNext}
             isPending={isPending}
             onSignal={handleStepSignal}

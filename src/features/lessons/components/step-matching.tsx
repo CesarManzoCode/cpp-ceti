@@ -12,8 +12,10 @@ import type { MatchingStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
 import type { StepSignalHandler } from "./step-signal";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepMatchingProps {
+  language: LanguageId;
   content: MatchingStepContent;
   onNext: () => void;
   isPending: boolean;
@@ -29,6 +31,7 @@ const ATTEMPTS_BEFORE_REVEAL = 3;
  * Click de nuevo en un item ya emparejado desbloquea el par.
  */
 export function StepMatching({
+  language,
   content,
   onNext,
   isPending,
@@ -129,7 +132,7 @@ export function StepMatching({
       <StepHeader label="Relaciona" icon={<Link2 aria-hidden />} tone="info">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
-            <Markdown>{content.prompt}</Markdown>
+            <Markdown language={language}>{content.prompt}</Markdown>
           </div>
         ) : (
           <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">

@@ -1,12 +1,16 @@
-import { normalizeOutput } from "./normalize";
+import type { ExecutionProfileId } from "@/lib/code-languages";
+
 import { fetchWithRetry } from "./retry";
-import type {
-  CodeExecutor,
-  ExecutionRequest,
-  ExecutionResult,
-  ExecutionStatus,
-  TestCaseInput,
-  TestCaseResult,
+import { buildTestResult, failedTestResult } from "./test-result";
+import {
+  ExecutorProfileUnavailableError,
+  type CodeExecutor,
+  type ExecutionRequest,
+  type ExecutionResult,
+  type ExecutionStatus,
+  type TestCaseInput,
+  type TestCaseResult,
+  type TestRunRequest,
 } from "./types";
 
 // Judge0 status IDs — referencia oficial.
@@ -33,6 +37,15 @@ const JUDGE0_STATUS: Record<number, { status: ExecutionStatus; message: string }
 // la env var JUDGE0_CPP_LANGUAGE_ID.
 const DEFAULT_CPP_LANG_ID = 54;
 
+// Para C# NO hay default: los ids numéricos de Judge0 son específicos de
+// cada instancia. Hornear un número aquí significaría, en la instancia
+// equivocada, compilar C# con el compilador de otro lenguaje. Sin
+// JUDGE0_CSHARP_LANGUAGE_ID el perfil simplemente no está disponible.
+
+export interface Judge0ProfileConfig {
+  languageId?: number;
+}
+
 interface Judge0Response {
   stdout: string | null;
   stderr: string | null;
@@ -47,21 +60,45 @@ interface Judge0Response {
 }
 
 export class Judge0Executor implements CodeExecutor {
-  private languageId: number;
-
   constructor(
     private baseUrl: string,
     private headers: Record<string, string> = {},
-    options: { languageId?: number } = {},
+    private profiles: Partial<Record<ExecutionProfileId, Judge0ProfileConfig>> = {},
   ) {
-    this.languageId = options.languageId ?? DEFAULT_CPP_LANG_ID;
     this.baseUrl = baseUrl.replace(/\/+$/, "");
+  }
+
+  supportsProfile(profileId: ExecutionProfileId): boolean {
+    try {
+      this.languageIdFor(profileId);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private languageIdFor(profileId: ExecutionProfileId): number {
+    const configured = this.profiles[profileId]?.languageId;
+    if (profileId === "cpp17-wandbox") {
+      return configured ?? DEFAULT_CPP_LANG_ID;
+    }
+    if (profileId === "csharp-mono-6.12") {
+      if (configured === undefined) {
+        throw new ExecutorProfileUnavailableError(
+          profileId,
+          "judge0",
+          "falta JUDGE0_CSHARP_LANGUAGE_ID; verifícalo contra /languages de tu instancia",
+        );
+      }
+      return configured;
+    }
+    throw new ExecutorProfileUnavailableError(profileId, "judge0");
   }
 
   async execute(req: ExecutionRequest): Promise<ExecutionResult> {
     const payload = {
       source_code: req.sourceCode,
-      language_id: this.languageId,
+      language_id: this.languageIdFor(req.profileId),
       stdin: req.stdin ?? "",
       cpu_time_limit: req.cpuTimeLimit ?? 5,
       memory_limit: req.memoryLimitKb ?? 128_000,
@@ -97,31 +134,28 @@ export class Judge0Executor implements CodeExecutor {
   }
 
   async runTests(
-    sourceCode: string,
+    req: TestRunRequest,
     tests: TestCaseInput[],
   ): Promise<TestCaseResult[]> {
+    // Perfil primero: si no se puede ejecutar, es un error de entorno y no
+    // N tests reprobados.
+    this.languageIdFor(req.profileId);
+
     // Ejecutar tests en paralelo. Judge0 con `?wait=true` soporta llamadas
     // concurrentes; si tu cuota es ajustada considera reducir a serial.
     const results = await Promise.all(
       tests.map(async (test) => {
         try {
           const result = await this.execute({
-            sourceCode,
+            profileId: req.profileId,
+            sourceCode: req.sourceCode,
             stdin: test.stdin,
+            cpuTimeLimit: req.cpuTimeLimit,
+            memoryLimitKb: req.memoryLimitKb,
           });
           return buildTestResult(test, result);
         } catch (err) {
-          return {
-            testId: test.id,
-            passed: false,
-            visible: test.visible,
-            description: test.description ?? null,
-            expectedStdout: test.expectedStdout,
-            actualStdout: "",
-            stderr: err instanceof Error ? err.message : String(err),
-            status: "internal_error" as ExecutionStatus,
-            durationMs: 0,
-          } satisfies TestCaseResult;
+          return failedTestResult(test, err);
         }
       }),
     );
@@ -143,26 +177,5 @@ function mapJudge0Response(data: Judge0Response): ExecutionResult {
     durationMs: data.time ? Math.round(parseFloat(data.time) * 1000) : 0,
     memoryKb: data.memory ?? 0,
     message: statusInfo.message,
-  };
-}
-
-function buildTestResult(
-  test: TestCaseInput,
-  result: ExecutionResult,
-): TestCaseResult {
-  const passed =
-    result.status === "accepted" &&
-    normalizeOutput(result.stdout) === normalizeOutput(test.expectedStdout);
-
-  return {
-    testId: test.id,
-    passed,
-    visible: test.visible,
-    description: test.description ?? null,
-    expectedStdout: test.expectedStdout,
-    actualStdout: result.stdout,
-    stderr: result.compileOutput || result.stderr,
-    status: result.status,
-    durationMs: result.durationMs,
   };
 }

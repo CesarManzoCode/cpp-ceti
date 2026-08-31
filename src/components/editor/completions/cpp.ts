@@ -1,33 +1,17 @@
-// Datos de autocompletado para Monaco. Snippets compactos pensados para el
+// Autocompletado de C++ para Monaco. Snippets compactos pensados para el
 // nivel del curso (no son una replica de IntelliSense de IDE pro): tipos
 // primitivos, control de flujo, std namespace básico y plantillas frecuentes.
 //
-// Cada entry se mapea a un Monaco CompletionItem en el provider (cpp-editor).
+// Cada entry se mapea a un Monaco CompletionItem en el provider del editor.
 // `insert` puede usar la sintaxis de tabstops $1 / $0 cuando insertSnippet
 // está habilitado.
+//
+// Esta lista NO cambió al volverse multilenguaje la plataforma: las
+// sugerencias de C++ son exactamente las de siempre.
 
-export type CppCompletionKind =
-  | "keyword"
-  | "type"
-  | "function"
-  | "class"
-  | "snippet"
-  | "variable";
+import type { CodeCompletion } from "./types";
 
-export interface CppCompletion {
-  label: string;
-  kind: CppCompletionKind;
-  /** Texto a insertar. Si tiene `$1`/`$0`, se trata como snippet. */
-  insert: string;
-  /** Documentación breve mostrada en el popover. */
-  detail?: string;
-  /** Texto largo (markdown) opcional para el doc panel. */
-  doc?: string;
-  /** Aliases adicionales para fuzzy match. */
-  filterText?: string;
-}
-
-export const CPP_COMPLETIONS: CppCompletion[] = [
+export const CPP_COMPLETIONS: CodeCompletion[] = [
   // Tipos primitivos
   { label: "int", kind: "type", insert: "int", detail: "Entero de 32 bits" },
   { label: "long", kind: "type", insert: "long", detail: "Entero ≥32 bits" },

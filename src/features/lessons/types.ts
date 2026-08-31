@@ -13,7 +13,7 @@ export type StepType =
   | "code_completion";
 
 export interface TheoryStepContent {
-  /** Cuerpo de la lección en Markdown. Soporta bloques de código con ```cpp */
+  /** Cuerpo de la lección en Markdown. Soporta bloques ```cpp y ```csharp */
   markdown: string;
   /** URL opcional de imagen, diagrama o video corto */
   mediaUrl?: string;
@@ -24,10 +24,20 @@ export interface CodeExampleStepContent {
   code: string;
   /** Explicación en markdown */
   explanation: string;
-  /** Si true, el usuario puede correr el código en el editor */
+  /**
+   * Si true, el usuario puede correr el código en el editor. Si es false NO
+   * se muestra ningún control de ejecución, y el servidor rechaza cualquier
+   * intento de ejecutar el paso aunque llegue una petición forjada.
+   */
   runnable: boolean;
   /** Output esperado a mostrar como referencia */
   expectedOutput?: string;
+  /**
+   * Nota visible cuando el ejemplo NO corre en el navegador — dice dónde sí
+   * corre (ej. "Requiere Visual Studio en Windows"). Es la alternativa
+   * honesta a fingir que un formulario de escritorio se ejecuta en el juez.
+   */
+  localOnlyNote?: string;
 }
 
 export interface QuizStepContent {
@@ -59,7 +69,7 @@ export interface FillBlankStepContent {
     /**
      * Índice de OTRO blank con el que este debe COINCIDIR. Permite "cualquier
      * nombre válido — pero el mismo en ambos lugares". Si se usa, el `pattern`
-     * controla qué se considera "válido" (default: identificador C++).
+     * controla qué se considera "válido" (default: identificador).
      */
     matchBlank?: number;
     /** Pista opcional */

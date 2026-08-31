@@ -11,8 +11,10 @@ import type { QuizStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
 import type { StepSignalHandler } from "./step-signal";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepQuizProps {
+  language: LanguageId;
   content: QuizStepContent;
   onNext: () => void;
   isPending: boolean;
@@ -22,6 +24,7 @@ interface StepQuizProps {
 const ATTEMPTS_BEFORE_REVEAL = 3;
 
 export function StepQuiz({
+  language,
   content,
   onNext,
   isPending,
@@ -189,7 +192,7 @@ export function StepQuiz({
           }
           className={cn("animate-fade-up", isCorrect && "animate-correct")}
         >
-          <Markdown>{content.explanation}</Markdown>
+          <Markdown language={language}>{content.explanation}</Markdown>
         </Verdict>
       ) : null}
 

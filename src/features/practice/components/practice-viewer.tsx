@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CppEditor } from "@/components/editor/cpp-editor";
+import { CodeEditor } from "@/components/editor/code-editor";
 import {
   diagnosticsFromExecution,
   diagnosticsFromSubmission,
@@ -40,8 +40,11 @@ import { useRunCode } from "@/hooks/use-run-code";
 import { submitPracticeExercise } from "@/features/practice/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 import { cn } from "@/lib/utils";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface PracticeViewerProps {
+  /** Lenguaje del curso dueño del ejercicio. */
+  language: LanguageId;
   exercise: {
     id: string;
     slug: string;
@@ -62,15 +65,15 @@ interface PracticeViewerProps {
  * Envoltura de telemetría: abre la `StudySession` del ejercicio de práctica.
  * El reproductor real es `PracticePlayer`.
  */
-export function PracticeViewer({ exercise }: PracticeViewerProps) {
+export function PracticeViewer({ language, exercise }: PracticeViewerProps) {
   return (
     <StudySessionProvider surface="practice" resourceId={exercise.id}>
-      <PracticePlayer exercise={exercise} />
+      <PracticePlayer language={language} exercise={exercise} />
     </StudySessionProvider>
   );
 }
 
-function PracticePlayer({ exercise }: PracticeViewerProps) {
+function PracticePlayer({ language, exercise }: PracticeViewerProps) {
   // Borrador local + mejor intento del servidor + fallback al starter.
   const [code, setCode, resetCode] = useCodeDraft({
     key: exercise.id,
@@ -89,18 +92,17 @@ function PracticePlayer({ exercise }: PracticeViewerProps) {
   // "Compilar" sin "Calificar" no dejaba ninguna señal: ahora sí, y sin
   // duplicar `UserPracticeAttempt` (que sigue siendo el registro del envío).
   const playground = useRunCode({
-    surface: "practice",
-    practiceExerciseId: exercise.id,
+    target: { practiceExerciseId: exercise.id },
     studySessionId,
   });
   const running = playground.state === "running";
 
   const diagnostics = React.useMemo(() => {
     if (submission && !submission.passed) {
-      return diagnosticsFromSubmission(submission.results);
+      return diagnosticsFromSubmission(submission.results, language);
     }
-    return diagnosticsFromExecution(playground.result);
-  }, [submission, playground.result]);
+    return diagnosticsFromExecution(playground.result, language);
+  }, [submission, playground.result, language]);
 
   function handleRun() {
     markEngaged("code_run");
@@ -194,12 +196,13 @@ function PracticePlayer({ exercise }: PracticeViewerProps) {
       <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
         {/* Enunciado — siempre primero */}
         <section className="space-y-4">
-          <Markdown>{exercise.prompt}</Markdown>
+          <Markdown language={language}>{exercise.prompt}</Markdown>
         </section>
 
         {/* Editor + acciones — bajo el enunciado en móvil; col. derecha en desktop */}
         <section className="space-y-3 lg:col-start-2 lg:row-span-2">
-          <CppEditor
+          <CodeEditor
+            language={language}
             value={code}
             onChange={(next) => {
               markEngaged("code_edit");

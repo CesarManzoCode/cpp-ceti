@@ -29,5 +29,5 @@ export default async function EjercicioPage({ params }: PageProps) {
   );
   if (!exercise) notFound();
 
-  return <PracticeViewer exercise={exercise} />;
+  return <PracticeViewer language={course.language} exercise={exercise} />;
 }

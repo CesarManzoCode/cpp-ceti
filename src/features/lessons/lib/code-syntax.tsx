@@ -1,12 +1,19 @@
 // =====================================================================
-// Mini-tokenizador de C++ usado por los pasos "fill blank" para resaltar
-// el código del template (sin Monaco). Monaco hace su propio highlighting
-// en el editor real; aquí solo necesitamos colorear líneas estáticas.
+// Mini-tokenizador usado por los pasos "fill blank" para resaltar el
+// código del template (sin Monaco). Monaco hace su propio highlighting en
+// el editor real; aquí solo necesitamos colorear líneas estáticas.
 // Las clases CSS están alineadas con las variables `--syntax-*` de
 // globals.css para que se vean igual que el resto de superficies de código.
+//
+// La estructura léxica que este tokenizador reconoce (comentarios `//`,
+// literales, números, identificadores, operadores) es común a C++ y C#. Lo
+// único que cambia por lenguaje es el VOCABULARIO: qué palabras son
+// keyword y cuáles son tipos de la biblioteca.
 // =====================================================================
 
 import type { ReactNode } from "react";
+
+import type { LanguageId } from "@/lib/code-languages";
 
 export type TokenKind =
   | "keyword"
@@ -42,6 +49,31 @@ const CPP_TYPES = new Set([
   "size_t", "FILE", "NULL",
 ]);
 
+const CSHARP_KEYWORDS = new Set([
+  "int", "double", "decimal", "char", "void", "bool", "float", "long",
+  "short", "byte", "string", "object", "var",
+  "return", "if", "else", "for", "foreach", "in", "while", "do", "switch",
+  "case", "default", "break", "continue", "true", "false", "null",
+  "const", "readonly", "static", "struct", "class", "enum",
+  "public", "private", "protected", "internal",
+  "abstract", "virtual", "override", "sealed", "partial",
+  "using", "namespace", "new", "this", "base", "is", "as",
+  "try", "catch", "finally", "throw", "get", "set", "value",
+]);
+
+// Tipos y miembros de `System` que el curso usa; se resaltan como tipo.
+const CSHARP_TYPES = new Set([
+  "System", "Console", "Math", "Convert",
+  "WriteLine", "Write", "ReadLine", "Parse", "ToString", "Length",
+  "Exception", "ArgumentException", "InvalidOperationException",
+  "FormatException", "DivideByZeroException", "Main",
+]);
+
+const VOCABULARY: Record<LanguageId, { keywords: Set<string>; types: Set<string> }> = {
+  cpp: { keywords: CPP_KEYWORDS, types: CPP_TYPES },
+  csharp: { keywords: CSHARP_KEYWORDS, types: CSHARP_TYPES },
+};
+
 const TOKEN_CLASSES: Record<TokenKind, string> = {
   keyword: "text-syntax-keyword",
   type: "text-syntax-type",
@@ -53,7 +85,11 @@ const TOKEN_CLASSES: Record<TokenKind, string> = {
   text: "text-terminal-fg",
 };
 
-export function tokenizeCpp(code: string): Token[] {
+export function tokenizeCode(
+  code: string,
+  language: LanguageId = "cpp",
+): Token[] {
+  const vocabulary = VOCABULARY[language] ?? VOCABULARY.cpp;
   const tokens: Token[] = [];
   let i = 0;
   while (i < code.length) {
@@ -92,7 +128,7 @@ export function tokenizeCpp(code: string): Token[] {
       continue;
     }
 
-    // Directiva: #include, #define, etc.
+    // Directiva del preprocesador: #include, #define (C++).
     if (c === "#") {
       let end = i + 1;
       while (end < code.length && /[a-zA-Z_]/.test(code[end])) end++;
@@ -116,8 +152,8 @@ export function tokenizeCpp(code: string): Token[] {
       while (end < code.length && /[a-zA-Z_0-9]/.test(code[end])) end++;
       const word = code.slice(i, end);
       let kind: TokenKind = "text";
-      if (CPP_KEYWORDS.has(word)) kind = "keyword";
-      else if (CPP_TYPES.has(word)) kind = "type";
+      if (vocabulary.keywords.has(word)) kind = "keyword";
+      else if (vocabulary.types.has(word)) kind = "type";
       tokens.push({ text: word, kind });
       i = end;
       continue;
@@ -166,4 +202,9 @@ export function renderTokens(tokens: Token[], baseKey: string): ReactNode[] {
       {tok.text}
     </span>
   ));
+}
+
+/** Alias histórico: tokeniza como C++. */
+export function tokenizeCpp(code: string): Token[] {
+  return tokenizeCode(code, "cpp");
 }

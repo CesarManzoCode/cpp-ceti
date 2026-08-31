@@ -10,6 +10,7 @@ const EXERCISE_XP = 15;
 const LESSON_XP = 50;
 
 const runTests = vi.hoisted(() => vi.fn());
+const profilesUsed = vi.hoisted(() => [] as string[]);
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/db", async () => {
@@ -24,7 +25,10 @@ vi.mock("@/lib/rate-limit", async (importOriginal) => ({
   enforceRateLimit: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/executor", () => ({
-  getCodeExecutor: () => ({ runTests, execute: vi.fn() }),
+  getExecutorForProfile: (profileId: string) => {
+    profilesUsed.push(profileId);
+    return { runTests, execute: vi.fn(), supportsProfile: () => true };
+  },
   buildFeedback: () => "feedback",
 }));
 // El guard de acceso hace su propia query con includes anidados; para estos
@@ -55,6 +59,23 @@ vi.mock("@/features/lessons/lib/access", () => ({
     },
   })),
   requireAccessibleStep: vi.fn(),
+}));
+
+vi.mock("@/lib/execution-target", () => ({
+  // El perfil sale del curso del ejercicio guardado; aquí basta con
+  // devolverlo ya resuelto.
+  resolveExecutionTarget: vi.fn(async () => ({
+    profileId: "cpp17-wandbox",
+    language: "cpp",
+    courseId: "course_cpp",
+    courseSlug: "cpp-desde-cero",
+    surface: "lesson",
+    lessonId: "lesson_1",
+    stepId: "step_1",
+    exerciseId: "ex_1",
+    practiceExerciseId: null,
+    contentRevision: null,
+  })),
 }));
 
 import { submitExercise } from "@/features/lessons/actions";
@@ -98,6 +119,16 @@ describe("submitExercise", () => {
   beforeEach(() => {
     fake.reset();
     runTests.mockResolvedValue(result(true));
+    profilesUsed.length = 0;
+  });
+
+  it("el perfil de ejecución se deriva del curso, no del envío", async () => {
+    await submit();
+    expect(profilesUsed).toEqual(["cpp17-wandbox"]);
+    expect(runTests).toHaveBeenCalledWith(
+      { profileId: "cpp17-wandbox", sourceCode: "int main(){}" },
+      expect.any(Array),
+    );
   });
 
   it("primer aprobado: completion + intento + XP de ejercicio y de lección", async () => {

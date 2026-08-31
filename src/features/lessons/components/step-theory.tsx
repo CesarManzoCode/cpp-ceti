@@ -7,14 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/shared/markdown";
 import { StepActions, StepKind } from "@/features/lessons/components/step-shell";
 import type { TheoryStepContent } from "@/features/lessons/types";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepTheoryProps {
+  language: LanguageId;
   content: TheoryStepContent;
   onNext: () => void;
   isPending: boolean;
 }
 
-export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
+export function StepTheory({
+  language,
+  content,
+  onNext,
+  isPending,
+}: StepTheoryProps) {
   React.useEffect(() => {
     function handler(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement | null)?.tagName;
@@ -29,7 +36,7 @@ export function StepTheory({ content, onNext, isPending }: StepTheoryProps) {
     <article className="space-y-7">
       <StepKind label="Aprende" icon={<BookOpen aria-hidden />} />
 
-      <Markdown>{content.markdown}</Markdown>
+      <Markdown language={language}>{content.markdown}</Markdown>
 
       {content.mediaUrl ? (
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface-2">

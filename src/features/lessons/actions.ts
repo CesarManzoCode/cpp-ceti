@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { ActionError, withActionErrorHandling } from "@/lib/action-error";
 import { claimExerciseCompletion } from "@/lib/completions";
 import { db } from "@/lib/db";
-import { buildFeedback, getCodeExecutor } from "@/lib/executor";
+import { resolveExecutionTarget } from "@/lib/execution-target";
+import { buildFeedback, getExecutorForProfile } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { enforceRateLimit } from "@/lib/rate-limit";
@@ -97,12 +98,18 @@ export const submitExercise = withActionErrorHandling(
       throw new ActionError("El ejercicio no tiene tests configurados");
     }
 
+    // El compilador se deriva del curso al que pertenece el ejercicio
+    // GUARDADO, no de nada que venga en el envío. Un envío calificado y un
+    // run sin calificar resuelven por el mismo camino y con la misma
+    // semántica.
+    const target = await resolveExecutionTarget({ exerciseId: exercise.id });
+
     // Ejecutar FUERA de la transacción: es lento + externo (Wandbox/Judge0).
     // No queremos tener una conexión de Postgres abierta esperando 5–30s.
-    const executor = getCodeExecutor();
+    const executor = getExecutorForProfile(target.profileId);
     const startedAt = Date.now();
     const results = await executor.runTests(
-      sourceCode,
+      { profileId: target.profileId, sourceCode },
       exercise.testCases.map((tc) => ({
         id: tc.id,
         stdin: tc.stdin,

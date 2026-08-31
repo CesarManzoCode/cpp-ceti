@@ -1,12 +1,15 @@
-import { normalizeOutput } from "./normalize";
+import type { ExecutionProfileId } from "@/lib/code-languages";
+
 import { fetchWithRetry } from "./retry";
-import type {
-  CodeExecutor,
-  ExecutionRequest,
-  ExecutionResult,
-  ExecutionStatus,
-  TestCaseInput,
-  TestCaseResult,
+import { buildTestResult, failedTestResult } from "./test-result";
+import {
+  ExecutorProfileUnavailableError,
+  type CodeExecutor,
+  type ExecutionRequest,
+  type ExecutionResult,
+  type TestCaseInput,
+  type TestCaseResult,
+  type TestRunRequest,
 } from "./types";
 
 // =====================================================================
@@ -15,12 +18,30 @@ import type {
 // Servicio japonés de compilación online, activo desde 2013. API pública,
 // sin auth, sin rate limit duro (uso razonable). Solución temporal mientras
 // el usuario monta su propio Judge0/Piston.
+//
+// El compilador se elige POR PERFIL, no por configuración global. El
+// payload de C++ es exactamente el que este adapter mandaba antes de que
+// existiera C#: mismo compilador, mismas opciones, mismos defaults.
 // =====================================================================
 
 const DEFAULT_BASE_URL = "https://wandbox.org";
-const DEFAULT_COMPILER = "gcc-13.2.0";
+const DEFAULT_CPP_COMPILER = "gcc-13.2.0";
 // Wandbox espera las opciones SEPARADAS POR \n (cada flag en su propia línea).
-const DEFAULT_OPTIONS = ["-std=c++17", "-O0", "-Wall"].join("\n");
+const DEFAULT_CPP_OPTIONS = ["-std=c++17", "-O0", "-Wall"].join("\n");
+
+/**
+ * Mono 6.12 verificado como el compilador de C# que Wandbox realmente
+ * ejecuta. Su entrada de .NET 8 aparece en el inventario pero rebota
+ * peticiones triviales por el límite de tamaño del servicio: no la
+ * seleccionamos sólo porque esté listada.
+ */
+const DEFAULT_CSHARP_COMPILER = "mono-6.12.0.199";
+const DEFAULT_CSHARP_OPTIONS = "";
+
+export interface WandboxProfileConfig {
+  compiler?: string;
+  compilerOptions?: string;
+}
 
 /**
  * Acepta coma, espacio o \n como separador entre flags y normaliza a \n.
@@ -51,17 +72,47 @@ interface WandboxResponse {
 export class WandboxExecutor implements CodeExecutor {
   constructor(
     private baseUrl: string = DEFAULT_BASE_URL,
-    private options: { compiler?: string; compilerOptions?: string } = {},
+    private profiles: Partial<Record<ExecutionProfileId, WandboxProfileConfig>> = {},
   ) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
   }
 
+  supportsProfile(profileId: ExecutionProfileId): boolean {
+    return profileId === "cpp17-wandbox" || profileId === "csharp-mono-6.12";
+  }
+
+  /**
+   * Compilador y opciones del perfil. Falla cerrado ante un perfil que este
+   * adapter no conoce: no hay "usa el de C++ y a ver qué pasa".
+   */
+  private payloadFor(profileId: ExecutionProfileId): {
+    compiler: string;
+    options: string;
+  } {
+    const configured = this.profiles[profileId] ?? {};
+    if (profileId === "cpp17-wandbox") {
+      return {
+        compiler: configured.compiler ?? DEFAULT_CPP_COMPILER,
+        options:
+          normalizeOptions(configured.compilerOptions) ?? DEFAULT_CPP_OPTIONS,
+      };
+    }
+    if (profileId === "csharp-mono-6.12") {
+      return {
+        compiler: configured.compiler ?? DEFAULT_CSHARP_COMPILER,
+        options:
+          normalizeOptions(configured.compilerOptions) ?? DEFAULT_CSHARP_OPTIONS,
+      };
+    }
+    throw new ExecutorProfileUnavailableError(profileId, "wandbox");
+  }
+
   async execute(req: ExecutionRequest): Promise<ExecutionResult> {
     const startedAt = Date.now();
+    const { compiler, options } = this.payloadFor(req.profileId);
     const payload = {
-      compiler: this.options.compiler ?? DEFAULT_COMPILER,
-      "compiler-option-raw":
-        normalizeOptions(this.options.compilerOptions) ?? DEFAULT_OPTIONS,
+      compiler,
+      "compiler-option-raw": options,
       code: req.sourceCode,
       stdin: req.stdin ?? "",
       save: false,
@@ -90,30 +141,27 @@ export class WandboxExecutor implements CodeExecutor {
   }
 
   async runTests(
-    sourceCode: string,
+    req: TestRunRequest,
     tests: TestCaseInput[],
   ): Promise<TestCaseResult[]> {
+    // Valida el perfil ANTES de gastar una sola petición: si no se puede
+    // ejecutar, el alumno debe ver un error de entorno, no N tests fallados.
+    this.payloadFor(req.profileId);
+
     // Tests en serie por respeto al servicio público.
     const results: TestCaseResult[] = [];
     for (const test of tests) {
       try {
         const result = await this.execute({
-          sourceCode,
+          profileId: req.profileId,
+          sourceCode: req.sourceCode,
           stdin: test.stdin,
+          cpuTimeLimit: req.cpuTimeLimit,
+          memoryLimitKb: req.memoryLimitKb,
         });
         results.push(buildTestResult(test, result));
       } catch (err) {
-        results.push({
-          testId: test.id,
-          passed: false,
-          visible: test.visible,
-          description: test.description ?? null,
-          expectedStdout: test.expectedStdout,
-          actualStdout: "",
-          stderr: err instanceof Error ? err.message : String(err),
-          status: "internal_error",
-          durationMs: 0,
-        });
+        results.push(failedTestResult(test, err));
       }
     }
     return results;
@@ -181,26 +229,5 @@ function mapWandboxResponse(
     durationMs,
     memoryKb: 0,
     message: "Aceptado",
-  };
-}
-
-function buildTestResult(
-  test: TestCaseInput,
-  result: ExecutionResult,
-): TestCaseResult {
-  const passed =
-    result.status === "accepted" &&
-    normalizeOutput(result.stdout) === normalizeOutput(test.expectedStdout);
-
-  return {
-    testId: test.id,
-    passed,
-    visible: test.visible,
-    description: test.description ?? null,
-    expectedStdout: test.expectedStdout,
-    actualStdout: result.stdout,
-    stderr: result.compileOutput || result.stderr,
-    status: result.status as ExecutionStatus,
-    durationMs: result.durationMs,
   };
 }

@@ -3,8 +3,37 @@
 import * as React from "react";
 import { Check, Copy } from "lucide-react";
 
-import { renderTokens, tokenizeCpp } from "@/features/lessons/lib/cpp-syntax";
+import { renderTokens, tokenizeCode } from "@/features/lessons/lib/code-syntax";
+import {
+  LANGUAGE_PROFILES,
+  languageFromFence,
+  type LanguageId,
+} from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
+
+/**
+ * Alias de fence que el contenido histórico de C++ ya usaba y que el
+ * registro no necesita conocer (no son lenguajes del producto, son
+ * variantes de archivo).
+ */
+const CPP_FENCE_ALIASES = new Set(["c", "cc", "hpp", "h"]);
+
+/**
+ * Resuelve el lenguaje de un bloque.
+ *
+ * Un fence explícito manda. Si no hay fence, se usa el lenguaje del recurso
+ * (el del curso), no una suposición: en una lección de C# un bloque sin
+ * etiqueta es C#.
+ */
+function resolveBlockLanguage(
+  fence: string | undefined,
+  fallback: LanguageId | undefined,
+): LanguageId | null {
+  const normalized = fence?.replace(/^language-/, "").trim().toLowerCase();
+  if (!normalized) return fallback ?? "cpp";
+  if (CPP_FENCE_ALIASES.has(normalized)) return "cpp";
+  return languageFromFence(normalized);
+}
 
 /**
  * Bloque de código dentro del contenido educativo.
@@ -17,11 +46,15 @@ import { cn } from "@/lib/utils";
 export function CodeBlock({
   code,
   language,
+  defaultLanguage,
   className,
   title,
 }: {
   code: string;
+  /** Fence del bloque (`cpp`, `c++`, `csharp`, `cs`, `text`…). */
   language?: string;
+  /** Lenguaje del recurso, usado cuando el bloque no trae fence. */
+  defaultLanguage?: LanguageId;
   className?: string;
   title?: string;
 }) {
@@ -47,8 +80,10 @@ export function CodeBlock({
     }
   }
 
-  const isCpp =
-    !language || /^(cpp|c\+\+|c|cc|hpp|h)$/i.test(language.replace(/^language-/, ""));
+  const blockLanguage = resolveBlockLanguage(language, defaultLanguage);
+  const label = blockLanguage
+    ? LANGUAGE_PROFILES[blockLanguage].label
+    : (language ?? "código");
   const lines = code.replace(/\n$/, "").split("\n");
 
   return (
@@ -60,7 +95,7 @@ export function CodeBlock({
     >
       <div className="flex items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4 py-2">
         <span className="text-[12px] font-semibold text-terminal-muted">
-          {title ?? (isCpp ? "C++" : (language ?? "código"))}
+          {title ?? label}
         </span>
         <button
           type="button"
@@ -87,8 +122,8 @@ export function CodeBlock({
           <code>
             {lines.map((line, i) => (
               <span key={i} className="block whitespace-pre">
-                {isCpp
-                  ? renderTokens(tokenizeCpp(line), `l${i}`)
+                {blockLanguage
+                  ? renderTokens(tokenizeCode(line, blockLanguage), `l${i}`)
                   : (line || " ")}
               </span>
             ))}

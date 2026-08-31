@@ -15,14 +15,16 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/shared/markdown";
-import { renderTokens, tokenizeCpp } from "@/features/lessons/lib/cpp-syntax";
+import { renderTokens, tokenizeCode } from "@/features/lessons/lib/code-syntax";
 import { cn } from "@/lib/utils";
 import type { CodeCompletionStepContent } from "@/features/lessons/types";
 
 import { StepActions, StepHeader, Verdict } from "./step-shell";
 import type { StepSignalHandler } from "./step-signal";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepCodeCompletionProps {
+  language: LanguageId;
   content: CodeCompletionStepContent;
   onNext: () => void;
   isPending: boolean;
@@ -40,6 +42,7 @@ const ATTEMPTS_BEFORE_REVEAL = 3;
  * línea (aunque idealmente no debería pasar).
  */
 export function StepCodeCompletion({
+  language,
   content,
   onNext,
   isPending,
@@ -108,7 +111,7 @@ export function StepCodeCompletion({
       <StepHeader label="Reordena el código" icon={<ListOrdered aria-hidden />} tone="warning">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
-            <Markdown>{content.prompt}</Markdown>
+            <Markdown language={language}>{content.prompt}</Markdown>
           </div>
         ) : (
           <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">
@@ -139,7 +142,7 @@ export function StepCodeCompletion({
                   {idx + 1}
                 </span>
                 <span className="overflow-x-auto whitespace-pre">
-                  {renderTokens(tokenizeCpp(line), `l${idx}`)}
+                  {renderTokens(tokenizeCode(line, language), `l${idx}`)}
                 </span>
                 {!submitted ? (
                   <span className="flex items-center gap-1 pr-2">
