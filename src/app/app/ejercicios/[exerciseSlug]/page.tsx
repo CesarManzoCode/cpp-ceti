@@ -1,6 +1,6 @@
 import { permanentRedirect } from "next/navigation";
 
-import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
+import { legacyRedirect } from "@/lib/courses";
 
 /**
  * URL legacy de un ejercicio de práctica. El slug NO se renombra: el mismo
@@ -12,7 +12,5 @@ export default async function LegacyPracticePage({
   params: Promise<{ exerciseSlug: string }>;
 }) {
   const { exerciseSlug } = await params;
-  permanentRedirect(
-    `/app/c/${LEGACY_CPP_COURSE_SLUG}/ejercicios/${exerciseSlug}`,
-  );
+  permanentRedirect(legacyRedirect.practice(exerciseSlug));
 }

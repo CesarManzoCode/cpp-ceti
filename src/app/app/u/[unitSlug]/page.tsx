@@ -1,6 +1,6 @@
 import { permanentRedirect } from "next/navigation";
 
-import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
+import { legacyRedirect } from "@/lib/courses";
 
 /**
  * URL legacy sin curso. Existió cuando la plataforma tenía un solo curso y
@@ -16,5 +16,5 @@ export default async function LegacyUnitPage({
   params: Promise<{ unitSlug: string }>;
 }) {
   const { unitSlug } = await params;
-  permanentRedirect(`/app/c/${LEGACY_CPP_COURSE_SLUG}/u/${unitSlug}`);
+  permanentRedirect(legacyRedirect.unit(unitSlug));
 }

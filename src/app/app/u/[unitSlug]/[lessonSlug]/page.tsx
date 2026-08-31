@@ -1,6 +1,6 @@
 import { permanentRedirect } from "next/navigation";
 
-import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
+import { legacyRedirect } from "@/lib/courses";
 
 /**
  * URL legacy sin curso hacia una lección de C++. Redirige a la ruta
@@ -16,8 +16,5 @@ export default async function LegacyLessonPage({
 }) {
   const { unitSlug, lessonSlug } = await params;
   const { p } = await searchParams;
-  const step = p ? `?p=${encodeURIComponent(p)}` : "";
-  permanentRedirect(
-    `/app/c/${LEGACY_CPP_COURSE_SLUG}/u/${unitSlug}/${lessonSlug}${step}`,
-  );
+  permanentRedirect(legacyRedirect.lesson(unitSlug, lessonSlug, p));
 }
