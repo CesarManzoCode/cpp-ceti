@@ -87,7 +87,7 @@ export default async function CourseHomePage({ params }: PageProps) {
             <SectionRule
               trailing={`${totalCompleted}/${totalLessons} lecciones · ${overallPercent}%`}
             >
-              Tu camino
+              Tu camino en {course.title}
             </SectionRule>
             <p className="mt-1.5 max-w-[58ch] text-[14px] leading-relaxed text-muted-foreground">
               Cada bloque de la columna es una lección. Los sólidos ya los
@@ -102,7 +102,10 @@ export default async function CourseHomePage({ params }: PageProps) {
         {/* Columna de contexto: apoya la acción principal, no compite. */}
         <aside className="flex min-w-0 flex-col gap-8">
           <section>
-            <SectionRule>Tu progreso</SectionRule>
+            {/* XP, nivel y racha son de la CUENTA: no se reinician al
+                cambiar de curso. El avance por unidades, en cambio, es de
+                este curso — y así se rotula arriba. */}
+            <SectionRule>Tu progreso · toda tu cuenta</SectionRule>
             <div className="mt-4 flex flex-col gap-3">
               <LevelBar totalXp={stats.totalXp} />
 

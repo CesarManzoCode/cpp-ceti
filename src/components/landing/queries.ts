@@ -17,18 +17,35 @@ export interface LandingStats {
   degraded: boolean;
 }
 
+/**
+ * Sólo se usa si la base no responde. Es una cota BAJA deliberada del
+ * inventario accesible: si el contenido crece, la cifra real sube; nunca
+ * al revés. Prometer de más en una pantalla de inventario es peor que
+ * quedarse corto.
+ */
 const FALLBACK_STATS: Omit<LandingStats, "degraded"> = {
-  lessons: 60,
-  exercises: 80,
-  units: 10,
+  lessons: 90,
+  exercises: 138,
+  units: 16,
 };
 
+/**
+ * Inventario del contenido ACCESIBLE.
+ *
+ * La publicación es jerárquica: una lección publicada bajo una unidad
+ * "Próximamente" no la puede abrir nadie, así que tampoco se cuenta.
+ * Antes se contaban todas las lecciones publicadas y TODOS los ejercicios,
+ * y el alumno no podía reconciliar el número con lo que veía en el temario.
+ */
 export const getLandingStats = cache(async (): Promise<LandingStats> => {
   try {
+    const accessibleUnit = { published: true, course: { published: true } };
     const [lessons, exercises, units] = await Promise.all([
-      db.lesson.count({ where: { published: true } }),
-      db.exercise.count(),
-      db.unit.count({ where: { published: true } }),
+      db.lesson.count({ where: { published: true, unit: accessibleUnit } }),
+      db.exercise.count({
+        where: { step: { lesson: { published: true, unit: accessibleUnit } } },
+      }),
+      db.unit.count({ where: accessibleUnit }),
     ]);
     return { lessons, exercises, units, degraded: false };
   } catch {
@@ -53,8 +70,8 @@ export interface LandingCourse {
 
 const FALLBACK_CPP_UNITS: LandingUnit[] = [
   { slug: "primer-programa", order: 1, title: "Tu primer programa en C++", published: true },
-  { slug: "leer-datos", order: 2, title: "Leer datos del usuario con cin", published: true },
-  { slug: "variables-y-tipos", order: 3, title: "Variables y tipos de datos", published: true },
+  { slug: "variables-y-tipos", order: 2, title: "Variables y tipos de datos", published: true },
+  { slug: "leer-datos", order: 3, title: "Leer datos del usuario con cin", published: true },
   { slug: "control-de-flujo", order: 4, title: "Control de flujo", published: true },
   { slug: "loops", order: 5, title: "Ciclos: repetir sin escribir cien veces", published: true },
   { slug: "funciones", order: 6, title: "Funciones: empaquetar tu código", published: true },
@@ -71,8 +88,8 @@ const FALLBACK_CSHARP_UNITS: LandingUnit[] = [
   { slug: "csharp-poo-04-relaciones", order: 4, title: "Relaciones entre clases", published: true },
   { slug: "csharp-poo-05-herencia", order: 5, title: "Herencia y polimorfismo", published: true },
   { slug: "csharp-poo-06-diseno-robusto", order: 6, title: "Responsabilidades y diseño robusto", published: true },
-  { slug: "csharp-poo-07-gui", order: 7, title: "Aplicaciones de escritorio con Windows Forms", published: true },
-  { slug: "csharp-poo-08-integrador", order: 8, title: "Proyecto integrador", published: true },
+  { slug: "csharp-poo-07-gui", order: 7, title: "Aplicaciones de escritorio con Windows Forms", published: false },
+  { slug: "csharp-poo-08-integrador", order: 8, title: "Proyecto integrador", published: false },
 ];
 
 /** Sólo se usa si la base no responde: el temario nunca queda en blanco. */

@@ -3,12 +3,14 @@ import { Reveal } from "@/components/ui/reveal";
 
 const steps = [
   {
-    title: "Lecciones de 5 minutos",
+    // Las estimaciones publicadas van de 5 a 18 minutos: "5 minutos" era
+    // una promesa que el contenido no cumple.
+    title: "Lecciones cortas",
     body: "Un concepto a la vez. Cada idea viene con un ejemplo que puedes correr en el navegador.",
   },
   {
     title: "Práctica inmediata",
-    body: "Cada lección termina con un ejercicio que tú escribes. La plataforma lo compila y te da feedback al instante.",
+    body: "Casi todas las lecciones terminan con un ejercicio que tú escribes. La plataforma lo compila y te da feedback al instante.",
   },
   {
     title: "Progreso visible",
