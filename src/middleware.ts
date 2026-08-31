@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-import { COURSE_COOKIE } from "@/lib/course-selection";
+import { COURSE_COOKIE, COURSE_SLUG_HEADER } from "@/lib/course-selection";
 import { legacyRedirect } from "@/lib/courses";
 
 const PUBLIC_PATHS = ["/", "/login", "/registro", "/invitar", "/api/auth"];
@@ -77,23 +77,30 @@ export function middleware(request: NextRequest) {
   }
 
   // Si el alumno entró directo a un curso (marcador, enlace compartido,
-  // redirección desde una URL legacy), esa es su selección: el rail y la
-  // navegación deben seguirlo en la MISMA respuesta, no en la siguiente.
-  // `request.cookies.set` + `NextResponse.next({ request })` hace que los
-  // server components ya lean el valor nuevo.
+  // redirección desde una URL legacy, o el switcher), esa es su selección
+  // AHORA MISMO: el rail y la navegación deben seguirla en la MISMA
+  // respuesta, no en la siguiente.
+  //
+  // Una cookie escrita aquí (`response.cookies.set`) no es garantía de
+  // lectura inmediata por el Server Layout dentro de esta misma request, así
+  // que la URL viaja como header de request: eso sí reemplaza lo que ve el
+  // resto del árbol de esta request (`NextResponse.next({ request: { headers } })`).
+  // La cookie se sigue escribiendo, pero sólo como memoria para cuando el
+  // alumno navegue a una ruta global (`/app`, `/app/cursos`).
   const courseMatch = COURSE_PATH.exec(pathname);
   if (courseMatch) {
     const slug = decodeURIComponent(courseMatch[1]);
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set(COURSE_SLUG_HEADER, slug);
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
     if (request.cookies.get(COURSE_COOKIE)?.value !== slug) {
-      request.cookies.set(COURSE_COOKIE, slug);
-      const response = NextResponse.next({ request });
       response.cookies.set(COURSE_COOKIE, slug, {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
       });
-      return response;
     }
+    return response;
   }
 
   return NextResponse.next();

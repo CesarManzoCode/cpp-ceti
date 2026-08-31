@@ -61,10 +61,13 @@ export function CourseSwitcher({
               : "Elegir curso"
           }
           className={cn(
-            "flex min-w-0 items-center gap-2 rounded-[var(--radius-md)] text-left transition-colors",
+            "flex min-w-0 gap-2 rounded-[var(--radius-md)] text-left transition-colors",
             variant === "rail"
-              ? "w-full px-2 py-1.5 text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground hover:bg-accent hover:text-foreground"
-              : "max-w-[52vw] border border-border bg-card px-2.5 py-1.5 text-[13px] font-bold text-foreground hover:bg-accent",
+              ? // Sin truncar a una línea: "PROGRAMACIÓN ORIENTAD…" no le dice
+                // nada al alumno. Dos líneas alcanzan para cualquier título
+                // de curso actual sin desbordar el rail.
+                "w-full items-start px-2 py-1.5 text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground hover:bg-accent hover:text-foreground"
+              : "max-w-[52vw] items-center border border-border bg-card px-2.5 py-1.5 text-[13px] font-bold text-foreground hover:bg-accent",
             className,
           )}
         >
@@ -74,8 +77,23 @@ export function CourseSwitcher({
               aria-hidden
             />
           ) : null}
-          <span className="min-w-0 flex-1 truncate">{label}</span>
-          <ChevronsUpDown className="size-3.5 shrink-0 opacity-70" aria-hidden />
+          <span
+            className={cn(
+              "min-w-0 flex-1",
+              variant === "rail"
+                ? "line-clamp-2 whitespace-normal leading-snug"
+                : "truncate",
+            )}
+          >
+            {label}
+          </span>
+          <ChevronsUpDown
+            className={cn(
+              "size-3.5 shrink-0 opacity-70",
+              variant === "rail" ? "mt-0.5" : null,
+            )}
+            aria-hidden
+          />
         </button>
       </DropdownMenuTrigger>
 
