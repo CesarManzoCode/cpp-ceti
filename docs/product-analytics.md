@@ -1,8 +1,9 @@
 # Contrato de métricas de producto
 
-Este documento es la definición **autoritativa** de lo que mide C++ CETI. Si un
-número del panel interno (`/app/admin`) no cuadra con lo que dice aquí, el bug
-está en el código o en este documento — no en la interpretación de quien lee.
+Este documento es la definición **autoritativa** de lo que mide la plataforma.
+Si un número del panel interno (`/app/admin`) no cuadra con lo que dice aquí,
+el bug está en el código o en este documento — no en la interpretación de
+quien lee.
 
 Escrito para que dentro de dos años se pueda responder, sin depender de la
 memoria de nadie: *¿qué significaba exactamente esta métrica cuando la
@@ -234,10 +235,70 @@ no se toque.
   compilan y nunca envían** salen de cruzar `code_run` con los envíos.
 - Los runs del playground libre (dentro de un paso `code_example`) se guardan
   con `surface = playground` y **sin** `exerciseId`: no contaminan el
-  denominador de los retos.
+  denominador de los retos. Desde que la ejecución exige nombrar su recurso,
+  esos runs además llevan `lessonStepId` — es atribución adicional, no un
+  cambio de clasificación: `surface` sigue significando exactamente lo mismo
+  que antes y las series históricas siguen siendo comparables.
+- **Los ids del evento los pone el SERVIDOR**, resueltos desde el recurso que
+  la petición nombró. El cliente ya no manda `surface` ni ids de recurso, así
+  que no puede atribuir un run a otro ejercicio.
 - De un error de compilación se guarda **sólo la categoría**
   (`missing_semicolon`, `undeclared_identifier`, …), nunca el mensaje crudo ni
-  el código.
+  el código. Ver §8.1.
+
+### 8.1 Categorías de error y multilenguaje
+
+La taxonomía es **compartida entre lenguajes a propósito**: la pregunta que
+interesa es "¿en qué se atoran los alumnos?", y fragmentarla en un vocabulario
+por compilador haría imposible comparar la fricción de C++ contra la de C#.
+
+Por eso un mismo error del alumno cae en la misma categoría en los dos
+lenguajes:
+
+| Categoría | GCC (C++) | Mono / Roslyn (C#) |
+| --- | --- | --- |
+| `missing_semicolon` | `expected ';'` | `CS1002`; y `CS1525` con "expecting `;`" (Mono no usa CS1002) |
+| `undeclared_identifier` | `was not declared in this scope` | `CS0103` (incluye el clásico "olvidé `using System;`"), `CS0246`, `CS1061`, `CS0117` |
+| `type_mismatch` | `cannot convert`, `invalid conversion` | `CS0029`, `CS0030`, `CS0266`, `CS1503`, `CS0019` |
+| `invalid_arguments` | `no matching function for call`, `too few arguments` | `CS1501`, `CS1502`, `CS1729`, `CS7036` |
+| `unbalanced_delimiters` | `expected '}'`, `unterminated` | `CS1513`, `CS1514`, `CS1519`, `CS1026`, `CS1525` con "end-of-file" |
+| `linker_error` | `undefined reference`, `ld returned` | `CS5001` (sin `Main` utilizable), `CS0017` |
+| `missing_include` | `no such file or directory` | — (en C# no existe el error de archivo de cabecera) |
+| `abstract_member_not_implemented` | — | `CS0534` |
+
+`abstract_member_not_implemented` es la **única categoría nueva**: "la clase
+derivada no implementa un miembro abstracto heredado" no tiene equivalente en
+C++, donde el compilador se queja al instanciar el tipo abstracto, que es otra
+cosa.
+
+El lenguaje con el que se clasifica **lo pasa el llamador**, derivado del curso
+del recurso; nunca se adivina del texto del mensaje. Aplicar los regex de GCC a
+una salida de Mono inventaría categorías.
+
+### 8.2 Filtro por curso
+
+El panel filtra por curso, y ese curso se **deriva por relación** desde el
+recurso del evento:
+
+```text
+lesson_*     → lesson → unit → course
+practice_*   → practiceExercise → course
+code_run     → exercise → step → lesson → unit → course
+               o practiceExercise → course
+```
+
+No hay columna de curso ni de lenguaje en `ProductEvent`, y no se emiten
+eventos nuevos: una etiqueta duplicada podría desincronizarse del recurso, y
+re-emitir partiría las series. Consecuencias:
+
+- **Sin filtro, las consultas son exactamente las de antes.** Los reportes
+  históricos reconcilian: la suma por curso da el total sin filtrar.
+- El filtro aplica a embudos, fricción, pistas y ejecuciones — todo lo que
+  cuelga de un recurso. **Uso y retención NO se filtran**: un alumno activo lo
+  es del producto, no de un curso.
+- Las rutas de relación están fijadas en
+  `tests/features/analytics/course-filter.test.ts`. Si una se equivoca,
+  Prisma no falla: el filtro deja de filtrar y el panel mentiría en silencio.
 
 ### `durationMs` — leer antes de usar
 

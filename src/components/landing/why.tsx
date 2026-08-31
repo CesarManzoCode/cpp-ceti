@@ -7,8 +7,8 @@ const problems = [
     body: "Seguir un ejemplo en clase es el primer paso. Escribir el código tú mismo —equivocarte y corregir— es lo que hace que el concepto se quede.",
   },
   {
-    title: "Mimo no tiene C++",
-    body: "Sololearn, Codecademy, Mimo — ninguna enseña C++. Y menos en español.",
+    title: "Mimo no tiene tu materia",
+    body: "Sololearn, Codecademy, Mimo — ninguna sigue el temario que llevas en el CETI. Y menos en español.",
   },
   {
     title: "Repasa a tu ritmo",
@@ -24,7 +24,7 @@ export function Why() {
           eyebrow="La idea"
           title={
             <>
-              ¿Un tema de C++ no te quedó claro?{" "}
+              ¿Un tema de la materia no te quedó claro?{" "}
               <span className="text-muted-foreground">
                 Aquí lo practicas hasta dominarlo.
               </span>

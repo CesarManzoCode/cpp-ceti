@@ -4,12 +4,15 @@
 This version (16.2.6) has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Contexto para asistentes de IA — C++ CETI
+# Contexto para asistentes de IA — Plataforma de Programación CETI
 
 ## Qué es esto
-Plataforma web para que estudiantes del **CETI Guadalajara** aprendan **C++** con
-lecciones interactivas y un editor de código en el navegador. Inspirado en Mimo,
-pero enfocado 100% en C++ y en español.
+Plataforma web para que estudiantes del **CETI Guadalajara** aprendan a programar
+con lecciones interactivas y un editor de código en el navegador. Inspirado en
+Mimo, pero siguiendo el temario del CETI y en español.
+
+Dos cursos hoy: **C++ desde cero** (`cpp-desde-cero`) y **Programación Orientada
+a Objetos I con C#** (`csharp-poo-1`).
 
 ## Filosofía
 **90% práctica, 10% teoría.** Cada concepto se sigue inmediatamente de
@@ -24,7 +27,8 @@ con un editor anexo: somos un sistema de práctica con teoría justo-a-tiempo.
 - **Prisma 6** + **PostgreSQL** (Supabase)
 - **Better Auth 1.6** (NO NextAuth; tablas custom en el schema)
 - **Monaco Editor** para el editor C++
-- **Judge0** para compilar y ejecutar C++ (adapter pattern en `src/lib/executor/`)
+- **Judge0 / Wandbox / Piston** para compilar y ejecutar (adapter pattern en
+  `src/lib/executor/`), con un perfil de ejecución POR CURSO
 
 ## Cosas que NO son obvias
 
@@ -92,6 +96,38 @@ con un editor anexo: somos un sistema de práctica con teoría justo-a-tiempo.
 12. **El panel interno (`/app/admin`) se autoriza en el servidor.**
    `requireAdmin()` / `requireAdminPage()` en CADA página y CADA Server Action.
    Un layout no protege un POST directo a una action.
+
+13. **El CURSO es la fuente de verdad del lenguaje y del compilador.**
+   `Course.language` + `Course.executionProfile`, validados contra el registro
+   de `src/lib/code-languages`. De ahí salen el modo de Monaco, el nombre del
+   archivo, las sugerencias, los diagnósticos, el compilador y el agrupamiento
+   de métricas. NUNCA se infiere de un slug, de un fence de markdown ni de
+   nada que mande el cliente, y un valor desconocido es un error de
+   configuración — jamás un motivo para caer a C++.
+
+14. **Toda ejecución nombra UN recurso; el servidor deriva el resto.**
+   `resolveExecutionTarget` (`src/lib/execution-target.ts`) navega recurso →
+   unidad → curso. `/api/run` RECHAZA con 400 un `language`, `profileId` o
+   `compiler` en el cuerpo en vez de ignorarlo. Falla cerrado ante recurso
+   inexistente, despublicado, ambiguo, con ids que no corresponden, o no
+   ejecutable. Si agregas una superficie que ejecute código, pasa por ahí.
+
+15. **Las rutas canónicas llevan el curso: `/app/c/[courseSlug]/...`**
+   Las URLs viejas sin curso (`/app/u/...`, `/app/ejercicios/...`) se conservan
+   PARA SIEMPRE y el middleware las redirige con 308 al curso de C++. No
+   renombres slugs de C++ ni borres esas rutas: hay marcadores y enlaces
+   compartidos apuntando ahí.
+
+16. **Windows Forms NO se ejecuta en el navegador.**
+   Sus ejemplos son `runnable: false`, llevan `localOnlyNote` y el servidor
+   rechaza ejecutarlos. El dominio que alimentan sí se prueba como consola.
+   Nunca "simules" una GUI para poder calificarla.
+
+17. **Antes de publicar contenido con código, córrelo.**
+   `LANG=C.UTF-8 npx tsx scripts/verify-content.ts [curso]` compila y ejecuta
+   todo el contenido ejecutable contra sus casos, visibles y ocultos. El locale
+   UTF-8 no es opcional: sin él, cualquier salida con acentos falla por el
+   entorno y no por el contenido.
 
 ## Convenciones de código
 

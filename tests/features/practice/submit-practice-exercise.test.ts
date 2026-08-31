@@ -8,6 +8,7 @@ const EXERCISE_ID = "pex_1";
 const XP_REWARD = 20;
 
 const runTests = vi.hoisted(() => vi.fn());
+const profilesUsed = vi.hoisted(() => [] as string[]);
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/db", async () => {
@@ -22,7 +23,12 @@ vi.mock("@/lib/rate-limit", async (importOriginal) => ({
   enforceRateLimit: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/executor", () => ({
-  getCodeExecutor: () => ({ runTests, execute: vi.fn() }),
+  getExecutorForProfile: (profileId: string) => {
+    // El perfil se registra para poder afirmar que se derivó del curso y
+    // no de nada que venga en el envío.
+    profilesUsed.push(profileId);
+    return { runTests, execute: vi.fn(), supportsProfile: () => true };
+  },
   buildFeedback: () => "feedback",
 }));
 
@@ -69,6 +75,17 @@ describe("submitPracticeExercise", () => {
         slug: "suma-dos-numeros",
         published: true,
         xpReward: XP_REWARD,
+        courseId: "course_cpp",
+        // Relación obligatoria en el schema: `resolveExecutionTarget`
+        // rechaza una práctica cuya unidad no esté publicada.
+        unit: { published: true },
+        course: {
+          id: "course_cpp",
+          slug: "cpp-desde-cero",
+          published: true,
+          language: "cpp",
+          executionProfile: "cpp17-wandbox",
+        },
         testCases: [
           {
             id: "tc_1",
@@ -82,6 +99,54 @@ describe("submitPracticeExercise", () => {
       },
     ]);
     runTests.mockResolvedValue(passingResult(true));
+    profilesUsed.length = 0;
+  });
+
+  it("el perfil de ejecución se deriva del curso dueño del ejercicio", async () => {
+    await submit();
+    expect(profilesUsed).toEqual(["cpp17-wandbox"]);
+    // El código va en la petición; el compilador NO viene del envío.
+    expect(runTests).toHaveBeenCalledWith(
+      { profileId: "cpp17-wandbox", sourceCode: "int main(){}" },
+      expect.any(Array),
+    );
+  });
+
+  it("un ejercicio de un curso de C# se compila con el perfil de C#", async () => {
+    fake.seed("practiceExercise", [
+      {
+        id: "pex_cs",
+        slug: "suma-dos-numeros",
+        published: true,
+        xpReward: XP_REWARD,
+        courseId: "course_cs",
+        // Relación obligatoria en el schema: `resolveExecutionTarget`
+        // rechaza una práctica cuya unidad no esté publicada.
+        unit: { published: true },
+        course: {
+          id: "course_cs",
+          slug: "csharp-poo-1",
+          published: true,
+          language: "csharp",
+          executionProfile: "csharp-mono-6.12",
+        },
+        testCases: [
+          {
+            id: "tc_cs",
+            stdin: "1 2",
+            expectedStdout: "3",
+            visible: true,
+            description: null,
+            order: 1,
+          },
+        ],
+      },
+    ]);
+    await submitPracticeExercise({
+      exerciseId: "pex_cs",
+      sourceCode: "class Program {}",
+    });
+    expect(profilesUsed).toEqual(["csharp-mono-6.12"]);
   });
 
   it("primer aprobado: crea la completion, guarda el intento y otorga XP", async () => {

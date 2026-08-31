@@ -12,6 +12,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter solo `#include` + 1-2 hints indicativas
  */
 export const u01PrimerProgramaExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "primer-programa",
   unitTitle: "Tu primer programa en C++",
   unitIcon: "🚀",

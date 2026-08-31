@@ -35,7 +35,7 @@ const UNIQUES: Record<string, string[][]> = {
   userLessonProgress: [["userId", "lessonId"]],
   userStreak: [["userId"]],
   friendship: [["requesterId", "addresseeId"]],
-  practiceExercise: [["slug"]],
+  practiceExercise: [["courseId", "slug"]],
   productEvent: [["userId", "dedupeKey"]],
   studySession: [["userId", "clientKey"]],
   userHintViewed: [

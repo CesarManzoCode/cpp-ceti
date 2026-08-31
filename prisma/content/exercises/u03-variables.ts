@@ -18,6 +18,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes + using
  */
 export const u03VariablesExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "variables-y-tipos",
   unitTitle: "Variables y tipos de datos",
   unitIcon: "📦",

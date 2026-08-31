@@ -18,6 +18,8 @@ import {
   getRunReport,
   rangeFromDays,
 } from "@/features/analytics/queries";
+import { getCourseChoices } from "@/features/courses/queries";
+import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
 import { requireAdminPage } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +27,7 @@ export const dynamic = "force-dynamic";
 const RANGES = [7, 30, 90] as const;
 
 interface PageProps {
-  searchParams: Promise<{ dias?: string; leccion?: string }>;
+  searchParams: Promise<{ dias?: string; leccion?: string; curso?: string }>;
 }
 
 /**
@@ -37,22 +39,41 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
   // La página vuelve a autorizar: el layout no basta como control de acceso.
   await requireAdminPage();
 
-  const { dias, leccion } = await searchParams;
+  const { dias, leccion, curso } = await searchParams;
   const days = RANGES.includes(Number(dias) as (typeof RANGES)[number])
     ? Number(dias)
     : 30;
   const range = rangeFromDays(days);
 
+  // El filtro de curso se resuelve contra los cursos reales: un slug
+  // inventado en la URL no filtra por un curso fantasma, simplemente no
+  // filtra. El curso de cada métrica se DERIVA del recurso por relación,
+  // no de una etiqueta guardada en el evento.
+  const courses = await getCourseChoices();
+  const selectedCourse = curso
+    ? (courses.find((c) => c.slug === curso) ?? null)
+    : null;
+  const courseId = selectedCourse?.id;
+
   const [overview, retention, lessons, practice, friction, hints, runs] =
     await Promise.all([
       getOverview(range),
       getRetention(range.to),
-      getLessonFunnel(range),
-      getPracticeFunnel(range),
-      getFriction(range),
-      getHintUsage(range),
-      getRunReport(range),
+      getLessonFunnel(range, courseId),
+      getPracticeFunnel(range, courseId),
+      getFriction(range, 10, courseId),
+      getHintUsage(range, 10, courseId),
+      getRunReport(range, 10, courseId),
     ]);
+
+  /** Conserva los demás filtros al cambiar uno. */
+  const hrefWith = (next: { dias?: number; curso?: string | null }) => {
+    const params = new URLSearchParams();
+    params.set("dias", String(next.dias ?? days));
+    const course = next.curso === undefined ? (selectedCourse?.slug ?? null) : next.curso;
+    if (course) params.set("curso", course);
+    return `/app/admin?${params.toString()}`;
+  };
 
   const selectedLessonId = leccion ?? lessons[0]?.resourceId ?? null;
   const dropoff = selectedLessonId
@@ -66,7 +87,7 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
         {RANGES.map((option) => (
           <Link
             key={option}
-            href={`/app/admin?dias=${option}`}
+            href={hrefWith({ dias: option })}
             className={
               option === days
                 ? "rounded-full bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground"
@@ -81,6 +102,45 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
           {range.to.toISOString().slice(0, 10)} (UTC)
         </span>
       </div>
+
+      {/* Filtro de curso. "Uso" y "Retención" son de la cuenta y no se
+          filtran: un alumno activo lo es del producto, no de un curso. */}
+      {courses.length > 1 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={hrefWith({ curso: null })}
+            className={
+              selectedCourse === null
+                ? "rounded-full bg-foreground px-3 py-1.5 text-[13px] font-bold text-background"
+                : "rounded-full border border-border px-3 py-1.5 text-[13px] font-semibold text-muted-foreground hover:text-foreground"
+            }
+          >
+            Todos los cursos
+          </Link>
+          {courses.map((course) => (
+            <Link
+              key={course.slug}
+              href={hrefWith({ curso: course.slug })}
+              className={
+                selectedCourse?.slug === course.slug
+                  ? "rounded-full bg-foreground px-3 py-1.5 text-[13px] font-bold text-background"
+                  : "rounded-full border border-border px-3 py-1.5 text-[13px] font-semibold text-muted-foreground hover:text-foreground"
+              }
+            >
+              {course.title}
+              <span className="ml-1.5 font-mono text-[11px] opacity-70">
+                {isLanguageId(course.language)
+                  ? LANGUAGE_PROFILES[course.language].label
+                  : course.language}
+              </span>
+            </Link>
+          ))}
+          <span className="text-[12px] text-subtle-foreground">
+            Aplica a embudos, fricción, pistas y ejecuciones. Uso y retención
+            son del producto completo.
+          </span>
+        </div>
+      ) : null}
 
       {/* ---------------- Uso ---------------- */}
       <section className="space-y-3">
@@ -198,7 +258,7 @@ export default async function AdminMetricsPage({ searchParams }: PageProps) {
               <Td>{row.bouncedViewers}</Td>
               <Td>
                 <Link
-                  href={`/app/admin?dias=${days}&leccion=${row.resourceId}`}
+                  href={`${hrefWith({})}&leccion=${row.resourceId}`}
                   className="text-[13px] font-semibold text-primary hover:underline"
                 >
                   Ver abandono

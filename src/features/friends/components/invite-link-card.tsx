@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PRODUCT_NAME } from "@/lib/branding";
 
 interface InviteLinkCardProps {
   username: string;
@@ -39,11 +40,11 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
 
   async function share() {
     if (!inviteUrl) return;
-    const text = `Te invito a aprender C++ conmigo en C++ CETI: ${inviteUrl}`;
+    const text = `Te invito a programar conmigo en ${PRODUCT_NAME}: ${inviteUrl}`;
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({
-          title: "C++ CETI",
+          title: PRODUCT_NAME,
           text: "Aprende C++ con lecciones interactivas",
           url: inviteUrl,
         });

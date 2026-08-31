@@ -9,12 +9,14 @@ import { Markdown } from "@/components/shared/markdown";
 import { StepActions, StepHeader, Verdict } from "@/features/lessons/components/step-shell";
 import { cn } from "@/lib/utils";
 import type { FillBlankStepContent } from "@/features/lessons/types";
-import { isBlankCorrect } from "@/features/lessons/lib/cpp-validation";
-import { renderTokens, tokenizeCpp } from "@/features/lessons/lib/cpp-syntax";
+import { isBlankCorrect } from "@/features/lessons/lib/code-validation";
+import { renderTokens, tokenizeCode } from "@/features/lessons/lib/code-syntax";
 
 import type { StepSignalHandler } from "./step-signal";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepFillBlankProps {
+  language: LanguageId;
   content: FillBlankStepContent;
   onNext: () => void;
   isPending: boolean;
@@ -24,6 +26,7 @@ interface StepFillBlankProps {
 const ATTEMPTS_BEFORE_SOLUTION = 3;
 
 export function StepFillBlank({
+  language,
   content,
   onNext,
   isPending,
@@ -39,7 +42,7 @@ export function StepFillBlank({
   const [solutionRevealed, setSolutionRevealed] = React.useState(false);
 
   const allCorrect = content.blanks.every((b, i) =>
-    isBlankCorrect(b, values[i] ?? "", values),
+    isBlankCorrect(b, values[i] ?? "", values, language),
   );
 
   function verify() {
@@ -69,6 +72,7 @@ export function StepFillBlank({
     setValues,
     submitted,
     content,
+    language,
   );
 
   return (
@@ -76,7 +80,7 @@ export function StepFillBlank({
       <StepHeader label="Completa el código" icon={<SquarePen aria-hidden />} tone="warning">
         {content.prompt ? (
           <div className="prose-instructions text-balance text-foreground">
-            <Markdown>{content.prompt}</Markdown>
+            <Markdown language={language}>{content.prompt}</Markdown>
           </div>
         ) : (
           <h2 className="text-balance text-[21px] font-extrabold leading-snug tracking-[-0.022em] sm:text-[24px]">
@@ -242,6 +246,7 @@ function renderTemplateLines(
   setValues: React.Dispatch<React.SetStateAction<string[]>>,
   submitted: boolean,
   content: FillBlankStepContent,
+  language: LanguageId,
 ): React.ReactNode[][] {
   const segments = parseTemplate(template);
   const lines: React.ReactNode[][] = [[]];
@@ -253,7 +258,7 @@ function renderTemplateLines(
       continue;
     }
     if (seg.type === "text") {
-      const tokens = tokenizeCpp(seg.text);
+      const tokens = tokenizeCode(seg.text, language);
       const rendered = renderTokens(tokens, `t${textKey++}`);
       lines[lines.length - 1].push(...rendered);
       continue;
@@ -264,7 +269,7 @@ function renderTemplateLines(
     const blank = content.blanks[blankIdx];
     const expected = blank?.answer ?? "";
     const isWrong =
-      submitted && !(blank && isBlankCorrect(blank, value, values));
+      submitted && !(blank && isBlankCorrect(blank, value, values, language));
     const isRight = submitted && !isWrong;
     lines[lines.length - 1].push(
       <input

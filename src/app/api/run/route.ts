@@ -3,18 +3,35 @@ import { NextResponse } from "next/server";
 import { runSignalFromResult } from "@/lib/analytics/error-category";
 import { recordProductEventSafely } from "@/lib/analytics/record";
 import { db } from "@/lib/db";
-import { ExecutorConfigError, getCodeExecutor } from "@/lib/executor";
+import {
+  ExecutionTargetError,
+  resolveExecutionTarget,
+  type ResolvedExecutionTarget,
+} from "@/lib/execution-target";
+import {
+  ExecutorConfigError,
+  ExecutorProfileUnavailableError,
+  getExecutorForProfile,
+  type ExecutionResult,
+} from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { logger } from "@/lib/logger";
 import { RateLimitError, enforceRateLimit } from "@/lib/rate-limit";
 import {
   parseOrThrow,
+  rejectCompilerFields,
   runCodeSchema,
-  type RunContextInput,
 } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
+/**
+ * Ejecución SIN calificar ("Compilar y ejecutar").
+ *
+ * El cuerpo nombra un recurso y el código; nada más. El servidor resuelve
+ * recurso → curso → perfil de ejecución. Un `language` o `profileId` en el
+ * cuerpo es un 400, no un dato que se ignora en silencio.
+ */
 export async function POST(request: Request) {
   let session;
   try {
@@ -32,10 +49,34 @@ export async function POST(request: Request) {
 
   let input;
   try {
+    rejectCompilerFields(rawBody);
     input = parseOrThrow(runCodeSchema, rawBody);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Datos inválidos";
     return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  // Resolver ANTES del rate limit: una petición sin recurso válido no debe
+  // consumir la cuota de nadie, y tampoco debe llegar al compilador.
+  let target: ResolvedExecutionTarget;
+  try {
+    target = await resolveExecutionTarget(input.target);
+  } catch (err) {
+    if (err instanceof ExecutionTargetError) {
+      const status = err.reason === "invalid_profile" ? 503 : 400;
+      if (err.reason === "invalid_profile") {
+        logger.error(
+          { err, userId: session.user.id, route: "/api/run" },
+          "course execution profile is not resolvable",
+        );
+        return NextResponse.json(
+          { error: "Entorno de ejecución no disponible." },
+          { status },
+        );
+      }
+      return NextResponse.json({ error: err.message }, { status });
+    }
+    throw err;
   }
 
   try {
@@ -51,8 +92,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const executor = getCodeExecutor();
+    const executor = getExecutorForProfile(target.profileId);
     const result = await executor.execute({
+      profileId: target.profileId,
       sourceCode: input.sourceCode,
       stdin: input.stdin,
       cpuTimeLimit: 5,
@@ -62,16 +104,24 @@ export async function POST(request: Request) {
     // porque es el único que sabe el resultado real y la hora real.
     // Guardamos la categoría del error, NUNCA el código ni el mensaje crudo
     // del compilador (que puede contener fragmentos del programa).
-    await recordRun(session.user.id, input.context, result);
+    await recordRun(session.user.id, target, input.studySessionId, result);
 
     return NextResponse.json(result);
   } catch (err) {
-    if (err instanceof ExecutorConfigError) {
+    if (
+      err instanceof ExecutorConfigError ||
+      err instanceof ExecutorProfileUnavailableError
+    ) {
       // Log con el detalle real, devolver mensaje genérico. La config del
       // proveedor no debe filtrarse al cliente.
       logger.error(
-        { err, userId: session.user.id, route: "/api/run" },
-        "executor not configured",
+        {
+          err,
+          userId: session.user.id,
+          route: "/api/run",
+          profileId: target.profileId,
+        },
+        "executor not configured for profile",
       );
       return NextResponse.json(
         {
@@ -94,20 +144,23 @@ export async function POST(request: Request) {
 /**
  * Registra el evento `code_run`. Nunca lanza: una falla de telemetría no
  * puede tumbar una ejecución que el alumno ya pagó (5–30 s de compilación).
+ *
+ * Todos los ids salen del recurso YA RESUELTO, no del cuerpo de la
+ * petición: así el curso (y con él el lenguaje) siempre se puede derivar
+ * por join, sin guardar una etiqueta que el cliente haya elegido.
  */
 async function recordRun(
   userId: string,
-  context: RunContextInput | undefined,
-  result: Awaited<ReturnType<ReturnType<typeof getCodeExecutor>["execute"]>>,
+  target: ResolvedExecutionTarget,
+  rawStudySessionId: string | null | undefined,
+  result: ExecutionResult,
 ): Promise<void> {
-  if (!context) return;
-
   // La sesión de estudio debe ser del usuario; si no, se atribuye sin ella.
   let studySessionId: string | null = null;
-  if (context.studySessionId) {
+  if (rawStudySessionId) {
     try {
       const owned = await db.studySession.findFirst({
-        where: { id: context.studySessionId, userId },
+        where: { id: rawStudySessionId, userId },
         select: { id: true },
       });
       studySessionId = owned?.id ?? null;
@@ -116,53 +169,21 @@ async function recordRun(
     }
   }
 
-  const signal = runSignalFromResult(result);
-  const contentRevision = await resolveRunRevision(context);
+  const signal = runSignalFromResult(result, target.language);
 
   await recordProductEventSafely(db, {
     userId,
     name: "code_run",
-    surface: context.surface,
-    lessonId: context.lessonId ?? null,
-    exerciseId: context.exerciseId ?? null,
-    practiceExerciseId: context.practiceExerciseId ?? null,
+    surface: target.surface,
+    lessonId: target.lessonId,
+    lessonStepId: target.stepId,
+    exerciseId: target.exerciseId,
+    practiceExerciseId: target.practiceExerciseId,
     studySessionId,
-    contentRevision,
+    contentRevision: target.contentRevision,
     props: {
       outcome: signal.outcome,
       ...(signal.errorCategory ? { errorCategory: signal.errorCategory } : {}),
     },
   });
-}
-
-/** Revisión del contenido que el alumno tenía enfrente al compilar. */
-async function resolveRunRevision(
-  context: RunContextInput,
-): Promise<string | null> {
-  try {
-    if (context.exerciseId) {
-      const ex = await db.exercise.findUnique({
-        where: { id: context.exerciseId },
-        select: { contentRevision: true },
-      });
-      return ex?.contentRevision ?? null;
-    }
-    if (context.practiceExerciseId) {
-      const ex = await db.practiceExercise.findUnique({
-        where: { id: context.practiceExerciseId },
-        select: { contentRevision: true },
-      });
-      return ex?.contentRevision ?? null;
-    }
-    if (context.lessonId) {
-      const lesson = await db.lesson.findUnique({
-        where: { id: context.lessonId },
-        select: { contentRevision: true },
-      });
-      return lesson?.contentRevision ?? null;
-    }
-  } catch {
-    /* sin revisión: el evento sigue siendo válido */
-  }
-  return null;
 }

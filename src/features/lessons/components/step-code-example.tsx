@@ -1,25 +1,40 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, Code2, Terminal } from "lucide-react";
+import { ArrowRight, Code2, MonitorCog, Terminal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TerminalSurface } from "@/components/ui/terminal-surface";
 import { Markdown } from "@/components/shared/markdown";
 import { CodePlayground } from "@/components/editor/code-playground";
-import { CppEditor } from "@/components/editor/cpp-editor";
+import { CodeEditor } from "@/components/editor/code-editor";
 import { StepActions, StepKind } from "@/features/lessons/components/step-shell";
+import type { LanguageId } from "@/lib/code-languages";
 import type { CodeExampleStepContent } from "@/features/lessons/types";
 
 interface StepCodeExampleProps {
+  language: LanguageId;
+  /** Id del paso: es el recurso que el servidor resuelve para ejecutarlo. */
+  stepId: string;
+  lessonId: string;
   content: CodeExampleStepContent;
   onNext: () => void;
   isPending: boolean;
 }
 
-const NEEDS_STDIN_RE = /\b(cin\s*>>|scanf\s*\(|getline\s*\()/;
+/**
+ * ¿El ejemplo lee de la entrada estándar? Sólo entonces se muestra el campo
+ * de stdin. Cada lenguaje tiene su forma de leer.
+ */
+const NEEDS_STDIN_RE: Record<LanguageId, RegExp> = {
+  cpp: /\b(cin\s*>>|scanf\s*\(|getline\s*\()/,
+  csharp: /\bConsole\s*\.\s*Read(Line|Key)?\s*\(/,
+};
 
 export function StepCodeExample({
+  language,
+  stepId,
+  lessonId,
   content,
   onNext,
   isPending,
@@ -38,16 +53,37 @@ export function StepCodeExample({
     <article className="space-y-7">
       <StepKind label="Ejemplo" icon={<Code2 aria-hidden />} tone="info" />
 
-      <Markdown>{content.explanation}</Markdown>
+      <Markdown language={language}>{content.explanation}</Markdown>
 
       {content.runnable ? (
         <CodePlayground
+          language={language}
+          target={{ stepId, lessonId }}
           initialCode={content.code}
           editorHeight={260}
-          showStdin={NEEDS_STDIN_RE.test(content.code)}
+          showStdin={NEEDS_STDIN_RE[language].test(content.code)}
         />
       ) : (
-        <CppEditor value={content.code} readOnly minHeight={220} />
+        <>
+          <CodeEditor
+            language={language}
+            value={content.code}
+            readOnly
+            minHeight={220}
+          />
+          {/* Sin botón de ejecutar, y con la razón a la vista: este código
+              no corre en el navegador. Fingir lo contrario sería mentir
+              sobre lo que el alumno acaba de ver. */}
+          {content.localOnlyNote ? (
+            <p className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-warning/25 bg-warning-soft px-4 py-3 text-[14px] leading-relaxed text-foreground">
+              <MonitorCog
+                className="mt-0.5 size-[18px] shrink-0 text-warning"
+                aria-hidden
+              />
+              <span>{content.localOnlyNote}</span>
+            </p>
+          ) : null}
+        </>
       )}
 
       {content.expectedOutput && !content.runnable ? (

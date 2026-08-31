@@ -12,7 +12,7 @@ export default function PracticeNotFound() {
         description="Quizá lo despublicaron o cambió de dirección."
       >
         <Button asChild size="lg">
-          <Link href="/app/ejercicios">Ver todos los ejercicios</Link>
+          <Link href="/app">Volver a tus cursos</Link>
         </Button>
       </StatusMessage>
     </div>

@@ -134,10 +134,12 @@ export const getLessonBySlug = cache(async (
     select: { slug: true, title: true },
   });
 
+  // La navegación "siguiente" NUNCA sale del curso: se busca sólo dentro
+  // de sus unidades, y el enlace lleva el curso explícito.
   let nextLessonLink: { href: string; title: string } | null = null;
   if (nextInUnit) {
     nextLessonLink = {
-      href: `/app/u/${unit.slug}/${nextInUnit.slug}`,
+      href: `/app/c/${course.slug}/u/${unit.slug}/${nextInUnit.slug}`,
       title: nextInUnit.title,
     };
   } else {
@@ -159,7 +161,7 @@ export const getLessonBySlug = cache(async (
     });
     if (nextUnit && nextUnit.lessons[0]) {
       nextLessonLink = {
-        href: `/app/u/${nextUnit.slug}/${nextUnit.lessons[0].slug}`,
+        href: `/app/c/${course.slug}/u/${nextUnit.slug}/${nextUnit.lessons[0].slug}`,
         title: nextUnit.lessons[0].title,
       };
     }

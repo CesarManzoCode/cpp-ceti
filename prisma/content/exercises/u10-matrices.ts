@@ -18,6 +18,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes
  */
 export const u10MatricesExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "matrices",
   unitTitle: "Matrices: arreglos 2D",
   unitIcon: "🧱",

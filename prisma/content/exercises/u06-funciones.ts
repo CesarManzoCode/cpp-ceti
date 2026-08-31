@@ -15,6 +15,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes
  */
 export const u06FuncionesExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "funciones",
   unitTitle: "Funciones: empaquetar tu código",
   unitIcon: "🧩",

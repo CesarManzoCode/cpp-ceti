@@ -9,17 +9,40 @@ import { BrickRow } from "@/components/ui/bricks";
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
-const topLinks: {
+/**
+ * Enlaces de la barra. Inicio y Práctica pertenecen a UN curso, así que
+ * llevan su slug; los demás son de la cuenta y no dependen del curso.
+ *
+ * Sin curso seleccionado, Inicio apunta a la pantalla de selección y
+ * Práctica no se muestra: no existe "la práctica" a secas, existe la de
+ * un curso.
+ */
+function topLinksFor(courseSlug: string | null): {
   href: string;
   label: string;
   icon: typeof Home;
   exact?: boolean;
-}[] = [
-  { href: "/app", label: "Inicio", icon: Home, exact: true },
-  { href: "/app/ejercicios", label: "Práctica", icon: Dumbbell },
-  { href: "/app/logros", label: "Logros", icon: Trophy },
-  { href: "/app/amigos", label: "Amigos", icon: Users },
-];
+}[] {
+  return [
+    {
+      href: courseSlug ? `/app/c/${courseSlug}` : "/app",
+      label: "Inicio",
+      icon: Home,
+      exact: true,
+    },
+    ...(courseSlug
+      ? [
+          {
+            href: `/app/c/${courseSlug}/ejercicios`,
+            label: "Práctica",
+            icon: Dumbbell,
+          },
+        ]
+      : []),
+    { href: "/app/logros", label: "Logros", icon: Trophy },
+    { href: "/app/amigos", label: "Amigos", icon: Users },
+  ];
+}
 
 /**
  * Navegación de escritorio. Arriba las secciones; abajo el curso
@@ -27,15 +50,20 @@ const topLinks: {
  * de un vistazo cuánto se ha construido de cada módulo.
  */
 export function SidebarNav({
+  courseSlug,
+  courseTitle,
   units,
   onNavigate,
   pendingFriendsCount = 0,
 }: {
+  courseSlug: string | null;
+  courseTitle?: string | null;
   units: RoadmapUnit[];
   onNavigate?: () => void;
   pendingFriendsCount?: number;
 }) {
   const pathname = usePathname();
+  const topLinks = topLinksFor(courseSlug);
 
   const totalLessons = units.reduce((s, u) => s + u.lessonCount, 0);
   const doneLessons = units.reduce((s, u) => s + u.completedCount, 0);
@@ -84,11 +112,11 @@ export function SidebarNav({
         })}
       </ul>
 
-      {units.length > 0 ? (
+      {units.length > 0 && courseSlug ? (
         <div className="min-w-0">
           <div className="mb-3 flex items-baseline justify-between gap-3 px-6">
-            <h3 className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
-              Tu curso
+            <h3 className="min-w-0 flex-1 truncate text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
+              {courseTitle ?? "Tu curso"}
             </h3>
             {totalLessons > 0 ? (
               <span className="text-[13px] font-semibold tabular-nums text-subtle-foreground">
@@ -99,7 +127,7 @@ export function SidebarNav({
 
           <ul className="flex flex-col gap-0.5 px-3">
             {units.map((unit) => {
-              const href = `/app/u/${unit.slug}`;
+              const href = `/app/c/${courseSlug}/u/${unit.slug}`;
               const active = pathname.startsWith(href) && unit.published;
               const completed =
                 unit.lessonCount > 0 &&

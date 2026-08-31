@@ -6,14 +6,19 @@ import { Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Label } from "@/components/ui/label";
-import { CppEditor } from "@/components/editor/cpp-editor";
+import { CodeEditor } from "@/components/editor/code-editor";
 import { diagnosticsFromExecution } from "@/components/editor/diagnostics";
 import { OutputPanel } from "@/components/editor/output-panel";
 import { useStudySession } from "@/features/analytics/telemetry";
-import { useRunCode } from "@/hooks/use-run-code";
+import { useRunCode, type RunTarget } from "@/hooks/use-run-code";
+import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
 interface CodePlaygroundProps {
+  /** Lenguaje del curso. Decide editor, resaltado y diagnósticos. */
+  language: LanguageId;
+  /** Recurso al que pertenece esta ejecución (lo exige el servidor). */
+  target: RunTarget;
   initialCode: string;
   /** Si true, muestra un campo opcional para stdin */
   showStdin?: boolean;
@@ -22,6 +27,8 @@ interface CodePlaygroundProps {
 }
 
 export function CodePlayground({
+  language,
+  target,
   initialCode,
   showStdin = false,
   className,
@@ -29,15 +36,13 @@ export function CodePlayground({
 }: CodePlaygroundProps) {
   const [code, setCode] = React.useState(initialCode);
   const [stdin, setStdin] = React.useState("");
-  const { studySessionId, surface, resourceId, markEngaged } =
-    useStudySession();
+  const { studySessionId, markEngaged } = useStudySession();
 
   // Playground libre (dentro de un ejemplo de código): la ejecución se
-  // atribuye a la lección, pero NO a un ejercicio — no contamina el
-  // denominador de "run → submit" de los retos.
+  // atribuye al PASO, no a un ejercicio — así no contamina el denominador
+  // de "run → submit" de los retos.
   const { state, result, error, run, reset } = useRunCode({
-    surface: "playground",
-    lessonId: surface === "lesson" ? resourceId : null,
+    target,
     studySessionId,
   });
 
@@ -53,12 +58,13 @@ export function CodePlayground({
 
   return (
     <div className={cn("space-y-3", className)}>
-      <CppEditor
+      <CodeEditor
+        language={language}
         value={code}
         onChange={setCode}
         onRun={handleRun}
         minHeight={editorHeight}
-        diagnostics={diagnosticsFromExecution(result)}
+        diagnostics={diagnosticsFromExecution(result, language)}
       />
 
       {showStdin ? (
@@ -69,7 +75,11 @@ export function CodePlayground({
           <textarea
             value={stdin}
             onChange={(e) => setStdin(e.target.value)}
-            placeholder="Valores que tu programa leerá con cin..."
+            placeholder={
+              language === "csharp"
+                ? "Valores que tu programa leerá con Console.ReadLine()..."
+                : "Valores que tu programa leerá con cin..."
+            }
             rows={3}
             className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3.5 py-2.5 font-mono text-base leading-relaxed transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-[14px]"
           />

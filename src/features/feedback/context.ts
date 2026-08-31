@@ -1,5 +1,6 @@
 import type { ProductSurface } from "@prisma/client";
 
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 import type { db as prismaDb } from "@/lib/db";
 
 export const FEEDBACK_MAX_LENGTH = 2_000;
@@ -29,12 +30,16 @@ export function sanitizePath(raw: string | undefined | null): string | null {
 /**
  * Deriva superficie y recurso a partir de la ruta.
  *
- * Rutas reconocidas:
- *   · `/app/u/<unidad>/<leccion>`  → lección
- *   · `/app/ejercicios/<slug>`     → ejercicio de práctica
- *   · cualquier otra de la app     → superficie `app`
+ * Rutas reconocidas (canónicas y legacy):
+ *   · `/app/c/<curso>/u/<unidad>/<leccion>` → lección
+ *   · `/app/c/<curso>/ejercicios/<slug>`    → ejercicio de práctica
+ *   · `/app/u/<unidad>/<leccion>`           → lección del curso C++ legacy
+ *   · `/app/ejercicios/<slug>`              → práctica del curso C++ legacy
+ *   · cualquier otra de la app              → superficie `app`
  *
- * Los ids se resuelven contra la BD; nunca se aceptan del cliente.
+ * Los ids se resuelven contra la BD SIEMPRE dentro de un curso; nunca se
+ * aceptan del cliente. Sin el curso, dos cursos con el mismo slug de unidad
+ * o de ejercicio harían que el feedback se colgara del recurso equivocado.
  */
 export async function resolveFeedbackContext(
   db: typeof prismaDb,
@@ -50,11 +55,24 @@ export async function resolveFeedbackContext(
   if (!path) return empty;
 
   const segments = path.split("/").filter(Boolean);
+  if (segments[0] !== "app") return empty;
 
-  // /app/u/<unitSlug>/<lessonSlug>
-  if (segments[0] === "app" && segments[1] === "u" && segments.length >= 4) {
+  // Normaliza la ruta canónica con curso a (courseSlug, resto) y la legacy
+  // al curso C++ estable.
+  let courseSlug = LEGACY_CPP_COURSE_SLUG;
+  let rest = segments.slice(1);
+  if (segments[1] === "c" && segments.length >= 3) {
+    courseSlug = segments[2];
+    rest = segments.slice(3);
+  }
+
+  // .../u/<unitSlug>/<lessonSlug>
+  if (rest[0] === "u" && rest.length >= 3) {
     const lesson = await db.lesson.findFirst({
-      where: { slug: segments[3], unit: { slug: segments[2] } },
+      where: {
+        slug: rest[2],
+        unit: { slug: rest[1], course: { slug: courseSlug } },
+      },
       select: { id: true },
     });
     return {
@@ -65,14 +83,10 @@ export async function resolveFeedbackContext(
     };
   }
 
-  // /app/ejercicios/<slug>
-  if (
-    segments[0] === "app" &&
-    segments[1] === "ejercicios" &&
-    segments.length >= 3
-  ) {
-    const exercise = await db.practiceExercise.findUnique({
-      where: { slug: segments[2] },
+  // .../ejercicios/<slug>
+  if (rest[0] === "ejercicios" && rest.length >= 2) {
+    const exercise = await db.practiceExercise.findFirst({
+      where: { slug: rest[1], course: { slug: courseSlug } },
       select: { id: true },
     });
     return {
@@ -83,9 +97,5 @@ export async function resolveFeedbackContext(
     };
   }
 
-  if (segments[0] === "app") {
-    return { ...empty, surface: "app" };
-  }
-
-  return empty;
+  return { ...empty, surface: "app" };
 }

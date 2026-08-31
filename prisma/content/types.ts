@@ -3,10 +3,30 @@
 // Cambia, agrega o reordena lecciones aquí y luego ejecuta `npm run db:seed`.
 // =====================================================================
 
+import type {
+  ExecutionProfileId,
+  LanguageId,
+} from "../../src/lib/code-languages";
+
+export type { ExecutionProfileId, LanguageId };
+
+/**
+ * Un curso es la unidad de identidad del producto: define QUÉ se enseña y
+ * CON QUÉ se ejecuta. `language` y `executionProfile` no son decoración —
+ * son la fuente de verdad de la que todo lo demás (editor, compilador,
+ * diagnósticos, analytics) deriva. Nunca se infieren de un slug ni de un
+ * fence de markdown.
+ */
 export interface CourseDefinition {
   slug: string;
   title: string;
   description: string;
+  /** Materia académica tal como aparece en el plan de estudios. */
+  subjectName: string;
+  /** Contexto académico visible (programa, semestre, institución). */
+  academicContext: string;
+  language: LanguageId;
+  executionProfile: ExecutionProfileId;
   units: UnitDefinition[];
 }
 
@@ -49,8 +69,22 @@ export interface CodeExampleStep {
   type: "code_example";
   code: string;
   explanation: string;
+  /**
+   * `true` habilita el botón de ejecutar. Default `false`.
+   *
+   * Los ejemplos que NO se pueden ejecutar honestamente en el juez del
+   * navegador (Windows Forms, por ejemplo) DEBEN quedar en `false`: la UI
+   * no muestra control de ejecución y el servidor rechaza cualquier intento
+   * de ejecutarlos aunque llegue una petición forjada.
+   */
   runnable?: boolean;
   expectedOutput?: string;
+  /**
+   * Nota visible para ejemplos no ejecutables: explica dónde SÍ se corren
+   * (ej. "Requiere Visual Studio en Windows"). Sólo tiene sentido con
+   * `runnable: false`.
+   */
+  localOnlyNote?: string;
 }
 
 export interface QuizStep {
@@ -86,7 +120,8 @@ export interface FillBlankStep {
      * Índice de OTRO blank con el que este debe COINCIDIR exactamente. Permite
      * "cualquier nombre válido — pero el mismo en ambos lugares". Si se usa,
      * el `pattern` controla qué se considera "válido" (por defecto: identificador
-     * C++); el `answer` solo sirve para ejemplo/dimensionar el input.
+     * del lenguaje del curso); el `answer` solo sirve para ejemplo/dimensionar
+     * el input.
      */
     matchBlank?: number;
     /** Pista opcional */

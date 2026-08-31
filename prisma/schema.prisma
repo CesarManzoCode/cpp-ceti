@@ -21,44 +21,44 @@ datasource db {
 // =====================================================================
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  id            String   @id @default(cuid())
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   name          String
   /// Handle público estable (lowercase, [a-z0-9_], 3-20 chars). Identifica al usuario
   /// en URLs (`/app/perfil/<username>`) y para búsqueda de amigos. Inmutable después
   /// del primer set (no hay UI para cambiarlo; preserva enlaces de invitación).
-  username      String    @unique
+  username      String   @unique
   /// Bio opcional mostrada en el perfil público. Texto plano.
-  bio           String?   @db.VarChar(160)
+  bio           String?  @db.VarChar(160)
   image         String?
   /// Rol de producto. `admin` habilita /app/admin (analytics + triage de
   /// reportes). La autorización SIEMPRE se resuelve leyendo esta columna en
   /// el servidor (`requireAdmin`), nunca desde el payload de la sesión.
-  role          UserRole  @default(student)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole @default(student)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relaciones de auth
   sessions Session[]
   accounts Account[]
 
   // Relaciones de progreso
-  courseProgress       UserCourseProgress[]
-  lessonProgress       UserLessonProgress[]
-  stepProgress         UserStepProgress[]
-  exerciseAttempts     UserExerciseAttempt[]
-  exerciseCompletions  UserExerciseCompletion[]
-  practiceAttempts     UserPracticeAttempt[]
-  practiceCompletions  UserPracticeCompletion[]
-  hintsViewed          UserHintViewed[]
-  studySessions        StudySession[]
-  bugReports           BugReport[]              @relation("BugReportAuthor")
-  handledBugReports    BugReport[]              @relation("BugReportHandler")
-  feedback             Feedback[]               @relation("FeedbackAuthor")
-  handledFeedback      Feedback[]               @relation("FeedbackHandler")
-  productEvents        ProductEvent[]
-  streak               UserStreak?
+  courseProgress      UserCourseProgress[]
+  lessonProgress      UserLessonProgress[]
+  stepProgress        UserStepProgress[]
+  exerciseAttempts    UserExerciseAttempt[]
+  exerciseCompletions UserExerciseCompletion[]
+  practiceAttempts    UserPracticeAttempt[]
+  practiceCompletions UserPracticeCompletion[]
+  hintsViewed         UserHintViewed[]
+  studySessions       StudySession[]
+  bugReports          BugReport[]              @relation("BugReportAuthor")
+  handledBugReports   BugReport[]              @relation("BugReportHandler")
+  feedback            Feedback[]               @relation("FeedbackAuthor")
+  handledFeedback     Feedback[]               @relation("FeedbackHandler")
+  productEvents       ProductEvent[]
+  streak              UserStreak?
 
   // Relaciones sociales
   friendshipsSent     Friendship[] @relation("FriendshipRequester")
@@ -127,37 +127,59 @@ model Verification {
 //  CONTENIDO: Curso > Unidad > Lección > Paso
 // =====================================================================
 
-model Course {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String
-  order       Int      @default(0)
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+/// Lenguajes de programación soportados por la plataforma. Es un enum porque
+/// el conjunto lo controla la operación, no el usuario: agregar uno exige
+/// migración, contenido, capacidad del proveedor y diagnósticos.
+enum ProgrammingLanguage {
+  cpp
+  csharp
+}
 
-  units    Unit[]
-  progress UserCourseProgress[]
+model Course {
+  id               String              @id @default(cuid())
+  slug             String              @unique
+  title            String
+  description      String
+  /// Materia académica tal como aparece en el plan de estudios del CETI.
+  subjectName      String
+  /// Contexto académico visible (programa, semestre, horas).
+  academicContext  String
+  /// Lenguaje del curso. FUENTE DE VERDAD del editor, los fences, los
+  /// diagnósticos y el agrupamiento de analytics. Nunca se infiere del slug.
+  language         ProgrammingLanguage
+  /// Perfil de ejecución (lenguaje + toolchain + versión) con el que se
+  /// compila y califica TODO recurso de este curso. El servidor lo deriva del
+  /// curso del recurso; el cliente jamás lo elige. Validado contra
+  /// `src/lib/code-languages` en el seed y al resolver cada ejecución.
+  executionProfile String
+  order            Int                 @default(0)
+  published        Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  units             Unit[]
+  progress          UserCourseProgress[]
+  practiceExercises PracticeExercise[]
 
   @@map("course")
 }
 
 model Unit {
-  id            String   @id @default(cuid())
-  courseId      String
-  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  slug          String
-  title         String
-  description   String
-  order         Int      @default(0)
-  icon          String? // emoji o nombre de icono lucide
-  colorAccent   String? // hex opcional para card de la unidad
-  published     Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(cuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  description String
+  order       Int      @default(0)
+  icon        String? // emoji o nombre de icono lucide
+  colorAccent String? // hex opcional para card de la unidad
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  lessons Lesson[]
+  lessons           Lesson[]
+  practiceExercises PracticeExercise[]
 
   @@unique([courseId, slug])
   @@index([courseId, order])
@@ -165,23 +187,23 @@ model Unit {
 }
 
 model Lesson {
-  id               String   @id @default(cuid())
-  unitId           String
-  unit             Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  slug             String
-  title            String
-  description      String
-  order            Int      @default(0)
-  xpReward         Int      @default(20)
-  estimatedMinutes Int      @default(5)
-  published        Boolean  @default(true)
+  id                String    @id @default(cuid())
+  unitId            String
+  unit              Unit      @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  slug              String
+  title             String
+  description       String
+  order             Int       @default(0)
+  xpReward          Int       @default(20)
+  estimatedMinutes  Int       @default(5)
+  published         Boolean   @default(true)
   /// Hash corto derivado de las revisiones de sus pasos: cambia cuando cambia
   /// CUALQUIER paso de la lección. Permite comparar funnels antes/después de
   /// una reescritura. Lo escribe el seed.
   contentRevision   String?
   contentRevisionAt DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   steps         LessonStep[]
   progress      UserLessonProgress[]
@@ -203,14 +225,14 @@ model Lesson {
 //  - fill_blank    — { template: string, blanks: {answer, hint?}[] }
 //  - code_challenge — referencia a un Exercise
 model LessonStep {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   lessonId  String
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson    Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   order     Int
   type      LessonStepType
   content   Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   /// Hash corto del contenido pedagógico vigente (ver `src/lib/content-revision.ts`).
   /// Lo escribe el seed. Los eventos y los intentos guardan la revisión que el
@@ -239,27 +261,27 @@ enum LessonStepType {
 }
 
 model Exercise {
-  id               String      @id @default(cuid())
-  stepId           String      @unique
-  step             LessonStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
-  prompt           String      // descripción del reto en MD
-  starterCode      String      // código pre-cargado en el editor
-  solutionCode     String      // referencia (no se muestra al user)
-  hints            String[]    // pistas progresivas
-  difficulty       Difficulty  @default(easy)
-  xpReward         Int         @default(15)
-  testCases        TestCase[]
-  attempts         UserExerciseAttempt[]
-  completions      UserExerciseCompletion[]
-  hintsViewed      UserHintViewed[]
-  bugReports       BugReport[]
-  productEvents    ProductEvent[]
+  id                String                   @id @default(cuid())
+  stepId            String                   @unique
+  step              LessonStep               @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  prompt            String // descripción del reto en MD
+  starterCode       String // código pre-cargado en el editor
+  solutionCode      String // referencia (no se muestra al user)
+  hints             String[] // pistas progresivas
+  difficulty        Difficulty               @default(easy)
+  xpReward          Int                      @default(15)
+  testCases         TestCase[]
+  attempts          UserExerciseAttempt[]
+  completions       UserExerciseCompletion[]
+  hintsViewed       UserHintViewed[]
+  bugReports        BugReport[]
+  productEvents     ProductEvent[]
   /// Hash corto del contenido vigente (prompt + starter + solución + hints +
   /// tests). Lo escribe el seed; ver `src/lib/content-revision.ts`.
   contentRevision   String?
   contentRevisionAt DateTime?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
 
   @@map("exercise")
 }
@@ -271,17 +293,17 @@ enum Difficulty {
 }
 
 model TestCase {
-  id          String   @id @default(cuid())
-  exerciseId  String
-  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  exerciseId     String
+  exercise       Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   // stdin que se enviará al programa; "" si el ejercicio no lee entrada
-  stdin       String   @default("")
+  stdin          String   @default("")
   // stdout esperado; comparación por strip(==) por defecto
   expectedStdout String
   // Si true, el test se ve en la UI antes de enviar (visible). Si false, oculto.
-  visible     Boolean  @default(true)
-  description String?
-  order       Int      @default(0)
+  visible        Boolean  @default(true)
+  description    String?
+  order          Int      @default(0)
 
   @@index([exerciseId, order])
   @@map("test_case")
@@ -305,14 +327,14 @@ model UserCourseProgress {
 }
 
 model UserLessonProgress {
-  id          String                @id @default(cuid())
+  id          String               @id @default(cuid())
   userId      String
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   lessonId    String
-  lesson      Lesson                @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  status      LessonProgressStatus  @default(in_progress)
-  xpEarned    Int                   @default(0)
-  startedAt   DateTime              @default(now())
+  lesson      Lesson               @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status      LessonProgressStatus @default(in_progress)
+  xpEarned    Int                  @default(0)
+  startedAt   DateTime             @default(now())
   completedAt DateTime?
 
   @@unique([userId, lessonId])
@@ -329,42 +351,44 @@ enum LessonProgressStatus {
 }
 
 model UserStepProgress {
-  id          String     @id @default(cuid())
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stepId      String
-  step        LessonStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
-  completedAt DateTime   @default(now())
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stepId          String
+  step            LessonStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  completedAt     DateTime   @default(now())
   /// ⚠️ NO es "intentos del estudiante". Cuenta cuántas veces `completeStep`
   /// marcó este paso (avanzar, volver atrás y volver a avanzar lo incrementa).
   /// Los intentos pedagógicos reales viven en `ProductEvent.lesson_step_attempt`
   /// (steps interactivos) y en `UserExerciseAttempt` (retos de código).
-  completionCount Int     @default(1)
+  completionCount Int        @default(1)
 
   @@unique([userId, stepId])
   @@map("user_step_progress")
 }
 
 model UserExerciseAttempt {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exerciseId   String
-  exercise     Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  code         String
-  passed       Boolean
-  feedback     String?  // resumen del por qué pasó o falló
-  testsPassed  Int      @default(0)
-  testsTotal   Int      @default(0)
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId      String
+  exercise        Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  code            String
+  passed          Boolean
+  feedback        String? // resumen del por qué pasó o falló
+  testsPassed     Int      @default(0)
+  testsTotal      Int      @default(0)
   /// ⚠️ LATENCIA DEL EJECUTOR (compilar + correr todos los tests), en ms.
   /// NO es el tiempo que el alumno tardó en resolver. Para tiempo de estudio
   /// usa `StudySession.engagedMs`. Ver `docs/product-analytics.md`.
-  durationMs   Int?
+  durationMs      Int?
   /// Revisión del contenido del ejercicio en el momento del envío.
   contentRevision String?
-  /** True solo en el primer intento que aprobó (consistente con UserExerciseCompletion). */
-  awardedXp    Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  /**
+   * True solo en el primer intento que aprobó (consistente con UserExerciseCompletion).
+   */
+  awardedXp       Boolean  @default(false)
+  createdAt       DateTime @default(now())
 
   @@index([userId, exerciseId, createdAt])
   /// Analytics por ventana temporal (el índice de arriba guía por userId
@@ -402,11 +426,21 @@ model UserExerciseCompletion {
 
 model PracticeExercise {
   id           String     @id @default(cuid())
-  unitSlug     String     // contexto pedagógico: "primer-programa", "arreglos", etc.
-  slug         String     @unique
+  /// Curso dueño del ejercicio. Sin él, dos cursos con una unidad llamada
+  /// igual colisionarían y un intento podría colgarse del ejercicio de otro
+  /// curso. Se derivó por backfill al curso C++ existente en la migración
+  /// `add_course_language`.
+  courseId     String
+  course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  unitSlug     String // contexto pedagógico: "primer-programa", "arreglos", etc.
+  /// Unidad dueña, resuelta por (curso, slug de unidad). La relación compuesta
+  /// hace imposible apuntar a la unidad de otro curso.
+  unit         Unit       @relation(fields: [courseId, unitSlug], references: [courseId, slug], onDelete: Cascade)
+  /// Único DENTRO del curso: `arreglos-suma` puede existir en C++ y en C#.
+  slug         String
   title        String
   description  String
-  prompt       String     // markdown
+  prompt       String // markdown
   starterCode  String
   solutionCode String
   hints        String[]
@@ -429,6 +463,8 @@ model PracticeExercise {
   feedback      Feedback[]
   productEvents ProductEvent[]
 
+  @@unique([courseId, slug])
+  @@index([courseId, unitSlug, position])
   @@index([unitSlug, position])
   @@map("practice_exercise")
 }
@@ -448,23 +484,25 @@ model PracticeTestCase {
 }
 
 model UserPracticeAttempt {
-  id          String           @id @default(cuid())
-  userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exerciseId  String
-  exercise    PracticeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  code        String
-  passed      Boolean
-  feedback    String?
-  testsPassed Int              @default(0)
-  testsTotal  Int              @default(0)
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId      String
+  exercise        PracticeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  code            String
+  passed          Boolean
+  feedback        String?
+  testsPassed     Int              @default(0)
+  testsTotal      Int              @default(0)
   /// ⚠️ LATENCIA DEL EJECUTOR, no tiempo de resolución. Ver `UserExerciseAttempt.durationMs`.
-  durationMs  Int?
+  durationMs      Int?
   /// Revisión del contenido del ejercicio en el momento del envío.
   contentRevision String?
-  /** True solo en el primer intento que aprobó (consistente con UserPracticeCompletion). */
-  awardedXp   Boolean          @default(false)
-  createdAt   DateTime         @default(now())
+  /**
+   * True solo en el primer intento que aprobó (consistente con UserPracticeCompletion).
+   */
+  awardedXp       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
 
   @@index([userId, exerciseId, createdAt])
   /// Analytics por ventana temporal. Ver `UserExerciseAttempt`.
@@ -490,14 +528,14 @@ model UserPracticeCompletion {
 }
 
 model UserStreak {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentStreak   Int      @default(0)
-  longestStreak   Int      @default(0)
-  lastActiveDate  DateTime?
-  totalXp         Int      @default(0)
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+  totalXp        Int       @default(0)
+  updatedAt      DateTime  @updatedAt
 
   @@map("user_streak")
 }
@@ -523,12 +561,16 @@ model UserStreak {
 //   · El reloj SIEMPRE es del servidor (`now()`); el cliente nunca manda
 //     duraciones.
 model StudySession {
-  id          String   @id @default(cuid())
+  id          String                 @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  /** "lesson" | "practice". */
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /**
+   * "lesson" | "practice".
+   */
   surface     String
-  /** Referencia opcional al recurso (lessonId, practiceExerciseId, etc.). */
+  /**
+   * Referencia opcional al recurso (lessonId, practiceExerciseId, etc.).
+   */
   resourceId  String?
   /**
    * Clave de idempotencia generada por el cliente (una por montaje del
@@ -536,13 +578,17 @@ model StudySession {
    * un reintento de red o un doble click NO creen dos sesiones.
    */
   clientKey   String?
-  startedAt   DateTime @default(now())
+  startedAt   DateTime               @default(now())
   endedAt     DateTime?
   endedReason StudySessionEndReason?
-  /** Última señal de actividad; también es el cierre efectivo de una huérfana. */
-  lastPingAt  DateTime @default(now())
-  /** Tiempo activo aproximado acumulado, en ms. Ver nota de semántica arriba. */
-  engagedMs   Int      @default(0)
+  /**
+   * Última señal de actividad; también es el cierre efectivo de una huérfana.
+   */
+  lastPingAt  DateTime               @default(now())
+  /**
+   * Tiempo activo aproximado acumulado, en ms. Ver nota de semántica arriba.
+   */
+  engagedMs   Int                    @default(0)
 
   hintsViewed   UserHintViewed[]
   productEvents ProductEvent[]
@@ -556,9 +602,13 @@ model StudySession {
 }
 
 enum StudySessionEndReason {
-  /** El cliente avisó que se iba (unmount, pagehide, navegación). */
+  /**
+   * El cliente avisó que se iba (unmount, pagehide, navegación).
+   */
   closed
-  /** Nadie avisó: el barrido la cerró por falta de heartbeats. */
+  /**
+   * Nadie avisó: el barrido la cerró por falta de heartbeats.
+   */
   expired
 }
 
@@ -569,15 +619,21 @@ model UserHintViewed {
   userId             String
   user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   hintIndex          Int
-  /** Solo uno de {exerciseId, practiceExerciseId} debe estar presente. */
+  /**
+   * Solo uno de {exerciseId, practiceExerciseId} debe estar presente.
+   */
   exerciseId         String?
   exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   practiceExerciseId String?
   practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: Cascade)
-  /** Sesión de estudio en la que se reveló (para reconstruir la línea de tiempo). */
+  /**
+   * Sesión de estudio en la que se reveló (para reconstruir la línea de tiempo).
+   */
   studySessionId     String?
   studySession       StudySession?     @relation(fields: [studySessionId], references: [id], onDelete: SetNull)
-  /** Revisión del contenido del ejercicio cuando se reveló la pista. */
+  /**
+   * Revisión del contenido del ejercicio cuando se reveló la pista.
+   */
   contentRevision    String?
   viewedAt           DateTime          @default(now())
 
@@ -595,7 +651,9 @@ model BugReport {
   id                 String            @id @default(cuid())
   userId             String
   user               User              @relation("BugReportAuthor", fields: [userId], references: [id], onDelete: Cascade)
-  /** Solo uno de los tres debe estar presente — se valida vía CHECK constraint. */
+  /**
+   * Solo uno de los tres debe estar presente — se valida vía CHECK constraint.
+   */
   lessonStepId       String?
   lessonStep         LessonStep?       @relation(fields: [lessonStepId], references: [id], onDelete: SetNull)
   exerciseId         String?
@@ -604,15 +662,23 @@ model BugReport {
   practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
   message            String
   status             ReportStatus      @default(open)
-  /** Evidencia del cierre: por qué se resolvió/descartó. */
+  /**
+   * Evidencia del cierre: por qué se resolvió/descartó.
+   */
   resolutionNote     String?
-  /** Issue de GitHub asociado (URL completa). */
+  /**
+   * Issue de GitHub asociado (URL completa).
+   */
   issueUrl           String?
-  /** PR que implementó el cambio (URL completa). */
+  /**
+   * PR que implementó el cambio (URL completa).
+   */
   prUrl              String?
   triagedAt          DateTime?
   resolvedAt         DateTime?
-  /** Admin que movió el reporte por última vez. */
+  /**
+   * Admin que movió el reporte por última vez.
+   */
   handledById        String?
   handledBy          User?             @relation("BugReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
   createdAt          DateTime          @default(now())
@@ -646,7 +712,9 @@ model Feedback {
   user               User              @relation("FeedbackAuthor", fields: [userId], references: [id], onDelete: Cascade)
   kind               FeedbackKind
   message            String
-  /** Ruta de la app donde se abrió el widget, SIN query string ni fragmento. */
+  /**
+   * Ruta de la app donde se abrió el widget, SIN query string ni fragmento.
+   */
   path               String?
   surface            ProductSurface?
   lessonId           String?
@@ -670,11 +738,17 @@ model Feedback {
 }
 
 enum FeedbackKind {
-  /** "no entendí esto" */
+  /**
+   * "no entendí esto"
+   */
   confusing
-  /** sugerencia / idea */
+  /**
+   * sugerencia / idea
+   */
   idea
-  /** algo que le gustó */
+  /**
+   * algo que le gustó
+   */
   praise
   other
 }
@@ -700,7 +774,9 @@ model ProductEvent {
   user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   name               ProductEventName
   surface            ProductSurface
-  /** Recursos: FK reales (integridad referencial), nunca un id suelto. */
+  /**
+   * Recursos: FK reales (integridad referencial), nunca un id suelto.
+   */
   lessonId           String?
   lesson             Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   lessonStepId       String?
@@ -711,11 +787,17 @@ model ProductEvent {
   practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
   studySessionId     String?
   studySession       StudySession?     @relation(fields: [studySessionId], references: [id], onDelete: SetNull)
-  /** Revisión del contenido que el usuario tenía enfrente. */
+  /**
+   * Revisión del contenido que el usuario tenía enfrente.
+   */
   contentRevision    String?
-  /** Clave de idempotencia (null = evento sin dedupe). */
+  /**
+   * Clave de idempotencia (null = evento sin dedupe).
+   */
   dedupeKey          String?
-  /** Hora del servidor. Fuente autoritativa. */
+  /**
+   * Hora del servidor. Fuente autoritativa.
+   */
   occurredAt         DateTime          @default(now())
   props              Json              @default("{}")
 
@@ -730,21 +812,37 @@ model ProductEvent {
 }
 
 enum ProductEventName {
-  /** Abrió el reproductor de una lección. */
+  /**
+   * Abrió el reproductor de una lección.
+   */
   lesson_view
-  /** Primera interacción real dentro de la lección (no sólo abrirla). */
+  /**
+   * Primera interacción real dentro de la lección (no sólo abrirla).
+   */
   lesson_engaged
-  /** Llegó a un paso concreto de la lección. */
+  /**
+   * Llegó a un paso concreto de la lección.
+   */
   lesson_step_view
-  /** Intento pedagógico en un paso interactivo (quiz, fill_blank, ...). */
+  /**
+   * Intento pedagógico en un paso interactivo (quiz, fill_blank, ...).
+   */
   lesson_step_attempt
-  /** Pidió ver la respuesta/solución de un paso. */
+  /**
+   * Pidió ver la respuesta/solución de un paso.
+   */
   lesson_step_answer_revealed
-  /** Abrió un ejercicio de práctica. */
+  /**
+   * Abrió un ejercicio de práctica.
+   */
   practice_view
-  /** Primera interacción real en el ejercicio de práctica. */
+  /**
+   * Primera interacción real en el ejercicio de práctica.
+   */
   practice_engaged
-  /** Compiló/ejecutó en el playground SIN calificar. Lo emite el servidor. */
+  /**
+   * Compiló/ejecutó en el playground SIN calificar. Lo emite el servidor.
+   */
   code_run
 }
 
@@ -763,12 +861,14 @@ enum ProductSurface {
 //  temporales defendibles (y no mezcla intentos de dos redacciones distintas).
 //  Lo escribe el seed. No es un CMS: no versiona el contenido, sólo el hash.
 model ContentRevision {
-  id         String            @id @default(cuid())
-  targetType ContentTargetType
-  targetId   String
-  /** Hash corto (sha256 truncado) del contenido. */
-  revision   String
-  firstSeenAt DateTime         @default(now())
+  id          String            @id @default(cuid())
+  targetType  ContentTargetType
+  targetId    String
+  /**
+   * Hash corto (sha256 truncado) del contenido.
+   */
+  revision    String
+  firstSeenAt DateTime          @default(now())
 
   @@unique([targetType, targetId, revision])
   @@index([targetType, targetId, firstSeenAt])
@@ -836,7 +936,7 @@ enum FriendStatus {
 model RateLimit {
   id          String   @id @default(cuid())
   userId      String
-  endpoint    String   // "run" | "submit-lesson-exercise" | "submit-practice"
+  endpoint    String // "run" | "submit-lesson-exercise" | "submit-practice"
   windowStart DateTime // truncado al inicio de la ventana (minuto)
   count       Int      @default(1)
 

@@ -12,7 +12,7 @@ export default function RegisterPage() {
       <div>
         <p className="label-micro text-muted-foreground">Crear cuenta</p>
         <h1 className="mt-3 text-[26px] font-semibold leading-tight tracking-[-0.025em] sm:text-[30px]">
-          Empieza a escribir C++
+          Empieza a escribir código
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Toma menos de un minuto. Sin tarjeta.

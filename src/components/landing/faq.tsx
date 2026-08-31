@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "¿Es un curso oficial del CETI?",
-    a: "No. Es un proyecto independiente hecho por estudiantes, basado en el temario público de la materia de C++. La escuela no está involucrada.",
+    a: "No. Es un proyecto independiente hecho por estudiantes, basado en los temarios públicos de las materias. La escuela no está involucrada.",
   },
   {
     q: "¿Voy a aprobar la materia si lo uso?",

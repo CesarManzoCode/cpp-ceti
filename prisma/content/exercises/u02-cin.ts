@@ -17,6 +17,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo `#include` y `using namespace std;`
  */
 export const u02CinExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "leer-datos",
   unitTitle: "Leer datos del usuario con cin",
   unitIcon: "⌨️",

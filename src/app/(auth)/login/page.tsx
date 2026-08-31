@@ -18,7 +18,7 @@ export default function LoginPage() {
           Bienvenido de nuevo
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Continúa aprendiendo C++ donde lo dejaste.
+          Continúa tu curso donde lo dejaste.
         </p>
       </div>
 

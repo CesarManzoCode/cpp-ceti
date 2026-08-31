@@ -7,6 +7,8 @@ import { TopbarLocation } from "@/components/layout/topbar-location";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 export interface TopbarProps {
+  /** Curso seleccionado; `null` mientras no haya selección válida. */
+  courseSlug: string | null;
   user: { name: string; email: string; image?: string | null; username: string };
   totalXp: number;
   streak: number;
@@ -21,6 +23,7 @@ export interface TopbarProps {
  * mi cuenta. Las medidas son fichas pequeñas — apoyan, no gobiernan.
  */
 export function Topbar({
+  courseSlug,
   user,
   totalXp,
   streak,
@@ -61,6 +64,7 @@ export function Topbar({
       <div className="ml-1 flex items-center gap-0.5 sm:ml-2">
         <ThemeToggle />
         <UserMenu
+          courseSlug={courseSlug}
           user={user}
           pendingFriendsCount={pendingFriendsCount}
           isAdmin={isAdmin}

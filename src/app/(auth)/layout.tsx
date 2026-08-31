@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
+import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 
 /**
  * Registro / inicio de sesión. El panel izquierdo no vende: recuerda qué
@@ -31,7 +32,7 @@ export default function AuthLayout({
             Programar se aprende programando.
           </p>
           <p className="mt-4 max-w-[44ch] text-[15px] leading-relaxed text-muted-foreground">
-            Lecciones cortas, ejercicios reales y un compilador de C++ en tu
+            Lecciones cortas, ejercicios reales y un compilador dentro de tu
             navegador. Hecho para estudiantes del CETI Guadalajara.
           </p>
 
@@ -57,7 +58,7 @@ export default function AuthLayout({
         </div>
 
         <p className="text-[13px] font-medium text-muted-foreground">
-          Proyecto independiente · No oficial del CETI
+          {UNOFFICIAL_NOTICE}
         </p>
       </aside>
 

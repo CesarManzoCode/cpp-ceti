@@ -6,6 +6,7 @@ import {
   STDIN_MAX_LENGTH,
   codeSubmissionSchema,
   parseOrThrow,
+  rejectCompilerFields,
   runCodeSchema,
   sourceCodeSchema,
   stdinSchema,
@@ -115,9 +116,14 @@ describe("stepCompletionSchema", () => {
   });
 });
 
-describe("runCodeSchema", () => {
+describe("runCodeSchema (frontera de confianza de una ejecución)", () => {
+  const target = { practiceExerciseId: "p1" };
+
   it("default stdin a empty string", () => {
-    const result = runCodeSchema.safeParse({ sourceCode: "int main(){}" });
+    const result = runCodeSchema.safeParse({
+      sourceCode: "int main(){}",
+      target,
+    });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.stdin).toBe("");
   });
@@ -125,37 +131,89 @@ describe("runCodeSchema", () => {
   it("rechaza stdin enorme aun con sourceCode válido", () => {
     const result = runCodeSchema.safeParse({
       sourceCode: "int main(){}",
+      target,
       stdin: "x".repeat(STDIN_MAX_LENGTH + 1),
     });
     expect(result.success).toBe(false);
   });
-});
 
-describe("runContextSchema (contexto de una ejecución sin calificar)", () => {
-  const base = { surface: "practice" as const };
+  it("sin recurso no hay ejecución: el compilador no se podría derivar", () => {
+    const missing = runCodeSchema.safeParse({ sourceCode: "int main(){}" });
+    expect(missing.success).toBe(false);
+    // El mensaje explica por qué, en vez de filtrar el de Zod.
+    expect(missing.error?.issues[0]?.message).toMatch(/nombrar el recurso/i);
+    expect(
+      runCodeSchema.safeParse({ sourceCode: "int main(){}", target: {} })
+        .success,
+    ).toBe(false);
+  });
 
-  it("acepta un contexto con un solo ejercicio", () => {
+  it("acepta exactamente un recurso", () => {
+    for (const only of [
+      { stepId: "s1" },
+      { exerciseId: "e1" },
+      { practiceExerciseId: "p1" },
+    ]) {
+      expect(
+        runCodeSchema.safeParse({ sourceCode: "int main(){}", target: only })
+          .success,
+      ).toBe(true);
+    }
+  });
+
+  it("rechaza dos recursos a la vez", () => {
+    // Si pasara, el servidor tendría que elegir uno — y con él, un curso y
+    // un compilador. Ambigüedad = petición inválida.
     expect(
       runCodeSchema.safeParse({
         sourceCode: "int main(){}",
-        context: { ...base, practiceExerciseId: "p1" },
+        target: { exerciseId: "e1", practiceExerciseId: "p1" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("lessonId acompaña al recurso para verificación cruzada", () => {
+    expect(
+      runCodeSchema.safeParse({
+        sourceCode: "int main(){}",
+        target: { stepId: "s1", lessonId: "l1" },
       }).success,
     ).toBe(true);
   });
+});
 
-  it("rechaza un run atribuido a dos ejercicios a la vez", () => {
-    // Si pasara, `getRunReport` contaría el mismo run en el reporte de
-    // lección y en el de práctica.
-    const parsed = runCodeSchema.safeParse({
-      sourceCode: "int main(){}",
-      context: { ...base, exerciseId: "e1", practiceExerciseId: "p1" },
-    });
-    expect(parsed.success).toBe(false);
+describe("rejectCompilerFields", () => {
+  it("rechaza un lenguaje forjado en el cuerpo", () => {
+    expect(() =>
+      rejectCompilerFields({
+        sourceCode: "using System;",
+        language: "cpp",
+        target: { practiceExerciseId: "p1" },
+      }),
+    ).toThrow(/no se acepta/i);
   });
 
-  it("el contexto es opcional: sin él la ejecución sigue siendo válida", () => {
-    expect(
-      runCodeSchema.safeParse({ sourceCode: "int main(){}" }).success,
-    ).toBe(true);
+  it("rechaza un perfil de ejecución forjado, también dentro del target", () => {
+    for (const body of [
+      { profileId: "cpp17-wandbox" },
+      { executionProfile: "cpp17-wandbox" },
+      { compiler: "gcc-13.2.0" },
+      { compilerOptions: "-std=c++17" },
+      { languageId: 54 },
+      { target: { practiceExerciseId: "p1", profileId: "cpp17-wandbox" } },
+    ]) {
+      expect(() => rejectCompilerFields(body)).toThrow();
+    }
+  });
+
+  it("un cuerpo legítimo pasa sin ruido", () => {
+    expect(() =>
+      rejectCompilerFields({
+        sourceCode: "using System;",
+        stdin: "",
+        target: { practiceExerciseId: "p1" },
+        studySessionId: "ss1",
+      }),
+    ).not.toThrow();
   });
 });

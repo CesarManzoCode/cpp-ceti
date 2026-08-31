@@ -1,5 +1,11 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 
+import { assertLanguagePair } from "../src/lib/code-languages";
+import type {
+  ExecutionProfileId,
+  LanguageId,
+} from "../src/lib/code-languages";
+
 import { allCourses } from "./content";
 import { contentRevision, trackRevision } from "./seed-revisions";
 import type {
@@ -9,30 +15,75 @@ import type {
   UnitDefinition,
 } from "./content/types";
 
+/**
+ * Semántica de ejecución del curso. Entra en el preimage de TODAS las
+ * revisiones de contenido: un mismo enunciado compilado con otro toolchain
+ * no es el mismo ejercicio para efectos de comparación antes/después.
+ */
+export interface CourseRuntime {
+  language: LanguageId;
+  executionProfile: ExecutionProfileId;
+}
+
 export async function seedCourse(db: PrismaClient) {
-  for (const course of allCourses) {
-    await upsertCourse(db, course);
+  assertUniqueCourseSlugs();
+  for (let i = 0; i < allCourses.length; i++) {
+    await upsertCourse(db, allCourses[i], i);
   }
 }
 
-async function upsertCourse(db: PrismaClient, course: CourseDefinition) {
+/** Dos cursos con el mismo slug se pisarían mutuamente al hacer upsert. */
+function assertUniqueCourseSlugs() {
+  const seen = new Set<string>();
+  for (const course of allCourses) {
+    if (seen.has(course.slug)) {
+      throw new Error(`Slug de curso duplicado: "${course.slug}"`);
+    }
+    seen.add(course.slug);
+  }
+}
+
+async function upsertCourse(
+  db: PrismaClient,
+  course: CourseDefinition,
+  order: number,
+) {
   console.log(`📚 Curso: ${course.title}`);
+
+  // Falla cerrado: un par (lenguaje, perfil) inválido no debe llegar nunca a
+  // la base. Si llega, todo el contenido del curso quedaría sin compilador
+  // resoluble en runtime.
+  const runtime = assertLanguagePair(
+    course.language,
+    course.executionProfile,
+    `curso "${course.slug}"`,
+  );
+
   const dbCourse = await db.course.upsert({
     where: { slug: course.slug },
     update: {
       title: course.title,
       description: course.description,
+      subjectName: course.subjectName,
+      academicContext: course.academicContext,
+      language: runtime.language,
+      executionProfile: runtime.executionProfile,
+      order,
     },
     create: {
       slug: course.slug,
       title: course.title,
       description: course.description,
-      order: 0,
+      subjectName: course.subjectName,
+      academicContext: course.academicContext,
+      language: runtime.language,
+      executionProfile: runtime.executionProfile,
+      order,
     },
   });
 
   for (let i = 0; i < course.units.length; i++) {
-    await upsertUnit(db, dbCourse.id, course.units[i], i);
+    await upsertUnit(db, dbCourse.id, course.units[i], i, runtime);
   }
 }
 
@@ -41,6 +92,7 @@ async function upsertUnit(
   courseId: string,
   unit: UnitDefinition,
   index: number,
+  runtime: CourseRuntime,
 ) {
   console.log(`  📦 Unidad: ${unit.title}`);
   const dbUnit = await db.unit.upsert({
@@ -66,7 +118,7 @@ async function upsertUnit(
   });
 
   for (let i = 0; i < unit.lessons.length; i++) {
-    await upsertLesson(db, dbUnit.id, unit.lessons[i], i);
+    await upsertLesson(db, dbUnit.id, unit.lessons[i], i, runtime);
   }
 }
 
@@ -75,6 +127,7 @@ async function upsertLesson(
   unitId: string,
   lesson: LessonDefinition,
   index: number,
+  runtime: CourseRuntime,
 ) {
   console.log(`    📖 Lección ${index + 1}: ${lesson.title}`);
   const dbLesson = await db.lesson.upsert({
@@ -104,7 +157,9 @@ async function upsertLesson(
   // Cambiar texto, hints o test cases NO resetea el progreso del usuario.
   const stepRevisions: string[] = [];
   for (let i = 0; i < lesson.steps.length; i++) {
-    stepRevisions.push(await upsertStep(db, dbLesson.id, lesson.steps[i], i));
+    stepRevisions.push(
+      await upsertStep(db, dbLesson.id, lesson.steps[i], i, runtime),
+    );
   }
 
   // Si una lección se acortó (menos pasos que antes), purgar los sobrantes.
@@ -136,6 +191,7 @@ async function upsertStep(
   lessonId: string,
   step: StepDefinition,
   index: number,
+  runtime: CourseRuntime,
 ): Promise<string> {
   const content = buildStepContent(step);
   const order = index + 1;
@@ -154,7 +210,9 @@ async function upsertStep(
     },
   });
 
-  const baseRevision = contentRevision({ type: step.type, content });
+  // El runtime entra en el preimage: el mismo paso compilado con otro perfil
+  // NO es el mismo paso para un análisis antes/después.
+  const baseRevision = contentRevision({ type: step.type, content, runtime });
 
   if (step.type !== "code_challenge") {
     await saveStepRevision(db, dbStep.id, dbStep.contentRevision, baseRevision);
@@ -204,6 +262,7 @@ async function upsertStep(
   // cambia el ejercicio para efectos de comparación, aunque el enunciado no
   // se haya tocado.
   const exerciseRevision = contentRevision({
+    runtime,
     prompt: ex.prompt,
     starterCode: ex.starterCode,
     solutionCode: ex.solutionCode,
@@ -271,6 +330,7 @@ function buildStepContent(step: StepDefinition): Record<string, unknown> {
         explanation: step.explanation,
         runnable: step.runnable ?? false,
         ...(step.expectedOutput ? { expectedOutput: step.expectedOutput } : {}),
+        ...(step.localOnlyNote ? { localOnlyNote: step.localOnlyNote } : {}),
       };
     case "quiz":
       return {

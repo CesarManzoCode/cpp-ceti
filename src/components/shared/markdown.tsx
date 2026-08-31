@@ -4,11 +4,18 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { CodeBlock } from "@/components/shared/code-block";
+import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
 interface MarkdownProps {
   children: string;
   className?: string;
+  /**
+   * Lenguaje del recurso (el del curso). Sólo decide cómo se resalta un
+   * bloque SIN fence: un fence explícito siempre manda. Sin esto, un bloque
+   * sin etiqueta en una lección de C# se pintaría como C++.
+   */
+  language?: LanguageId;
 }
 
 /** Extrae el texto plano de los hijos de un nodo de markdown. */
@@ -32,7 +39,7 @@ function toText(node: React.ReactNode): string {
  * se apoya en su propia superficie oscura, así que en ningún momento
  * se confunde una explicación con un programa.
  */
-export function Markdown({ children, className }: MarkdownProps) {
+export function Markdown({ children, className, language }: MarkdownProps) {
   return (
     <div
       className={cn(
@@ -128,8 +135,14 @@ export function Markdown({ children, className }: MarkdownProps) {
                 ? ((child as { props?: { className?: string } }).props
                     ?.className ?? "")
                 : "";
-            const language = /language-([\w+]+)/.exec(cls)?.[1];
-            return <CodeBlock code={text} language={language} />;
+            const fence = /language-([\w+#-]+)/.exec(cls)?.[1];
+            return (
+              <CodeBlock
+                code={text}
+                language={fence}
+                defaultLanguage={language}
+              />
+            );
           },
           table: ({ children }) => (
             <div className="my-7 w-full overflow-x-auto rounded-[var(--radius-lg)] border border-border">

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   canonicalizeCpp,
   isBlankCorrect,
-} from "@/features/lessons/lib/cpp-validation";
+} from "@/features/lessons/lib/code-validation";
 import type { FillBlankStepContent } from "@/features/lessons/types";
 
 type Blank = FillBlankStepContent["blanks"][number];

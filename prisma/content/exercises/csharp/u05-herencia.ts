@@ -1,0 +1,341 @@
+import type { PracticeUnitSetDefinition } from "../types";
+
+// =====================================================================
+// Práctica independiente — Herencia y polimorfismo
+//
+// Ejercicios de TRANSFERENCIA: no repiten los retos de las lecciones.
+// Todos son programas de consola de un solo archivo para el perfil
+// csharp-mono-6.12.
+// =====================================================================
+
+export const u05HerenciaExercises: PracticeUnitSetDefinition = {
+  courseSlug: "csharp-poo-1",
+  unitSlug: "csharp-poo-05-herencia",
+  unitTitle: "Herencia y polimorfismo",
+  unitIcon: "🌳",
+  exercises: [
+    {
+      slug: "csharp-poo-herencia-dispositivo",
+      title: "Tablet es un dispositivo",
+      description: "Construye una generalización simple.",
+      prompt: "Dispositivo guarda marca y MostrarMarca. Tablet hereda y agrega pulgadas. Lee ambos; imprime marca y \"N pulgadas\".",
+      starterCode: `using System;
+class Dispositivo
+{
+}
+
+class Tablet : Dispositivo
+{
+}
+
+class Program
+{
+    static void Main()
+    {
+    }
+}`,
+      solutionCode: `using System;
+class Dispositivo
+{
+    public string Marca
+    {
+        get;
+        private set;
+    }
+    public Dispositivo(string m)
+    {
+        Marca=m;
+    }
+    public void MostrarMarca()
+    {
+        Console.WriteLine(Marca);
+    }
+}
+
+class Tablet:Dispositivo
+{
+    public int Pulgadas
+    {
+        get;
+        private set;
+    }
+    public Tablet(string m, int p):base(m)
+    {
+        Pulgadas=p;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Tablet t=new Tablet(Console.ReadLine(), int.Parse(Console.ReadLine()));
+        t.MostrarMarca();
+        Console.WriteLine(t.Pulgadas+" pulgadas");
+    }
+}`,
+      hints: [
+        "Tablet : Dispositivo.",
+        "Encadena base(m).",
+        "Reutiliza MostrarMarca.",
+      ],
+      difficulty: "easy",
+      xpReward: 22,
+      testCases: [
+        {
+          stdin: "CETI Tech\n10\n",
+          expectedStdout: "CETI Tech\n10 pulgadas\n",
+          visible: true,
+        },
+        {
+          stdin: "X\n7\n",
+          expectedStdout: "X\n7 pulgadas\n",
+          visible: false,
+        },
+      ],
+    },
+    {
+      slug: "csharp-poo-base-instrumento",
+      title: "Constructor base de instrumento",
+      description: "Inicializa estado heredado y especializado.",
+      prompt: "Instrumento recibe nombre; Guitarra : Instrumento recibe nombre y cuerdas. Describir devuelve \"nombre: N cuerdas\".",
+      starterCode: `using System;
+class Instrumento
+{
+}
+
+class Guitarra : Instrumento
+{
+}
+
+class Program
+{
+    static void Main()
+    {
+    }
+}`,
+      solutionCode: `using System;
+class Instrumento
+{
+    protected string nombre;
+    public Instrumento(string n)
+    {
+        nombre=n;
+    }
+}
+
+class Guitarra:Instrumento
+{
+    private int cuerdas;
+    public Guitarra(string n, int c):base(n)
+    {
+        cuerdas=c;
+    }
+    public string Describir()
+    {
+        return nombre+": "+cuerdas+" cuerdas";
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine(new Guitarra(Console.ReadLine(), int.Parse(Console.ReadLine())).Describir());
+    }
+}`,
+      hints: [
+        "nombre es protected.",
+        "La base recibe nombre.",
+        "La derivada recibe ambos.",
+      ],
+      difficulty: "easy",
+      xpReward: 24,
+      testCases: [
+        {
+          stdin: "Acústica\n6\n",
+          expectedStdout: "Acústica: 6 cuerdas\n",
+          visible: true,
+        },
+        {
+          stdin: "Bajo\n4\n",
+          expectedStdout: "Bajo: 4 cuerdas\n",
+          visible: false,
+        },
+      ],
+    },
+    {
+      slug: "csharp-poo-polimorfismo-envios",
+      title: "Costo polimórfico de envíos",
+      description: "Recorre subtipos con un contrato común.",
+      prompt: "Lee costo base y recargo express. Envio conserva el costo y tiene virtual Costo(); EnvioExpress agrega el recargo mediante override. Crea Envio[2] con ambos e imprime los costos con dos decimales.",
+      starterCode: `using System;
+class Envio
+{
+}
+
+class EnvioExpress : Envio
+{
+}
+
+class Program
+{
+    static void Main()
+    {
+    }
+}`,
+      solutionCode: `using System;
+class Envio
+{
+    protected decimal costo;
+    public Envio(decimal c)
+    {
+        costo=c;
+    }
+    public virtual decimal Costo()
+    {
+        return costo;
+    }
+}
+
+class EnvioExpress:Envio
+{
+    private decimal recargo;
+    public EnvioExpress(decimal c, decimal r):base(c)
+    {
+        recargo=r;
+    }
+    public override decimal Costo()
+    {
+        return costo+recargo;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        decimal c=decimal.Parse(Console.ReadLine()), r=decimal.Parse(Console.ReadLine());
+        Envio[] x=new Envio[]
+        {
+            new Envio(c), new EnvioExpress(c, r)
+        }
+        ;
+        for(int i=0;i<x.Length;i++)Console.WriteLine(x[i].Costo().ToString("0.00"));
+    }
+}`,
+      hints: [
+        "La base conserva el costo y usa virtual.",
+        "La derivada encadena base(c) y usa override.",
+        "El arreglo se declara como Envio[].",
+      ],
+      difficulty: "medium",
+      xpReward: 32,
+      testCases: [
+        {
+          stdin: "50\n40\n",
+          expectedStdout: "50.00\n90.00\n",
+          visible: true,
+        },
+        {
+          stdin: "10.5\n2.25\n",
+          expectedStdout: "10.50\n12.75\n",
+          visible: false,
+        },
+        {
+          stdin: "0\n1\n",
+          expectedStdout: "0.00\n1.00\n",
+          visible: false,
+        },
+      ],
+    },
+    {
+      slug: "csharp-poo-abstract-medicion",
+      title: "Mediciones abstractas",
+      description: "Implementa dos fórmulas detrás de un contrato.",
+      prompt: "Medicion abstracta declara Valor(). Temperatura recibe Celsius y devuelve C*1.8+32; Distancia recibe km y devuelve km*1000. Lee C y km, usa Medicion[2] e imprime dos valores con dos decimales.",
+      starterCode: `using System;
+abstract class Medicion
+{
+}
+
+class Temperatura:Medicion
+{
+}
+
+class Distancia:Medicion
+{
+}
+
+class Program
+{
+    static void Main()
+    {
+    }
+}`,
+      solutionCode: `using System;
+abstract class Medicion
+{
+    public abstract double Valor();
+}
+
+class Temperatura:Medicion
+{
+    private double c;
+    public Temperatura(double c)
+    {
+        this.c=c;
+    }
+    public override double Valor()
+    {
+        return c*1.8+32;
+    }
+}
+
+class Distancia:Medicion
+{
+    private double km;
+    public Distancia(double k)
+    {
+        km=k;
+    }
+    public override double Valor()
+    {
+        return km*1000;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Medicion[] m=new Medicion[]
+        {
+            new Temperatura(double.Parse(Console.ReadLine())), new Distancia(double.Parse(Console.ReadLine()))
+        }
+        ;
+        for(int i=0;i<m.Length;i++)Console.WriteLine(m[i].Valor().ToString("0.00"));
+    }
+}`,
+      hints: [
+        "Medicion no se instancia.",
+        "Cada clase redefine Valor.",
+        "Recorre el arreglo base.",
+      ],
+      difficulty: "hard",
+      xpReward: 40,
+      testCases: [
+        {
+          stdin: "0\n1.5\n",
+          expectedStdout: "32.00\n1500.00\n",
+          visible: true,
+        },
+        {
+          stdin: "100\n0.01\n",
+          expectedStdout: "212.00\n10.00\n",
+          visible: false,
+        },
+      ],
+    },
+  ],
+};

@@ -1,5 +1,7 @@
 import type { PracticeUnitSetDefinition } from "./types";
 
+import { csharpPracticeSets } from "./csharp";
+
 import { u01PrimerProgramaExercises } from "./u01-primer-programa";
 import { u02CinExercises } from "./u02-cin";
 import { u03VariablesExercises } from "./u03-variables";
@@ -29,4 +31,5 @@ export const allPracticeSets: PracticeUnitSetDefinition[] = [
   u08ArreglosExercises,
   u09ArchivosExercises,
   u10MatricesExercises,
+  ...csharpPracticeSets,
 ];

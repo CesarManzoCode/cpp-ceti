@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { env, googleAuthEnabled } from "@/env";
 import { db } from "./db";
 import { logger } from "./logger";
+import { PRODUCT_NAME } from "@/lib/branding";
 import {
   generateUsernameFromSeed,
   RESERVED_USERNAMES,
@@ -16,7 +17,7 @@ import {
 } from "./validation";
 
 export const auth = betterAuth({
-  appName: "C++ CETI",
+  appName: PRODUCT_NAME,
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
 

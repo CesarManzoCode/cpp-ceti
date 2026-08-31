@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Markdown } from "@/components/shared/markdown";
-import { CppEditor } from "@/components/editor/cpp-editor";
+import { CodeEditor } from "@/components/editor/code-editor";
 import {
   diagnosticsFromExecution,
   diagnosticsFromSubmission,
@@ -47,8 +47,11 @@ import { submitExercise } from "@/features/lessons/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 
 import type { StepSignalHandler } from "./step-signal";
+import type { LanguageId } from "@/lib/code-languages";
 
 interface StepCodeChallengeProps {
+  language: LanguageId;
+  lessonId: string;
   exercise: {
     id: string;
     prompt: string;
@@ -68,6 +71,8 @@ interface StepCodeChallengeProps {
 const ATTEMPTS_BEFORE_SOLUTION = 3;
 
 export function StepCodeChallenge({
+  language,
+  lessonId,
   exercise,
   onNext,
   isPending,
@@ -88,15 +93,12 @@ export function StepCodeChallenge({
   );
   const resultRef = React.useRef<HTMLDivElement>(null);
 
-  const { studySessionId, surface, resourceId, markEngaged } =
-    useStudySession();
+  const { studySessionId, markEngaged } = useStudySession();
 
   // Los envíos calificados ya viven en `UserExerciseAttempt`: aquí sólo
   // instrumentamos lo que NO queda registrado allá (compilar sin calificar).
   const playground = useRunCode({
-    surface: "lesson",
-    lessonId: surface === "lesson" ? resourceId : null,
-    exerciseId: exercise.id,
+    target: { exerciseId: exercise.id, lessonId },
     studySessionId,
   });
 
@@ -111,10 +113,10 @@ export function StepCodeChallenge({
 
   const diagnostics = React.useMemo(() => {
     if (submission && !submission.passed) {
-      return diagnosticsFromSubmission(submission.results);
+      return diagnosticsFromSubmission(submission.results, language);
     }
-    return diagnosticsFromExecution(playground.result);
-  }, [submission, playground.result]);
+    return diagnosticsFromExecution(playground.result, language);
+  }, [submission, playground.result, language]);
 
   async function handleSubmit() {
     markEngaged("code_run");
@@ -177,12 +179,13 @@ export function StepCodeChallenge({
           ) : null}
         </div>
 
-        <Markdown>{exercise.prompt}</Markdown>
+        <Markdown language={language}>{exercise.prompt}</Markdown>
       </section>
 
       {/* Editor + acciones — en móvil va justo bajo el enunciado; en desktop, col. derecha */}
       <section className="space-y-3 lg:col-start-2 lg:row-span-2">
-        <CppEditor
+        <CodeEditor
+          language={language}
           value={code}
           onChange={(next) => {
             markEngaged("code_edit");

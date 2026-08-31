@@ -4,9 +4,11 @@ import { ChromeSlot } from "@/components/layout/chrome-slot";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { getCourseChoices } from "@/features/courses/queries";
 import { getPendingIncomingCount } from "@/features/friends/queries";
-import { getDefaultCourse, getRoadmapUnits } from "@/features/roadmap/queries";
+import { getRoadmapUnits } from "@/features/roadmap/queries";
 import { getAdminContext } from "@/lib/admin";
+import { pickCourse, readSelectedCourseSlug } from "@/lib/course-selection";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 
@@ -20,25 +22,40 @@ export default async function AppLayout({
     redirect("/login?redirectTo=/app");
   }
 
-  // Paralelizar: course/stats/pending son independientes; units depende de course.
-  const [course, stats, pendingFriendsCount, adminContext] = await Promise.all([
-    getDefaultCourse(),
-    getUserStats(session.user.id),
-    getPendingIncomingCount(session.user.id),
-    // Sólo decide si se muestra el acceso al panel; la autorización real la
-    // hace cada página/acción de /app/admin.
-    getAdminContext(),
-  ]);
+  // Paralelizar: cursos/stats/pending son independientes; units depende del
+  // curso seleccionado.
+  const [courses, selectedSlug, stats, pendingFriendsCount, adminContext] =
+    await Promise.all([
+      getCourseChoices(),
+      readSelectedCourseSlug(),
+      getUserStats(session.user.id),
+      getPendingIncomingCount(session.user.id),
+      // Sólo decide si se muestra el acceso al panel; la autorización real la
+      // hace cada página/acción de /app/admin.
+      getAdminContext(),
+    ]);
+
+  // El rail muestra el curso seleccionado. Si no hay selección válida, se
+  // queda sin unidades y la navegación lleva a la pantalla de selección: es
+  // preferible un rail vacío a un rail que muestre el curso equivocado.
+  const decision = pickCourse(courses, selectedSlug);
+  const course = decision.kind === "course" ? decision.course : null;
   const units = course
     ? await getRoadmapUnits(course.id, session.user.id)
     : [];
 
   return (
     <div className="flex min-h-dvh bg-background">
-      <Sidebar units={units} pendingFriendsCount={pendingFriendsCount} />
+      <Sidebar
+        courseSlug={course?.slug ?? null}
+        courseTitle={course?.title ?? null}
+        units={units}
+        pendingFriendsCount={pendingFriendsCount}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <ChromeSlot>
           <Topbar
+            courseSlug={course?.slug ?? null}
             user={{
               name: session.user.name,
               email: session.user.email,
@@ -59,7 +76,10 @@ export default async function AppLayout({
         </main>
 
         <ChromeSlot>
-          <MobileNav pendingFriendsCount={pendingFriendsCount} />
+          <MobileNav
+            courseSlug={course?.slug ?? null}
+            pendingFriendsCount={pendingFriendsCount}
+          />
         </ChromeSlot>
       </div>
     </div>

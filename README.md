@@ -1,9 +1,20 @@
-# C++ CETI
+# Plataforma de Programación CETI
 
-Plataforma para aprender **C++ escribiendo C++**, pensada para estudiantes del
-**CETI Guadalajara**. Lecciones cortas, un editor con compilador de verdad y retos que se
-califican contra casos de prueba. Todo en español y dentro del navegador: sin instalar
-compiladores, sin configurar un IDE.
+Plataforma para **aprender a programar escribiendo código**, pensada para estudiantes
+del **CETI Guadalajara**. Lecciones cortas, un editor con compilador de verdad y retos
+que se califican contra casos de prueba. Todo en español y dentro del navegador: sin
+instalar compiladores, sin configurar un IDE.
+
+Hoy hay dos cursos:
+
+| Curso | Materia | Lenguaje | Contenido |
+| --- | --- | --- | --- |
+| `cpp-desde-cero` | Programación en C++ | C++ (`cpp17-wandbox`) | 10 unidades · 67 lecciones · 80 prácticas |
+| `csharp-poo-1` | Programación Orientada a Objetos I | C# (`csharp-mono-6.12`) | 8 unidades · 30 lecciones · 32 prácticas |
+
+Cada curso trae su propio lenguaje y su propio compilador. **El curso es la fuente de
+verdad**: el editor, el resaltado, los diagnósticos, el compilador con el que se
+califica y el agrupamiento de métricas salen de ahí, nunca de lo que mande el cliente.
 
 ![Paso de la Unidad 3: la explicación de int, double y char junto al editor con el ejemplo listo para correr y la consola mostrando la salida real del programa](docs/media/leccion.png)
 
@@ -12,9 +23,9 @@ código. Ninguna lección termina en lectura.
 
 ## Por qué existe
 
-- En el CETI, muchos maestros explican C++ copiando código al pizarrón sin desmenuzar la
+- En el CETI, muchos maestros explican copiando código al pizarrón sin desmenuzar la
   lógica.
-- Mimo, Sololearn y Codecademy no enseñan C++.
+- Mimo, Sololearn y Codecademy no siguen el temario que se lleva en clase.
 - Reprobar programación casi nunca es flojera: es **falta de un recurso** donde practicar
   con retroalimentación inmediata.
 

@@ -46,11 +46,28 @@ const baseSchema = z.object({
     .default("wandbox"),
 
   WANDBOX_URL: urlOrEmpty,
+  /**
+   * Compilador/opciones por PERFIL de ejecución. Los nombres genéricos
+   * (`WANDBOX_COMPILER`, `WANDBOX_COMPILER_OPTIONS`) siguen funcionando
+   * como alias del perfil de C++ para no romper despliegues existentes;
+   * los específicos ganan si vienen los dos.
+   */
   WANDBOX_COMPILER: optionalNonEmpty,
   WANDBOX_COMPILER_OPTIONS: optionalNonEmpty,
+  WANDBOX_CPP_COMPILER: optionalNonEmpty,
+  WANDBOX_CPP_OPTIONS: optionalNonEmpty,
+  WANDBOX_CSHARP_COMPILER: optionalNonEmpty,
+  /** Vacío es un valor válido: Mono no necesita flags para el subconjunto del curso. */
+  WANDBOX_CSHARP_OPTIONS: optionalNonEmpty,
 
   PISTON_URL: urlOrEmpty,
   PISTON_CPP_VERSION: optionalNonEmpty,
+  /**
+   * Sin esto, el perfil de C# NO está disponible en Piston. Es deliberado:
+   * el endpoint público responde 401 y adivinar una versión en una
+   * instancia ajena sería un fallback silencioso.
+   */
+  PISTON_CSHARP_VERSION: optionalNonEmpty,
 
   JUDGE0_RAPIDAPI_KEY: optionalNonEmpty,
   JUDGE0_RAPIDAPI_HOST: optionalNonEmpty,
@@ -59,6 +76,17 @@ const baseSchema = z.object({
   JUDGE0_CPP_LANGUAGE_ID: z
     .string()
     .regex(/^\d+$/, "JUDGE0_CPP_LANGUAGE_ID debe ser numérico")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  /**
+   * Los ids de lenguaje de Judge0 son específicos de cada instancia: no hay
+   * default posible. Verifícalo contra `/languages` de TU instancia. Sin
+   * esto el perfil de C# no está disponible (y ninguna petición de C# se
+   * ejecuta con otro compilador).
+   */
+  JUDGE0_CSHARP_LANGUAGE_ID: z
+    .string()
+    .regex(/^\d+$/, "JUDGE0_CSHARP_LANGUAGE_ID debe ser numérico")
     .optional()
     .or(z.literal("").transform(() => undefined)),
 });

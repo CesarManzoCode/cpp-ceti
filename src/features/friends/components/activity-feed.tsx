@@ -55,7 +55,7 @@ function FeedRow({ event }: { event: ActivityEvent }) {
             </Link>{" "}
             <span className="text-muted-foreground">completó</span>{" "}
             <Link
-              href={`/app/u/${event.lesson.unitSlug}/${event.lesson.lessonSlug}`}
+              href={`/app/c/${event.lesson.courseSlug}/u/${event.lesson.unitSlug}/${event.lesson.lessonSlug}`}
               className="font-bold text-primary hover:underline"
             >
               <InlineCodeText>{event.lesson.title}</InlineCodeText>

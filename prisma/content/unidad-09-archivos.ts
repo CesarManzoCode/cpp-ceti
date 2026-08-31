@@ -669,15 +669,23 @@ return {{7}};`,
             prompt: `## Reto 1 — Intento fallido
 
 Intenta abrir el archivo \`fantasma.txt\` con \`ifstream\`. Como no existe,
-imprime en consola con \`printf\`:
+detéctalo con \`if (!archivo)\` e imprime en consola con \`printf\`:
 
 \`\`\`
 No existe
 \`\`\`
 
-Y termina con \`return 1;\`.
+Termina con \`return 0;\`.
 
 (El archivo NO debe ser creado: solo intentas leer y reportar la falla.)
+
+> **Sobre el \`return 1\` del ejemplo.** Ahí terminábamos con \`return 1;\`
+> para avisarle al **sistema operativo** que el programa falló, y en un
+> programa de verdad eso es lo correcto. Pero aquí quien corre tu programa
+> es el calificador: un código de salida distinto de cero lo lee como que
+> tu programa se murió, y reprueba el reto aunque la salida sea la
+> correcta. Lo que se está calificando es la validación, no el código de
+> salida — así que en este reto termina con \`return 0;\`.
 
 Salida esperada:
 
@@ -698,14 +706,14 @@ int main() {
   ifstream archivo("fantasma.txt");
   if (!archivo) {
     printf("No existe\\n");
-    return 1;
   }
   return 0;
 }`,
             hints: [
               "Sólo intenta abrir con `ifstream`.",
               "`if (!archivo)` detecta que falló.",
-              "Dentro: `printf(\"No existe\\n\");` + `return 1;`.",
+              "Dentro del `if`: `printf(\"No existe\\n\");`.",
+              "Cierra con `return 0;`. El calificador toma cualquier otro código de salida como que el programa se murió.",
             ],
             testCases: [
               {

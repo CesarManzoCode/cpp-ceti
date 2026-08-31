@@ -19,12 +19,13 @@ export function Hero() {
           </p>
 
           <h1 className="font-display mt-5 text-balance text-[clamp(2.25rem,7vw,3.75rem)]">
-            Aprende C++ escribiendo C++.
+            Aprende a programar escribiendo código.
           </h1>
 
           <p className="mt-5 max-w-[46ch] text-pretty text-[17px] leading-relaxed text-muted-foreground">
-            Lecciones cortas y un compilador de C++ dentro del navegador.
-            Escribes el código, se compila, y te dice qué falló y en qué línea.
+            Cursos de C++ y de Programación Orientada a Objetos con C#, con
+            el compilador dentro del navegador. Escribes el código, se compila,
+            y te dice qué falló y en qué línea.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
