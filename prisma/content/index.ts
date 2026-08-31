@@ -3,8 +3,8 @@ import type { CourseDefinition } from "./types";
 import { cursoCsharpPoo1 } from "./csharp";
 
 import { unidad01 } from "./unidad-01-primer-programa";
-import { unidad02 } from "./unidad-02-cin";
-import { unidad03 } from "./unidad-03-variables";
+import { unidadCin } from "./unidad-02-cin";
+import { unidadVariables } from "./unidad-03-variables";
 import { unidad04 } from "./unidad-04-control-flujo";
 import { unidad05 } from "./unidad-05-loops";
 import { unidad06 } from "./unidad-06-funciones";
@@ -25,10 +25,17 @@ export const cursoCpp: CourseDefinition = {
   academicContext: "Curso introductorio CETI",
   language: "cpp",
   executionProfile: "cpp17-wandbox",
+  // El ORDEN de este arreglo es el orden del curso (el seed numera por
+  // posición). "Variables y tipos" va ANTES de "Leer datos con cin": la
+  // unidad de `cin` ya usaba `int`, `double`, `string`, aritmética y
+  // `setprecision`, es decir, exactamente lo que la de variables enseña.
+  // Los slugs NO cambian —`leer-datos` y `variables-y-tipos` siguen siendo
+  // los mismos recursos, con el mismo progreso y los mismos enlaces—; lo
+  // único que cambia es en qué posición aparecen.
   units: [
     unidad01,
-    unidad02,
-    unidad03,
+    unidadVariables,
+    unidadCin,
     unidad04,
     unidad05,
     unidad06,

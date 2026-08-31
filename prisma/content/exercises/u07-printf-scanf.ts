@@ -359,13 +359,13 @@ Exacto: <p con 2 dec>
 Redondeado: <p con 0 dec>
 \`\`\`
 
-Para el test, el sistema enviará: \`8 9 7 10\` → 8.50 / 9.
+Para el test, el sistema enviará: \`9 8 10 8\` → promedio \`8.75\`.
 
 Salida esperada:
 
 \`\`\`
-Exacto: 8.50
-Redondeado: 8
+Exacto: 8.75
+Redondeado: 9
 \`\`\``,
       starterCode: `#include <stdio.h>
 
@@ -385,20 +385,30 @@ int main() {
 }`,
       hints: [
         "Misma variable `prom`, dos `printf` con distinto formato.",
-        "`%.0f` redondea al entero más cercano (no trunca).",
+        "`%.0f` redondea al entero más cercano (no trunca): 8.75 → 9, 6.25 → 6.",
+        "Un promedio exactamente a la mitad (8.5) es un empate y `printf` lo resuelve hacia el par más cercano; por eso aquí no aparece ninguno.",
       ],
       testCases: [
         {
-          stdin: "8 9 7 10\n",
-          expectedStdout: "Exacto: 8.50\nRedondeado: 8\n",
+          // Sin empates: el enunciado prometía "8.50 → 9" y el test exigía
+          // 8, porque `printf` resuelve el .5 exacto hacia el par. El
+          // ejercicio enseña formato, no la regla de desempate de IEEE-754.
+          stdin: "9 8 10 8\n",
+          expectedStdout: "Exacto: 8.75\nRedondeado: 9\n",
           visible: true,
-          description: "Promedio 8.5",
+          description: "Promedio 8.75, redondea hacia arriba",
         },
         {
           stdin: "7 7 7 7\n",
           expectedStdout: "Exacto: 7.00\nRedondeado: 7\n",
           visible: false,
           description: "Promedio entero",
+        },
+        {
+          stdin: "6 7 6 6\n",
+          expectedStdout: "Exacto: 6.25\nRedondeado: 6\n",
+          visible: false,
+          description: "Redondea hacia abajo",
         },
         {
           stdin: "9 10 10 10\n",
