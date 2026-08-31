@@ -359,6 +359,8 @@ Puerta
 +EstaAbierta(): bool
 \`\`\``,
           runnable: false,
+          localOnlyNote:
+            "Es una clase suelta, sin `Main`: está aquí para leerla y derivar su diagrama, no para ejecutarla.",
         },
         {
           type: "matching",

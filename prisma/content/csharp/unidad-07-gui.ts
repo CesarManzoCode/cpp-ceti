@@ -52,6 +52,8 @@ private void btnSaludar_Click(object sender, EventArgs e)
 }`,
           explanation: "El diseñador enlaza Click con el manejador. Este fragmento no es un programa de consola.",
           runnable: false,
+          localOnlyNote:
+            "Requiere Visual Studio en Windows. Es un fragmento de Windows Forms, no un programa de consola: se ejecuta en el laboratorio local de esta unidad, no en el navegador.",
         },
         {
           type: "theory",
@@ -100,6 +102,8 @@ private void btnCalcular_Click(object sender, EventArgs e)
 }`,
           explanation: "Cotizacion no conoce TextBox ni Label; por ello puede verificarse sin abrir la ventana.",
           runnable: false,
+          localOnlyNote:
+            "Requiere Visual Studio en Windows. Es un fragmento de Windows Forms, no un programa de consola: se ejecuta en el laboratorio local de esta unidad, no en el navegador.",
         },
         {
           type: "quiz",
@@ -163,6 +167,8 @@ La interfaz valida formato con \`TryParse\`; el dominio valida significado, por 
 }`,
           explanation: "TryParse resuelve formato; Pedido protege la regla del dominio.",
           runnable: false,
+          localOnlyNote:
+            "Requiere Visual Studio en Windows. Es un fragmento de Windows Forms, no un programa de consola: se ejecuta en el laboratorio local de esta unidad, no en el navegador.",
         },
         {
           type: "fill_blank",

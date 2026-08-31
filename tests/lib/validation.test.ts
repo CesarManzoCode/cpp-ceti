@@ -138,9 +138,10 @@ describe("runCodeSchema (frontera de confianza de una ejecución)", () => {
   });
 
   it("sin recurso no hay ejecución: el compilador no se podría derivar", () => {
-    expect(
-      runCodeSchema.safeParse({ sourceCode: "int main(){}" }).success,
-    ).toBe(false);
+    const missing = runCodeSchema.safeParse({ sourceCode: "int main(){}" });
+    expect(missing.success).toBe(false);
+    // El mensaje explica por qué, en vez de filtrar el de Zod.
+    expect(missing.error?.issues[0]?.message).toMatch(/nombrar el recurso/i);
     expect(
       runCodeSchema.safeParse({ sourceCode: "int main(){}", target: {} })
         .success,

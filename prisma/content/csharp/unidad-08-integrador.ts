@@ -228,6 +228,8 @@ private void btnCotizar_Click(object sender, EventArgs e)
 }`,
           explanation: "El manejador adapta controles al mismo dominio validado en el navegador.",
           runnable: false,
+          localOnlyNote:
+            "Requiere Visual Studio en Windows. Es un fragmento de Windows Forms, no un programa de consola: se ejecuta en el laboratorio local de esta unidad, no en el navegador.",
         },
         {
           type: "matching",

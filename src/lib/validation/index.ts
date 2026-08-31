@@ -97,7 +97,19 @@ export type RunTargetInput = z.infer<typeof runTargetSchema>;
 export const runCodeSchema = z.object({
   sourceCode: sourceCodeSchema,
   stdin: stdinSchema,
-  target: runTargetSchema,
+  // Sin `target` no hay recurso, y sin recurso no hay curso del que derivar
+  // el compilador. El mensaje lo dice en vez de dejar salir el de Zod.
+  target: runTargetSchema.nullish().transform((value, ctx) => {
+    if (!value) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "Una ejecución debe nombrar el recurso al que pertenece (paso, ejercicio o práctica)",
+      });
+      return z.NEVER;
+    }
+    return value;
+  }),
   /**
    * Sesión de estudio para atribuir el evento. Se verifica que sea del
    * usuario; si no lo es, el evento se atribuye sin ella.
