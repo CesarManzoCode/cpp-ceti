@@ -7,19 +7,40 @@ import { Dumbbell, Home, Trophy, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const items: {
+/** Inicio y Práctica son de un curso; el resto, de la cuenta. */
+function itemsFor(courseSlug: string | null): {
   href: string;
   label: string;
   icon: typeof Home;
   exact?: boolean;
   badgeKey?: "friends";
-}[] = [
-  { href: "/app", label: "Inicio", icon: Home, exact: true },
-  { href: "/app/ejercicios", label: "Práctica", icon: Dumbbell },
-  { href: "/app/logros", label: "Logros", icon: Trophy },
-  { href: "/app/amigos", label: "Amigos", icon: Users, badgeKey: "friends" },
-  { href: "/app/perfil", label: "Perfil", icon: User },
-];
+}[] {
+  return [
+    {
+      href: courseSlug ? `/app/c/${courseSlug}` : "/app",
+      label: "Inicio",
+      icon: Home,
+      exact: true,
+    },
+    ...(courseSlug
+      ? [
+          {
+            href: `/app/c/${courseSlug}/ejercicios`,
+            label: "Práctica",
+            icon: Dumbbell,
+          },
+        ]
+      : []),
+    { href: "/app/logros", label: "Logros", icon: Trophy },
+    {
+      href: "/app/amigos",
+      label: "Amigos",
+      icon: Users,
+      badgeKey: "friends" as const,
+    },
+    { href: "/app/perfil", label: "Perfil", icon: User },
+  ];
+}
 
 /**
  * Navegación de móvil: una barra inferior al alcance del pulgar, con
@@ -27,11 +48,14 @@ const items: {
  * simplemente no existe aquí — el ancho completo es para el contenido.
  */
 export function MobileNav({
+  courseSlug,
   pendingFriendsCount = 0,
 }: {
+  courseSlug: string | null;
   pendingFriendsCount?: number;
 }) {
   const pathname = usePathname();
+  const items = itemsFor(courseSlug);
 
   return (
     <nav

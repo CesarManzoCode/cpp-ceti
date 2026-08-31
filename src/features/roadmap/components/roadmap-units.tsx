@@ -26,8 +26,6 @@ export interface RoadmapUnitsProps {
  * nunca sólo por color.
  */
 export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
-  void courseSlug;
-
   if (units.length === 0) {
     return (
       <p className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-6 py-10 text-center text-[15px] text-muted-foreground">
@@ -154,7 +152,7 @@ export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
             <div className={cn(isLast ? "pb-0" : "pb-4")}>
               {unit.published ? (
                 <Link
-                  href={`/app/u/${unit.slug}`}
+                  href={`/app/c/${courseSlug}/u/${unit.slug}`}
                   aria-label={`Unidad ${unit.order}: ${unit.title}`}
                   className="group block rounded-[var(--radius-lg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >

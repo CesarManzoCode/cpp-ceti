@@ -32,6 +32,8 @@ import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { authClient } from "@/lib/auth-client";
 
 interface UserMenuProps {
+  /** Curso seleccionado: los accesos del curso lo llevan. */
+  courseSlug?: string | null;
   user: {
     name: string;
     email: string;
@@ -48,6 +50,7 @@ interface UserMenuProps {
 
 export function UserMenu({
   user,
+  courseSlug = null,
   pendingFriendsCount = 0,
   isAdmin = false,
 }: UserMenuProps) {
@@ -115,7 +118,9 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="md:hidden"
-          onClick={() => router.push("/app/ejercicios")}
+          onClick={() =>
+            router.push(courseSlug ? `/app/c/${courseSlug}/ejercicios` : "/app")
+          }
         >
           <Dumbbell className="size-4" />
           Ejercicios

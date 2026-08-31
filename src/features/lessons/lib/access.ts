@@ -21,7 +21,7 @@ export async function requireAccessibleExercise(exerciseId: string) {
               steps: { select: { id: true } },
               unit: {
                 include: {
-                  course: { select: { id: true, published: true } },
+                  course: { select: { id: true, slug: true, published: true } },
                 },
               },
             },
@@ -46,7 +46,7 @@ export async function requireAccessibleStep(stepId: string) {
           steps: { select: { id: true } },
           unit: {
             include: {
-              course: { select: { id: true, published: true } },
+              course: { select: { id: true, slug: true, published: true } },
             },
           },
         },

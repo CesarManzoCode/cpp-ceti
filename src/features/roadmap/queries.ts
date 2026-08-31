@@ -65,19 +65,29 @@ export const getRoadmapUnits = cache(async (
 });
 
 /**
- * Próxima lección a estudiar — la que el usuario tiene en curso si
- * existe, o la primera lección publicada que aún no ha completado.
- * `null` si el curso entero está al día.
+ * Próxima lección a estudiar DENTRO de un curso — la que el usuario tiene
+ * en curso si existe, o la primera lección publicada que aún no ha
+ * completado. `null` si ese curso está al día.
+ *
+ * El `courseId` no es opcional: sin él, un alumno que dejó una lección a
+ * medias en C++ vería ese "continuar" desde el curso de C#.
  */
-export async function findNextLesson(userId: string): Promise<NextLesson | null> {
+export async function findNextLesson(
+  userId: string,
+  courseId: string,
+): Promise<NextLesson | null> {
   const [inProgress, completedProgress] = await Promise.all([
     db.userLessonProgress.findFirst({
-      where: { userId, status: "in_progress" },
+      where: {
+        userId,
+        status: "in_progress",
+        lesson: { unit: { courseId } },
+      },
       orderBy: { startedAt: "desc" },
       include: { lesson: { include: { unit: true } } },
     }),
     db.userLessonProgress.findMany({
-      where: { userId, status: "completed" },
+      where: { userId, status: "completed", lesson: { unit: { courseId } } },
       select: { lessonId: true },
     }),
   ]);
@@ -98,7 +108,7 @@ export async function findNextLesson(userId: string): Promise<NextLesson | null>
   const next = await db.lesson.findFirst({
     where: {
       published: true,
-      unit: { published: true },
+      unit: { published: true, courseId },
       id: { notIn: completedIds.length ? completedIds : undefined },
     },
     orderBy: [{ unit: { order: "asc" } }, { order: "asc" }],

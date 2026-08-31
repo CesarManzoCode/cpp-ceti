@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { RoadmapLesson, RoadmapLessonStatus } from "@/features/roadmap/types";
 
 export interface RoadmapLessonsProps {
+  courseSlug: string;
   unitSlug: string;
   unitOrder: number;
   lessons: RoadmapLesson[];
@@ -18,7 +19,11 @@ export interface RoadmapLessonsProps {
  * pieza a la derecha. Cada lección muestra sus pasos como bloques, así
  * que "cuánto me va a tomar" se ve antes de entrar.
  */
-export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
+export function RoadmapLessons({
+  courseSlug,
+  unitSlug,
+  lessons,
+}: RoadmapLessonsProps) {
   if (lessons.length === 0) {
     return (
       <p className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-6 py-10 text-center text-[15px] text-muted-foreground">
@@ -144,7 +149,7 @@ export function RoadmapLessons({ unitSlug, lessons }: RoadmapLessonsProps) {
               </div>
             ) : (
               <Link
-                href={`/app/u/${unitSlug}/${lesson.slug}`}
+                href={`/app/c/${courseSlug}/u/${unitSlug}/${lesson.slug}`}
                 aria-label={`Lección ${lesson.order}: ${lesson.title}`}
                 className="group block rounded-[var(--radius-lg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >

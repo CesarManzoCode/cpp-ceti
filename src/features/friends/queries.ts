@@ -57,6 +57,8 @@ export interface ActivityEvent {
   lesson: {
     title: string;
     unitTitle: string;
+    /** Curso de la lección: el enlace del feed nunca sale de su curso. */
+    courseSlug: string;
     unitSlug: string;
     lessonSlug: string;
     xpReward: number;
@@ -346,7 +348,13 @@ export async function getActivityFeed(
           title: true,
           slug: true,
           xpReward: true,
-          unit: { select: { title: true, slug: true } },
+          unit: {
+            select: {
+              title: true,
+              slug: true,
+              course: { select: { slug: true } },
+            },
+          },
         },
       },
     },
@@ -364,6 +372,7 @@ export async function getActivityFeed(
         lesson: {
           title: row.lesson.title,
           unitTitle: row.lesson.unit.title,
+          courseSlug: row.lesson.unit.course.slug,
           unitSlug: row.lesson.unit.slug,
           lessonSlug: row.lesson.slug,
           xpReward: row.lesson.xpReward,

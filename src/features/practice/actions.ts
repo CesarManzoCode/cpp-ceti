@@ -42,6 +42,7 @@ export const submitPracticeExercise = withActionErrorHandling(
       where: { id: exerciseId },
       include: {
         testCases: { orderBy: { order: "asc" } },
+        course: { select: { slug: true } },
       },
     });
     if (!exercise || !exercise.published) {
@@ -108,9 +109,10 @@ export const submitPracticeExercise = withActionErrorHandling(
       return { xpEarned: 0, firstPass: false };
     });
 
-    revalidatePath("/app/ejercicios");
-    revalidatePath(`/app/ejercicios/${exercise.slug}`);
-    revalidatePath("/app");
+    const courseSlug = exercise.course.slug;
+    revalidatePath(`/app/c/${courseSlug}/ejercicios`);
+    revalidatePath(`/app/c/${courseSlug}/ejercicios/${exercise.slug}`);
+    revalidatePath(`/app/c/${courseSlug}`);
 
     return {
       passed: allPassed,

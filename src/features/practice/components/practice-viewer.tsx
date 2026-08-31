@@ -43,6 +43,8 @@ import { cn } from "@/lib/utils";
 import type { LanguageId } from "@/lib/code-languages";
 
 interface PracticeViewerProps {
+  /** Curso dueño del ejercicio: el enlace de volver nunca sale de él. */
+  courseSlug: string;
   /** Lenguaje del curso dueño del ejercicio. */
   language: LanguageId;
   exercise: {
@@ -65,15 +67,27 @@ interface PracticeViewerProps {
  * Envoltura de telemetría: abre la `StudySession` del ejercicio de práctica.
  * El reproductor real es `PracticePlayer`.
  */
-export function PracticeViewer({ language, exercise }: PracticeViewerProps) {
+export function PracticeViewer({
+  courseSlug,
+  language,
+  exercise,
+}: PracticeViewerProps) {
   return (
     <StudySessionProvider surface="practice" resourceId={exercise.id}>
-      <PracticePlayer language={language} exercise={exercise} />
+      <PracticePlayer
+        courseSlug={courseSlug}
+        language={language}
+        exercise={exercise}
+      />
     </StudySessionProvider>
   );
 }
 
-function PracticePlayer({ language, exercise }: PracticeViewerProps) {
+function PracticePlayer({
+  courseSlug,
+  language,
+  exercise,
+}: PracticeViewerProps) {
   // Borrador local + mejor intento del servidor + fallback al starter.
   const [code, setCode, resetCode] = useCodeDraft({
     key: exercise.id,
@@ -149,7 +163,7 @@ function PracticePlayer({ language, exercise }: PracticeViewerProps) {
     <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <header className="space-y-3">
         <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <Link href="/app/ejercicios">
+          <Link href={`/app/c/${courseSlug}/ejercicios`}>
             <ChevronLeft />
             Ejercicios
           </Link>

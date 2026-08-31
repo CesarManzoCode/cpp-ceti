@@ -61,7 +61,13 @@ export async function getTriageQueue(options: {
           select: {
             order: true,
             lesson: {
-              select: { title: true, slug: true, unit: { select: { slug: true } } },
+              select: {
+                title: true,
+                slug: true,
+                unit: {
+                  select: { slug: true, course: { select: { slug: true } } },
+                },
+              },
             },
           },
         },
@@ -74,14 +80,18 @@ export async function getTriageQueue(options: {
                   select: {
                     title: true,
                     slug: true,
-                    unit: { select: { slug: true } },
+                    unit: {
+                      select: { slug: true, course: { select: { slug: true } } },
+                    },
                   },
                 },
               },
             },
           },
         },
-        practiceExercise: { select: { title: true, slug: true } },
+        practiceExercise: {
+          select: { title: true, slug: true, course: { select: { slug: true } } },
+        },
       },
     }),
     db.feedback.findMany({
@@ -102,9 +112,17 @@ export async function getTriageQueue(options: {
         prUrl: true,
         user: { select: { username: true } },
         lesson: {
-          select: { title: true, slug: true, unit: { select: { slug: true } } },
+          select: {
+            title: true,
+            slug: true,
+            unit: {
+              select: { slug: true, course: { select: { slug: true } } },
+            },
+          },
         },
-        practiceExercise: { select: { title: true, slug: true } },
+        practiceExercise: {
+          select: { title: true, slug: true, course: { select: { slug: true } } },
+        },
       },
     }),
   ]);
@@ -116,10 +134,12 @@ export async function getTriageQueue(options: {
       : bug.practiceExercise
         ? `Práctica: ${bug.practiceExercise.title}`
         : "Contenido eliminado";
+    // Todo enlace del panel lleva el curso: sin él, el triage de un bug de
+    // C# abriría la ruta legacy, que redirige a C++.
     const href = step
-      ? `/app/u/${step.lesson.unit.slug}/${step.lesson.slug}?p=${step.order}`
+      ? `/app/c/${step.lesson.unit.course.slug}/u/${step.lesson.unit.slug}/${step.lesson.slug}?p=${step.order}`
       : bug.practiceExercise
-        ? `/app/ejercicios/${bug.practiceExercise.slug}`
+        ? `/app/c/${bug.practiceExercise.course.slug}/ejercicios/${bug.practiceExercise.slug}`
         : null;
     return {
       id: bug.id,
@@ -146,9 +166,9 @@ export async function getTriageQueue(options: {
         ? `Práctica: ${item.practiceExercise.title}`
         : (item.path ?? "Sin contexto");
     const href = item.lesson
-      ? `/app/u/${item.lesson.unit.slug}/${item.lesson.slug}`
+      ? `/app/c/${item.lesson.unit.course.slug}/u/${item.lesson.unit.slug}/${item.lesson.slug}`
       : item.practiceExercise
-        ? `/app/ejercicios/${item.practiceExercise.slug}`
+        ? `/app/c/${item.practiceExercise.course.slug}/ejercicios/${item.practiceExercise.slug}`
         : item.path;
     return {
       id: item.id,

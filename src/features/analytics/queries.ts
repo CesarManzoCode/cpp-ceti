@@ -265,7 +265,14 @@ export async function getLessonFunnel(
   // Un solo SELECT para todos los títulos (nada de una consulta por fila).
   const lessons = await db.lesson.findMany({
     where: { id: { in: rows.map((r) => r.resourceId) } },
-    select: { id: true, title: true, slug: true, unit: { select: { slug: true } } },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      // El curso viaja en el enlace: sin él, el reporte de una lección de
+      // C# apuntaría a la ruta legacy, que redirige a C++.
+      unit: { select: { slug: true, course: { select: { slug: true } } } },
+    },
   });
   const byId = new Map(lessons.map((l) => [l.id, l]));
 
@@ -274,7 +281,9 @@ export async function getLessonFunnel(
     return {
       ...row,
       title: lesson?.title ?? row.resourceId,
-      href: lesson ? `/app/u/${lesson.unit.slug}/${lesson.slug}` : null,
+      href: lesson
+        ? `/app/c/${lesson.unit.course.slug}/u/${lesson.unit.slug}/${lesson.slug}`
+        : null,
     };
   });
 }
@@ -326,7 +335,12 @@ export async function getPracticeFunnel(
 
   const exercises = await db.practiceExercise.findMany({
     where: { id: { in: rows.map((r) => r.resourceId) } },
-    select: { id: true, title: true, slug: true },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      course: { select: { slug: true } },
+    },
   });
   const byId = new Map(exercises.map((e) => [e.id, e]));
 
@@ -335,7 +349,9 @@ export async function getPracticeFunnel(
     return {
       ...row,
       title: exercise?.title ?? row.resourceId,
-      href: exercise ? `/app/ejercicios/${exercise.slug}` : null,
+      href: exercise
+        ? `/app/c/${exercise.course.slug}/ejercicios/${exercise.slug}`
+        : null,
     };
   });
 }

@@ -58,8 +58,9 @@ export const completeStep = withActionErrorHandling(
       return progression;
     });
 
-    revalidatePath(`/app/u/${step.lesson.unit.slug}`);
-    revalidatePath("/app");
+    const courseSlug = step.lesson.unit.course.slug;
+    revalidatePath(`/app/c/${courseSlug}/u/${step.lesson.unit.slug}`);
+    revalidatePath(`/app/c/${courseSlug}`);
 
     return {
       lessonCompleted: result.allStepsDone,
@@ -177,8 +178,9 @@ export const submitExercise = withActionErrorHandling(
     });
 
     if (allPassed) {
-      revalidatePath(`/app/u/${lesson.unit.slug}`);
-      revalidatePath("/app");
+      const courseSlug = lesson.unit.course.slug;
+      revalidatePath(`/app/c/${courseSlug}/u/${lesson.unit.slug}`);
+      revalidatePath(`/app/c/${courseSlug}`);
     }
 
     return { passed: allPassed, results, feedback, xpEarned };

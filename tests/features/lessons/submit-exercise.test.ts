@@ -54,7 +54,7 @@ vi.mock("@/features/lessons/lib/access", () => ({
         id: "lesson_1",
         xpReward: 50,
         steps: [{ id: "step_1" }],
-        unit: { slug: "unidad-01" },
+        unit: { slug: "unidad-01", course: { slug: "cpp-desde-cero" } },
       },
     },
   })),

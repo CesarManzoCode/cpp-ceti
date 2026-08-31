@@ -39,6 +39,8 @@ export interface LessonViewerProps {
    * errores salen de aquí.
    */
   language: LanguageId;
+  /** Curso dueño de la lección: todos los enlaces lo llevan. */
+  courseSlug: string;
   lesson: {
     id: string;
     title: string;
@@ -71,6 +73,7 @@ export function LessonViewer(props: LessonViewerProps) {
 
 function LessonPlayer({
   language,
+  courseSlug,
   lesson,
   unit,
   nextLessonLink,
@@ -237,7 +240,7 @@ function LessonPlayer({
               className="-ml-2 shrink-0"
               aria-label={`Volver a ${unit.title}`}
             >
-              <Link href={`/app/u/${unit.slug}`}>
+              <Link href={`/app/c/${courseSlug}/u/${unit.slug}`}>
                 <ChevronLeft />
                 <span className="hidden max-w-[18ch] truncate sm:inline">
                   {unit.title}
@@ -288,7 +291,7 @@ function LessonPlayer({
               variant="ghost"
               aria-label="Salir de la lección"
             >
-              <Link href="/app">
+              <Link href={`/app/c/${courseSlug}`}>
                 <X className="size-5" />
               </Link>
             </Button>
@@ -345,7 +348,7 @@ function LessonPlayer({
         }}
         xpEarned={completedDialog.xp || lesson.xpReward}
         nextLessonLink={nextLessonLink}
-        unitHref={`/app/u/${unit.slug}`}
+        unitHref={`/app/c/${courseSlug}/u/${unit.slug}`}
       />
     </>
   );
