@@ -38,25 +38,21 @@ const run = promisify(execFile);
 const RUN_TIMEOUT_MS = 15_000;
 
 /**
- * Desviaciones CONOCIDAS y PREEXISTENTES del contenido de C++.
+ * Desviaciones CONOCIDAS del contenido, toleradas a propósito.
  *
- * No se corrigen aquí: este trabajo debe preservar el curso de C++ tal
- * cual (contenido, ids, revisiones y progreso). Se listan para que el
- * verificador quede verde de forma honesta y el defecto siga a la vista
- * en el código, en vez de desaparecer.
+ * Hoy está vacío: todo lo ejecutable compila y da la salida que promete.
+ * La lista existe para que una desviación aceptada quede a la vista en el
+ * código en vez de desaparecer detrás de un verificador verde — no para
+ * silenciar fallos nuevos.
  *
- * `archivos/validar-archivo` (reto 1): la solución de referencia imprime
- * "No existe" y termina con `return 1`. Los tres adapters (Wandbox,
- * Piston, Judge0) traducen un exit distinto de cero a `runtime_error`, y
- * `buildTestResult` sólo aprueba con estado `accepted`. Resultado: el
- * ejercicio NO se puede aprobar ni con su propia solución. Existe así
- * desde antes de este cambio (commit 2e36796) y arreglarlo implica editar
- * el enunciado, las pistas y la solución de C++ — con su correspondiente
- * revisión de contenido. Queda reportado como bug de contenido aparte.
+ * La única entrada que tuvo (`archivos/validar-archivo`, reto 1) ya está
+ * corregida: la solución de referencia terminaba con `return 1`, y los
+ * tres adapters (Wandbox, Piston, Judge0) traducen un exit distinto de
+ * cero a `runtime_error`, así que el reto no se podía aprobar ni con su
+ * propia solución. Ahora reporta la falla y sale con `return 0`; el
+ * enunciado explica por qué.
  */
-const KNOWN_DEVIATIONS = new Set<string>([
-  "reto cpp-desde-cero/archivos/validar-archivo#4 [Reporta el archivo faltante]",
-]);
+const KNOWN_DEVIATIONS = new Set<string>();
 
 interface Case {
   stdin: string;

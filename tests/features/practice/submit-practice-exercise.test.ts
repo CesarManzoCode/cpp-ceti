@@ -76,6 +76,9 @@ describe("submitPracticeExercise", () => {
         published: true,
         xpReward: XP_REWARD,
         courseId: "course_cpp",
+        // Relación obligatoria en el schema: `resolveExecutionTarget`
+        // rechaza una práctica cuya unidad no esté publicada.
+        unit: { published: true },
         course: {
           id: "course_cpp",
           slug: "cpp-desde-cero",
@@ -117,6 +120,9 @@ describe("submitPracticeExercise", () => {
         published: true,
         xpReward: XP_REWARD,
         courseId: "course_cs",
+        // Relación obligatoria en el schema: `resolveExecutionTarget`
+        // rechaza una práctica cuya unidad no esté publicada.
+        unit: { published: true },
         course: {
           id: "course_cs",
           slug: "csharp-poo-1",

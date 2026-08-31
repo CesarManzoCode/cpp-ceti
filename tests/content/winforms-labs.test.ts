@@ -18,6 +18,7 @@ import type { CodeExampleStep, StepDefinition } from "../../prisma/content/types
 
 const units = cursoCsharpPoo1.units;
 const gui = units.find((u) => u.slug === "csharp-poo-07-gui")!;
+const integrador = units.find((u) => u.slug === "csharp-poo-08-integrador")!;
 
 function steps(): { where: string; step: StepDefinition }[] {
   return units.flatMap((u) =>
@@ -32,10 +33,15 @@ const WINFORMS_MARKERS =
   /\b(EventArgs|Form1|txt[A-Z]\w*|lbl[A-Z]\w*|btn[A-Z]\w*|\.Text\b|MessageBox)/;
 
 describe("la unidad de Windows Forms existe y es local", () => {
-  it("está publicada y tiene sus 4 lecciones", () => {
+  it("existe con sus 4 lecciones, pero NO publicada hasta la aceptación en Windows", () => {
     expect(gui).toBeDefined();
-    expect(gui.published).not.toBe(false);
     expect(gui.lessons).toHaveLength(4);
+    // El laboratorio sólo se acepta reproduciéndolo en Windows + Visual
+    // Studio. Mientras eso no ocurra, U7 (y el integrador que depende de
+    // ella) quedan fuera del aire: PENDING MANUAL WINDOWS ACCEPTANCE,
+    // `docs/decisiones-multilenguaje.md` §5.
+    expect(gui.published).toBe(false);
+    expect(integrador.published).toBe(false);
   });
 
   it("NINGÚN fragmento de WinForms es ejecutable", () => {

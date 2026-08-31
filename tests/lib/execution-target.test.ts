@@ -48,18 +48,31 @@ beforeEach(() => {
       id: "pex_cpp",
       published: true,
       contentRevision: "rev_cpp",
+      unit: { published: true },
       course: CPP_COURSE,
     },
     {
       id: "pex_cs",
       published: true,
       contentRevision: "rev_cs",
+      unit: { published: true },
       course: CS_COURSE,
     },
     {
       id: "pex_unpublished",
       published: false,
       contentRevision: null,
+      unit: { published: true },
+      course: CPP_COURSE,
+    },
+    // Práctica publicada, pero colgada de una unidad que todavía no sale al
+    // aire (ej. Windows Forms). La UI no la muestra; el servidor tampoco la
+    // ejecuta.
+    {
+      id: "pex_unidad_oculta",
+      published: true,
+      contentRevision: "rev_oculta",
+      unit: { published: false },
       course: CPP_COURSE,
     },
   ]);
@@ -190,6 +203,15 @@ describe("falla cerrado", () => {
     expect(await reason({ exerciseId: "ex_hidden" })).toBe("unavailable");
   });
 
+  it("una práctica publicada bajo una unidad despublicada no se ejecuta", async () => {
+    // Regresión: `resolvePractice` sólo miraba la práctica y el curso, así
+    // que una unidad todavía no publicada (U7/U8 de Windows Forms, por
+    // ejemplo) dejaba pasar sus prácticas a compilar.
+    expect(await reason({ practiceExerciseId: "pex_unidad_oculta" })).toBe(
+      "unavailable",
+    );
+  });
+
   it("lessonId que no corresponde al recurso", async () => {
     expect(
       await reason({ exerciseId: "ex_cpp", lessonId: "lesson_course_cs" }),
@@ -219,6 +241,7 @@ describe("falla cerrado", () => {
         id: "pex_roto",
         published: true,
         contentRevision: null,
+        unit: { published: true },
         course: {
           id: "course_roto",
           slug: "curso-roto",
@@ -240,6 +263,7 @@ describe("falla cerrado", () => {
         id: "pex_futuro",
         published: true,
         contentRevision: null,
+        unit: { published: true },
         course: {
           id: "course_futuro",
           slug: "curso-futuro",

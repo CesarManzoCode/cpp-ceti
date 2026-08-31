@@ -86,12 +86,38 @@ ejecución, rechazo del servidor ante peticiones forjadas). La reproducción
 manual del laboratorio en Windows queda como
 **PENDING MANUAL WINDOWS ACCEPTANCE**.
 
+Mientras esa aceptación no ocurra, la **U7 (Windows Forms)** y la **U8
+(proyecto integrador, que se entrega como app de escritorio) van
+`published: false`**: existen en el contenido y en la base, pero no salen al
+aire. Publicarlas es un cambio de una línea en cada
+`prisma/content/csharp/unidad-0{7,8}-*.ts` más un `npm run db:seed`, y lo
+hace quien haya corrido el laboratorio en Windows y lo dé por bueno.
+
+Consecuencia en el servidor: `resolveExecutionTarget` rechaza también las
+**prácticas** colgadas de una unidad despublicada. El seed marca toda
+práctica como publicada, así que sin ese guarda las prácticas de U7/U8
+seguirían siendo ejecutables por una petición directa aunque la unidad
+estuviera fuera del aire. Fijado en `tests/lib/execution-target.test.ts`.
+
 ## 6. Ejecución real de C# durante el desarrollo
 
-`wandbox.org` está bloqueado por la política de red de este entorno, así que
-no se pudo hacer un smoke test contra el proveedor real. Para no "confiar y
-seguir", todo el código C# ejecutable del curso y del banco de prácticas se
-compila y ejecuta localmente con **Mono 6.8 (`mcs` / `mono`)**, que es el
-mismo compilador y una versión vecina del perfil `csharp-mono-6.12`, y sus
-casos de prueba (visibles y ocultos) se verifican automáticamente. Ver
-`scripts/verify-csharp-content.ts`.
+`wandbox.org` está bloqueado por la política de red de este entorno (el proxy
+responde 403 al CONNECT; `emkc.org`, el Piston público, también), así que
+**sigue sin poder hacerse un smoke test contra el proveedor real**. No es un
+problema de código: es la política de red del entorno de desarrollo. La
+verificación contra Wandbox tiene que correrla alguien con salida a
+internet, o el propio despliegue.
+
+Para no "confiar y seguir", todo el código ejecutable del curso y del banco
+de prácticas se compila y ejecuta con un toolchain local — `g++ -std=c++17`
+para C++ y **Mono (`mcs` / `mono`)** para C#, el mismo compilador del perfil
+`csharp-mono-6.12` — y sus casos de prueba (visibles y ocultos) se comparan
+automáticamente. Ver `scripts/verify-content.ts`:
+
+```bash
+LANG=C.UTF-8 npx tsx scripts/verify-content.ts            # todos los cursos
+LANG=C.UTF-8 npx tsx scripts/verify-content.ts cpp-desde-cero
+```
+
+El locale UTF-8 no es opcional: sin él, cualquier salida con acentos falla
+por el entorno y no por el contenido.

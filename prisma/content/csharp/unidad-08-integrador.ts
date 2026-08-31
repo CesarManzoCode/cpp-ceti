@@ -10,7 +10,11 @@ export const unidad08: UnitDefinition = {
   title: "Proyecto integrador",
   description: "Entrega una aplicación de escritorio pequeña para un negocio, desde requisitos y UML hasta publicación e informe.",
   icon: "🚀",
-  published: true,
+  // NO publicada todavía: el proyecto integrador se entrega como app de
+  // escritorio con Windows Forms, así que depende de la misma aceptación
+  // manual en Windows que la U7 (PENDING MANUAL WINDOWS ACCEPTANCE,
+  // `docs/decisiones-multilenguaje.md` §5).
+  published: false,
   lessons: [
     /**
      * Objetivo: Define scope, UML, and observable acceptance cases for the final project.

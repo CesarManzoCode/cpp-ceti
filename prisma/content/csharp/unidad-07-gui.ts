@@ -10,7 +10,12 @@ export const unidad07: UnitDefinition = {
   title: "Aplicaciones de escritorio con Windows Forms",
   description: "Conecta clases de dominio con formularios, controles y eventos en un laboratorio local verificable.",
   icon: "🪟",
-  published: true,
+  // NO publicada todavía: el laboratorio de Windows Forms sólo se acepta
+  // reproduciéndolo en Windows + Visual Studio, y este entorno no los
+  // tiene. Queda como PENDING MANUAL WINDOWS ACCEPTANCE
+  // (`docs/decisiones-multilenguaje.md` §5). Se publica cuando alguien
+  // corra el laboratorio en Windows y lo dé por bueno.
+  published: false,
   lessons: [
     /**
      * Objetivo: Relate form, control, event, and handler in a WinForms application.

@@ -123,6 +123,10 @@ async function resolvePractice(
       id: true,
       published: true,
       contentRevision: true,
+      // La unidad dueña se resuelve por (curso, slug de unidad). Una unidad
+      // despublicada esconde sus prácticas en la UI; el servidor tiene que
+      // rechazarlas igual, o una petición forjada las seguiría ejecutando.
+      unit: { select: { published: true } },
       course: {
         select: {
           id: true,
@@ -137,7 +141,11 @@ async function resolvePractice(
   if (!exercise) {
     throw new ExecutionTargetError("not_found", "Ejercicio no encontrado");
   }
-  if (!exercise.published || !exercise.course.published) {
+  if (
+    !exercise.published ||
+    !exercise.unit.published ||
+    !exercise.course.published
+  ) {
     throw new ExecutionTargetError(
       "unavailable",
       "Este contenido no está disponible",
