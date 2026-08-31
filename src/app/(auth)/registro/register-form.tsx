@@ -20,6 +20,7 @@ import {
   usernameSchema,
 } from "@/lib/validation";
 import { checkUsernameAvailability } from "@/features/profile/actions";
+import { PRODUCT_NAME } from "@/lib/branding";
 
 const registerSchema = z.object({
   name: z
@@ -179,7 +180,7 @@ export function RegisterForm() {
         return;
       }
 
-      toast.success("¡Cuenta creada! Bienvenido a C++ CETI.");
+      toast.success(`¡Cuenta creada! Bienvenido a ${PRODUCT_NAME}.`);
       router.push("/app");
       router.refresh();
     });

@@ -77,7 +77,7 @@ function EmptyAmigos({ username }: { username: string }) {
   return (
     <div className="mt-8 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-5 sm:p-6">
       <h2 className="text-balance text-[19px] font-bold leading-snug">
-        Aún no tienes amigos en C++ CETI.
+        Aún no tienes amigos aquí.
       </h2>
       <p className="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
         Busca a tus compañeros por{" "}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bug, MessageSquarePlus } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
+import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import type { RoadmapUnit } from "@/features/roadmap/types";
@@ -70,6 +71,9 @@ export function Sidebar({
             Reportar un bug
             <span className="ml-auto tabular-nums">v0.1</span>
           </a>
+          <p className="pt-1 text-[12px] leading-snug text-subtle-foreground">
+            {UNOFFICIAL_NOTICE}
+          </p>
         </div>
       </aside>
     </div>

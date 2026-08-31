@@ -1,3 +1,4 @@
+import { PRODUCT_NAME } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -10,6 +11,9 @@ interface LogoProps {
  * Marca. El glifo son tres bloques que se van apilando — el mismo
  * objeto con el que el producto dibuja el progreso del curso. La
  * identidad y el sistema de progreso son la misma idea.
+ *
+ * El nombre corto es neutral: la plataforma ya no es de un solo lenguaje
+ * y el curso pone su propio título dentro de su ruta.
  */
 export function Logo({ className, size = "default", glyphOnly = false }: LogoProps) {
   const layout = {
@@ -39,7 +43,7 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
 
   if (glyphOnly) {
     return (
-      <span aria-label="C++ CETI" className="inline-flex">
+      <span aria-label={PRODUCT_NAME} className="inline-flex">
         {glyph}
       </span>
     );
@@ -54,7 +58,7 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
           layout.word,
         )}
       >
-        C++ CETI
+        CETI
       </span>
     </div>
   );

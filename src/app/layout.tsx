@@ -5,6 +5,7 @@ import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import "./globals.css";
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/branding";
 
 /**
  * Dos familias con papeles distintos:
@@ -31,33 +32,33 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
-    default: "C++ CETI — Aprende C++ programando, no memorizando",
-    template: "%s · C++ CETI",
+    default: `${PRODUCT_NAME} — ${PRODUCT_TAGLINE}`,
+    template: `%s · ${PRODUCT_NAME}`,
   },
   description:
-    "La plataforma interactiva de C++ hecha para estudiantes del CETI Guadalajara. Lecciones cortas, ejercicios reales y un editor de código en el navegador.",
+    "Plataforma de práctica para estudiantes del CETI Guadalajara: cursos de programación con lecciones cortas, ejercicios reales y un editor de código en el navegador. No es un producto oficial del CETI.",
   keywords: [
-    "C++",
     "CETI",
     "Guadalajara",
     "Desarrollo de Software",
     "aprender a programar",
-    "curso C++ en español",
-    "ejercicios C++",
+    "curso de C++ en español",
+    "programación orientada a objetos",
+    "curso de C# en español",
   ],
-  authors: [{ name: "C++ CETI" }],
+  authors: [{ name: PRODUCT_NAME }],
   openGraph: {
-    title: "C++ CETI — Aprende C++ programando",
+    title: `${PRODUCT_NAME} — ${PRODUCT_TAGLINE}`,
     description:
-      "Plataforma interactiva de C++ para estudiantes del CETI Guadalajara.",
+      "Cursos de programación para estudiantes del CETI Guadalajara. Plataforma no oficial.",
     type: "website",
     locale: "es_MX",
   },
   twitter: {
     card: "summary_large_image",
-    title: "C++ CETI",
+    title: PRODUCT_NAME,
     description:
-      "Aprende C++ con lecciones interactivas y ejercicios reales en el navegador.",
+      "Cursos de programación con lecciones interactivas y ejercicios reales en el navegador.",
   },
 };
 

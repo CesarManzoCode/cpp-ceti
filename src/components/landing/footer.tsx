@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
+import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 
 const links: { href: string; label: string; external?: boolean }[] = [
   { href: "/login", label: "Iniciar sesión" },
@@ -21,6 +22,11 @@ export function LandingFooter() {
           <Logo size="sm" />
           <p className="text-[13px] font-medium text-muted-foreground">
             Hecho en Guadalajara · {new Date().getFullYear()}
+          </p>
+          {/* La independencia institucional se dice donde se ve, no en una
+              página legal escondida. */}
+          <p className="max-w-[42ch] text-center text-[13px] text-subtle-foreground sm:text-left">
+            {UNOFFICIAL_NOTICE}
           </p>
         </div>
 

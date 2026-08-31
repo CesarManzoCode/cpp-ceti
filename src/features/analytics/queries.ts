@@ -56,6 +56,44 @@ export function rangeFromDays(days: number, now = new Date()): AnalyticsRange {
 }
 
 /**
+ * Filtro por curso.
+ *
+ * El curso NO se guarda en el evento: se DERIVA por relación desde el
+ * recurso (lección → unidad → curso, práctica → curso). Por eso los
+ * reportes históricos siguen valiendo tal cual: no hubo que inventar una
+ * columna nueva ni re-emitir eventos, y el filtro no depende de ninguna
+ * etiqueta que el cliente haya mandado.
+ *
+ * `undefined` significa "todos los cursos" y produce exactamente las
+ * mismas consultas que antes de que existiera el filtro.
+ */
+export type CourseFilter = string | undefined;
+
+/**
+ * Rutas de relación de un recurso hasta su curso. Se exportan para poder
+ * fijarlas en un test: si una ruta se equivoca, Prisma no falla — el filtro
+ * simplemente deja de filtrar (o filtra todo), y el panel mentiría en
+ * silencio.
+ */
+
+/** Evento/progreso de lección acotado al curso. */
+export function lessonCourseWhere(courseId: CourseFilter) {
+  return courseId ? { lesson: { unit: { courseId } } } : {};
+}
+
+/** Evento de práctica acotado al curso. */
+export function practiceCourseWhere(courseId: CourseFilter) {
+  return courseId ? { practiceExercise: { courseId } } : {};
+}
+
+/** Intento de ejercicio de lección acotado al curso. */
+export function exerciseCourseWhere(courseId: CourseFilter) {
+  return courseId
+    ? { exercise: { step: { lesson: { unit: { courseId } } } } }
+    : {};
+}
+
+/**
  * Eventos que cuentan como ACTIVIDAD SIGNIFICATIVA.
  * Abrir una lección (`lesson_view`) NO cuenta: mirar no es usar.
  */
@@ -220,6 +258,7 @@ export interface NamedFunnelRow extends FunnelRow {
 /** Funnel de lecciones: abrió → interactuó → completó. */
 export async function getLessonFunnel(
   range: AnalyticsRange,
+  courseId?: CourseFilter,
 ): Promise<NamedFunnelRow[]> {
   const [views, engaged, completions] = await Promise.all([
     db.productEvent.findMany({
@@ -227,6 +266,7 @@ export async function getLessonFunnel(
         name: "lesson_view",
         occurredAt: { gte: range.from, lte: range.to },
         lessonId: { not: null },
+        ...lessonCourseWhere(courseId),
       },
       select: { userId: true, lessonId: true },
       take: MAX_ROWS,
@@ -236,6 +276,7 @@ export async function getLessonFunnel(
         name: "lesson_engaged",
         occurredAt: { gte: range.from, lte: range.to },
         lessonId: { not: null },
+        ...lessonCourseWhere(courseId),
       },
       select: { userId: true, lessonId: true },
       take: MAX_ROWS,
@@ -244,6 +285,7 @@ export async function getLessonFunnel(
       where: {
         status: "completed",
         completedAt: { gte: range.from, lte: range.to },
+        ...lessonCourseWhere(courseId),
       },
       select: { userId: true, lessonId: true },
       take: MAX_ROWS,
@@ -291,6 +333,7 @@ export async function getLessonFunnel(
 /** Funnel de práctica: abrió → interactuó → aprobó. */
 export async function getPracticeFunnel(
   range: AnalyticsRange,
+  courseId?: CourseFilter,
 ): Promise<NamedFunnelRow[]> {
   const [views, engaged, completions] = await Promise.all([
     db.productEvent.findMany({
@@ -298,6 +341,7 @@ export async function getPracticeFunnel(
         name: "practice_view",
         occurredAt: { gte: range.from, lte: range.to },
         practiceExerciseId: { not: null },
+        ...practiceCourseWhere(courseId),
       },
       select: { userId: true, practiceExerciseId: true },
       take: MAX_ROWS,
@@ -307,12 +351,16 @@ export async function getPracticeFunnel(
         name: "practice_engaged",
         occurredAt: { gte: range.from, lte: range.to },
         practiceExerciseId: { not: null },
+        ...practiceCourseWhere(courseId),
       },
       select: { userId: true, practiceExerciseId: true },
       take: MAX_ROWS,
     }),
     db.userPracticeCompletion.findMany({
-      where: { completedAt: { gte: range.from, lte: range.to } },
+      where: {
+        completedAt: { gte: range.from, lte: range.to },
+        ...(courseId ? { exercise: { courseId } } : {}),
+      },
       select: { userId: true, exerciseId: true },
       take: MAX_ROWS,
     }),
@@ -412,10 +460,11 @@ export interface FrictionReport {
 export async function getFriction(
   range: AnalyticsRange,
   limit = 10,
+  courseId?: CourseFilter,
 ): Promise<FrictionReport> {
   const [lessonAttempts, practiceAttempts] = await Promise.all([
-    fetchLessonAttemptHistory(range),
-    fetchPracticeAttemptHistory(range),
+    fetchLessonAttemptHistory(range, courseId),
+    fetchPracticeAttemptHistory(range, courseId),
   ]);
 
   const lessonRows = rankFriction(computeExerciseFriction(lessonAttempts)).slice(
@@ -452,9 +501,22 @@ export interface HintReport {
 export async function getHintUsage(
   range: AnalyticsRange,
   limit = 10,
+  courseId?: CourseFilter,
 ): Promise<HintReport> {
   const hints = await db.userHintViewed.findMany({
-    where: { viewedAt: { gte: range.from, lte: range.to } },
+    where: {
+      viewedAt: { gte: range.from, lte: range.to },
+      // Una pista pertenece a un reto O a una práctica; el curso se deriva
+      // por la relación que exista.
+      ...(courseId
+        ? {
+            OR: [
+              { exercise: { step: { lesson: { unit: { courseId } } } } },
+              { practiceExercise: { courseId } },
+            ],
+          }
+        : {}),
+    },
     select: {
       userId: true,
       hintIndex: true,
@@ -469,8 +531,8 @@ export async function getHintUsage(
   // la ventana, "first-pass" significaría dos cosas distintas en dos tablas
   // del mismo panel.
   const [lessonAttempts, practiceAttempts] = await Promise.all([
-    fetchLessonAttemptHistory(range),
-    fetchPracticeAttemptHistory(range),
+    fetchLessonAttemptHistory(range, courseId),
+    fetchPracticeAttemptHistory(range, courseId),
   ]);
 
   const lessonHints = hints
@@ -525,12 +587,23 @@ export interface RunReport {
 export async function getRunReport(
   range: AnalyticsRange,
   limit = 10,
+  courseId?: CourseFilter,
 ): Promise<RunReport> {
   const [runs, lessonAttempts, practiceAttempts] = await Promise.all([
     db.productEvent.findMany({
       where: {
         name: "code_run",
         occurredAt: { gte: range.from, lte: range.to },
+        // Un run pertenece a un reto O a una práctica; el curso sale de la
+        // relación que exista, no de una etiqueta guardada en el evento.
+        ...(courseId
+          ? {
+              OR: [
+                { exercise: { step: { lesson: { unit: { courseId } } } } },
+                { practiceExercise: { courseId } },
+              ],
+            }
+          : {}),
       },
       select: {
         userId: true,
@@ -542,12 +615,18 @@ export async function getRunReport(
       take: MAX_ROWS,
     }),
     db.userExerciseAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
+      where: {
+        createdAt: { gte: range.from, lte: range.to },
+        ...exerciseCourseWhere(courseId),
+      },
       select: { userId: true, exerciseId: true, passed: true, createdAt: true },
       take: MAX_ROWS,
     }),
     db.userPracticeAttempt.findMany({
-      where: { createdAt: { gte: range.from, lte: range.to } },
+      where: {
+        createdAt: { gte: range.from, lte: range.to },
+        ...(courseId ? { exercise: { courseId } } : {}),
+      },
       select: { userId: true, exerciseId: true, passed: true, createdAt: true },
       take: MAX_ROWS,
     }),
@@ -614,9 +693,13 @@ export async function getRunReport(
  */
 async function fetchLessonAttemptHistory(
   range: AnalyticsRange,
+  courseId?: CourseFilter,
 ): Promise<AttemptRow[]> {
   const active = await db.userExerciseAttempt.findMany({
-    where: { createdAt: { gte: range.from, lte: range.to } },
+    where: {
+      createdAt: { gte: range.from, lte: range.to },
+      ...exerciseCourseWhere(courseId),
+    },
     select: { exerciseId: true },
     distinct: ["exerciseId"],
     take: 500,
@@ -633,9 +716,13 @@ async function fetchLessonAttemptHistory(
 /** Análogo para práctica. Ver `fetchLessonAttemptHistory`. */
 async function fetchPracticeAttemptHistory(
   range: AnalyticsRange,
+  courseId?: CourseFilter,
 ): Promise<AttemptRow[]> {
   const active = await db.userPracticeAttempt.findMany({
-    where: { createdAt: { gte: range.from, lte: range.to } },
+    where: {
+      createdAt: { gte: range.from, lte: range.to },
+      ...(courseId ? { exercise: { courseId } } : {}),
+    },
     select: { exerciseId: true },
     distinct: ["exerciseId"],
     take: 500,

@@ -10,6 +10,7 @@ import { getPublicProfile, type PublicProfile } from "@/features/friends/queries
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/get-session";
 import { levelFromXp } from "@/lib/level";
+import { PRODUCT_NAME, UNOFFICIAL_NOTICE } from "@/lib/branding";
 import {
   USERNAME_MAX,
   USERNAME_MIN,
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }: PageProps) {
   const { username } = await params;
   const normalized = username.toLowerCase();
   return {
-    title: `Únete a @${normalized} en C++ CETI`,
-    description: `Aprende C++ con lecciones interactivas. @${normalized} te está invitando.`,
+    title: `Únete a @${normalized} en ${PRODUCT_NAME}`,
+    description: `Aprende a programar con lecciones interactivas. @${normalized} te está invitando.`,
   };
 }
 
@@ -87,11 +88,11 @@ export default async function InvitarPage({ params }: PageProps) {
         <div className="mx-auto max-w-lg px-5 py-10 sm:px-6 sm:py-14">
           <p className="label-micro text-primary">Invitación</p>
           <h1 className="font-display mt-4 text-balance text-[clamp(1.625rem,5vw,2.25rem)]">
-            {profile.name} te invita a aprender C++
+            {profile.name} te invita a aprender a programar
           </h1>
           <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">
-            C++ CETI es una plataforma de práctica para alumnos del CETI
-            Guadalajara — 90% código, 10% teoría, todo en español.
+            Una plataforma de práctica para alumnos del CETI Guadalajara —
+            90% código, 10% teoría, todo en español. {UNOFFICIAL_NOTICE}
           </p>
 
           <section className="mt-8 border-y border-border py-5">

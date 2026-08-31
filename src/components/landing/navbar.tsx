@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { MobileNav } from "@/components/landing/mobile-nav";
+import { PRODUCT_NAME } from "@/lib/branding";
 
 const navLinks = [
   { href: "#por-que", label: "Por qué" },
@@ -46,7 +47,7 @@ export function LandingNavbar() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-6 px-5 sm:px-6">
         <Link
           href="/"
-          aria-label="C++ CETI — Inicio"
+          aria-label={`${PRODUCT_NAME} — Inicio`}
           className="-m-1 shrink-0 rounded-[var(--radius-xs)] p-1 transition-opacity hover:opacity-70"
         >
           <Logo />

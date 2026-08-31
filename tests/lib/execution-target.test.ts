@@ -150,6 +150,20 @@ describe("el perfil sale del curso del recurso", () => {
     expect(target.exerciseId).toBeNull();
     expect(target.stepId).toBe("step_runnable");
   });
+
+  it("la corrida de un ejemplo es playground, no un intento de reto", async () => {
+    // Clasificarla como "lesson" partiría en dos la serie histórica y
+    // contaminaría el denominador de "compilar → calificar" de los retos.
+    const target = await resolveExecutionTarget({ stepId: "step_runnable" });
+    expect(target.surface).toBe("playground");
+    expect(target.exerciseId).toBeNull();
+    expect(target.lessonId).toBe("lesson_course_cpp");
+  });
+
+  it("un reto sí es superficie de lección", async () => {
+    const target = await resolveExecutionTarget({ exerciseId: "ex_cpp" });
+    expect(target.surface).toBe("lesson");
+  });
 });
 
 describe("falla cerrado", () => {

@@ -32,17 +32,31 @@ poder comparar fricción entre lenguajes en vez de fragmentar la métrica:
 
 | Diagnóstico C# | Categoría |
 | --- | --- |
-| `CS1002` | `missing_semicolon` (existente) |
-| `CS0103` | `undeclared_identifier` (existente) |
-| `CS0246` | `unknown_type` (existente) |
-| `CS1503` | `type_mismatch` (existente) |
-| `CS7036` | `invalid_arguments` (existente) |
+| `CS1002` (Roslyn) y `CS1525` "expecting `;`" (Mono) | `missing_semicolon` (existente) |
+| `CS0103`, `CS0246`, `CS1061`, `CS0117` | `undeclared_identifier` (existente) |
+| `CS0029`, `CS0030`, `CS0266`, `CS1503`, `CS0019` | `type_mismatch` (existente) |
+| `CS1501`, `CS1502`, `CS1729` (Mono), `CS7036` (Roslyn) | `invalid_arguments` (existente) |
+| `CS1513`, `CS1514`, `CS1519`, `CS1026`, `CS1525` "end-of-file" | `unbalanced_delimiters` (existente) |
+| `CS5001`, `CS0017` | `linker_error` (existente) |
 | `CS0534` | `abstract_member_not_implemented` (**nueva**) |
 
 `CS0534` es el único caso sin equivalente en la taxonomía de GCC: "la clase
 derivada no implementa un miembro abstracto" no existe como error en C++
 (ahí es un error de instanciación de tipo abstracto, con otra semántica).
-Ver `docs/product-analytics.md` y `src/lib/analytics/error-category.ts`.
+
+`CS0246` ("el tipo o namespace no se encontró") se mapea a
+`undeclared_identifier` y no a `missing_include`: GCC agrupa igual el caso
+equivalente —`'vector' was not declared in this scope` cuando falta el
+`#include`— y `missing_include` está reservado en la taxonomía histórica al
+error de ARCHIVO de cabecera (`no such file or directory`), que en C# no
+existe.
+
+**Discrepancia verificada contra el compilador real:** el handoff supone que
+el punto y coma faltante es `CS1002`. Eso es Roslyn; Mono 6.x reporta
+`CS1525: Unexpected symbol ... expecting ','  or ';'`. Se aceptan los dos, y
+los fixtures de los tests son salida real de `mcs`.
+
+Ver `docs/product-analytics.md` §8.1 y `src/lib/analytics/error-category.ts`.
 
 ## 3. Revisión de contenido y semántica de ejecución
 

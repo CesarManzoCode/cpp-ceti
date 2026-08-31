@@ -21,7 +21,19 @@ import { db } from "@/lib/db";
 // En ninguno de esos casos se manda código a compilar.
 // =====================================================================
 
-export type ExecutionSurface = "lesson" | "practice";
+/**
+ * Superficie del evento `code_run`, con la MISMA semántica que antes de que
+ * la plataforma fuera multilenguaje (ver `docs/product-analytics.md` §8):
+ *
+ *   · `lesson`     — ejecución sin calificar de un RETO de lección.
+ *   · `practice`   — ejecución sin calificar de un ejercicio de práctica.
+ *   · `playground` — ejecución libre dentro de un ejemplo de código. No
+ *                    lleva `exerciseId`, para no contaminar el denominador
+ *                    de "compilar → calificar" de los retos.
+ *
+ * Cambiar esta clasificación partiría en dos las series históricas.
+ */
+export type ExecutionSurface = "lesson" | "practice" | "playground";
 
 export interface ResolvedExecutionTarget {
   profileId: ExecutionProfileId;
@@ -274,7 +286,9 @@ async function resolveRunnableStep(
     ...runtime,
     courseId: step.lesson.unit.course.id,
     courseSlug: step.lesson.unit.course.slug,
-    surface: "lesson",
+    // Playground, no "lesson": es una corrida libre del ejemplo, no un
+    // intento de un reto. La diferencia sostiene el embudo de los retos.
+    surface: "playground",
     lessonId: step.lesson.id,
     stepId: step.id,
     exerciseId: null,
