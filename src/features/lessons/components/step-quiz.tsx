@@ -81,6 +81,11 @@ export function StepQuiz({
       ? content.feedbackPerOption?.[selected]
       : null;
 
+  // La explicación completa suele nombrar la respuesta correcta: mostrarla
+  // tras un error equivaldría a revelarla. Se guarda para el acierto o el
+  // reveal explícito.
+  const showExplanation = isCorrect || revealed;
+
   return (
     <article className="space-y-7">
       <StepHeader label="Pregunta" icon={<CircleHelp aria-hidden />}>
@@ -101,7 +106,12 @@ export function StepQuiz({
         {content.options.map((option, idx) => {
           const isSelected = selected === idx;
           const isThisCorrect = idx === content.correctIndex;
-          const showCorrect = submitted && isThisCorrect;
+          // La correcta sólo se pinta cuando el alumno ACERTÓ o cuando pidió
+          // el reveal. Marcarla desde el primer error convertía los tres
+          // intentos en un trámite: bastaba con elegir la que ya estaba
+          // verde. El reintento tiene que seguir diagnosticando.
+          const showCorrect =
+            submitted && isThisCorrect && (isCorrect || revealed);
           const showWrong = submitted && isSelected && !isThisCorrect;
 
           return (
@@ -121,7 +131,10 @@ export function StepQuiz({
                   !isSelected && !submitted && "border-border",
                   showCorrect && "border-success bg-success-soft/70",
                   showWrong && "animate-shake border-destructive bg-destructive-soft/70",
-                  submitted && !isSelected && !isThisCorrect && "border-border opacity-55",
+                  submitted &&
+                    !isSelected &&
+                    !showCorrect &&
+                    "border-border opacity-55",
                 )}
               >
                 <span
@@ -188,11 +201,21 @@ export function StepQuiz({
               ? "Correcto"
               : revealed
                 ? "Respuesta revelada"
-                : "Aún no — repasa esto"
+                : "Aún no — vuelve a leer la pregunta"
           }
           className={cn("animate-fade-up", isCorrect && "animate-correct")}
         >
-          <Markdown language={language}>{content.explanation}</Markdown>
+          {showExplanation ? (
+            <Markdown language={language}>{content.explanation}</Markdown>
+          ) : (
+            <p>
+              Esa no es. Descarta lo que ya sabes que no puede ser y elige otra
+              vez.
+              {canReveal
+                ? " Si te atoraste, puedes ver la respuesta correcta."
+                : ""}
+            </p>
+          )}
         </Verdict>
       ) : null}
 

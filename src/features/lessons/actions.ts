@@ -10,6 +10,7 @@ import { buildFeedback, getExecutorForProfile } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak, incrementUserXp } from "@/lib/streak";
 import {
   codeSubmissionSchema,
@@ -29,14 +30,16 @@ export const completeStep = withActionErrorHandling(
   "completeStep",
   async (
     stepId: string,
+    options?: { assisted?: boolean },
   ): Promise<{
     lessonCompleted: boolean;
     lessonJustCompleted: boolean;
     xpEarned: number;
   }> => {
-    const { stepId: validStepId } = parseOrThrow(stepCompletionSchema, {
-      stepId,
-    });
+    const { stepId: validStepId, assisted } = parseOrThrow(
+      stepCompletionSchema,
+      { stepId, assisted: options?.assisted ?? false },
+    );
     const session = await requireSession();
     const userId = session.user.id;
 
@@ -51,6 +54,7 @@ export const completeStep = withActionErrorHandling(
         step.lessonId,
         lessonStepIds,
         step.lesson.xpReward,
+        assisted,
       );
       if (progression.lessonJustCompleted) {
         await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned);
@@ -71,6 +75,46 @@ export const completeStep = withActionErrorHandling(
 );
 
 /**
+ * Registra que el alumno REVELÓ la ayuda de un paso (la respuesta de un
+ * quiz, la solución de un reto).
+ *
+ * Se persiste en el momento del reveal, no al completar: el diálogo promete
+ * que el paso "quedará marcado como asistido" y esa promesa tiene que ser
+ * verdadera aunque el alumno cierre la pestaña sin terminar. `helpRevealCount`
+ * no se reinicia nunca; `assisted` sí lo reescribe cada completado, para que
+ * volver a resolverlo sin ayuda vuelva a contar como dominio autónomo.
+ */
+export const markStepAssisted = withActionErrorHandling(
+  "markStepAssisted",
+  async (stepId: string): Promise<void> => {
+    const { stepId: validStepId } = parseOrThrow(stepCompletionSchema, {
+      stepId,
+    });
+    const session = await requireSession();
+    const userId = session.user.id;
+
+    // Valida publicación igual que completar: no se registra ayuda de
+    // contenido inaccesible.
+    await requireAccessibleStep(validStepId);
+
+    await db.userStepProgress.upsert({
+      where: { userId_stepId: { userId, stepId: validStepId } },
+      update: { assisted: true, helpRevealCount: { increment: 1 } },
+      // El paso todavía no está completado; la fila existe para no perder
+      // el registro de la ayuda. `completionCount` arranca en 0 justo por
+      // eso: sin esto, revelar contaría como completar.
+      create: {
+        userId,
+        stepId: validStepId,
+        assisted: true,
+        helpRevealCount: 1,
+        completionCount: 0,
+      },
+    });
+  },
+);
+
+/**
  * Envía un intento de un ejercicio de lección. Compila, corre tests,
  * guarda intento, y otorga XP **sólo en el primer pase**. La detección
  * de "primer pase" es atómica vía `UserExerciseCompletion` con UNIQUE
@@ -83,13 +127,19 @@ export const submitExercise = withActionErrorHandling(
   async (input: {
     exerciseId: string;
     sourceCode: string;
+    /** El envío se hizo con la solución revelada a la vista. */
+    assisted?: boolean;
   }): Promise<{
     passed: boolean;
     results: TestCaseResult[];
     feedback: string;
     xpEarned: number;
+    structureFailures: string[];
   }> => {
-    const { exerciseId, sourceCode } = parseOrThrow(codeSubmissionSchema, input);
+    const { exerciseId, sourceCode, assisted } = parseOrThrow(
+      codeSubmissionSchema,
+      input,
+    );
     const session = await requireSession();
     const userId = session.user.id;
     await enforceRateLimit(userId, "submit-lesson-exercise");
@@ -122,8 +172,20 @@ export const submitExercise = withActionErrorHandling(
     const durationMs = Date.now() - startedAt;
 
     const passedCount = results.filter((r) => r.passed).length;
-    const allPassed = passedCount === results.length;
-    const feedback = buildFeedback(results);
+    const testsPassed = passedCount === results.length;
+
+    // Los retos con objetivo estructural (POO) exigen las dos cosas: la
+    // salida correcta Y el diseño que pide el enunciado. Sin contrato,
+    // esto no cambia nada — es el caso de todo C++.
+    const structure = checkStructure(
+      exercise.structureContract,
+      sourceCode,
+      target.language,
+    );
+    const allPassed = testsPassed && structure.satisfied;
+    const feedback = structure.satisfied
+      ? buildFeedback(results)
+      : buildStructureFeedback(structure, testsPassed);
 
     const lesson = exercise.step.lesson;
     const stepIdsForProgression = lesson.steps.map((s) => s.id);
@@ -151,6 +213,7 @@ export const submitExercise = withActionErrorHandling(
           // pueden comparar intentos de antes y después de un cambio.
           contentRevision: exercise.contentRevision,
           awardedXp: firstPass,
+          assisted,
         },
       });
 
@@ -163,6 +226,7 @@ export const submitExercise = withActionErrorHandling(
         lesson.id,
         stepIdsForProgression,
         lesson.xpReward,
+        assisted,
       );
 
       let xp = 0;
@@ -183,6 +247,12 @@ export const submitExercise = withActionErrorHandling(
       revalidatePath(`/app/c/${courseSlug}`);
     }
 
-    return { passed: allPassed, results, feedback, xpEarned };
+    return {
+      passed: allPassed,
+      results,
+      feedback,
+      xpEarned,
+      structureFailures: structure.failures,
+    };
   },
 );

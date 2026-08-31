@@ -41,6 +41,7 @@ export default async function LessonPage({
       ...(s.content as object),
     } as StepContent,
     completed: s.completed,
+    assisted: s.assisted,
     exercise: s.exercise
       ? {
           id: s.exercise.id,

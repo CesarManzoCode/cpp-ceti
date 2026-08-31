@@ -1,4 +1,4 @@
-import { type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { allPracticeSets } from "./content/exercises";
 import { contentRevision, trackRevision } from "./seed-revisions";
@@ -71,6 +71,8 @@ export async function seedPracticeExercises(db: PrismaClient) {
           starterCode: ex.starterCode,
           solutionCode: ex.solutionCode,
           hints: ex.hints ?? [],
+          // Ver `seed-content.ts`: quitar el contrato lo borra de la base.
+          structureContract: ex.structure ?? Prisma.DbNull,
           difficulty: ex.difficulty,
           xpReward: ex.xpReward ?? 15,
           position: i + 1,
@@ -86,6 +88,7 @@ export async function seedPracticeExercises(db: PrismaClient) {
           starterCode: ex.starterCode,
           solutionCode: ex.solutionCode,
           hints: ex.hints ?? [],
+          structureContract: ex.structure ?? Prisma.DbNull,
           difficulty: ex.difficulty,
           xpReward: ex.xpReward ?? 15,
           position: i + 1,
@@ -125,6 +128,7 @@ export async function seedPracticeExercises(db: PrismaClient) {
           starterCode: ex.starterCode,
           solutionCode: ex.solutionCode,
           hints: ex.hints ?? [],
+          structure: ex.structure ?? null,
           difficulty: ex.difficulty,
           xpReward: ex.xpReward ?? 15,
           testCases: ex.testCases.map((tc) => ({

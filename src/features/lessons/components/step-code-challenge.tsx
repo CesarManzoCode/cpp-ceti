@@ -125,6 +125,9 @@ export function StepCodeChallenge({
       const res = await submitExercise({
         exerciseId: exercise.id,
         sourceCode: code,
+        // Enviar la solución insertada no vale lo mismo que resolverla:
+        // conserva el XP, pero el paso queda marcado como asistido.
+        assisted: solutionRevealed,
       });
       setSubmission(res);
       setAttempt((a) => a + 1);
@@ -298,8 +301,10 @@ export function StepCodeChallenge({
             <DialogDescription>
               Vamos a poner una solución correcta en tu editor. Léela paso por
               paso e intenta entender por qué funciona — el copy-paste no
-              enseña. Conservas el XP cuando aún no has pasado, pero el reto
-              quedará marcado como asistido.
+              enseña. Conservas todo tu XP, y el paso quedará guardado como
+              &ldquo;completado con ayuda&rdquo; para que sepas qué repasar.
+              Si más adelante lo resuelves sin ver la solución, vuelve a
+              contar como resuelto por ti.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -16,6 +16,12 @@ export async function markStepCompletedInTx(
   lessonId: string,
   lessonStepIds: readonly string[],
   lessonXpReward: number,
+  /**
+   * El paso se completó con la respuesta o la solución revelada. Se
+   * REESCRIBE en cada completado: volver a resolverlo sin ayuda devuelve el
+   * paso a autónomo. No toca el XP; sólo distingue dominio de exposición.
+   */
+  assisted = false,
 ): Promise<{
   /** Todos los pasos de la lección están marcados como completados. */
   allStepsDone: boolean;
@@ -30,12 +36,19 @@ export async function markStepCompletedInTx(
   // (`lesson_step_attempt`) y en `UserExerciseAttempt`.
   await tx.userStepProgress.upsert({
     where: { userId_stepId: { userId, stepId } },
-    update: { completionCount: { increment: 1 } },
-    create: { userId, stepId },
+    update: { completionCount: { increment: 1 }, assisted },
+    create: { userId, stepId, assisted },
   });
 
+  // `completionCount > 0` distingue un paso COMPLETADO de una fila creada
+  // sólo para registrar ayuda revelada (ver `markStepAssisted`). Sin este
+  // filtro, revelar una respuesta contaría como terminar el paso.
   const completedCount = await tx.userStepProgress.count({
-    where: { userId, stepId: { in: [...lessonStepIds] } },
+    where: {
+      userId,
+      stepId: { in: [...lessonStepIds] },
+      completionCount: { gt: 0 },
+    },
   });
 
   // Aún faltan pasos: asegurar in_progress (sin pisar si ya está completed).
