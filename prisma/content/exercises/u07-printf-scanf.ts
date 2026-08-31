@@ -15,6 +15,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes
  */
 export const u07PrintfScanfExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "printf-scanf",
   unitTitle: "printf y scanf: la forma C",
   unitIcon: "🖨️",

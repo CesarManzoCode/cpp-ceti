@@ -15,7 +15,7 @@ if (!process.env.DATABASE_URL) {
 const db = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding C++ CETI database...");
+  console.log("🌱 Seeding CETI database...");
   await seedCourse(db);
   await seedPracticeExercises(db);
   console.log("✅ Seed completed.");

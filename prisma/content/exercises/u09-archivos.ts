@@ -20,6 +20,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes
  */
 export const u09ArchivosExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "archivos",
   unitTitle: "Archivos: guardar y leer del disco",
   unitIcon: "📂",

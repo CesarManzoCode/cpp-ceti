@@ -13,13 +13,14 @@ import { getActivityFeed, getFriends } from "@/features/friends/queries";
 import { RoadmapUnits } from "@/features/roadmap/components/roadmap-units";
 import {
   findNextLesson,
-  getDefaultCourse,
+  getCourseBySlug,
   getRoadmapUnits,
 } from "@/features/roadmap/queries";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
 import type { NextLesson, RoadmapUnit } from "@/features/roadmap/types";
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 
 export const metadata = {
   title: "Inicio",
@@ -30,7 +31,7 @@ export default async function AppHomePage() {
   if (!session?.user) return null;
 
   const [course, stats, nextLesson, friends, feed] = await Promise.all([
-    getDefaultCourse(),
+    getCourseBySlug(LEGACY_CPP_COURSE_SLUG),
     getUserStats(session.user.id),
     findNextLesson(session.user.id),
     getFriends(session.user.id),

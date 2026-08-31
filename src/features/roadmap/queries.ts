@@ -5,16 +5,22 @@ import { db } from "@/lib/db";
 import type { NextLesson, RoadmapUnit } from "./types";
 
 /**
- * Curso "principal" — solo hay uno (C++ desde cero). Si en el futuro
- * hay más, esta función elige el primero.
+ * Curso por slug — la única forma correcta de obtener un curso.
  *
  * Envuelto en `cache()` para que el layout y la page del dashboard NO
  * dupliquen la query en el mismo request.
  */
-export const getDefaultCourse = cache(async () => {
+export const getCourseBySlug = cache(async (slug: string) => {
   return db.course.findFirst({
+    where: { slug, published: true },
+  });
+});
+
+/** Cursos publicados, en orden de presentación. */
+export const getPublishedCourses = cache(async () => {
+  return db.course.findMany({
     where: { published: true },
-    orderBy: { order: "asc" },
+    orderBy: [{ order: "asc" }, { slug: "asc" }],
   });
 });
 

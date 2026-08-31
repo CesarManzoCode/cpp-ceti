@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { LessonViewer } from "@/features/lessons/components/lesson-viewer";
-import { getDefaultCourse } from "@/features/roadmap/queries";
+import { getCourseBySlug } from "@/features/roadmap/queries";
 import { getLessonBySlug } from "@/features/lessons/queries";
 import { requireSession } from "@/lib/get-session";
 import type { StepContent, ViewerStep } from "@/features/lessons/types";
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 
 interface PageProps {
   params: Promise<{ unitSlug: string; lessonSlug: string }>;
@@ -19,7 +20,7 @@ export default async function LessonPage({
   const { p } = await searchParams;
   const session = await requireSession();
 
-  const course = await getDefaultCourse();
+  const course = await getCourseBySlug(LEGACY_CPP_COURSE_SLUG);
   if (!course) notFound();
 
   const data = await getLessonBySlug(

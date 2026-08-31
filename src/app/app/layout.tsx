@@ -5,10 +5,11 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { getPendingIncomingCount } from "@/features/friends/queries";
-import { getDefaultCourse, getRoadmapUnits } from "@/features/roadmap/queries";
+import { getCourseBySlug, getRoadmapUnits } from "@/features/roadmap/queries";
 import { getAdminContext } from "@/lib/admin";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 
 export default async function AppLayout({
   children,
@@ -22,7 +23,7 @@ export default async function AppLayout({
 
   // Paralelizar: course/stats/pending son independientes; units depende de course.
   const [course, stats, pendingFriendsCount, adminContext] = await Promise.all([
-    getDefaultCourse(),
+    getCourseBySlug(LEGACY_CPP_COURSE_SLUG),
     getUserStats(session.user.id),
     getPendingIncomingCount(session.user.id),
     // Sólo decide si se muestra el acceso al panel; la autorización real la

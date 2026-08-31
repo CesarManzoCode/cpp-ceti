@@ -4,6 +4,8 @@ import { Check, Code2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { BrickRow } from "@/components/ui/bricks";
 import { getPracticeGroups } from "@/features/practice/queries";
+import { getCourseBySlug } from "@/features/roadmap/queries";
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 import { requireSession } from "@/lib/get-session";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 import { pluralize } from "@/lib/utils";
@@ -14,7 +16,10 @@ export const metadata = {
 
 export default async function EjerciciosPage() {
   const session = await requireSession();
-  const groups = await getPracticeGroups(session.user.id);
+  const course = await getCourseBySlug(LEGACY_CPP_COURSE_SLUG);
+  const groups = course
+    ? await getPracticeGroups(course.id, session.user.id)
+    : [];
 
   const totalExercises = groups.reduce((acc, g) => acc + g.exercises.length, 0);
   const totalPassed = groups.reduce(

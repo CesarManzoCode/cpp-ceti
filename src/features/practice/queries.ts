@@ -21,15 +21,18 @@ export interface PracticeUnitGroup {
 }
 
 /**
- * Devuelve los ejercicios agrupados por unidad, con el estado del usuario.
- * El orden de los grupos sigue el orden de las unidades del curso.
+ * Devuelve los ejercicios de UN curso agrupados por unidad, con el estado
+ * del usuario. El orden de los grupos sigue el orden de las unidades del
+ * curso. El `courseId` es obligatorio: sin él, dos cursos con una unidad
+ * llamada igual mezclarían sus ejercicios en el mismo grupo.
  */
 export async function getPracticeGroups(
+  courseId: string,
   userId: string,
 ): Promise<PracticeUnitGroup[]> {
   const [exercises, units, attempts] = await Promise.all([
     db.practiceExercise.findMany({
-      where: { published: true },
+      where: { published: true, courseId },
       orderBy: [{ unitSlug: "asc" }, { position: "asc" }],
       select: {
         id: true,
@@ -43,6 +46,7 @@ export async function getPracticeGroups(
       },
     }),
     db.unit.findMany({
+      where: { courseId },
       select: { slug: true, title: true, icon: true, order: true },
       orderBy: { order: "asc" },
     }),
@@ -119,16 +123,18 @@ export interface PracticeDetail {
 }
 
 /**
- * Devuelve un ejercicio por slug con la info necesaria para renderizar
- * el editor. Incluye el último intento del usuario si existe (para que
- * pueda continuar donde lo dejó).
+ * Devuelve un ejercicio por (curso, slug) con la info necesaria para
+ * renderizar el editor. Incluye el último intento del usuario si existe
+ * (para que pueda continuar donde lo dejó). El slug es único DENTRO del
+ * curso, así que el curso no es opcional.
  */
 export async function getPracticeBySlug(
+  courseId: string,
   slug: string,
   userId: string,
 ): Promise<PracticeDetail | null> {
   const ex = await db.practiceExercise.findUnique({
-    where: { slug },
+    where: { courseId_slug: { courseId, slug } },
     include: {
       testCases: { orderBy: { order: "asc" } },
     },
@@ -136,8 +142,8 @@ export async function getPracticeBySlug(
   if (!ex || !ex.published) return null;
 
   const [unit, latestAttempt, anyPass] = await Promise.all([
-    db.unit.findFirst({
-      where: { slug: ex.unitSlug },
+    db.unit.findUnique({
+      where: { courseId_slug: { courseId, slug: ex.unitSlug } },
       select: { title: true },
     }),
     db.userPracticeAttempt.findFirst({

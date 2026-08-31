@@ -46,11 +46,17 @@ export interface PracticeExerciseDefinition {
 }
 
 /**
- * Conjunto de ejercicios de una unidad. El `unitSlug` se usa para
- * agrupar visualmente y para el contexto pedagógico de la dificultad.
+ * Conjunto de ejercicios de una unidad de UN curso.
+ *
+ * `courseSlug` es obligatorio: dos cursos pueden tener unidades y ejercicios
+ * con nombres convencionales idénticos ("arreglos", "constructores"). Sin el
+ * curso, el seed no puede resolver a qué unidad pertenece el conjunto y los
+ * intentos de un alumno podrían colgarse del ejercicio equivocado. El curso
+ * NUNCA se infiere de un prefijo de slug.
  */
 export interface PracticeUnitSetDefinition {
-  unitSlug: string;       // debe coincidir con el slug de la unidad
+  courseSlug: string;     // debe coincidir con el slug del curso
+  unitSlug: string;       // debe coincidir con el slug de la unidad DEL CURSO
   unitTitle: string;      // texto para el header del grupo
   unitIcon?: string;      // emoji opcional (espejo del de la unidad)
   exercises: PracticeExerciseDefinition[];

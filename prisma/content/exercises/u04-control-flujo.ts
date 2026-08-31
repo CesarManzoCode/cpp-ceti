@@ -15,6 +15,7 @@ import type { PracticeUnitSetDefinition } from "./types";
  *   hard   — starter con solo includes
  */
 export const u04ControlFlujoExercises: PracticeUnitSetDefinition = {
+  courseSlug: "cpp-desde-cero",
   unitSlug: "control-de-flujo",
   unitTitle: "Control de flujo",
   unitIcon: "🔀",

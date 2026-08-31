@@ -8,11 +8,33 @@ const asPrisma = db as unknown as Parameters<typeof resolveFeedbackContext>[0];
 
 beforeEach(() => {
   (db as FakeDb).reset();
+  // Dos cursos con MISMOS slugs de unidad, lección y ejercicio: es
+  // exactamente el caso que la resolución por curso tiene que distinguir.
   (db as FakeDb).seed("lesson", [
-    { id: "lesson_1", slug: "primer-programa", unit: { slug: "u01" } },
+    {
+      id: "lesson_cpp",
+      slug: "primer-programa",
+      unit: { slug: "u01", course: { slug: "cpp-desde-cero" } },
+    },
+    {
+      id: "lesson_cs",
+      slug: "primer-programa",
+      unit: { slug: "u01", course: { slug: "csharp-poo-1" } },
+    },
   ]);
   (db as FakeDb).seed("practiceExercise", [
-    { id: "p_1", slug: "u01-firma" },
+    {
+      id: "p_cpp",
+      slug: "u01-firma",
+      courseId: "c_cpp",
+      course: { slug: "cpp-desde-cero" },
+    },
+    {
+      id: "p_cs",
+      slug: "u01-firma",
+      courseId: "c_cs",
+      course: { slug: "csharp-poo-1" },
+    },
   ]);
 });
 
@@ -41,7 +63,7 @@ describe("resolveFeedbackContext", () => {
     expect(context).toEqual({
       path: "/app/u/u01/primer-programa",
       surface: "lesson",
-      lessonId: "lesson_1",
+      lessonId: "lesson_cpp",
       practiceExerciseId: null,
     });
   });
@@ -52,7 +74,34 @@ describe("resolveFeedbackContext", () => {
       "/app/ejercicios/u01-firma",
     );
     expect(context.surface).toBe("practice");
-    expect(context.practiceExerciseId).toBe("p_1");
+    expect(context.practiceExerciseId).toBe("p_cpp");
+  });
+
+  it("la ruta canónica con curso resuelve la lección de ESE curso", async () => {
+    const context = await resolveFeedbackContext(
+      asPrisma,
+      "/app/c/csharp-poo-1/u/u01/primer-programa",
+    );
+    expect(context.surface).toBe("lesson");
+    expect(context.lessonId).toBe("lesson_cs");
+  });
+
+  it("la ruta canónica con curso resuelve la práctica de ESE curso", async () => {
+    const context = await resolveFeedbackContext(
+      asPrisma,
+      "/app/c/csharp-poo-1/ejercicios/u01-firma",
+    );
+    expect(context.surface).toBe("practice");
+    expect(context.practiceExerciseId).toBe("p_cs");
+  });
+
+  it("un curso inexistente no cae al curso legacy", async () => {
+    const context = await resolveFeedbackContext(
+      asPrisma,
+      "/app/c/curso-fantasma/ejercicios/u01-firma",
+    );
+    expect(context.surface).toBe("practice");
+    expect(context.practiceExerciseId).toBeNull();
   });
 
   it("una ruta cualquiera de la app queda como superficie app", async () => {

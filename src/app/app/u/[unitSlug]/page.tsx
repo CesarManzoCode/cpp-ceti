@@ -5,9 +5,10 @@ import { ArrowRight, Check } from "lucide-react";
 import { BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
 import { RoadmapLessons } from "@/features/roadmap/components/roadmap-lessons";
-import { getDefaultCourse } from "@/features/roadmap/queries";
+import { getCourseBySlug } from "@/features/roadmap/queries";
 import { getUnitBySlug } from "@/features/lessons/queries";
 import { requireSession } from "@/lib/get-session";
+import { LEGACY_CPP_COURSE_SLUG } from "@/lib/courses";
 
 interface PageProps {
   params: Promise<{ unitSlug: string }>;
@@ -17,7 +18,7 @@ export default async function UnitPage({ params }: PageProps) {
   const { unitSlug } = await params;
   const session = await requireSession();
 
-  const course = await getDefaultCourse();
+  const course = await getCourseBySlug(LEGACY_CPP_COURSE_SLUG);
   if (!course) notFound();
 
   const unit = await getUnitBySlug(course.slug, unitSlug, session.user.id);
