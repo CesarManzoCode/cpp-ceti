@@ -1,4 +1,4 @@
-# Guía de despliegue — C++ CETI
+# Guía de despliegue — Plataforma de Programación CETI
 
 Esta guía te lleva de cero a tener la plataforma corriendo en producción.
 
@@ -64,11 +64,56 @@ Con tu `.env.local` ya configurado:
 
 ```bash
 npm run db:push     # crea las tablas en Supabase
-npm run db:seed     # carga las Unidades 1 y 2 con todas sus lecciones
+npm run db:seed     # carga los dos cursos con todo su contenido
 ```
 
 Verifica en Supabase (**Table Editor**) que aparecieron las tablas `course`,
 `unit`, `lesson`, `lesson_step`, `exercise`, `test_case`, `user`, `session`, etc.
+
+Los dos cursos deben quedar así:
+
+| slug | language | executionProfile | unidades | lecciones | prácticas |
+| --- | --- | --- | --- | --- | --- |
+| `cpp-desde-cero` | `cpp` | `cpp17-wandbox` | 10 | 67 | 80 |
+| `csharp-poo-1` | `csharp` | `csharp-mono-6.12` | 8 | 30 | 32 |
+
+---
+
+## 4.1 Actualizar una base que YA tenía sólo C++
+
+La migración `add_course_language` es la zona crítica de este cambio: agrega el
+lenguaje y el perfil al curso, y hace a cada práctica propiedad de un curso.
+Está escrita por etapas y **aborta con un mensaje explícito** en vez de adivinar:
+
+- Agrega las columnas nullable primero.
+- Rellena el curso legacy buscándolo por su slug estable `cpp-desde-cero`. Si no
+  existe, o si hay otros cursos sin metadatos, **falla** y pide un mapeo explícito.
+- Verifica que todas las prácticas quedaron asignadas y que ninguna apunta a una
+  unidad inexistente.
+- Sólo entonces pone `NOT NULL`, crea los índices y las llaves foráneas.
+
+Ninguna fila se borra ni se recrea. Antes de aplicarla en producción:
+
+```bash
+# 1. Copia de seguridad (Supabase: Database → Backups, o pg_dump)
+pg_dump "$DATABASE_URL" > backup-antes-de-migrar.sql
+
+# 2. Ensaya sobre una copia con datos reales y compara conteos e ids
+npm run db:migrate:deploy
+npm run db:seed
+```
+
+**Rollback:** si la migración aborta, no dejó cambios a medias (cada etapa corre
+en su propia transacción y las verificaciones van antes de endurecer el schema).
+Si hay que revertir después de aplicarla, restaura el respaldo: no hay migración
+"down" automática, a propósito — deshacer la propiedad por curso de las prácticas
+requiere decidir qué hacer con el contenido de C# que ya se sembró.
+
+Efecto esperado y **normal**: la primera corrida del seed genera UNA revisión de
+contenido nueva por cada paso, ejercicio y práctica, porque el lenguaje y el
+perfil de ejecución pasaron a formar parte del hash. Las revisiones anteriores se
+conservan y ningún progreso se ve afectado. A partir de la segunda corrida, el
+seed no genera revisiones nuevas.
 
 ---
 
@@ -201,6 +246,20 @@ Cuando termine, abre la URL y prueba:
 
 ## 7. Mantenimiento
 
+### Antes de publicar el curso de C#
+
+- [ ] `CODE_EXECUTOR_PROVIDER` soporta el perfil `csharp-mono-6.12`. Con Wandbox
+      no hace falta configurar nada; con Piston hace falta `PISTON_CSHARP_VERSION`
+      y con Judge0 `JUDGE0_CSHARP_LANGUAGE_ID` verificado contra el `/languages`
+      de esa instancia. Sin eso, C# queda deshabilitado con un error de entorno
+      (nunca se compila con GCC).
+- [ ] **Prueba de acentos.** Varias salidas esperadas del curso llevan acentos
+      (`Código: …`). Corre una práctica con acentos contra el proveedor real y
+      compara la salida: Mono los rompe si el proceso no está en UTF-8.
+- [ ] Recorre una lección y una práctica de cada curso con una cuenta real.
+- [ ] Comprueba que una URL vieja (`/app/u/primer-programa`) redirige con 308 al
+      curso de C++.
+
 ### Build de Vercel (recomendado)
 
 A partir de Sprint 3, `npm run build` **solo** compila la app:
@@ -225,8 +284,12 @@ falla, el deploy falla — y nunca se publica una versión incompatible con la D
 ### Actualizar contenido
 
 1. Edita o agrega un archivo en `prisma/content/`.
-2. Push a `main` → Vercel hace deploy.
-3. Después del deploy, corre el seed:
+2. Verifica el código nuevo antes de publicarlo:
+   `LANG=C.UTF-8 npx tsx scripts/verify-content.ts` compila y ejecuta todo el
+   contenido ejecutable contra sus casos de prueba (necesita `g++` para C++ y
+   `mcs`/`mono` para C#).
+3. Push a `main` → Vercel hace deploy.
+4. Después del deploy, corre el seed:
    - **Desde tu máquina**: `npm run db:seed` (lee `.env.local` apuntando a prod).
    - **O dispara un workflow manual** en GitHub Actions que corra
      `dotenv -e .env.local -- tsx prisma/seed.ts` con secrets.

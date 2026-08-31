@@ -13,9 +13,12 @@ src/
 │   │   ├── health/          # ping para monitoreo
 │   │   └── run/             # POST → compila y ejecuta (rate limit 30/min por usuario)
 │   ├── app/                 # área autenticada
-│   │   ├── page.tsx         # inicio: siguiente lección + "Tu camino"
-│   │   ├── u/[unitSlug]/[lessonSlug]  # reproductor de lecciones
-│   │   ├── ejercicios/      # práctica libre
+│   │   ├── page.tsx         # entrada: elige curso (o entra al único que hay)
+│   │   ├── c/[courseSlug]/  # TODO lo que pertenece a un curso
+│   │   │   ├── page.tsx     # inicio del curso: siguiente lección + "Tu camino"
+│   │   │   ├── u/[unitSlug]/[lessonSlug]  # reproductor de lecciones
+│   │   │   └── ejercicios/  # práctica libre del curso
+│   │   ├── u/ · ejercicios/ # URLs legacy sin curso → 308 al curso de C++
 │   │   ├── logros/ · amigos/ · perfil/
 │   ├── invitar/             # invitaciones entre estudiantes
 │   └── page.tsx             # landing
@@ -25,11 +28,15 @@ src/
 │   ├── roadmap/             # el camino del curso y su progreso
 │   ├── friends/ · profile/ · bug-reports/
 ├── components/
-│   ├── editor/              # Monaco + consola + autocompletado y diagnósticos de C++
+│   ├── editor/              # Monaco + consola + autocompletado y diagnósticos
+│   │                        #   por lenguaje (completions/, diagnostics.ts)
 │   ├── exercise/            # enunciado, casos de ejemplo, pistas, resultados de tests
 │   ├── landing/ · layout/ · shared/ · ui/
 ├── lib/
 │   ├── executor/            # adapters: wandbox · piston · judge0 (+ normalize, feedback)
+│   ├── code-languages/      # registro de lenguajes y perfiles de ejecución
+│   ├── execution-target.ts  # recurso → curso → perfil (frontera de confianza)
+│   ├── courses.ts · course-selection.ts · branding.ts
 │   ├── auth.ts · db.ts · rate-limit.ts · level.ts · streak.ts · completions.ts
 │   └── validation/
 └── env.ts                   # todas las variables, validadas con Zod al arrancar
@@ -37,22 +44,47 @@ src/
 prisma/
 ├── schema.prisma            # auth + contenido + progreso + social
 ├── seed.ts · seed-content.ts
-└── content/                 # el curso completo en TypeScript tipado
-    ├── unidad-01…10-*.ts    # lecciones y pasos
-    └── exercises/           # ejercicios de práctica por unidad
+└── content/                 # los cursos completos en TypeScript tipado
+    ├── unidad-01…10-*.ts    # curso de C++: lecciones y pasos
+    ├── csharp/              # curso de POO I en C#: 8 unidades
+    └── exercises/           # práctica por unidad (cpp en la raíz, csharp/)
 ```
 
 ---
 
 ## Decisiones que explican el resto
 
-**El executor es un adapter.** `getCodeExecutor()` devuelve una implementación de
-`CodeExecutor` (`execute`, `runTests`) según `CODE_EXECUTOR_PROVIDER`: Wandbox por
-defecto, Piston o Judge0, públicos o self-hosted. Cambiar de proveedor es una variable de
-entorno; ni las server actions ni las route handlers se enteran. Los detalles feos
-—normalizar saltos de línea y espacios finales antes de comparar, reintentar ante errores
-de red, traducir el estado de cada servicio a un `ExecutionStatus` común— viven dentro del
-adapter.
+**El curso es la fuente de verdad del lenguaje.** Cada `Course` guarda su `language` y
+su `executionProfile` (`cpp17-wandbox`, `csharp-mono-6.12`), validados contra el registro
+de [`src/lib/code-languages`](../src/lib/code-languages/index.ts). De ahí salen el modo
+de Monaco, el nombre del archivo, las sugerencias, el parser de errores, el compilador y
+el agrupamiento de métricas. Nada de eso se infiere de un slug ni de un fence de
+markdown, y un valor desconocido en la base es un error de configuración — nunca un
+motivo para caer a C++.
+
+**La frontera de confianza está en el recurso, no en el payload.** Una petición de
+ejecución nombra UN recurso (paso, reto o práctica) y el código; nada más.
+[`resolveExecutionTarget`](../src/lib/execution-target.ts) navega recurso → unidad →
+curso y deriva el perfil. Un `language` o `profileId` en el cuerpo se rechaza con 400 en
+vez de ignorarse en silencio. Falla cerrado ante recurso inexistente, despublicado,
+ambiguo, con ids anidados que no corresponden, o no ejecutable (los snippets de Windows
+Forms). Sin eso, un alumno podría pedir GCC para un recurso de C#, o al revés.
+
+**El executor es un adapter, y el lenguaje va POR PETICIÓN.** `getCodeExecutor()`
+devuelve una implementación de `CodeExecutor` según `CODE_EXECUTOR_PROVIDER`: Wandbox por
+defecto, Piston o Judge0, públicos o self-hosted. El singleton es del PROVEEDOR; el
+compilador se elige en cada llamada según el `profileId`, así que dos peticiones
+concurrentes de cursos distintos no pueden pisarse. Un proveedor que no soporte el perfil
+lanza `ExecutorProfileUnavailableError` en vez de compilar con otro lenguaje. Los
+detalles feos —normalizar saltos de línea y espacios finales antes de comparar,
+reintentar ante errores de red, traducir el estado de cada servicio a un
+`ExecutionStatus` común— viven dentro del adapter.
+
+**Windows Forms es laboratorio local, no ejecución fingida.** WinForms es un resultado
+real de POO I y no se puede ejecutar honestamente en un juez de Linux. Sus ejemplos son
+`runnable: false`, muestran su nota "requiere Visual Studio en Windows", no tienen
+control de ejecución y el servidor rechaza cualquier intento de ejecutarlos. El dominio
+que alimentan sí se prueba en el navegador, como consola.
 
 **El feedback es específico a propósito.** `buildFeedback` compara la salida esperada con
 la obtenida y dice en qué línea y columna se separan, en vez de un «incorrecto» seco. Los
