@@ -121,6 +121,19 @@ class Program
             ],
             difficulty: "easy",
             xpReward: 25,
+            structure: {
+              classes: [
+                {
+                  name: "Contador",
+                  fields: [{ name: "valor", visibility: "private", type: "int" }],
+                  constructors: [{ paramCount: 1, visibility: "public" }],
+                  methods: [
+                    { name: "Incrementar", visibility: "public", returnType: "void" },
+                    { name: "Obtener", visibility: "public", returnType: "int" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "5\n3\n",
@@ -295,6 +308,22 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 32,
+            structure: {
+              classes: [
+                {
+                  name: "Tanque",
+                  fields: [
+                    { name: "litros", visibility: "private", type: "double" },
+                    { name: "capacidad", visibility: "private", type: "double" },
+                  ],
+                  constructors: [{ paramCount: 1, visibility: "public" }],
+                  methods: [
+                    { name: "Agregar", visibility: "public", paramCount: 1, returnType: "bool" },
+                    { name: "Litros", visibility: "public", returnType: "double" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "10\n4\n7\n",
@@ -435,6 +464,19 @@ class Program
             ],
             difficulty: "easy",
             xpReward: 24,
+            structure: {
+              classes: [
+                {
+                  name: "Semaforo",
+                  fields: [{ name: "color", visibility: "private", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                  methods: [
+                    { name: "Cambiar", visibility: "public", paramCount: 1 },
+                    { name: "ColorActual", visibility: "public", returnType: "string" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Rojo\nVerde\n",
@@ -569,6 +611,23 @@ class Program
             ],
             difficulty: "hard",
             xpReward: 38,
+            structure: {
+              classes: [
+                {
+                  name: "Articulo",
+                  properties: [{ name: "Codigo", visibility: "public", type: "string" }],
+                  fields: [
+                    { name: "precio", visibility: "private" },
+                    { name: "existencias", visibility: "private", type: "int" },
+                  ],
+                  constructors: [{ paramCount: 3 }],
+                  methods: [
+                    { name: "Vender", visibility: "public", paramCount: 1, returnType: "bool" },
+                    { name: "ConsultarExistencias", visibility: "public", returnType: "int" },
+                  ],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "A1\n20\n10\n3\n8\n",

@@ -107,6 +107,22 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 28,
+            structure: {
+              classes: [
+                {
+                  name: "Persona",
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                  methods: [{ name: "Presentar", visibility: "public" }],
+                },
+                {
+                  name: "Alumno",
+                  extends: "Persona",
+                  properties: [{ name: "Registro", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 2, callsBase: true }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Luz\n22101\n",
@@ -199,6 +215,116 @@ class Camion : Vehiculo
           ],
           correctIndex: 2,
           explanation: "protected abre el miembro a la jerarquía, no a cualquier consumidor.",
+        },
+        {
+          // `CS-03`: la lección terminaba en fill + quiz, sin escribir una
+          // sola línea de `base(...)` ni de acceso protegido — y la
+          // siguiente sube a polimorfismo. El reto es corto y deliberado:
+          // sólo constructor base y uso del miembro protegido.
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Construye la base y usa lo protegido
+
+\`Vehiculo\` ya está escrita: guarda \`kilometros\` como \`protected\` y lo inicializa en su constructor.
+
+Escribe \`Camion : Vehiculo\` con:
+
+- un constructor que reciba los kilómetros iniciales y **delegue en la base** con \`: base(...)\`;
+- un método \`Recorrer(int tramo)\` que le sume el tramo a \`kilometros\` — el miembro protegido, directamente, porque una derivada sí puede.
+
+No agregues otro campo de kilómetros: la base ya lo tiene.`,
+            starterCode: `using System;
+
+class Vehiculo
+{
+    protected int kilometros;
+    public Vehiculo(int kilometrosIniciales) { kilometros = kilometrosIniciales; }
+    public int Odometro() { return kilometros; }
+}
+
+// Escribe aqui Camion : Vehiculo
+
+class Program
+{
+    static void Main()
+    {
+        int iniciales = int.Parse(Console.ReadLine());
+        int tramo = int.Parse(Console.ReadLine());
+
+        Camion camion = new Camion(iniciales);
+        camion.Recorrer(tramo);
+        Console.WriteLine(camion.Odometro());
+    }
+}`,
+            solutionCode: `using System;
+
+class Vehiculo
+{
+    protected int kilometros;
+    public Vehiculo(int kilometrosIniciales) { kilometros = kilometrosIniciales; }
+    public int Odometro() { return kilometros; }
+}
+
+class Camion : Vehiculo
+{
+    public Camion(int kilometrosIniciales) : base(kilometrosIniciales) { }
+
+    public void Recorrer(int tramo)
+    {
+        kilometros = kilometros + tramo;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int iniciales = int.Parse(Console.ReadLine());
+        int tramo = int.Parse(Console.ReadLine());
+
+        Camion camion = new Camion(iniciales);
+        camion.Recorrer(tramo);
+        Console.WriteLine(camion.Odometro());
+    }
+}`,
+            hints: [
+              "La firma empieza así: class Camion : Vehiculo",
+              "El constructor delega: public Camion(int km) : base(km) { }",
+              "Recorrer usa kilometros directamente; es protected, no private.",
+            ],
+            difficulty: "easy",
+            xpReward: 25,
+            structure: {
+              classes: [
+                {
+                  name: "Camion",
+                  extends: "Vehiculo",
+                  constructors: [{ paramCount: 1, callsBase: true }],
+                  methods: [{ name: "Recorrer", visibility: "public", paramCount: 1 }],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "1200\n300\n",
+                expectedStdout: "1500\n",
+                visible: true,
+                description: "Suma el tramo a lo que traia",
+              },
+              {
+                stdin: "0\n45\n",
+                expectedStdout: "45\n",
+                visible: false,
+                description: "Camion nuevo",
+              },
+              {
+                stdin: "980\n0\n",
+                expectedStdout: "980\n",
+                visible: false,
+                description: "Sin recorrido",
+              },
+            ],
+          },
         },
       ],
     },
@@ -298,6 +424,24 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 35,
+            structure: {
+              classes: [
+                {
+                  name: "Notificacion",
+                  methods: [{ name: "Enviar", visibility: "public", virtual: true }],
+                },
+                {
+                  name: "Correo",
+                  extends: "Notificacion",
+                  methods: [{ name: "Enviar", visibility: "public", override: true }],
+                },
+                {
+                  name: "Sms",
+                  extends: "Notificacion",
+                  methods: [{ name: "Enviar", visibility: "public", override: true }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "ana@ceti.mx\n3312345678\n",
@@ -418,6 +562,28 @@ class Program
             ],
             difficulty: "hard",
             xpReward: 40,
+            structure: {
+              classes: [
+                {
+                  name: "Producto",
+                  abstract: true,
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  methods: [
+                    { name: "PrecioFinal", visibility: "public", abstract: true, returnType: "decimal" },
+                  ],
+                },
+                {
+                  name: "ProductoNacional",
+                  extends: "Producto",
+                  methods: [{ name: "PrecioFinal", visibility: "public", override: true }],
+                },
+                {
+                  name: "ProductoImportado",
+                  extends: "Producto",
+                  methods: [{ name: "PrecioFinal", visibility: "public", override: true }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Mesa\n100\nSensor\n250\n",

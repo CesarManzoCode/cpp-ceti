@@ -60,7 +60,19 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 18,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Mascota",
+            fields: [
+              { name: "Nombre", visibility: "public", type: "string" },
+              { name: "Especie", visibility: "public", type: "string" },
+            ],
+            methods: [{ name: "Describir", visibility: "public" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Luna\ngato\n",
           expectedStdout: "Luna es gato\n",
@@ -120,7 +132,16 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 20,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Lampara",
+            fields: [{ name: "Color", visibility: "public", type: "string" }],
+            methods: [{ name: "Encender", visibility: "public" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "azul\nroja\n",
           expectedStdout: "Luz azul\nLuz roja\n",
@@ -180,7 +201,16 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 28,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Bateria",
+            fields: [{ name: "Carga", visibility: "public", type: "int" }],
+            methods: [{ name: "Usar", visibility: "public", paramCount: 1 }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "100\n20\n30\n",
           expectedStdout: "50\n",
@@ -199,20 +229,28 @@ class Program
       ],
     },
     {
+      // Alineado con la nueva secuencia de U1 (`CS-01`): esta unidad enseña
+      // campos públicos y métodos. `private` y los constructores llegan en
+      // U2, así que el ejercicio pide DECIDIR qué miembros entran al modelo
+      // —que es la etapa 6 de la unidad— sin sintaxis que todavía no se ha
+      // visto.
       slug: "csharp-poo-abstraer-casillero",
       title: "Abstracción de un casillero",
-      description: "Selecciona sólo el estado necesario para abrir y cerrar.",
-      prompt: "Modela Casillero con número, propietario y estado abierto. Abrir(clave) abre sólo si coincide con la clave guardada. Lee número, propietario, clave registrada e intento; imprime \"NUM | PROPIETARIO | abierto/cerrado\". No imprimas la clave.",
+      description: "Selecciona sólo el estado necesario para prestar y liberar.",
+      prompt: "El taller sólo necesita saber, de cada casillero, su número, quién lo tiene y si está ocupado. Modela `Casillero` con campos públicos `Numero` (int), `Propietario` (string) y `Ocupado` (bool), y con los métodos `Ocupar(string quien)` —guarda al propietario y marca ocupado— y `Liberar()` —vacía el propietario con \"\" y marca libre—. `Mostrar()` imprime \"NUM | PROPIETARIO | ocupado\" o \"NUM | libre\" según el estado. Lee número, primer propietario y una orden (\"liberar\" o cualquier otra cosa); ocupa el casillero y, si la orden es liberar, libéralo. Después muestra el casillero.",
       starterCode: `using System;
 class Casillero
 {
-    /* abstrae datos y operaciones */
+    /* Sólo lo que este sistema necesita: numero, propietario, ocupado */
 }
 
 class Program
 {
     static void Main()
     {
+        int numero = int.Parse(Console.ReadLine());
+        string quien = Console.ReadLine();
+        string orden = Console.ReadLine();
         /* completa */
     }
 }`,
@@ -221,21 +259,30 @@ class Casillero
 {
     public int Numero;
     public string Propietario;
-    private string clave;
-    private bool abierto;
-    public Casillero(int n, string p, string c)
+    public bool Ocupado;
+
+    public void Ocupar(string quien)
     {
-        Numero=n;
-        Propietario=p;
-        clave=c;
+        Propietario = quien;
+        Ocupado = true;
     }
-    public void Abrir(string intento)
+
+    public void Liberar()
     {
-        abierto=intento==clave;
+        Propietario = "";
+        Ocupado = false;
     }
+
     public void Mostrar()
     {
-        Console.WriteLine(Numero+" | "+Propietario+" | "+(abierto?"abierto":"cerrado"));
+        if (Ocupado)
+        {
+            Console.WriteLine(Numero + " | " + Propietario + " | ocupado");
+        }
+        else
+        {
+            Console.WriteLine(Numero + " | libre");
+        }
     }
 }
 
@@ -243,29 +290,58 @@ class Program
 {
     static void Main()
     {
-        int n=int.Parse(Console.ReadLine());
-        string p=Console.ReadLine(), c=Console.ReadLine(), i=Console.ReadLine();
-        Casillero x=new Casillero(n, p, c);
-        x.Abrir(i);
-        x.Mostrar();
+        int numero = int.Parse(Console.ReadLine());
+        string quien = Console.ReadLine();
+        string orden = Console.ReadLine();
+
+        Casillero c = new Casillero();
+        c.Numero = numero;
+        c.Ocupar(quien);
+        if (orden == "liberar")
+        {
+            c.Liberar();
+        }
+        c.Mostrar();
     }
 }`,
       hints: [
-        "La clave no forma parte de la salida.",
-        "El estado abierto es bool.",
-        "El comportamiento decide según el intento.",
+        "Tres campos públicos y tres métodos: nada más entra al modelo.",
+        "Ocupar recibe el nombre; Liberar no recibe nada.",
+        "Mostrar decide con un if entre las dos formas de la línea.",
       ],
-      difficulty: "hard",
-      xpReward: 36,
+      difficulty: "medium",
+      xpReward: 30,
+      structure: {
+        classes: [
+          {
+            name: "Casillero",
+            fields: [
+              { name: "Numero", visibility: "public", type: "int" },
+              { name: "Propietario", visibility: "public", type: "string" },
+              { name: "Ocupado", visibility: "public", type: "bool" },
+            ],
+            methods: [
+              { name: "Ocupar", visibility: "public", paramCount: 1 },
+              { name: "Liberar", visibility: "public", paramCount: 0 },
+              { name: "Mostrar", visibility: "public", paramCount: 0 },
+            ],
+          },
+        ],
+      },
       testCases: [
         {
-          stdin: "12\nIris\n4321\n4321\n",
-          expectedStdout: "12 | Iris | abierto\n",
+          stdin: "12\nIris\nusar\n",
+          expectedStdout: "12 | Iris | ocupado\n",
           visible: true,
         },
         {
-          stdin: "7\nOmar R.\nabc\nABC\n",
-          expectedStdout: "7 | Omar R. | cerrado\n",
+          stdin: "7\nOmar R.\nliberar\n",
+          expectedStdout: "7 | libre\n",
+          visible: false,
+        },
+        {
+          stdin: "103\nAna Sofia\nliberar\n",
+          expectedStdout: "103 | libre\n",
           visible: false,
         },
       ],

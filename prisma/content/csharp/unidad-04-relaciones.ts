@@ -138,6 +138,21 @@ class Program
             ],
             difficulty: "easy",
             xpReward: 25,
+            structure: {
+              classes: [
+                {
+                  name: "Mensaje",
+                  properties: [{ name: "Texto", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "Notificador",
+                  methods: [{ name: "Enviar", visibility: "public", paramCount: 1 }],
+                  // Dependencia: lo recibe, lo usa y NO lo conserva.
+                  notStores: [{ type: "Mensaje" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Clase inicia\nClase termina\n",
@@ -293,6 +308,23 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 30,
+            structure: {
+              classes: [
+                {
+                  name: "Responsable",
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "Equipo",
+                  properties: [{ name: "Codigo", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 2 }],
+                  methods: [{ name: "Mostrar", visibility: "public" }],
+                  // Asociación: el equipo GUARDA a su responsable.
+                  stores: [{ type: "Responsable" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Franco\nPC-01\nPC-02\n",
@@ -442,6 +474,23 @@ class Program
             ],
             difficulty: "medium",
             xpReward: 32,
+            structure: {
+              classes: [
+                {
+                  name: "CodigoQr",
+                  properties: [{ name: "Valor", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "Credencial",
+                  properties: [{ name: "Titular", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 2 }],
+                  methods: [{ name: "Mostrar", visibility: "public" }],
+                  // Composición: la credencial es dueña de su código.
+                  stores: [{ type: "CodigoQr" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Cesar\nQR-123\n",
@@ -581,6 +630,28 @@ class Program
             ],
             difficulty: "hard",
             xpReward: 40,
+            structure: {
+              classes: [
+                {
+                  name: "Cliente",
+                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "Diagnostico",
+                  properties: [{ name: "Detalle", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 1 }],
+                },
+                {
+                  name: "OrdenServicio",
+                  properties: [{ name: "Folio", visibility: "public", type: "string" }],
+                  constructors: [{ paramCount: 3 }],
+                  methods: [{ name: "Mostrar", visibility: "public" }],
+                  // Asociación con el cliente y composición del diagnóstico.
+                  stores: [{ type: "Cliente" }, { type: "Diagnostico" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Ferrol\nOS-1\nMotor detenido\nOS-2\nCable suelto\n",

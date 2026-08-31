@@ -70,7 +70,19 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 22,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Ficha",
+            fields: [{ name: "siguiente", visibility: "private", type: "int", static: true }],
+            properties: [{ name: "Id", visibility: "public", type: "int" }],
+            methods: [
+              { name: "ConfigurarInicio", visibility: "public", static: true, paramCount: 1 },
+            ],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "1\n",
           expectedStdout: "1\n2\n3\n",
@@ -142,7 +154,16 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 24,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Descuento",
+            properties: [{ name: "Porcentaje", visibility: "public", type: "int" }],
+            constructors: [{ paramCount: 1 }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "25\n",
           expectedStdout: "Aceptado: 25\n",
@@ -223,7 +244,17 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 34,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Cuenta",
+            properties: [{ name: "Saldo", visibility: "public", type: "decimal" }],
+            constructors: [{ paramCount: 1 }],
+            methods: [{ name: "TransferirA", visibility: "public", paramCount: 2 }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "100\n20\n30\n",
           expectedStdout: "70.00\n50.00\n",
@@ -321,7 +352,25 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 42,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Articulo",
+            properties: [
+              { name: "Nombre", visibility: "public", type: "string" },
+              { name: "Precio", visibility: "public", type: "decimal" },
+            ],
+            constructors: [{ paramCount: 2 }],
+          },
+          {
+            name: "RenglonPedido",
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Resumen", visibility: "public", returnType: "string" }],
+            stores: [{ type: "Articulo" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Marcador\n12.5\n4\n",
           expectedStdout: "Marcador x 4 = 50.00\n",
@@ -339,5 +388,133 @@ class Program
         },
       ],
     },
+    {
+      // Vivía en U3 (UML), pero exige una referencia almacenada entre
+      // objetos —U4— y `ArgumentException`/`try-catch` —U6—: un alumno que
+      // acaba de terminar U3 se topaba con conocimiento futuro dentro del
+      // grupo que supuestamente consolida U3. El ejercicio no cambia; lo
+      // que cambia es dónde aparece. El slug se conserva: los intentos y el
+      // XP ya ganado siguen colgando del mismo ejercicio.
+      slug: "csharp-poo-requisito-bicicleta",
+      title: "Requisito a modelo: renta de bicicleta",
+      description: "Distribuye una regla entre estado y operación.",
+      prompt: "Bicicleta conserva código y tarifa por hora; CotizadorRenta recibe una bicicleta y calcula horas*tarifa, rechazando horas <=0 con \"Horas invalidas\". Lee código, tarifa y horas; imprime \"COD: X.XX\" o error.",
+      starterCode: `using System;
+class Bicicleta
+{
+}
+
+class CotizadorRenta
+{
+}
+
+class Program
+{
+    static void Main()
+    {
+    }
+}`,
+      solutionCode: `using System;
+class Bicicleta
+{
+    public string Codigo
+    {
+        get;
+        private set;
+    }
+    public decimal Tarifa
+    {
+        get;
+        private set;
+    }
+    public Bicicleta(string c, decimal t)
+    {
+        Codigo=c;
+        Tarifa=t;
+    }
+}
+
+class CotizadorRenta
+{
+    private Bicicleta bici;
+    public CotizadorRenta(Bicicleta b)
+    {
+        bici=b;
+    }
+    public decimal Calcular(int h)
+    {
+        if(h<=0)throw new ArgumentException("Horas invalidas");
+        return bici.Tarifa*h;
+    }
+    public string Codigo()
+    {
+        return bici.Codigo;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string c=Console.ReadLine();
+        decimal t=decimal.Parse(Console.ReadLine());
+        int h=int.Parse(Console.ReadLine());
+        try
+        {
+            CotizadorRenta x=new CotizadorRenta(new Bicicleta(c, t));
+            Console.WriteLine(x.Codigo()+": "+x.Calcular(h).ToString("0.00"));
+        }
+        catch(ArgumentException ex)
+        {
+            Console.WriteLine("Error: "+ex.Message);
+        }
+    }
+}`,
+      hints: [
+        "Bicicleta posee la tarifa.",
+        "CotizadorRenta conoce la bicicleta.",
+        "La validación vive en Calcular.",
+      ],
+      difficulty: "hard",
+      xpReward: 36,
+      structure: {
+          classes: [
+            {
+              name: "Bicicleta",
+              properties: [
+                { name: "Codigo", visibility: "public", type: "string" },
+                { name: "Tarifa", visibility: "public", type: "decimal" },
+              ],
+              constructors: [{ paramCount: 2 }],
+            },
+            {
+              name: "CotizadorRenta",
+              constructors: [{ paramCount: 1 }],
+              methods: [
+                { name: "Calcular", visibility: "public", paramCount: 1, returnType: "decimal" },
+              ],
+              // Asociación: el cotizador guarda la bicicleta que cotiza.
+              stores: [{ type: "Bicicleta" }],
+            },
+          ],
+        },
+        testCases: [
+          {
+            stdin: "B-8\n25\n3\n",
+            expectedStdout: "B-8: 75.00\n",
+            visible: true,
+          },
+          {
+            stdin: "X\n10.5\n1\n",
+            expectedStdout: "X: 10.50\n",
+            visible: false,
+          },
+          {
+            stdin: "X\n10\n0\n",
+            expectedStdout: "Error: Horas invalidas\n",
+            visible: false,
+          },
+        ],
+      },
   ],
 };

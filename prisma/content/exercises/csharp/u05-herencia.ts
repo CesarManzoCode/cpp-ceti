@@ -81,7 +81,23 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 22,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Dispositivo",
+            properties: [{ name: "Marca", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+            methods: [{ name: "MostrarMarca", visibility: "public" }],
+          },
+          {
+            name: "Tablet",
+            extends: "Dispositivo",
+            properties: [{ name: "Pulgadas", visibility: "public", type: "int" }],
+            constructors: [{ paramCount: 2, callsBase: true }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "CETI Tech\n10\n",
           expectedStdout: "CETI Tech\n10 pulgadas\n",
@@ -151,7 +167,22 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 24,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Instrumento",
+            fields: [{ name: "nombre", visibility: "protected", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+          {
+            name: "Guitarra",
+            extends: "Instrumento",
+            constructors: [{ paramCount: 2, callsBase: true }],
+            methods: [{ name: "Describir", visibility: "public", returnType: "string" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "Acústica\n6\n",
           expectedStdout: "Acústica: 6 cuerdas\n",
@@ -231,7 +262,21 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 32,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Envio",
+            methods: [{ name: "Costo", visibility: "public", virtual: true, returnType: "decimal" }],
+          },
+          {
+            name: "EnvioExpress",
+            extends: "Envio",
+            constructors: [{ paramCount: 2, callsBase: true }],
+            methods: [{ name: "Costo", visibility: "public", override: true, returnType: "decimal" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "50\n40\n",
           expectedStdout: "50.00\n90.00\n",
@@ -324,7 +369,26 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 40,
-      testCases: [
+      structure: {
+        classes: [
+          {
+            name: "Medicion",
+            abstract: true,
+            methods: [{ name: "Valor", visibility: "public", abstract: true, returnType: "double" }],
+          },
+          {
+            name: "Temperatura",
+            extends: "Medicion",
+            methods: [{ name: "Valor", visibility: "public", override: true, returnType: "double" }],
+          },
+          {
+            name: "Distancia",
+            extends: "Medicion",
+            methods: [{ name: "Valor", visibility: "public", override: true, returnType: "double" }],
+          },
+        ],
+      },
+    testCases: [
         {
           stdin: "0\n1.5\n",
           expectedStdout: "32.00\n1500.00\n",
