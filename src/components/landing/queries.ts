@@ -43,7 +43,15 @@ export interface LandingUnit {
   published: boolean;
 }
 
-const FALLBACK_UNITS: LandingUnit[] = [
+export interface LandingCourse {
+  slug: string;
+  title: string;
+  subjectName: string;
+  language: string;
+  units: LandingUnit[];
+}
+
+const FALLBACK_CPP_UNITS: LandingUnit[] = [
   { slug: "primer-programa", order: 1, title: "Tu primer programa en C++", published: true },
   { slug: "leer-datos", order: 2, title: "Leer datos del usuario con cin", published: true },
   { slug: "variables-y-tipos", order: 3, title: "Variables y tipos de datos", published: true },
@@ -56,15 +64,61 @@ const FALLBACK_UNITS: LandingUnit[] = [
   { slug: "matrices", order: 10, title: "Matrices: arreglos en dos dimensiones", published: true },
 ];
 
-export const getLandingUnits = cache(async (): Promise<LandingUnit[]> => {
+const FALLBACK_CSHARP_UNITS: LandingUnit[] = [
+  { slug: "csharp-poo-01-modelar", order: 1, title: "De problemas a objetos", published: true },
+  { slug: "csharp-poo-02-encapsular", order: 2, title: "Encapsulamiento y constructores", published: true },
+  { slug: "csharp-poo-03-uml", order: 3, title: "UML como contrato del código", published: true },
+  { slug: "csharp-poo-04-relaciones", order: 4, title: "Relaciones entre clases", published: true },
+  { slug: "csharp-poo-05-herencia", order: 5, title: "Herencia y polimorfismo", published: true },
+  { slug: "csharp-poo-06-diseno-robusto", order: 6, title: "Responsabilidades y diseño robusto", published: true },
+  { slug: "csharp-poo-07-gui", order: 7, title: "Aplicaciones de escritorio con Windows Forms", published: true },
+  { slug: "csharp-poo-08-integrador", order: 8, title: "Proyecto integrador", published: true },
+];
+
+/** Sólo se usa si la base no responde: el temario nunca queda en blanco. */
+const FALLBACK_COURSES: LandingCourse[] = [
+  {
+    slug: "cpp-desde-cero",
+    title: "C++ desde cero",
+    subjectName: "Programación en C++",
+    language: "cpp",
+    units: FALLBACK_CPP_UNITS,
+  },
+  {
+    slug: "csharp-poo-1",
+    title: "Programación Orientada a Objetos I con C#",
+    subjectName: "Programación Orientada a Objetos I",
+    language: "csharp",
+    units: FALLBACK_CSHARP_UNITS,
+  },
+];
+
+/**
+ * Temario público, POR CURSO.
+ *
+ * Antes esto devolvía las unidades de C++ y nada más. Con dos cursos eso
+ * escondía uno entero del temario, y encima contradecía al contador de
+ * arriba, que sí cuenta todo. El temario tiene que listar lo mismo que
+ * dice el contador.
+ */
+export const getLandingCourses = cache(async (): Promise<LandingCourse[]> => {
   try {
-    const units = await db.unit.findMany({
-      where: { course: { slug: "cpp-desde-cero" } },
-      orderBy: { order: "asc" },
-      select: { slug: true, order: true, title: true, published: true },
+    const courses = await db.course.findMany({
+      where: { published: true },
+      orderBy: [{ order: "asc" }, { slug: "asc" }],
+      select: {
+        slug: true,
+        title: true,
+        subjectName: true,
+        language: true,
+        units: {
+          orderBy: { order: "asc" },
+          select: { slug: true, order: true, title: true, published: true },
+        },
+      },
     });
-    return units.length > 0 ? units : FALLBACK_UNITS;
+    return courses.length > 0 ? courses : FALLBACK_COURSES;
   } catch {
-    return FALLBACK_UNITS;
+    return FALLBACK_COURSES;
   }
 });
