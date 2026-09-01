@@ -414,9 +414,38 @@ Puerta
           explanation: "El diagrama de clase muestra estructura, no el algoritmo interno completo.",
         },
         {
+          // Antes este paso era "usa Semaforo desde Main": no evaluaba UML,
+          // sólo llamar métodos. La unidad promete C#→UML, así que el reto
+          // debe pedir el diagrama, no una llamada más.
+          type: "fill_blank",
+          prompt: "A partir de esta clase, completa su diagrama UML.",
+          template: `class Semaforo
+{
+    private string color;
+    public Semaforo(string inicial) { color = inicial; }
+    public void Cambiar(string nuevo) { color = nuevo; }
+    public string ColorActual() { return color; }
+}
+
+// Diagrama:
+// Semaforo
+// -----------------
+// {{0}}: string
+// -----------------
+// +Semaforo(inicial: string)
+// +Cambiar(nuevo: string): {{1}}
+// +ColorActual(): {{2}}`,
+          blanks: [
+            { answer: "-color", hint: "El campo es privado: usa el signo `-` seguido del nombre exacto del campo." },
+            { answer: "void", hint: "Cambiar no devuelve nada." },
+            { answer: "string", hint: "ColorActual devuelve el color." },
+          ],
+          explanation: "El diagrama registra visibilidad, atributos y firmas — nunca el cuerpo de los métodos. `Cambiar` no retorna nada (`void`); `ColorActual` retorna `string`.",
+        },
+        {
           type: "code_challenge",
           exercise: {
-            prompt: "El programa contiene una clase Semaforo. Completa sólo Main para demostrar su contrato: lee color inicial, crea el objeto, llama Cambiar una vez con el segundo color e imprime ColorActual(). No modifiques la clase.",
+            prompt: "Ahora al revés: usa el contrato de Semaforo (ya escrito, no lo modifiques) desde Main. Lee color inicial, crea el objeto, llama Cambiar una vez con el segundo color e imprime ColorActual().",
             starterCode: `using System;
 
 class Semaforo
@@ -463,7 +492,7 @@ class Program
               "No agregues acceso directo al campo.",
             ],
             difficulty: "easy",
-            xpReward: 24,
+            xpReward: 20,
             structure: {
               classes: [
                 {

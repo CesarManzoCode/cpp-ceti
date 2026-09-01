@@ -251,7 +251,7 @@ class Program
     {
       slug: "miniproyecto-dominio",
       title: "Miniproyecto: reservas de laboratorio",
-      description: "Coordina entidades, composición, validación y presentación sin mezclar responsabilidades.",
+      description: "Coordina entidades, asociación, validación y presentación sin mezclar responsabilidades.",
       estimatedMinutes: 18,
       xpReward: 65,
       steps: [
@@ -259,7 +259,9 @@ class Program
           type: "theory",
           markdown: `# Del requisito a las responsabilidades
 
-Requisito: “Un alumno reserva un laboratorio por cierto número de horas; el costo debe ser positivo”. \`Alumno\` conserva identidad, \`Laboratorio\` tarifa y \`Reserva\` coordina fecha lógica/costo. \`Program\` sólo recibe y muestra. Antes de codificar, dibuja las tres clases y marca asociaciones.`,
+Requisito: “Un alumno reserva un laboratorio por cierto número de horas; el costo debe ser positivo”. \`Alumno\` conserva identidad, \`Laboratorio\` tarifa y \`Reserva\` coordina fecha lógica/costo. \`Program\` sólo recibe y muestra. Antes de codificar, dibuja las tres clases y marca asociaciones.
+
+Fíjate en cómo llega cada colaborador a \`Reserva\`: el \`Alumno\` y el \`Laboratorio\` ya existen antes de la reserva y se le pasan hechos. Eso es **asociación** (como en U4), no composición — \`Reserva\` no los crea ni los posee, sólo los referencia mientras dura.`,
         },
         {
           type: "code_example",

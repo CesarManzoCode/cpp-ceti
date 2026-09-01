@@ -295,20 +295,25 @@ class Program
       ],
     },
     {
+      // Antes esto era `Medicion` con Temperatura/Distancia: una
+      // abstracción sin significado compartido real (convertir grados no es
+      // la misma operación que convertir kilómetros; sólo compartían la
+      // forma de la firma). Area() sí es una operación con el mismo
+      // significado en cualquier figura.
       slug: "csharp-poo-abstract-medicion",
-      title: "Mediciones abstractas",
-      description: "Implementa dos fórmulas detrás de un contrato.",
-      prompt: "Medicion abstracta declara Valor(). Temperatura recibe Celsius y devuelve C*1.8+32; Distancia recibe km y devuelve km*1000. Lee C y km, usa Medicion[2] e imprime dos valores con dos decimales.",
+      title: "Figuras abstractas",
+      description: "Implementa dos fórmulas de área detrás de un contrato.",
+      prompt: "Figura abstracta declara Area(). Rectangulo recibe base y altura y devuelve base*altura; Circulo recibe radio y devuelve Math.PI*radio*radio. Lee base, altura y radio; usa Figura[2] e imprime las dos áreas con dos decimales.",
       starterCode: `using System;
-abstract class Medicion
+abstract class Figura
 {
 }
 
-class Temperatura:Medicion
+class Rectangulo:Figura
 {
 }
 
-class Distancia:Medicion
+class Circulo:Figura
 {
 }
 
@@ -319,34 +324,36 @@ class Program
     }
 }`,
       solutionCode: `using System;
-abstract class Medicion
+abstract class Figura
 {
-    public abstract double Valor();
+    public abstract double Area();
 }
 
-class Temperatura:Medicion
+class Rectangulo:Figura
 {
-    private double c;
-    public Temperatura(double c)
+    private double baseR;
+    private double altura;
+    public Rectangulo(double baseR, double altura)
     {
-        this.c=c;
+        this.baseR=baseR;
+        this.altura=altura;
     }
-    public override double Valor()
+    public override double Area()
     {
-        return c*1.8+32;
+        return baseR*altura;
     }
 }
 
-class Distancia:Medicion
+class Circulo:Figura
 {
-    private double km;
-    public Distancia(double k)
+    private double radio;
+    public Circulo(double radio)
     {
-        km=k;
+        this.radio=radio;
     }
-    public override double Valor()
+    public override double Area()
     {
-        return km*1000;
+        return Math.PI*radio*radio;
     }
 }
 
@@ -354,49 +361,50 @@ class Program
 {
     static void Main()
     {
-        Medicion[] m=new Medicion[]
+        Figura[] f=new Figura[]
         {
-            new Temperatura(double.Parse(Console.ReadLine())), new Distancia(double.Parse(Console.ReadLine()))
+            new Rectangulo(double.Parse(Console.ReadLine()), double.Parse(Console.ReadLine())),
+            new Circulo(double.Parse(Console.ReadLine()))
         }
         ;
-        for(int i=0;i<m.Length;i++)Console.WriteLine(m[i].Valor().ToString("0.00"));
+        for(int i=0;i<f.Length;i++)Console.WriteLine(f[i].Area().ToString("0.00"));
     }
 }`,
       hints: [
-        "Medicion no se instancia.",
-        "Cada clase redefine Valor.",
-        "Recorre el arreglo base.",
+        "Figura no se instancia.",
+        "Cada clase redefine Area con su propia fórmula.",
+        "Recorre el arreglo base; no distingas el tipo con if.",
       ],
       difficulty: "hard",
       xpReward: 40,
       structure: {
         classes: [
           {
-            name: "Medicion",
+            name: "Figura",
             abstract: true,
-            methods: [{ name: "Valor", visibility: "public", abstract: true, returnType: "double" }],
+            methods: [{ name: "Area", visibility: "public", abstract: true, returnType: "double" }],
           },
           {
-            name: "Temperatura",
-            extends: "Medicion",
-            methods: [{ name: "Valor", visibility: "public", override: true, returnType: "double" }],
+            name: "Rectangulo",
+            extends: "Figura",
+            methods: [{ name: "Area", visibility: "public", override: true, returnType: "double" }],
           },
           {
-            name: "Distancia",
-            extends: "Medicion",
-            methods: [{ name: "Valor", visibility: "public", override: true, returnType: "double" }],
+            name: "Circulo",
+            extends: "Figura",
+            methods: [{ name: "Area", visibility: "public", override: true, returnType: "double" }],
           },
         ],
       },
     testCases: [
         {
-          stdin: "0\n1.5\n",
-          expectedStdout: "32.00\n1500.00\n",
+          stdin: "4\n2\n1\n",
+          expectedStdout: "8.00\n3.14\n",
           visible: true,
         },
         {
-          stdin: "100\n0.01\n",
-          expectedStdout: "212.00\n10.00\n",
+          stdin: "10\n0.5\n2\n",
+          expectedStdout: "5.00\n12.57\n",
           visible: false,
         },
       ],

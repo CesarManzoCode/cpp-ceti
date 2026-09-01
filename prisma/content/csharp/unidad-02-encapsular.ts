@@ -27,13 +27,12 @@ export const unidad02: UnitDefinition = {
           type: "theory",
           markdown: `# Encapsular es controlar el acceso
 
-- \`public\`: cualquier código con acceso al objeto puede usar el miembro. En UML: \`+\`.
-- \`private\`: sólo la propia clase puede usarlo. En UML: \`-\`.
-- \`protected\`: la clase y sus clases derivadas pueden usarlo. En UML: \`#\`.
+- \`public\`: cualquier código con acceso al objeto puede usar el miembro.
+- \`private\`: sólo la propia clase puede usarlo.
 
 El estado que sostiene una regla debe ser \`private\`. Si \`saldo\` es público, cualquier línea puede volverlo negativo sin pasar por \`Retirar\`. Haz públicas las operaciones que el resto del programa necesita, no todos los datos.
 
-\`protected\` se reconoce ahora, pero se usará con sentido al estudiar herencia. No lo elijas como un \`private\` “menos estricto”.`,
+Existe una tercera opción, \`protected\`, que sólo tiene sentido cuando hay herencia de por medio — la verás con propósito en U5. Por ahora, si dudas entre \`private\` y \`protected\`, usa \`private\`.`,
         },
         {
           type: "code_example",

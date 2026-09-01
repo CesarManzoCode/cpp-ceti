@@ -32,32 +32,36 @@ export const unidad05: UnitDefinition = {
 Prueba de sustitución: si una operación espera \`Empleado\`, ¿aceptar un \`Becario\` conserva el sentido? Si sí, la generalización puede ser adecuada.`,
         },
         {
+          // Constructores vacíos a propósito: la relación es-un y "qué se
+          // hereda" es lo que se evalúa aquí. Encadenar constructores con
+          // base(...) llega en la lección siguiente, por su cuenta.
           type: "code_example",
           code: `using System;
 
 class Empleado
 {
-    public string Nombre { get; private set; }
-    public Empleado(string nombre) { Nombre = nombre; }
+    public string Nombre;
     public void Identificarse() { Console.WriteLine("Empleado: " + Nombre); }
 }
 
 class Becario : Empleado
 {
-    public string Escuela { get; private set; }
-    public Becario(string nombre, string escuela) : base(nombre) { Escuela = escuela; }
+    public string Escuela;
 }
 
 class Program
 {
     static void Main()
     {
-        Becario b = new Becario("Ana", "CETI");
+        Becario b = new Becario();
+        b.Nombre = "Ana";
+        b.Escuela = "CETI";
+
         b.Identificarse();
         Console.WriteLine(b.Escuela);
     }
 }`,
-          explanation: "Becario hereda Identificarse y satisface el contrato de Empleado; Escuela es su especialización.",
+          explanation: "Becario no declara Nombre ni Identificarse: los hereda de Empleado. Escuela es su especialización, lo que lo hace un Becario y no cualquier Empleado.",
           runnable: true,
           expectedOutput: `Empleado: Ana
 CETI`,
@@ -74,7 +78,7 @@ CETI`,
         {
           type: "code_challenge",
           exercise: {
-            prompt: "Crea Persona con Nombre y método Presentar(). Crea Alumno : Persona con Registro. Lee nombre y registro; imprime \"Persona: N\" y \"Registro: R\".",
+            prompt: "Crea Persona con campo público Nombre y método Presentar() que imprima \"Persona: N\". Crea Alumno : Persona con campo público Registro (sin constructores todavía). En Main lee nombre y registro, crea UN Alumno, asígnale ambos campos, llama Presentar() (heredado) e imprime \"Registro: R\".",
             starterCode: `using System;
 class Persona { /* completa */ }
 class Alumno : Persona { /* completa */ }
@@ -82,28 +86,29 @@ class Program { static void Main() { /* lee, crea y muestra */ } }`,
             solutionCode: `using System;
 class Persona
 {
-    public string Nombre { get; private set; }
-    public Persona(string nombre) { Nombre = nombre; }
+    public string Nombre;
     public void Presentar() { Console.WriteLine("Persona: " + Nombre); }
 }
 class Alumno : Persona
 {
-    public string Registro { get; private set; }
-    public Alumno(string nombre, string registro) : base(nombre) { Registro = registro; }
+    public string Registro;
 }
 class Program
 {
     static void Main()
     {
-        Alumno a = new Alumno(Console.ReadLine(), Console.ReadLine());
+        Alumno a = new Alumno();
+        a.Nombre = Console.ReadLine();
+        a.Registro = Console.ReadLine();
+
         a.Presentar();
         Console.WriteLine("Registro: " + a.Registro);
     }
 }`,
             hints: [
               "Usa : Persona.",
-              "Invoca base(nombre) en el constructor.",
-              "El método heredado se llama sobre Alumno.",
+              "Alumno no declara Nombre ni Presentar: los hereda.",
+              "Todavía sin constructores: asigna los campos después de new.",
             ],
             difficulty: "medium",
             xpReward: 28,
@@ -111,15 +116,13 @@ class Program
               classes: [
                 {
                   name: "Persona",
-                  properties: [{ name: "Nombre", visibility: "public", type: "string" }],
-                  constructors: [{ paramCount: 1 }],
+                  fields: [{ name: "Nombre", visibility: "public", type: "string" }],
                   methods: [{ name: "Presentar", visibility: "public" }],
                 },
                 {
                   name: "Alumno",
                   extends: "Persona",
-                  properties: [{ name: "Registro", visibility: "public", type: "string" }],
-                  constructors: [{ paramCount: 2, callsBase: true }],
+                  fields: [{ name: "Registro", visibility: "public", type: "string" }],
                 },
               ],
             },
@@ -341,9 +344,54 @@ class Program
       steps: [
         {
           type: "theory",
-          markdown: `# Un mensaje, varias respuestas
+          markdown: `# Un mensaje, ¿varias respuestas?
 
-La base declara un punto de extensión \`virtual\`; la subclase lo redefine con \`override\`. Una variable de tipo base puede referirse a cualquier subtipo y C# elige la implementación según el objeto real. En POO I se practica con un arreglo de tamaño fijo; las colecciones genéricas corresponden a POO II.`,
+Piensa en este caso antes de ver ninguna palabra nueva:
+
+\`\`\`csharp
+class Empleado
+{
+    public decimal Pago() { return 1000m; }
+}
+class Vendedor : Empleado
+{
+    public decimal Pago() { return 1300m; }
+}
+...
+Empleado e = new Vendedor();
+Console.WriteLine(e.Pago());
+\`\`\`
+
+\`e\` está **declarada** como \`Empleado\`, pero el objeto que guarda es, en realidad, un \`Vendedor\`. ¿Qué \`Pago()\` corre: el de \`Empleado\` o el de \`Vendedor\`?`,
+        },
+        {
+          type: "quiz",
+          question: "Con el código de arriba (sin ninguna palabra clave nueva todavía), ¿qué imprime `e.Pago()`?",
+          options: [
+            "1300.00, porque el objeto real es un Vendedor",
+            "1000.00, porque C# usa el tipo con el que se declaró e, no el tipo del objeto",
+            "Un error de compilación",
+            "1000.00 y 1300.00, una por línea",
+          ],
+          feedbackPerOption: [
+            "Es la respuesta intuitiva, pero no es lo que hace C# sin más: sigue leyendo.",
+            "",
+            "El código compila: Vendedor sí es un Empleado.",
+            "Sólo hay una llamada a Pago(); sólo puede imprimir un valor.",
+          ],
+          correctIndex: 1,
+          explanation: "Sin marcar nada especial, C# resuelve Pago() por el TIPO DECLARADO de la variable (Empleado), no por el objeto real. Para que corra la versión de Vendedor hace falta decírselo explícitamente: eso es lo que sigue.",
+        },
+        {
+          type: "theory",
+          markdown: `# virtual + override: el contrato explícito
+
+Para que \`e.Pago()\` corra la versión de \`Vendedor\` —lo que probablemente esperabas— hay que decirle a C# dos cosas:
+
+- en la base, que el método **puede redefinirse**: \`public virtual decimal Pago()\`
+- en la derivada, que **lo redefine**: \`public override decimal Pago()\`
+
+Con las dos palabras presentes, C# elige la implementación según el **objeto real**, sin importar el tipo con el que declaraste la variable. Eso es polimorfismo.`,
         },
         {
           type: "code_example",
@@ -360,17 +408,13 @@ class Program
 {
     static void Main()
     {
-        Empleado[] equipo = new Empleado[2];
-        equipo[0] = new Empleado();
-        equipo[1] = new Vendedor();
-        for (int i = 0; i < equipo.Length; i++)
-            Console.WriteLine(equipo[i].Pago().ToString("0.00"));
+        Empleado e = new Vendedor();
+        Console.WriteLine(e.Pago().ToString("0.00"));
     }
 }`,
-          explanation: "La segunda referencia tiene tipo declarado Empleado, pero el objeto Vendedor decide la respuesta.",
+          explanation: "Misma variable declarada Empleado, mismo objeto Vendedor que antes — pero ahora Pago es virtual/override y sí corre la versión redefinida: 1300.00.",
           runnable: true,
-          expectedOutput: `1000.00
-1300.00`,
+          expectedOutput: "1300.00",
         },
         {
           type: "quiz",
@@ -378,11 +422,25 @@ class Program
           options: [
             "Que Pago sea static.",
             "La combinación virtual en la base y override en la derivada.",
-            "Que el arreglo tenga dos posiciones.",
+            "Que la variable se llame e.",
             "El método Main.",
           ],
           correctIndex: 1,
           explanation: "virtual/override forman el contrato de redefinición.",
+        },
+        {
+          // Segunda dimensión, por separado: ahora un ARREGLO de la base
+          // con varios objetos reales. Todavía un solo par virtual/override.
+          type: "code_completion",
+          prompt: "Ordena el ciclo que recorre un arreglo de Empleado (con un Empleado y un Vendedor adentro) e imprime el Pago de cada uno con el método ya definido arriba.",
+          lines: [
+            "Empleado[] equipo = new Empleado[2];",
+            "equipo[0] = new Empleado();",
+            "equipo[1] = new Vendedor();",
+            "for (int i = 0; i < equipo.Length; i++)",
+            "    Console.WriteLine(equipo[i].Pago().ToString(\"0.00\"));",
+          ],
+          explanation: "El arreglo se declara del tipo base; cada posición puede guardar cualquier subtipo, y el ciclo no necesita saber cuál es cuál: cada Pago() se resuelve solo.",
         },
         {
           type: "code_challenge",
