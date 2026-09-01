@@ -9,7 +9,11 @@ import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
 import { getPendingIncomingCount } from "@/features/friends/queries";
 import { getRoadmapUnits } from "@/features/roadmap/queries";
 import { getAdminContext } from "@/lib/admin";
-import { pickCourse, readSelectedCourseSlug } from "@/lib/course-selection";
+import {
+  pickCourse,
+  readCourseSlugFromRoute,
+  readSelectedCourseSlug,
+} from "@/lib/course-selection";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 
@@ -25,21 +29,31 @@ export default async function AppLayout({
 
   // Paralelizar: cursos/stats/pending son independientes; units depende del
   // curso seleccionado.
-  const [courses, selectedSlug, stats, pendingFriendsCount, adminContext] =
-    await Promise.all([
-      getCourseChoices(),
-      readSelectedCourseSlug(),
-      getUserStats(session.user.id),
-      getPendingIncomingCount(session.user.id),
-      // Sólo decide si se muestra el acceso al panel; la autorización real la
-      // hace cada página/acción de /app/admin.
-      getAdminContext(),
-    ]);
+  const [
+    courses,
+    urlSlug,
+    cookieSlug,
+    stats,
+    pendingFriendsCount,
+    adminContext,
+  ] = await Promise.all([
+    getCourseChoices(),
+    readCourseSlugFromRoute(),
+    readSelectedCourseSlug(),
+    getUserStats(session.user.id),
+    getPendingIncomingCount(session.user.id),
+    // Sólo decide si se muestra el acceso al panel; la autorización real la
+    // hace cada página/acción de /app/admin.
+    getAdminContext(),
+  ]);
 
-  // El rail muestra el curso seleccionado. Si no hay selección válida, se
-  // queda sin unidades y la navegación lleva a la pantalla de selección: es
-  // preferible un rail vacío a un rail que muestre el curso equivocado.
-  const decision = pickCourse(courses, selectedSlug);
+  // El rail muestra el curso de la URL en cuanto la ruta es `/app/c/...`
+  // (`urlSlug`, puesto por el middleware); la cookie sólo decide en rutas
+  // globales como `/app` o `/app/cursos`. Si no hay selección válida, el
+  // rail se queda sin unidades y la navegación lleva a la pantalla de
+  // selección: es preferible un rail vacío a un rail que muestre el curso
+  // equivocado.
+  const decision = pickCourse(courses, cookieSlug, urlSlug);
   const course = decision.kind === "course" ? decision.course : null;
   const units = course
     ? await getRoadmapUnits(course.id, session.user.id)

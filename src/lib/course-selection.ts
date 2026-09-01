@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 /**
  * Curso seleccionado.
@@ -13,6 +13,32 @@ import { cookies } from "next/headers";
  * silenciosa es justo la que llevaría a un alumno de C# al curso de C++.
  */
 export const COURSE_COOKIE = "cpp-ceti.course";
+
+/**
+ * Header interno que el middleware pone en cada request a
+ * `/app/c/[courseSlug]/...` con el slug de la URL, ANTES de que el Server
+ * Layout corra.
+ *
+ * Existe porque escribir la cookie en el middleware (`response.cookies.set`)
+ * no es visible de forma confiable al Server Layout dentro de la MISMA
+ * request en todas las versiones de Next: es una escritura para la
+ * respuesta, no una garantía de lectura inmediata. Un header de request sí
+ * lo es (`NextResponse.next({ request: { headers } })` reemplaza los headers
+ * que ve el resto del árbol de esta misma request), así que la URL llega al
+ * layout por ahí, no por la cookie.
+ */
+export const COURSE_SLUG_HEADER = "x-cpp-ceti-course-slug";
+
+/**
+ * Curso de la URL actual, según lo puso el middleware para rutas
+ * `/app/c/[courseSlug]/...`. `null` fuera de esas rutas: ahí la cookie
+ * manda (ver `readSelectedCourseSlug`).
+ */
+export async function readCourseSlugFromRoute(): Promise<string | null> {
+  const store = await headers();
+  const value = store.get(COURSE_SLUG_HEADER)?.trim();
+  return value && value.length > 0 ? value : null;
+}
 
 /** Un año: la selección es una preferencia, no una sesión. */
 const COURSE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -48,17 +74,25 @@ export interface CourseChoice {
  * Elige el curso a mostrar entre los publicados.
  *
  * - Ninguno publicado → `{ kind: "empty" }`.
+ * - `urlSlug` válido  → ÉSE, sin importar la cookie: en una ruta de curso la
+ *   URL es la fuente de verdad inmediata (ver `COURSE_SLUG_HEADER`).
  * - Exactamente uno   → ése (no hay nada que elegir; no es una suposición).
  * - Varios            → el de la cookie si es válido; si no, hay que elegir.
  */
 export function pickCourse<T extends { slug: string }>(
   courses: T[],
-  selectedSlug: string | null,
+  cookieSlug: string | null,
+  urlSlug?: string | null,
 ): { kind: "empty" } | { kind: "course"; course: T } | { kind: "choose" } {
   if (courses.length === 0) return { kind: "empty" };
 
-  const remembered = selectedSlug
-    ? courses.find((c) => c.slug === selectedSlug)
+  const fromUrl = urlSlug
+    ? courses.find((c) => c.slug === urlSlug)
+    : undefined;
+  if (fromUrl) return { kind: "course", course: fromUrl };
+
+  const remembered = cookieSlug
+    ? courses.find((c) => c.slug === cookieSlug)
     : undefined;
   if (remembered) return { kind: "course", course: remembered };
 
