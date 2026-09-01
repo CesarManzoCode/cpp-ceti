@@ -275,21 +275,19 @@ class Program
       // Alineado con la nueva secuencia de U1 (etapa `abstraccion-con-
       // criterio`): esta unidad enseña campos públicos y métodos. `private`
       // y los constructores llegan en U2. El enunciado plantea una
-      // decisión real —cinco candidatos, sólo tres pertenecen al modelo—
-      // ANTES de dar la forma exacta que se va a calificar; no dicta el
-      // modelo desde la primera línea.
+      // decisión real: el enunciado NO revela cuáles candidatos pertenecen
+      // al modelo ni enumera la estructura exacta a implementar — eso lo
+      // tiene que derivar el alumno del requisito. El structureContract de
+      // abajo sigue exigiendo la estructura correcta internamente, para
+      // calificar sin regalar la respuesta en el enunciado.
       slug: "csharp-poo-abstraer-casillero",
       title: "Abstracción de un casillero",
       description: "Decide qué pertenece al modelo antes de programarlo.",
-      prompt: `El taller de casilleros va a registrar préstamos: quién tiene cada casillero y si está libre u ocupado. Antes de programar, decide cuáles de estos cinco datos pertenecen a ese problema:
+      prompt: `El taller de casilleros va a registrar préstamos. Un casillero real podría tener número, color de puerta, marca de candado, quién lo tiene ahora mismo, si está ocupado, fecha de instalación... Antes de programar, decide cuáles de esos datos ayudan realmente a registrar un préstamo y déjalos fuera si no ayudan: no modeles nada que no necesites para este problema.
 
-- el número del casillero
-- quién lo tiene ahora mismo
-- si está ocupado
-- el color de la puerta
-- la marca del candado
+Tu clase \`Casillero\` tiene que permitir: identificar el casillero por su número; saber quién lo tiene ahora mismo y si está ocupado; ocuparlo (queda registrado quién lo ocupa); y liberarlo (queda sin propietario y libre otra vez). Necesitas además una forma de mostrarlo: cuando está ocupado, "NUM | PROPIETARIO | ocupado"; cuando está libre, "NUM | libre". Usa nombres de miembro en PascalCase que reflejen directamente cada dato u operación que acabas de identificar, siguiendo la convención del resto del curso.
 
-Sólo tres son relevantes para registrar préstamos; los otros dos no ayudan a identificar el casillero, a saber quién lo ocupa ni a decidir si está libre. Modela \`Casillero\` con exactamente esos tres como campos públicos: \`Numero\` (int), \`Propietario\` (string) y \`Ocupado\` (bool). Agrega \`Ocupar(string quien)\` —guarda al propietario y marca ocupado— y \`Liberar()\` —vacía el propietario con "" y marca libre—. \`Mostrar()\` imprime "NUM | PROPIETARIO | ocupado" o "NUM | libre" según el estado. Lee número, primer propietario y una orden ("liberar" o cualquier otra cosa); ocupa el casillero y, si la orden es liberar, libéralo. Después muestra el casillero.`,
+\`Main\` ya lee número, primer propietario y una orden ("liberar" o cualquier otra cosa). Complétalo para: ocupar el casillero y, si la orden es liberar, liberarlo; después mostrarlo.`,
       starterCode: `using System;
 class Casillero
 {
