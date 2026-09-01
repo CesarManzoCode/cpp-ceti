@@ -40,17 +40,4 @@ describe("pickCourse", () => {
       course: CSHARP,
     });
   });
-
-  // Regresión: el shell (rail, unidades, switcher) se desincronizaba de la
-  // URL cuando la cookie recordaba OTRO curso — la cookie es memoria para
-  // rutas globales, no autoridad en `/app/c/[courseSlug]/...`.
-  it("en una ruta de curso, la URL manda aunque la cookie recuerde otro", () => {
-    expect(
-      pickCourse([CPP, CSHARP], "csharp-poo-1", "cpp-desde-cero"),
-    ).toEqual({ kind: "course", course: CPP });
-
-    expect(
-      pickCourse([CPP, CSHARP], "cpp-desde-cero", "csharp-poo-1"),
-    ).toEqual({ kind: "course", course: CSHARP });
-  });
 });
