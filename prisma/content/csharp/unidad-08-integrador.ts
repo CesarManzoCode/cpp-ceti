@@ -31,19 +31,19 @@ export const unidad08: UnitDefinition = {
           type: "theory",
           markdown: `# Caso guía: cotizador de papelería
 
-El negocio necesita capturar cliente, producto, precio y cantidad; calcular subtotal y descuento; rechazar importes o cantidades no positivas; y mostrar un resumen. Alcance POO I: una sesión en memoria, arreglo fijo si hace falta, sin base de datos, red, XML, concurrencia ni colecciones genéricas.
+El negocio necesita capturar producto, precio, cantidad y porcentaje de descuento; calcular el total; rechazar precios, cantidades o descuentos fuera de rango; y mostrar un resumen. Alcance POO I: una sesión en memoria, sin base de datos, red, XML, concurrencia ni colecciones genéricas.
 
-Clases candidatas: \`Cliente\`, \`Producto\`, \`Cotizacion\` y \`CalculadorDescuento\`. El formulario es frontera, no entidad. Cada criterio debe describir una entrada y un resultado observable.`,
+Clases del modelo — y sólo ésas se implementan en toda la unidad, sin agregar ni quitar ninguna después: \`Producto\` (nombre, precio; valida precio positivo) y \`Cotizacion\` (referencia a un Producto existente, cantidad, descuento; valida cantidad y descuento, y calcula el total). El formulario es frontera, no entidad. Cada criterio debe describir una entrada y un resultado observable.`,
         },
         {
           type: "matching",
           pairs: [
             { left: "“Cantidad mayor que cero”", right: "Invariante" },
-            { left: "Cotizacion contiene sus renglones del alcance", right: "Composición" },
+            { left: "Cotizacion referencia un Producto que ya existía antes de cotizar", right: "Asociación" },
             { left: "Formulario", right: "Frontera de interfaz" },
             { left: "Precio 100, cantidad 2, descuento 10% → 180", right: "Criterio de aceptación" },
           ],
-          explanation: "El diagrama y los casos deben contar la misma historia.",
+          explanation: "El diagrama y los casos deben contar la misma historia. Producto no nace ni muere con la Cotizacion que lo usa — el mismo producto podría cotizarse varias veces — así que la relación es asociación, no composición.",
         },
         {
           type: "quiz",
@@ -61,7 +61,9 @@ Clases candidatas: \`Cliente\`, \`Producto\`, \`Cotizacion\` y \`CalculadorDescu
           type: "theory",
           markdown: `## Entregable de diseño
 
-Produce: (1) alcance de cinco a ocho requisitos; (2) diagrama UML con visibilidad, atributos, operaciones, multiplicidades y relaciones; (3) flujo de proceso; (4) seis criterios de aceptación, incluidos dos inválidos; (5) matriz requisito → clase responsable → prueba.
+Produce: (1) alcance de cinco a ocho requisitos; (2) diagrama UML con visibilidad, atributos, operaciones y relaciones; (3) flujo de proceso; (4) seis criterios de aceptación, incluidos dos inválidos; (5) matriz requisito → clase responsable → prueba.
+
+No se exigen multiplicidades (1, 0..1, 0..*, etc.): no se enseñaron en U3/U4, así que no forman parte de lo que este diagrama tiene que mostrar.
 
 Revisión obligatoria: ninguna regla vive únicamente en el formulario; toda relación del UML aparece en código; ningún elemento “futuro” se implementa por accidente.`,
         },
@@ -148,6 +150,31 @@ class Program
             ],
             difficulty: "hard",
             xpReward: 48,
+            // Reto final de dominio de la unidad integradora: no puede
+            // aprobarse reproduciendo la salida esperada desde un Main
+            // sin clases. El contrato exige la forma real del modelo
+            // acordado en requisitos-uml-aceptacion.
+            structure: {
+              classes: [
+                {
+                  name: "Producto",
+                  properties: [
+                    { name: "Nombre", visibility: "public", type: "string" },
+                    { name: "Precio", visibility: "public", type: "decimal" },
+                  ],
+                  constructors: [{ paramCount: 2 }],
+                },
+                {
+                  name: "Cotizacion",
+                  constructors: [{ paramCount: 3 }],
+                  methods: [
+                    { name: "Total", visibility: "public", returnType: "decimal" },
+                    { name: "Resumen", visibility: "public", returnType: "string" },
+                  ],
+                  stores: [{ type: "Producto" }],
+                },
+              ],
+            },
             testCases: [
               {
                 stdin: "Papel\n100\n2\n10\n",

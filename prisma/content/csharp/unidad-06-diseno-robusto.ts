@@ -20,14 +20,48 @@ export const unidad06: UnitDefinition = {
       slug: "instancia-y-static",
       title: "Responsabilidades de instancia y de clase",
       description: "Evita convertir static en almacenamiento global accidental.",
-      estimatedMinutes: 14,
-      xpReward: 45,
+      estimatedMinutes: 16,
+      xpReward: 48,
       steps: [
         {
+          // a) instancia vs clase, primero — sin static todavía.
           type: "theory",
           markdown: `# ¿De quién es el dato?
 
-Cada objeto posee sus miembros de instancia. Un miembro \`static\` pertenece a la clase y se comparte. Una constante o una función pura de utilidad puede ser estática; el nombre o saldo de una entidad no. Estado global compartido introduce dependencias ocultas y hace las pruebas frágiles.`,
+Cada objeto tiene sus propios miembros de **instancia**: el \`Nombre\` de un alumno no es el mismo que el de otro, aunque los dos sean \`Alumno\`. Eso ya lo conoces desde U1: cada \`new\` reserva su propio estado.
+
+Un miembro \`static\` es distinto: pertenece a la **clase**, no a cada objeto. Sólo existe una copia, compartida por todos. Antes de usarlo hay que preguntar: ¿este dato es de un alumno en particular, o es algo que describe a la clase completa?`,
+        },
+        {
+          // b) primer caso static: SEGURO, sin estado mutable compartido.
+          type: "code_example",
+          code: `using System;
+class Circulo
+{
+    public const double Pi = 3.1416; // constante: igual para todo Circulo
+
+    public static double Area(double radio)
+    {
+        return Pi * radio * radio; // no lee ni cambia el estado de ningún objeto
+    }
+}
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine(Circulo.Area(2).ToString("0.00"));
+    }
+}`,
+          explanation: "Pi es una constante compartida: no cambia, y no tiene sentido que cada Circulo cargue su propia copia. Area es una función pura: recibe un dato, calcula y regresa un resultado, sin recordar nada entre una llamada y otra. Ninguno de los dos necesita un objeto para existir — por eso son static seguros.",
+          runnable: true,
+          expectedOutput: "12.57",
+        },
+        {
+          // c) ahora sí, el caso static MUTABLE — sólo después del caso seguro.
+          type: "theory",
+          markdown: `# Un caso distinto: static que SÍ cambia
+
+\`Pi\` y \`Area\` nunca cambian entre llamadas. Pero hay otro uso legítimo de \`static\`: un contador compartido por todos los objetos, que sí muta con el tiempo.`,
         },
         {
           type: "code_example",
@@ -46,16 +80,25 @@ class Program
         Console.WriteLine(Alumno.Creados);
     }
 }`,
-          explanation: "Nombre pertenece a cada objeto; Creados describe a la clase completa.",
+          explanation: "Nombre pertenece a cada objeto; Creados describe a la clase completa y SÍ cambia — cada new lo incrementa. Es static, pero ya no es un cálculo sin estado como Area: ahora es un dato compartido que muta.",
           runnable: true,
           expectedOutput: "2",
+        },
+        {
+          // d) coste breve: por qué no convertirlo en almacén global accidental.
+          type: "theory",
+          markdown: `# El costo de un static mutable
+
+Un contador como \`Creados\` es deliberado y acotado: sólo cuenta, y su regla es clara. El riesgo aparece cuando \`static\` se usa como bodega general — guardar ahí "por comodidad" datos que en realidad pertenecen a un objeto (como el saldo o el nombre de una entidad concreta).
+
+Eso crea una dependencia oculta: cualquier parte del programa puede leer o cambiar ese valor sin pasar por ningún objeto, lo que hace las pruebas frágiles (el resultado de una prueba depende de qué corrió antes) y el comportamiento difícil de rastrear. Usa \`static\` para lo que de verdad es de la clase — constantes, funciones puras, contadores explícitos — nunca como atajo para no crear el campo de instancia correcto.`,
         },
         {
           type: "matching",
           pairs: [
             { left: "Saldo de una cuenta", right: "Instancia" },
-            { left: "Número de objetos creados", right: "static" },
-            { left: "Convertir Celsius a Fahrenheit sin estado", right: "static" },
+            { left: "Número de objetos creados", right: "static (mutable, deliberado)" },
+            { left: "Convertir Celsius a Fahrenheit sin estado", right: "static (función pura)" },
             { left: "Nombre de un alumno", right: "Instancia" },
           ],
           explanation: "La propiedad semántica del dato, no la comodidad de acceso, decide.",
@@ -251,7 +294,7 @@ class Program
     {
       slug: "miniproyecto-dominio",
       title: "Miniproyecto: reservas de laboratorio",
-      description: "Coordina entidades, composición, validación y presentación sin mezclar responsabilidades.",
+      description: "Coordina entidades, asociación, validación y presentación sin mezclar responsabilidades.",
       estimatedMinutes: 18,
       xpReward: 65,
       steps: [
@@ -259,7 +302,9 @@ class Program
           type: "theory",
           markdown: `# Del requisito a las responsabilidades
 
-Requisito: “Un alumno reserva un laboratorio por cierto número de horas; el costo debe ser positivo”. \`Alumno\` conserva identidad, \`Laboratorio\` tarifa y \`Reserva\` coordina fecha lógica/costo. \`Program\` sólo recibe y muestra. Antes de codificar, dibuja las tres clases y marca asociaciones.`,
+Requisito: “Un alumno reserva un laboratorio por cierto número de horas; el costo debe ser positivo”. \`Alumno\` conserva identidad, \`Laboratorio\` tarifa y \`Reserva\` coordina fecha lógica/costo. \`Program\` sólo recibe y muestra. Antes de codificar, dibuja las tres clases y marca asociaciones.
+
+Fíjate en cómo llega cada colaborador a \`Reserva\`: el \`Alumno\` y el \`Laboratorio\` ya existen antes de la reserva y se le pasan hechos. Eso es **asociación** (como en U4), no composición — \`Reserva\` no los crea ni los posee, sólo los referencia mientras dura.`,
         },
         {
           type: "code_example",

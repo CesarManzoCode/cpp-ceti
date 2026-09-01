@@ -96,7 +96,12 @@ describe("contratos estructurales publicados", () => {
   it("todo reto de lección de C# publicado declara su objetivo", () => {
     // "Declara su objetivo" = o tiene contrato (comportamiento + estructura)
     // o está en la lista de los que sólo evalúan comportamiento.
-    const soloComportamiento = new Set<string>([]);
+    const soloComportamiento = new Set<string>([
+      // La clase ya viene completa y sin cambios: el reto evalúa que el
+      // alumno EXTRAIGA el diagrama UML correcto como texto, no la
+      // estructura de clases (que no escribe).
+      "csharp-poo-1/csharp-poo-03-uml/csharp-poo-codigo-a-uml-pelicula",
+    ]);
     const sinContrato = challenges
       .filter((c) => c.language === "csharp" && c.structure === undefined)
       .map((c) => c.id)

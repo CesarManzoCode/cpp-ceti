@@ -15,21 +15,34 @@ export const u01ModelarExercises: PracticeUnitSetDefinition = {
   unitIcon: "🧱",
   exercises: [
     {
+      // Objetivo único: crear y usar un objeto (etapa `crear-un-objeto`).
+      // La clase y la lectura ya están escritas para que la única
+      // habilidad evaluada sea new + asignación de campos + llamada a un
+      // método que YA existe — no clase+método+objeto+I/O a la vez.
       slug: "csharp-poo-objeto-mascota",
       title: "Una mascota como objeto",
-      description: "Modela dos datos y un comportamiento.",
-      prompt: "Lee nombre y especie. Crea Mascota y llama Describir para imprimir \"N es E\".",
+      description: "Crea el objeto, asígnale sus datos y úsalo.",
+      prompt: "La clase Mascota ya está completa, con Nombre, Especie y el método Describir() (que imprime \"N es E\"). Main ya lee ambos datos. Te toca: crea el objeto, asígnale los dos campos y llama Describir().",
       starterCode: `using System;
 class Mascota
 {
-    /* estado y método */
+    public string Nombre;
+    public string Especie;
+
+    public void Describir()
+    {
+        Console.WriteLine(Nombre + " es " + Especie);
+    }
 }
 
 class Program
 {
     static void Main()
     {
-        /* lee y usa el objeto */
+        string nombre = Console.ReadLine();
+        string especie = Console.ReadLine();
+
+        // Crea el objeto, asígnale los datos y llama Describir()
     }
 }`,
       solutionCode: `using System;
@@ -37,9 +50,10 @@ class Mascota
 {
     public string Nombre;
     public string Especie;
+
     public void Describir()
     {
-        Console.WriteLine(Nombre+" es "+Especie);
+        Console.WriteLine(Nombre + " es " + Especie);
     }
 }
 
@@ -47,19 +61,22 @@ class Program
 {
     static void Main()
     {
-        Mascota m=new Mascota();
-        m.Nombre=Console.ReadLine();
-        m.Especie=Console.ReadLine();
+        string nombre = Console.ReadLine();
+        string especie = Console.ReadLine();
+
+        Mascota m = new Mascota();
+        m.Nombre = nombre;
+        m.Especie = especie;
         m.Describir();
     }
 }`,
       hints: [
-        "Los datos pertenecen a Mascota.",
-        "Crea exactamente una instancia.",
-        "Describir imprime el estado.",
+        "Usa new Mascota() para crear el objeto.",
+        "Asigna cada campo con el punto: m.Nombre = nombre;",
+        "Describir ya está escrito: sólo llámalo.",
       ],
       difficulty: "easy",
-      xpReward: 18,
+      xpReward: 16,
       structure: {
         classes: [
           {
@@ -86,49 +103,58 @@ class Program
       ],
     },
     {
+      // Objetivo único: independencia de dos objetos (etapa
+      // `clase-objeto-instancia`). Sin método `Encender()`: la prueba de
+      // independencia es reasignar un campo y mostrar con
+      // Console.WriteLine directo, igual que en la lección.
       slug: "csharp-poo-dos-lamparas",
       title: "Dos lámparas independientes",
-      description: "Demuestra que dos instancias conservan estados distintos.",
-      prompt: "Lee dos colores. Crea dos Lampara con campo Color y método Encender; imprime \"Luz COLOR\" para cada una.",
+      description: "Cambia una y comprueba que la otra no se entera.",
+      prompt: "Lee dos colores. Crea dos objetos Lampara (campo público Color, sin métodos) y asígnales esos colores. Después cambia el Color de la PRIMERA lámpara a \"apagada\" y muestra las dos con Console.WriteLine, formato \"Luz COLOR\" — para comprobar que la segunda conserva su color original.",
       starterCode: `using System;
 class Lampara
 {
-    /* completa */
+    /* completa: sólo un campo, sin métodos */
 }
 
 class Program
 {
     static void Main()
     {
-        /* dos new */
+        string color1 = Console.ReadLine();
+        string color2 = Console.ReadLine();
+
+        /* dos new, apaga sólo la primera, muestra las dos */
     }
 }`,
       solutionCode: `using System;
 class Lampara
 {
     public string Color;
-    public void Encender()
-    {
-        Console.WriteLine("Luz "+Color);
-    }
 }
 
 class Program
 {
     static void Main()
     {
-        Lampara a=new Lampara();
-        a.Color=Console.ReadLine();
-        Lampara b=new Lampara();
-        b.Color=Console.ReadLine();
-        a.Encender();
-        b.Encender();
+        string color1 = Console.ReadLine();
+        string color2 = Console.ReadLine();
+
+        Lampara a = new Lampara();
+        a.Color = color1;
+        Lampara b = new Lampara();
+        b.Color = color2;
+
+        a.Color = "apagada";
+
+        Console.WriteLine("Luz " + a.Color);
+        Console.WriteLine("Luz " + b.Color);
     }
 }`,
       hints: [
-        "Usa dos expresiones new.",
-        "No uses un campo static.",
-        "Llama el método en orden.",
+        "Usa dos expresiones new: una lámpara no puede compartirse con la otra.",
+        "Sólo reasigna el Color de la primera, después de crear ambas.",
+        "Imprime cada una con su propio Console.WriteLine, sin método.",
       ],
       difficulty: "easy",
       xpReward: 20,
@@ -137,28 +163,31 @@ class Program
           {
             name: "Lampara",
             fields: [{ name: "Color", visibility: "public", type: "string" }],
-            methods: [{ name: "Encender", visibility: "public" }],
           },
         ],
       },
     testCases: [
         {
           stdin: "azul\nroja\n",
-          expectedStdout: "Luz azul\nLuz roja\n",
+          expectedStdout: "Luz apagada\nLuz roja\n",
           visible: true,
         },
         {
           stdin: "blanco cálido\nverde\n",
-          expectedStdout: "Luz blanco cálido\nLuz verde\n",
+          expectedStdout: "Luz apagada\nLuz verde\n",
           visible: false,
         },
       ],
     },
     {
+      // Transferencia final de comportamiento/responsabilidad de la
+      // unidad. El objetivo es dónde vive la regla (dentro de Usar), no
+      // leer ni convertir datos — así que Main ya viene con la lectura y
+      // el parseo resueltos.
       slug: "csharp-poo-bateria-comportamiento",
       title: "Batería que se descarga",
       description: "Coloca el cambio de estado en el objeto.",
-      prompt: "Bateria inicia con carga leída. Usar(int puntos) resta sin bajar de cero. Lee carga y dos consumos; imprime el valor final.",
+      prompt: "Bateria inicia con carga leída. Usar(int puntos) resta sin bajar de cero — la regla la aplica la batería, no Main. Main ya lee la carga y los dos consumos, y ya crea el objeto e imprime el resultado; sólo falta la clase Bateria.",
       starterCode: `using System;
 class Bateria
 {
@@ -169,7 +198,16 @@ class Program
 {
     static void Main()
     {
-        /* completa */
+        int cargaInicial = int.Parse(Console.ReadLine());
+        int consumo1 = int.Parse(Console.ReadLine());
+        int consumo2 = int.Parse(Console.ReadLine());
+
+        Bateria b = new Bateria();
+        b.Carga = cargaInicial;
+        b.Usar(consumo1);
+        b.Usar(consumo2);
+
+        Console.WriteLine(b.Carga);
     }
 }`,
       solutionCode: `using System;
@@ -178,8 +216,8 @@ class Bateria
     public int Carga;
     public void Usar(int puntos)
     {
-        Carga-=puntos;
-        if(Carga<0) Carga=0;
+        Carga -= puntos;
+        if (Carga < 0) Carga = 0;
     }
 }
 
@@ -187,17 +225,22 @@ class Program
 {
     static void Main()
     {
-        Bateria b=new Bateria();
-        b.Carga=int.Parse(Console.ReadLine());
-        b.Usar(int.Parse(Console.ReadLine()));
-        b.Usar(int.Parse(Console.ReadLine()));
+        int cargaInicial = int.Parse(Console.ReadLine());
+        int consumo1 = int.Parse(Console.ReadLine());
+        int consumo2 = int.Parse(Console.ReadLine());
+
+        Bateria b = new Bateria();
+        b.Carga = cargaInicial;
+        b.Usar(consumo1);
+        b.Usar(consumo2);
+
         Console.WriteLine(b.Carga);
     }
 }`,
       hints: [
-        "Usar cambia Carga.",
-        "Corrige el límite después de restar.",
-        "Main no debe calcular el saldo.",
+        "Usar cambia Carga; no lo hagas desde Main.",
+        "Corrige el límite (Carga < 0) después de restar, dentro de Usar.",
+        "Main ya está completo: no necesitas tocarlo.",
       ],
       difficulty: "medium",
       xpReward: 28,
@@ -229,19 +272,26 @@ class Program
       ],
     },
     {
-      // Alineado con la nueva secuencia de U1 (`CS-01`): esta unidad enseña
-      // campos públicos y métodos. `private` y los constructores llegan en
-      // U2, así que el ejercicio pide DECIDIR qué miembros entran al modelo
-      // —que es la etapa 6 de la unidad— sin sintaxis que todavía no se ha
-      // visto.
+      // Alineado con la nueva secuencia de U1 (etapa `abstraccion-con-
+      // criterio`): esta unidad enseña campos públicos y métodos. `private`
+      // y los constructores llegan en U2. El enunciado plantea una
+      // decisión real: el enunciado NO revela cuáles candidatos pertenecen
+      // al modelo ni enumera la estructura exacta a implementar — eso lo
+      // tiene que derivar el alumno del requisito. El structureContract de
+      // abajo sigue exigiendo la estructura correcta internamente, para
+      // calificar sin regalar la respuesta en el enunciado.
       slug: "csharp-poo-abstraer-casillero",
       title: "Abstracción de un casillero",
-      description: "Selecciona sólo el estado necesario para prestar y liberar.",
-      prompt: "El taller sólo necesita saber, de cada casillero, su número, quién lo tiene y si está ocupado. Modela `Casillero` con campos públicos `Numero` (int), `Propietario` (string) y `Ocupado` (bool), y con los métodos `Ocupar(string quien)` —guarda al propietario y marca ocupado— y `Liberar()` —vacía el propietario con \"\" y marca libre—. `Mostrar()` imprime \"NUM | PROPIETARIO | ocupado\" o \"NUM | libre\" según el estado. Lee número, primer propietario y una orden (\"liberar\" o cualquier otra cosa); ocupa el casillero y, si la orden es liberar, libéralo. Después muestra el casillero.",
+      description: "Decide qué pertenece al modelo antes de programarlo.",
+      prompt: `El taller de casilleros va a registrar préstamos. Un casillero real podría tener número, color de puerta, marca de candado, quién lo tiene ahora mismo, si está ocupado, fecha de instalación... Antes de programar, decide cuáles de esos datos ayudan realmente a registrar un préstamo y déjalos fuera si no ayudan: no modeles nada que no necesites para este problema.
+
+Tu clase \`Casillero\` tiene que permitir: identificar el casillero por su número; saber quién lo tiene ahora mismo y si está ocupado; ocuparlo (queda registrado quién lo ocupa); y liberarlo (queda sin propietario y libre otra vez). Necesitas además una forma de mostrarlo: cuando está ocupado, "NUM | PROPIETARIO | ocupado"; cuando está libre, "NUM | libre". Usa nombres de miembro en PascalCase que reflejen directamente cada dato u operación que acabas de identificar, siguiendo la convención del resto del curso.
+
+\`Main\` ya lee número, primer propietario y una orden ("liberar" o cualquier otra cosa). Complétalo para: ocupar el casillero y, si la orden es liberar, liberarlo; después mostrarlo.`,
       starterCode: `using System;
 class Casillero
 {
-    /* Sólo lo que este sistema necesita: numero, propietario, ocupado */
+    /* Sólo los tres datos que decidiste que pertenecen al modelo */
 }
 
 class Program

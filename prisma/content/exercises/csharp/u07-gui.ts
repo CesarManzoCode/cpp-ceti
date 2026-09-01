@@ -97,6 +97,14 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 24,
+      structure: {
+        classes: [
+          {
+            name: "Saludador",
+            methods: [{ name: "Crear", visibility: "public", paramCount: 1, returnType: "string" }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "  Ana  \n",
@@ -165,6 +173,14 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 34,
+      structure: {
+        classes: [
+          {
+            name: "Cotizador",
+            methods: [{ name: "Total", visibility: "public", paramCount: 2, returnType: "decimal" }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "10.5\n2\n",
@@ -230,6 +246,15 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 40,
+      structure: {
+        classes: [
+          {
+            name: "ContadorServicio",
+            properties: [{ name: "Total", visibility: "public", type: "int" }],
+            methods: [{ name: "Registrar", visibility: "public", paramCount: 0 }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "click\nclick\notro\n",

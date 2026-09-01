@@ -53,6 +53,14 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 24,
+      structure: {
+        classes: [
+          {
+            name: "Membresia",
+            methods: [{ name: "Total", visibility: "public", paramCount: 1, returnType: "decimal" }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "600\n",
@@ -125,6 +133,18 @@ class Program
       ],
       difficulty: "easy",
       xpReward: 26,
+      structure: {
+        classes: [
+          {
+            name: "Producto",
+            properties: [
+              { name: "Nombre", visibility: "public", type: "string" },
+              { name: "Existencia", visibility: "public", type: "int" },
+            ],
+            constructors: [{ paramCount: 2 }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "Papel\n5\nTinta\n9\n",
@@ -220,6 +240,29 @@ class Program
       ],
       difficulty: "medium",
       xpReward: 36,
+      structure: {
+        classes: [
+          {
+            name: "Comprobante",
+            abstract: true,
+            properties: [{ name: "Folio", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 2 }],
+            methods: [{ name: "Total", visibility: "public", abstract: true, returnType: "decimal" }],
+          },
+          {
+            name: "Venta",
+            extends: "Comprobante",
+            constructors: [{ paramCount: 2, callsBase: true }],
+            methods: [{ name: "Total", visibility: "public", override: true, returnType: "decimal" }],
+          },
+          {
+            name: "Servicio",
+            extends: "Comprobante",
+            constructors: [{ paramCount: 2, callsBase: true }],
+            methods: [{ name: "Total", visibility: "public", override: true, returnType: "decimal" }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "V1\n100\nS1\n200\n",
@@ -236,8 +279,8 @@ class Program
     {
       slug: "csharp-poo-integrador-orden-completa",
       title: "Orden final trazable",
-      description: "Integra composición, validación y resumen para transferir a WinForms.",
-      prompt: "Cliente tiene nombre. Producto tiene nombre/precio positivo. Orden compone ambos y cantidad positiva. Lee todos los datos; imprime \"cliente | producto x cantidad | total\" o Error con \"Precio invalido\"/\"Cantidad invalida\".",
+      description: "Integra asociación, validación y resumen para transferir a WinForms.",
+      prompt: "Cliente tiene nombre. Producto tiene nombre/precio positivo. Orden conserva una referencia a un Cliente y a un Producto ya existentes (asociación, no composición) y una cantidad positiva. Lee todos los datos; imprime \"cliente | producto x cantidad | total\" o Error con \"Precio invalido\"/\"Cantidad invalida\".",
       starterCode: `using System;
 class Cliente
 {
@@ -333,6 +376,29 @@ class Program
       ],
       difficulty: "hard",
       xpReward: 46,
+      structure: {
+        classes: [
+          {
+            name: "Cliente",
+            properties: [{ name: "Nombre", visibility: "public", type: "string" }],
+            constructors: [{ paramCount: 1 }],
+          },
+          {
+            name: "Producto",
+            properties: [
+              { name: "Nombre", visibility: "public", type: "string" },
+              { name: "Precio", visibility: "public", type: "decimal" },
+            ],
+            constructors: [{ paramCount: 2 }],
+          },
+          {
+            name: "Orden",
+            constructors: [{ paramCount: 3 }],
+            methods: [{ name: "Resumen", visibility: "public", returnType: "string" }],
+            stores: [{ type: "Cliente" }, { type: "Producto" }],
+          },
+        ],
+      },
       testCases: [
         {
           stdin: "Nora\nCuaderno\n25.5\n2\n",

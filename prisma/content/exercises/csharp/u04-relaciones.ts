@@ -148,13 +148,17 @@ class Program
 {
     static void Main()
     {
-        string e=Console.ReadLine(), n=Console.ReadLine();
-        new Equipo(e, new Entrenador(n)).Mostrar();
+        string nombreEquipo = Console.ReadLine();
+        string nombreEntrenador = Console.ReadLine();
+
+        Entrenador entrenador = new Entrenador(nombreEntrenador);
+        Equipo equipo = new Equipo(nombreEquipo, entrenador);
+        equipo.Mostrar();
     }
 }`,
       hints: [
-        "Entrenador existe antes de Equipo.",
-        "Equipo guarda la referencia.",
+        "Entrenador existe antes de Equipo: créalo primero, en su propia variable.",
+        "Equipo sólo guarda la referencia que ya recibe, no crea su propio entrenador.",
         "No heredes.",
       ],
       difficulty: "easy",

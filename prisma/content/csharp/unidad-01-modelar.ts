@@ -3,9 +3,10 @@ import type { UnitDefinition } from "../types";
 // =====================================================================
 // De problemas a objetos
 //
-// La unidad va de lo concreto a lo formal, en este orden y sin saltos:
-//   1. un objeto concreto del problema (qué recuerda / qué hace)
-//   2. del ejemplar al modelo: clase, objeto, instancia, `new`
+// La unidad va de lo concreto a lo formal, en SEIS pasos pequeños y sin
+// saltos — cada uno agrega UNA idea nueva:
+//   1. datos repetidos → class, tipo propio, campos (sin new, sin objeto)
+//   2. new, objeto, instancia, acceso con `.`
 //   3. una clase, dos objetos independientes
 //   4. estado y comportamiento, con traza antes → llamada → después
 //   5. responsabilidad: quién debe hacer la operación
@@ -29,187 +30,341 @@ export const unidad01: UnitDefinition = {
   published: true,
   lessons: [
     /**
-     * Etapas 1 y 2: un objeto concreto y, sólo después, los nombres
-     * formales (clase, objeto, instancia, `new`).
+     * Etapa 1: SÓLO class / tipo propio / campos. Nada de new, objeto,
+     * instancia, métodos, responsabilidad, referencias ni encapsulación
+     * — eso viene en las lecciones siguientes, una idea a la vez.
      */
     {
       slug: "pensar-en-objetos",
-      title: "Pensar en objetos, no en una lista de instrucciones",
-      description: "Un objeto concreto: qué necesita recordar y qué necesita hacer.",
-      estimatedMinutes: 9,
-      xpReward: 30,
+      title: "De variables sueltas a una clase",
+      description: "Agrupa datos que se repiten en un molde propio: la clase.",
+      estimatedMinutes: 8,
+      xpReward: 25,
       steps: [
         {
           type: "theory",
-          markdown: `# Un taladro del taller
+          markdown: `# Los mismos dos datos, otra vez
 
-En el taller del CETI hay un taladro. Para controlar los préstamos, del taladro sólo importan dos cosas:
+En la tienda del taller cada producto tiene un nombre y unas existencias:
 
-- **cómo se llama**: \`Taladro\`
-- **cuántas piezas quedan**: \`3\`
+\`\`\`csharp
+string nombre = "Taladro";
+int existencias = 3;
+\`\`\`
 
-Y una sola acción: **mostrar su ficha**, algo como \`Taladro: 3\`.
+Pero la tienda no tiene un solo producto. Tiene muchos:
 
-Eso es todo por ahora. Nada de herencia, nada de diagramas.
+\`\`\`csharp
+string nombre1 = "Taladro";
+int existencias1 = 3;
 
-Fíjate en cómo se parte en dos: hay cosas que el taladro **recuerda** (nombre, existencias) y cosas que **hace** (mostrar su ficha). Esa separación es la idea central de la unidad; los nombres formales vienen en la pantalla siguiente, cuando ya la hayas visto funcionando.`,
-        },
-        {
-          type: "code_example",
-          code: `using System;
+string nombre2 = "Sierra";
+int existencias2 = 8;
+\`\`\`
 
-class Herramienta
-{
-    public string Nombre;
-    public int Existencias;
+Es el mismo par de datos, copiado, con un número al final del nombre para no chocar. Con diez productos serían veinte variables sueltas, sin nada que diga que \`nombre1\` y \`existencias1\` van juntos.
 
-    public void Mostrar()
-    {
-        Console.WriteLine($"{Nombre}: {Existencias}");
-    }
-}
-
-class Program
-{
-    static void Main()
-    {
-        Herramienta taladro = new Herramienta();
-        taladro.Nombre = "Taladro";
-        taladro.Existencias = 3;
-        taladro.Mostrar();
-    }
-}`,
-          explanation: "Arriba está el taladro del que hablamos. `Nombre` y `Existencias` son lo que recuerda; `Mostrar()` es lo que hace. Córrelo y cambia el 3 por otro número: verás que la ficha cambia con él. Los campos son públicos sólo para ver la mecánica primero; en la unidad siguiente protegeremos el estado.",
-          runnable: true,
-          expectedOutput: "Taladro: 3",
+Falta un molde que diga: **todo Producto tiene un nombre y unas existencias.**`,
         },
         {
           type: "theory",
-          markdown: `# Ahora sí, los nombres
+          markdown: `# \`class\`: un tipo que tú defines
 
-Ya viste el código funcionando. Ponle nombre a cada pieza:
+C# ya trae tipos como \`string\` e \`int\`. Con \`class\` defines uno **tuyo**:
 
-- \`class Herramienta\` es la **clase**: el molde. Describe qué recordará y qué hará *cualquier* herramienta.
-- \`taladro\` es un **objeto** (también se le dice **instancia**): una herramienta concreta, con sus propios datos.
-- \`new Herramienta()\` es lo que **crea** el objeto. Sin \`new\` sólo tienes el molde, no la pieza.
+\`\`\`csharp
+class Producto
+{
+    public string Nombre;
+    public int Existencias;
+}
+\`\`\`
 
-Dicho corto: **la clase describe, el objeto existe.**
+- \`class Producto\` declara el tipo nuevo.
+- \`Nombre\` y \`Existencias\` son sus **campos**: los datos que va a tener todo Producto.
+- \`public\` va antes de cada campo por ahora de forma mecánica — cópialo tal cual. En U2 verás qué significa exactamente y cuándo conviene cambiarlo.
 
-La clase no guarda "Taladro" ni el 3. Esos datos viven en el objeto.`,
+Esto todavía **no crea ningún producto**. Es sólo el molde: dice qué tendrá un Producto, no cuál. Eso viene en la siguiente lección.`,
         },
         {
-          type: "fill_blank",
-          prompt: "Completa la creación de un objeto a partir de la clase `Herramienta` y la asignación de su nombre.",
-          template: `{{0}} llave = {{1}} Herramienta();
-llave.{{2}} = "Llave";`,
-          blanks: [
-            { answer: "Herramienta", hint: "El tipo de la variable es la clase, igual que en el ejemplo." },
-            { answer: "new", hint: "La palabra que crea la instancia." },
-            { answer: "Nombre", hint: "El campo que guarda cómo se llama. Respeta la mayúscula." },
-          ],
-          explanation: "Mismo patrón del ejemplo: tipo, `new`, y luego se llenan los datos del objeto.",
+          type: "code_example",
+          code: `class Producto
+{
+    public string Nombre;
+    public int Existencias;
+}`,
+          explanation: "Dos campos, un molde. No hay Main aquí a propósito: una clase por sí sola no es un programa completo, y todavía no estamos creando ningún producto — sólo describiendo la forma que tendrán todos.",
+          runnable: false,
+          localOnlyNote: "Es sólo la declaración del molde: no se ejecuta todavía, se lee.",
         },
         {
           type: "quiz",
-          question: "En el código de la lección, ¿cuál de estos es un objeto (una instancia)?",
+          question: "Dentro de `class Producto { public string Nombre; public int Existencias; }`, ¿qué es `Existencias`?",
           options: [
-            "class Herramienta",
-            "public int Existencias",
-            "taladro",
-            "Mostrar()",
+            "Un campo: un dato que cada Producto va a tener",
+            "Una variable local dentro de Main",
+            "El nombre de la clase",
+            "Un valor concreto, como 3",
           ],
           feedbackPerOption: [
-            "Eso describe; todavía no existe ninguna herramienta concreta.",
-            "Eso es uno de los datos que la clase dice que habrá.",
             "",
-            "Eso es una de las acciones que la clase describe.",
+            "No está dentro de ningún método; está dentro de la clase.",
+            "El nombre de la clase es Producto.",
+            "Todavía no hay ningún valor: la clase sólo describe qué campo va a existir.",
           ],
-          correctIndex: 2,
-          explanation: "`new Herramienta()` crea el objeto y `taladro` es la variable que lo referencia: la clase describe, el objeto existe.",
+          correctIndex: 0,
+          explanation: "Los campos describen los datos que tendrá cada objeto de esa clase. Por ahora es sólo descripción: ningún Producto existe todavía.",
+        },
+        {
+          type: "fill_blank",
+          prompt: "Completa la declaración de una clase Herramienta con dos campos.",
+          template: `{{0}} Herramienta
+{
+    public string {{1}};
+    public int {{2}};
+}`,
+          blanks: [
+            { answer: "class", hint: "La palabra que declara un tipo propio." },
+            { answer: "Nombre", hint: "Un campo de texto, con mayúscula inicial." },
+            { answer: "Existencias", hint: "Un campo numérico, con mayúscula inicial." },
+          ],
+          explanation: "class declara el molde; dentro van los campos con su tipo y su nombre, cada uno con `public` por ahora.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: `## Tu turno: la clase
+            prompt: `## Tu turno: sólo el molde
 
-\`Main\` ya está escrito: lee el nombre, crea el objeto, le asigna el nombre y llama a \`Presentar()\`. **Falta la clase.**
+El taller de robótica quiere modelar un \`Curso\`: cada curso tiene un **nombre** y un **cupo disponible**.
 
-Escribe \`FichaHerramienta\` con:
+Declara la clase \`Curso\` con:
 
 - un campo público \`Nombre\` de tipo \`string\`
-- un método \`Presentar()\` que escriba exactamente \`Herramienta: Nombre\`
+- un campo público \`CupoDisponible\` de tipo \`int\`
 
-Es el mismo patrón del ejemplo, con un solo dato en vez de dos.`,
+Todavía no vas a crear ningún objeto — sólo el molde. \`Main\` se queda vacío.`,
             starterCode: `using System;
 
-// Escribe aquí la clase FichaHerramienta
+// Declara aquí la clase Curso
 
 class Program
 {
     static void Main()
     {
-        string nombre = Console.ReadLine();
-        FichaHerramienta ficha = new FichaHerramienta();
-        ficha.Nombre = nombre;
-        ficha.Presentar();
     }
 }`,
             solutionCode: `using System;
 
-class FichaHerramienta
+class Curso
 {
     public string Nombre;
-
-    public void Presentar()
-    {
-        Console.WriteLine($"Herramienta: {Nombre}");
-    }
+    public int CupoDisponible;
 }
 
 class Program
 {
     static void Main()
     {
-        string nombre = Console.ReadLine();
-        FichaHerramienta ficha = new FichaHerramienta();
-        ficha.Nombre = nombre;
-        ficha.Presentar();
     }
 }`,
             hints: [
-              "La clase va FUERA de Program, igual que Herramienta en el ejemplo.",
-              "Adentro: un campo `public string Nombre;` y un método `public void Presentar()`.",
-              "Presentar imprime con interpolación: $\"Herramienta: {Nombre}\".",
+              "Empieza con class Curso, fuera de Program.",
+              "Dos campos públicos: uno string, uno int.",
+              "No necesitas new ni Main con contenido: sólo el molde.",
             ],
             difficulty: "easy",
             xpReward: 20,
             structure: {
               classes: [
                 {
-                  name: "FichaHerramienta",
-                  fields: [{ name: "Nombre", visibility: "public", type: "string" }],
-                  methods: [{ name: "Presentar", visibility: "public" }],
+                  name: "Curso",
+                  fields: [
+                    { name: "Nombre", visibility: "public", type: "string" },
+                    { name: "CupoDisponible", visibility: "public", type: "int" },
+                  ],
                 },
               ],
             },
             testCases: [
               {
-                stdin: "Martillo\n",
-                expectedStdout: "Herramienta: Martillo\n",
+                stdin: "",
+                expectedStdout: "",
+                visible: true,
+                description: "Sólo se evalúa la estructura de la clase",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    /**
+     * Etapa 2 (NUEVA): new, objeto, instancia, acceso con `.`. Reutiliza
+     * la clase Producto de la lección anterior. Nada de "referencia" ni
+     * de métodos: sólo crear y usar.
+     */
+    {
+      slug: "crear-un-objeto",
+      title: "Crear y usar un objeto",
+      description: "El molde no basta: hay que construir uno con new.",
+      estimatedMinutes: 9,
+      xpReward: 28,
+      steps: [
+        {
+          type: "theory",
+          markdown: `# La clase describe, el objeto existe
+
+Con la clase \`Producto\` de la lección anterior todavía no tienes ningún producto: sólo el molde. Para tener uno de verdad:
+
+\`\`\`csharp
+Producto taladro = new Producto();
+taladro.Nombre = "Taladro";
+taladro.Existencias = 3;
+\`\`\`
+
+- \`new Producto()\` **construye** un producto concreto siguiendo el molde de la clase.
+- \`taladro\` es la variable que guarda ese producto. También se le llama **objeto** o **instancia**.
+- Con el punto \`.\` accedes a sus campos: \`taladro.Nombre\`, \`taladro.Existencias\`.
+
+Dicho corto: **la clase describe, el objeto existe.** Sin \`new\` sólo tienes el molde, no la pieza.`,
+        },
+        {
+          type: "code_example",
+          code: `using System;
+
+class Producto
+{
+    public string Nombre;
+    public int Existencias;
+}
+
+class Program
+{
+    static void Main()
+    {
+        Producto taladro = new Producto();
+        taladro.Nombre = "Taladro";
+        taladro.Existencias = 3;
+
+        Console.WriteLine(taladro.Nombre);
+        Console.WriteLine(taladro.Existencias);
+    }
+}`,
+          explanation: "new Producto() crea el objeto; las dos líneas siguientes llenan sus campos con el punto. Cambia el 3 por otro número y verás que la segunda línea impresa cambia con él.",
+          runnable: true,
+          expectedOutput: `Taladro
+3`,
+        },
+        {
+          type: "quiz",
+          question: "¿Cuál de estas líneas CREA el objeto (no sólo lo usa)?",
+          options: [
+            "taladro.Nombre = \"Taladro\";",
+            "Producto taladro = new Producto();",
+            "Console.WriteLine(taladro.Nombre);",
+            "class Producto { public string Nombre; public int Existencias; }",
+          ],
+          feedbackPerOption: [
+            "Eso asigna un campo de un objeto que ya existe.",
+            "",
+            "Eso sólo lee y muestra un campo.",
+            "Eso es el molde; no crea ningún objeto por sí solo.",
+          ],
+          correctIndex: 1,
+          explanation: "`new Producto()` es lo que construye el objeto. Todo lo demás asume que ya existe.",
+        },
+        {
+          type: "fill_blank",
+          prompt: "Completa la creación de un objeto Producto y la asignación de sus dos campos.",
+          template: `{{0}} llave = {{1}} Producto();
+llave.{{2}} = "Llave";
+llave.{{3}} = 12;`,
+          blanks: [
+            { answer: "Producto", hint: "El tipo de la variable es la clase." },
+            { answer: "new", hint: "La palabra que crea la instancia." },
+            { answer: "Nombre", hint: "El campo de texto. Respeta la mayúscula." },
+            { answer: "Existencias", hint: "El campo numérico. Respeta la mayúscula." },
+          ],
+          explanation: "Mismo patrón del ejemplo: tipo, new, y luego se llenan los dos campos del objeto con el punto.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Sólo crear y usar
+
+La clase \`Alumno\` ya está escrita, con dos campos: \`Nombre\` y \`Grupo\`. \`Main\` ya lee ambos datos.
+
+Te toca: crea el objeto, asígnale los datos leídos y muestra cada campo con \`Console.WriteLine\`, uno por línea. La clase no cambia — sólo la usas.`,
+            starterCode: `using System;
+
+class Alumno
+{
+    public string Nombre;
+    public string Grupo;
+}
+
+class Program
+{
+    static void Main()
+    {
+        string nombre = Console.ReadLine();
+        string grupo = Console.ReadLine();
+
+        // Crea el objeto, asígnale los datos y muestra Nombre y Grupo
+    }
+}`,
+            solutionCode: `using System;
+
+class Alumno
+{
+    public string Nombre;
+    public string Grupo;
+}
+
+class Program
+{
+    static void Main()
+    {
+        string nombre = Console.ReadLine();
+        string grupo = Console.ReadLine();
+
+        Alumno alumno = new Alumno();
+        alumno.Nombre = nombre;
+        alumno.Grupo = grupo;
+
+        Console.WriteLine(alumno.Nombre);
+        Console.WriteLine(alumno.Grupo);
+    }
+}`,
+            hints: [
+              "Usa new Alumno() para crear el objeto.",
+              "Asigna cada campo con el punto: alumno.Nombre = nombre;",
+              "Imprime cada campo con su propio Console.WriteLine.",
+            ],
+            difficulty: "easy",
+            xpReward: 22,
+            structure: {
+              classes: [
+                {
+                  name: "Alumno",
+                  fields: [
+                    { name: "Nombre", visibility: "public", type: "string" },
+                    { name: "Grupo", visibility: "public", type: "string" },
+                  ],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "Luna\n3A\n",
+                expectedStdout: "Luna\n3A\n",
                 visible: true,
                 description: "Caso visible",
               },
               {
-                stdin: "Broca 1/4\n",
-                expectedStdout: "Herramienta: Broca 1/4\n",
+                stdin: "Iris Nava\n2B\n",
+                expectedStdout: "Iris Nava\n2B\n",
                 visible: false,
                 description: "Nombre con espacio",
-              },
-              {
-                stdin: "Nivel\n",
-                expectedStdout: "Herramienta: Nivel\n",
-                visible: false,
-                description: "Otro nombre",
               },
             ],
           },
@@ -218,7 +373,9 @@ class Program
     },
     /**
      * Etapa 3: una clase, dos objetos independientes. Se manipula UNO y se
-     * comparan las dos salidas. Nada de `b = a`: eso llega al final de U2.
+     * comparan las dos salidas, con campos + Console.WriteLine directo
+     * (sin métodos: `Mostrar()` llega hasta la etapa 4). Nada de `b = a`:
+     * eso llega al final de U2.
      */
     {
       slug: "clase-objeto-instancia",
@@ -245,11 +402,6 @@ class Locker
 {
     public int Numero;
     public string Responsable;
-
-    public void Mostrar()
-    {
-        Console.WriteLine($"Locker {Numero}: {Responsable}");
-    }
 }
 
 class Program
@@ -267,29 +419,29 @@ class Program
         // Le cambiamos el responsable SÓLO al primero.
         a.Responsable = "Sofia";
 
-        a.Mostrar();
-        b.Mostrar();
+        Console.WriteLine($"Locker {a.Numero}: {a.Responsable}");
+        Console.WriteLine($"Locker {b.Numero}: {b.Responsable}");
     }
 }`,
-          explanation: "Dos `new`, dos objetos. Le cambiamos el responsable a `a` y `b` sigue con Luis: cada objeto tiene sus propios datos. Cambia la línea de Sofia por una que toque a `b` y verás moverse la otra línea, nunca las dos.",
+          explanation: "Dos `new`, dos objetos. Le cambiamos el responsable a `a` y `b` sigue con Luis: cada objeto tiene sus propios campos. Cambia la línea de Sofia por una que toque a `b` y verás moverse la otra línea, nunca las dos.",
           runnable: true,
           expectedOutput: `Locker 12: Sofia
 Locker 13: Luis`,
         },
         {
           type: "quiz",
-          question: "Con dos objetos creados por separado (`Locker a = new Locker();` y `Locker b = new Locker();`), ¿qué imprime `b.Mostrar()` después de ejecutar `a.Numero = 99;`?",
+          question: "Con dos objetos creados por separado (`Locker a = new Locker();` y `Locker b = new Locker();`), ¿qué imprime `Console.WriteLine(b.Numero);` después de ejecutar `a.Numero = 99;`?",
           options: [
             "El número que se le dio a b: el cambio en a no lo toca.",
             "99, porque comparten la clase Locker.",
             "0, porque asignar a un objeto borra el otro.",
-            "Nada: sólo se puede mostrar un objeto por programa.",
+            "Nada: un campo sólo se puede leer una vez.",
           ],
           feedbackPerOption: [
             "",
             "La clase es el molde compartido, pero los datos no: viven en cada objeto.",
             "Asignar a un objeto no toca a los demás; nada se borra.",
-            "Puedes crear y mostrar tantos objetos como quieras.",
+            "Un campo se puede leer tantas veces como quieras.",
           ],
           correctIndex: 0,
           explanation: "Cada `new` reserva su propio estado. `a` y `b` comparten la clase, no los datos.",
@@ -312,12 +464,12 @@ Locker 13: Luis`,
           exercise: {
             prompt: `## Dos libros, un molde
 
-\`Main\` ya lee los datos y ya está escrito hasta la lectura. Te toca:
+\`Main\` ya lee los datos. Te toca:
 
-1. escribir la clase \`Libro\` con campos públicos \`Titulo\` (\`string\`) y \`Paginas\` (\`int\`) y un método \`Resumen()\` que escriba \`Titulo (N paginas)\`;
-2. crear **dos** objetos distintos en \`Main\`, darle sus datos a cada uno y mostrar ambos.
+1. escribir la clase \`Libro\` con campos públicos \`Titulo\` (\`string\`) y \`Paginas\` (\`int\`);
+2. crear **dos** objetos distintos en \`Main\`, darle sus datos a cada uno y mostrar ambos con \`Console.WriteLine\`, formato \`Titulo (N paginas)\`.
 
-La dimensión nueva frente al reto anterior es una sola: ahora son dos objetos.`,
+La dimensión nueva frente al reto anterior es una sola: ahora son dos objetos. Todavía sin métodos: imprime los campos directamente.`,
             starterCode: `using System;
 
 // Escribe aquí la clase Libro
@@ -340,11 +492,6 @@ class Libro
 {
     public string Titulo;
     public int Paginas;
-
-    public void Resumen()
-    {
-        Console.WriteLine($"{Titulo} ({Paginas} paginas)");
-    }
 }
 
 class Program
@@ -364,14 +511,14 @@ class Program
         segundo.Titulo = titulo2;
         segundo.Paginas = paginas2;
 
-        primero.Resumen();
-        segundo.Resumen();
+        Console.WriteLine($"{primero.Titulo} ({primero.Paginas} paginas)");
+        Console.WriteLine($"{segundo.Titulo} ({segundo.Paginas} paginas)");
     }
 }`,
             hints: [
               "La clase es como la del reto anterior, pero con dos campos.",
               "Cada objeto necesita su propio new: dos libros, dos new.",
-              "Asigna los datos al objeto correspondiente y llama Resumen una vez por objeto.",
+              "Imprime cada libro con su propia línea, usando sus campos directamente.",
             ],
             difficulty: "easy",
             xpReward: 22,
@@ -383,7 +530,6 @@ class Program
                     { name: "Titulo", visibility: "public", type: "string" },
                     { name: "Paginas", visibility: "public", type: "int" },
                   ],
-                  methods: [{ name: "Resumen", visibility: "public" }],
                 },
               ],
             },
@@ -406,15 +552,16 @@ class Program
       ],
     },
     /**
-     * Etapas 4 y 5: estado y comportamiento con traza antes → después, y
-     * luego responsabilidad (quién debe hacer la operación).
+     * Etapa 4: estado y comportamiento con traza antes → después. La
+     * responsabilidad (quién debe hacer la operación) se movió a su
+     * propia lección para no mezclar dos ideas nuevas en una sola.
      */
     {
       slug: "estado-y-comportamiento",
       title: "Los métodos cambian el estado",
-      description: "Predice el valor antes y después de la llamada, y decide quién debe hacer la operación.",
-      estimatedMinutes: 11,
-      xpReward: 35,
+      description: "Predice el valor antes y después de la llamada a un método.",
+      estimatedMinutes: 12,
+      xpReward: 36,
       steps: [
         {
           type: "theory",
@@ -430,9 +577,7 @@ Sigue la traza con los ojos antes de correr nada:
 | se ejecuta \`tarjeta.Consumir(25)\` | — |
 | después de la llamada | \`75\` |
 
-El dato que el objeto **recuerda** se llama **estado**. La acción que lo **cambia** se llama **comportamiento** (un método).
-
-Un método no es una función suelta: vive junto al dato que modifica.`,
+El dato que el objeto **recuerda** se llama **estado**. La acción que lo **cambia** se llama **comportamiento** (un método).`,
         },
         {
           type: "code_example",
@@ -460,7 +605,7 @@ class Program
         Console.WriteLine(tarjeta.Saldo);   // despues
     }
 }`,
-          explanation: "El programa imprime el estado antes y después de la llamada: 100 y 75. `Consumir` vive dentro de `TarjetaComedor` porque es esa clase la que sabe qué es el saldo. La validación (no dejar el saldo en negativo) llegará con encapsulamiento.",
+          explanation: "El programa imprime el estado antes y después de la llamada: 100 y 75. Consumir recibe un parámetro y usa ese valor para cambiar Saldo.",
           runnable: true,
           expectedOutput: `100
 75`,
@@ -479,26 +624,6 @@ class Program
           explanation: "El método cambió el estado: 40 − 15 = 25. Después de la llamada, el objeto recuerda el nuevo valor.",
         },
         {
-          type: "theory",
-          markdown: `# ¿Quién debe hacer la operación?
-
-Hay dos formas de descontar 25 pesos:
-
-\`\`\`csharp
-// A: lo hace Program, por fuera
-tarjeta.Saldo = tarjeta.Saldo - 25;
-
-// B: lo hace la tarjeta
-tarjeta.Consumir(25);
-\`\`\`
-
-Las dos dan 75 hoy. No son lo mismo mañana.
-
-Cuando la escuela decida que el saldo no puede quedar negativo, en **A** hay que buscar y corregir cada línea del programa que resta saldo. En **B** se corrige en un solo lugar: dentro de \`Consumir\`.
-
-A eso se le llama **responsabilidad**: la operación pertenece a la clase que es dueña del dato.`,
-        },
-        {
           type: "code_completion",
           prompt: "Ordena el cuerpo de un método que registra una entrada: primero cambia el estado, luego muestra el valor ya actualizado.",
           lines: [
@@ -511,9 +636,128 @@ A eso se le llama **responsabilidad**: la operación pertenece a la clase que es
           explanation: "Primero cambia el estado; después muestra el estado ya actualizado.",
         },
         {
+          // Dos huecos, dos habilidades distintas y pequeñas antes de pedir
+          // escribir un método completo: primero sólo el CUERPO (la firma
+          // ya está), después sólo la FIRMA (el cuerpo ya está).
+          type: "fill_blank",
+          prompt: "Marcador va a tener dos métodos. Primero completa sólo el CUERPO de Sumar — la firma ya está escrita. Luego completa sólo la FIRMA de Restar — el cuerpo ya está escrito.",
+          template: `class Marcador
+{
+    public int Puntos;
+
+    public void Sumar(int cantidad)
+    {
+        {{0}} = {{1}} + cantidad;
+    }
+
+    public void {{2}}({{3}} cantidad)
+    {
+        Puntos = Puntos - cantidad;
+    }
+}`,
+          blanks: [
+            { answer: "Puntos", hint: "El campo que Sumar debe cambiar." },
+            { answer: "Puntos", hint: "El cuerpo lee el valor actual antes de sumarle." },
+            { answer: "Restar", hint: "El nombre del segundo método." },
+            { answer: "int", hint: "El tipo del parámetro `cantidad`." },
+          ],
+          explanation: "Sumar y Restar tienen la misma forma: reciben una cantidad y cambian Puntos. Completar el cuerpo o la firma por separado te obliga a leer ambas partes con cuidado.",
+        },
+        {
           type: "code_challenge",
           exercise: {
-            prompt: `## Un marcador que se mueve solo
+            prompt: `## Un solo método, desde cero
+
+Antes de juntar dos métodos en una clase, escribe uno solo y compruébalo.
+
+\`Marcador\` ya tiene el campo \`Puntos\` y \`Main\` ya está completo. Falta un único método: \`Reiniciar()\`, sin parámetros, que ponga \`Puntos\` en \`0\`.`,
+            starterCode: `using System;
+
+class Marcador
+{
+    public int Puntos;
+
+    // Escribe aquí el método Reiniciar()
+}
+
+class Program
+{
+    static void Main()
+    {
+        int inicial = int.Parse(Console.ReadLine());
+
+        Marcador marcador = new Marcador();
+        marcador.Puntos = inicial;
+
+        Console.WriteLine(marcador.Puntos);
+        marcador.Reiniciar();
+        Console.WriteLine(marcador.Puntos);
+    }
+}`,
+            solutionCode: `using System;
+
+class Marcador
+{
+    public int Puntos;
+
+    public void Reiniciar()
+    {
+        Puntos = 0;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int inicial = int.Parse(Console.ReadLine());
+
+        Marcador marcador = new Marcador();
+        marcador.Puntos = inicial;
+
+        Console.WriteLine(marcador.Puntos);
+        marcador.Reiniciar();
+        Console.WriteLine(marcador.Puntos);
+    }
+}`,
+            hints: [
+              "Reiniciar no recibe ningún parámetro.",
+              "El cuerpo tiene una sola línea: Puntos = 0;",
+              "No cambies nada en Main: ya está listo.",
+            ],
+            difficulty: "easy",
+            xpReward: 16,
+            structure: {
+              classes: [
+                {
+                  name: "Marcador",
+                  fields: [{ name: "Puntos", visibility: "public", type: "int" }],
+                  methods: [{ name: "Reiniciar", visibility: "public", paramCount: 0 }],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "12\n",
+                expectedStdout: "12\n0\n",
+                visible: true,
+                description: "Reinicia a cero",
+              },
+              {
+                stdin: "0\n",
+                expectedStdout: "0\n0\n",
+                visible: false,
+                description: "Ya estaba en cero",
+              },
+            ],
+          },
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Ahora dos métodos juntos
+
+Ya escribiste un método solo (\`Reiniciar\`). Ahora integra dos que sí necesitan trabajar juntos: uno que suma y otro que resta, cada uno con su propio parámetro.
 
 \`Main\` ya lee los tres números y ya crea el marcador con su valor inicial. Te toca la clase y las dos llamadas.
 
@@ -523,7 +767,7 @@ Escribe \`Marcador\` con:
 - un método \`Sumar(int cantidad)\` que le sume al estado
 - un método \`Restar(int cantidad)\` que le reste al estado
 
-Y en \`Main\`, pídele al objeto que sume y que reste — **no cambies \`Puntos\` desde fuera**. La dimensión nueva es una: métodos que reciben un dato y modifican el estado.`,
+Y en \`Main\`, pídele al objeto que sume y que reste — **no cambies \`Puntos\` desde fuera**. La dimensión nueva es una: dos métodos que reciben un dato cada uno y modifican el mismo estado.`,
             starterCode: `using System;
 
 // Escribe aquí la clase Marcador
@@ -614,6 +858,180 @@ class Program
                 expectedStdout: "Puntos: 0\n",
                 visible: false,
                 description: "Llega a cero",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    /**
+     * Etapa 5 (NUEVA): responsabilidad. Contrasta cambiar el campo desde
+     * fuera contra pedírselo al objeto. Puede usar `if` (conocimiento
+     * estructurado previo); todavía sin `private`.
+     */
+    {
+      slug: "responsabilidad-del-objeto",
+      title: "La operación pertenece al objeto",
+      description: "Decide quién debe hacer el cambio: el objeto, no quien lo usa.",
+      estimatedMinutes: 9,
+      xpReward: 34,
+      steps: [
+        {
+          type: "theory",
+          markdown: `# ¿Quién debe hacer la operación?
+
+Hay dos formas de descontar 25 pesos de una tarjeta:
+
+\`\`\`csharp
+// A: lo hace Program, por fuera
+tarjeta.Saldo = tarjeta.Saldo - 25;
+
+// B: lo hace la tarjeta
+tarjeta.Consumir(25);
+\`\`\`
+
+Las dos dan 75 hoy. No son lo mismo mañana.
+
+Cuando la escuela decida que el saldo no puede quedar negativo, en **A** hay que buscar y corregir cada línea del programa que resta saldo. En **B** se corrige en un solo lugar: dentro de \`Consumir\`.
+
+A eso se le llama **responsabilidad**: la operación pertenece a la clase que es dueña del dato. Todavía no vamos a *impedir* el acceso directo desde fuera — eso lo hace \`private\`, y lo verás en la unidad siguiente. Por ahora se trata de decidir bien dónde vive el código, aunque nada te obligue todavía.`,
+        },
+        {
+          type: "quiz",
+          question: "El sistema del comedor va a agregar la regla “el saldo nunca puede quedar negativo”. ¿Cuál diseño hace ese cambio más fácil de aplicar de forma consistente?",
+          options: [
+            "Que cada parte del programa que descuenta escriba tarjeta.Saldo = tarjeta.Saldo - monto directamente.",
+            "Que sólo TarjetaComedor.Consumir cambie Saldo, y todo el programa llame a Consumir.",
+            "Da igual: el resultado numérico es el mismo.",
+            "Convertir Saldo en una constante.",
+          ],
+          feedbackPerOption: [
+            "Cada lugar que resta tendría que recordar agregar la misma regla por su cuenta.",
+            "",
+            "El resultado de hoy es igual, pero mantener la regla en un solo lugar es más fácil y más seguro.",
+            "Una constante no podría cambiar nunca, ni siquiera válidamente.",
+          ],
+          correctIndex: 1,
+          explanation: "Cuando la operación vive en un solo método, agregar o corregir una regla se hace en un solo lugar — y todo el que llama a Consumir queda protegido automáticamente.",
+        },
+        {
+          type: "code_completion",
+          prompt: "Ordena el cuerpo de Agregar: primero decide con un if si hay espacio, y sólo entonces cambia el estado.",
+          lines: [
+            "public void Agregar(int cantidad)",
+            "{",
+            "    if (Ocupados + cantidad <= Capacidad)",
+            "    {",
+            "        Ocupados = Ocupados + cantidad;",
+            "    }",
+            "}",
+          ],
+          explanation: "La decisión (if) va antes del cambio de estado: el objeto sólo se actualiza cuando la regla lo permite.",
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## La alberca decide, no Main
+
+La alberca del CETI tiene un cupo máximo. Modela \`Alberca\` con:
+
+- campo público \`Personas\` (cuántas hay ahora)
+- campo público \`Capacidad\` (el cupo)
+- método \`Entrar()\` que aumente \`Personas\` en 1 **sólo si todavía hay lugar** (\`Personas < Capacidad\`) — la decisión la toma la alberca, no quien la usa.
+
+\`Main\` ya lee la capacidad, las personas iniciales y cuántas veces alguien intenta entrar; llama \`Entrar()\` esa cantidad de veces y al final imprime \`Personas\`. Todavía sin \`private\`: el campo sigue siendo público, pero nadie fuera de \`Alberca\` decide si se puede entrar.`,
+            starterCode: `using System;
+
+// Escribe aquí la clase Alberca
+
+class Program
+{
+    static void Main()
+    {
+        int capacidad = int.Parse(Console.ReadLine());
+        int personas = int.Parse(Console.ReadLine());
+        int intentos = int.Parse(Console.ReadLine());
+
+        Alberca alberca = new Alberca();
+        alberca.Capacidad = capacidad;
+        alberca.Personas = personas;
+
+        // Llama Entrar() "intentos" veces y muestra Personas al final.
+    }
+}`,
+            solutionCode: `using System;
+
+class Alberca
+{
+    public int Personas;
+    public int Capacidad;
+
+    public void Entrar()
+    {
+        if (Personas < Capacidad)
+        {
+            Personas = Personas + 1;
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int capacidad = int.Parse(Console.ReadLine());
+        int personas = int.Parse(Console.ReadLine());
+        int intentos = int.Parse(Console.ReadLine());
+
+        Alberca alberca = new Alberca();
+        alberca.Capacidad = capacidad;
+        alberca.Personas = personas;
+
+        for (int i = 0; i < intentos; i++)
+        {
+            alberca.Entrar();
+        }
+
+        Console.WriteLine(alberca.Personas);
+    }
+}`,
+            hints: [
+              "Entrar no recibe parámetros: siempre intenta sumar uno.",
+              "El if va DENTRO de Entrar, no en Main.",
+              "Main sólo llama Entrar() en un ciclo; no revisa el cupo por su cuenta.",
+            ],
+            difficulty: "medium",
+            xpReward: 30,
+            structure: {
+              classes: [
+                {
+                  name: "Alberca",
+                  fields: [
+                    { name: "Personas", visibility: "public", type: "int" },
+                    { name: "Capacidad", visibility: "public", type: "int" },
+                  ],
+                  methods: [{ name: "Entrar", visibility: "public", paramCount: 0 }],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "5\n3\n4\n",
+                expectedStdout: "5\n",
+                visible: true,
+                description: "Se llena y bloquea los intentos de más",
+              },
+              {
+                stdin: "10\n0\n3\n",
+                expectedStdout: "3\n",
+                visible: false,
+                description: "Con espacio de sobra",
+              },
+              {
+                stdin: "2\n2\n1\n",
+                expectedStdout: "2\n",
+                visible: false,
+                description: "Ya está llena",
               },
             ],
           },

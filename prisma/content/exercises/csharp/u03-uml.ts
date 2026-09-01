@@ -18,7 +18,7 @@ export const u03UmlExercises: PracticeUnitSetDefinition = {
       slug: "csharp-poo-uml-estudiante",
       title: "UML a código: Estudiante",
       description: "Traduce visibilidad, atributo y operación.",
-      prompt: "Del UML Estudiante(-registro:string, +Nombre:string, +Presentar():string), implementa constructor y Presentar que devuelva \"registro - Nombre\". Lee ambos e imprime.",
+      prompt: "Del UML Estudiante(-registro:string, +Nombre:string, +Estudiante(registro:string, nombre:string), +Presentar():string), implementa el constructor y Presentar que devuelva \"registro - Nombre\". Lee ambos e imprime.",
       starterCode: `using System;
 class Estudiante
 {
@@ -170,40 +170,52 @@ class Program
       ],
     },
     {
+      // Antes pedía implementar Pelicula y nunca tocaba UML: sólo evaluaba
+      // C#. Ahora la clase ya está completa y lo que se evalúa es la
+      // extracción — el alumno produce el diagrama de ESA clase como texto,
+      // con el mismo formato de compartimentos usado en la unidad.
       slug: "csharp-poo-codigo-a-uml-pelicula",
-      title: "Código coherente con diagrama",
-      description: "Completa código a partir de una lectura UML inversa.",
-      prompt: "Implementa Pelicula con Titulo público de lectura, duración privada, constructor y EsLarga():bool (más de 120). Lee datos e imprime \"Titulo | larga/corta\".",
+      title: "De la clase al diagrama",
+      description: "Extrae el diagrama UML de una clase ya escrita.",
+      prompt: "La clase Pelicula ya está completa; no la modifiques. Completa Main para que imprima su diagrama UML con el mismo formato de compartimentos visto en la unidad: nombre, atributos con visibilidad, separador, y operaciones con parámetros y retorno.",
       starterCode: `using System;
 class Pelicula
 {
-    /* luego dibuja su UML */
+    private int duracion;
+    public string Titulo { get; private set; }
+    public Pelicula(string titulo, int duracion)
+    {
+        Titulo = titulo;
+        this.duracion = duracion;
+    }
+    public bool EsLarga()
+    {
+        return duracion > 120;
+    }
 }
 
 class Program
 {
     static void Main()
     {
-        /* completa */
+        // Imprime el diagrama de Pelicula: nombre, línea de atributos
+        // ("-duracion: int" y "+Titulo: string"), separador, y las dos
+        // operaciones públicas con su firma y retorno.
     }
 }`,
       solutionCode: `using System;
 class Pelicula
 {
     private int duracion;
-    public string Titulo
+    public string Titulo { get; private set; }
+    public Pelicula(string titulo, int duracion)
     {
-        get;
-        private set;
-    }
-    public Pelicula(string t, int d)
-    {
-        Titulo=t;
-        duracion=d;
+        Titulo = titulo;
+        this.duracion = duracion;
     }
     public bool EsLarga()
     {
-        return duracion>120;
+        return duracion > 120;
     }
 }
 
@@ -211,38 +223,26 @@ class Program
 {
     static void Main()
     {
-        Pelicula p=new Pelicula(Console.ReadLine(), int.Parse(Console.ReadLine()));
-        Console.WriteLine(p.Titulo+" | "+(p.EsLarga()?"larga":"corta"));
+        Console.WriteLine("Pelicula");
+        Console.WriteLine("-duracion: int");
+        Console.WriteLine("+Titulo: string");
+        Console.WriteLine("-----------------");
+        Console.WriteLine("+Pelicula(titulo: string, duracion: int)");
+        Console.WriteLine("+EsLarga(): bool");
     }
 }`,
       hints: [
-        "120 exactos no es larga.",
-        "duracion permanece private.",
-        "Dibuja después la firma de EsLarga.",
+        "No copies el cuerpo de EsLarga; el diagrama registra la firma, no el algoritmo.",
+        "`Titulo` es una propiedad pública de lectura: se anota igual que un atributo público.",
+        "El constructor también es una operación pública: aparece con sus dos parámetros.",
       ],
       difficulty: "medium",
       xpReward: 28,
-      structure: {
-        classes: [
-          {
-            name: "Pelicula",
-            fields: [{ name: "duracion", visibility: "private", type: "int" }],
-            properties: [{ name: "Titulo", visibility: "public", type: "string" }],
-            constructors: [{ paramCount: 2 }],
-            methods: [{ name: "EsLarga", visibility: "public", returnType: "bool" }],
-          },
-        ],
-      },
-    testCases: [
+      testCases: [
         {
-          stdin: "Norte\n121\n",
-          expectedStdout: "Norte | larga\n",
+          stdin: "",
+          expectedStdout: "Pelicula\n-duracion: int\n+Titulo: string\n-----------------\n+Pelicula(titulo: string, duracion: int)\n+EsLarga(): bool\n",
           visible: true,
-        },
-        {
-          stdin: "Límite\n120\n",
-          expectedStdout: "Límite | corta\n",
-          visible: false,
         },
       ],
     },

@@ -557,7 +557,7 @@ Las relaciones no son etiquetas decorativas. Deben coincidir con campos, paráme
         {
           type: "code_challenge",
           exercise: {
-            prompt: "Modela una OrdenServicio que se asocia con un Cliente existente y compone un Diagnostico creado internamente desde texto. Cliente tiene Nombre; Diagnostico tiene Detalle; OrdenServicio recibe folio, Cliente y detalle. Mostrar imprime Folio | Cliente | Detalle. Lee un cliente y dos órdenes; ambas comparten el mismo Cliente, cada orden crea su Diagnostico.",
+            prompt: "El taller registra órdenes de servicio. El Cliente existe por su cuenta y puede tener varias órdenes abiertas al mismo tiempo. Cada orden, en cambio, redacta y posee su propio diagnóstico: nadie más lo usa y no tiene sentido fuera de esa orden. Decide qué relación le corresponde a cada parte y modélala así: Cliente tiene Nombre; Diagnostico tiene Detalle; OrdenServicio recibe folio, el Cliente y el texto del diagnóstico. Mostrar imprime Folio | Cliente | Detalle. Lee un cliente y dos órdenes para ese mismo cliente.",
             starterCode: `using System;
 
 class Cliente { /* ... */ }

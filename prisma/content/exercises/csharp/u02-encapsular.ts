@@ -250,14 +250,19 @@ class Program
       ],
     },
     {
+      // Antes esto era `Conversor`: una utilidad sin estado, instanciada
+      // arbitrariamente sólo para tener un objeto sobre el cual llamar la
+      // sobrecarga. Ahora la sobrecarga sirve a un objeto con estado real:
+      // el cronómetro ACUMULA lo que se le registra, con dos formas de
+      // decírselo.
       slug: "csharp-poo-sobrecarga-conversion",
-      title: "Sobrecarga de conversiones",
-      description: "Usa una intención común con entradas distintas.",
-      prompt: "Conversor tiene Convertir(int minutos) que devuelve segundos y Convertir(int horas,int minutos) que devuelve minutos totales. Lee m, h, m2 e imprime ambos resultados.",
+      title: "Sobrecarga con intención",
+      description: "Dos formas de registrar tiempo en el mismo cronómetro.",
+      prompt: "Cronometro guarda AcumuladoMinutos (privado). Registrar(int minutos) le suma minutos directos. Registrar(int horas, int minutos) primero convierte a minutos y también los suma. Lee minutos sueltos, luego horas y minutos, registra ambos en el mismo cronómetro e imprime el acumulado final.",
       starterCode: `using System;
-class Conversor
+class Cronometro
 {
-    /* sobrecargas */
+    /* estado privado + dos Registrar */
 }
 
 class Program
@@ -268,15 +273,23 @@ class Program
     }
 }`,
       solutionCode: `using System;
-class Conversor
+class Cronometro
 {
-    public int Convertir(int minutos)
+    private int acumuladoMinutos;
+
+    public void Registrar(int minutos)
     {
-        return minutos*60;
+        acumuladoMinutos += minutos;
     }
-    public int Convertir(int horas, int minutos)
+
+    public void Registrar(int horas, int minutos)
     {
-        return horas*60+minutos;
+        acumuladoMinutos += horas * 60 + minutos;
+    }
+
+    public int AcumuladoMinutos()
+    {
+        return acumuladoMinutos;
     }
 }
 
@@ -284,26 +297,32 @@ class Program
 {
     static void Main()
     {
-        int m=int.Parse(Console.ReadLine()), h=int.Parse(Console.ReadLine()), m2=int.Parse(Console.ReadLine());
-        Conversor c=new Conversor();
-        Console.WriteLine(c.Convertir(m));
-        Console.WriteLine(c.Convertir(h, m2));
+        int m = int.Parse(Console.ReadLine());
+        int h = int.Parse(Console.ReadLine());
+        int m2 = int.Parse(Console.ReadLine());
+
+        Cronometro c = new Cronometro();
+        c.Registrar(m);
+        c.Registrar(h, m2);
+        Console.WriteLine(c.AcumuladoMinutos());
     }
 }`,
       hints: [
-        "Mismo nombre, distinta lista de parámetros.",
-        "La primera conversión produce segundos.",
-        "La segunda produce minutos.",
+        "Mismo nombre `Registrar`, distinta lista de parámetros: eso es sobrecarga.",
+        "Las dos versiones sólo difieren en cómo llegan los minutos; las dos suman al mismo campo.",
+        "El acumulado es estado del cronómetro: no lo calcules en Main.",
       ],
       difficulty: "hard",
       xpReward: 36,
       structure: {
         classes: [
           {
-            name: "Conversor",
+            name: "Cronometro",
+            fields: [{ name: "acumuladoMinutos", visibility: "private", type: "int" }],
             methods: [
-              { name: "Convertir", visibility: "public", paramCount: 1, returnType: "int" },
-              { name: "Convertir", visibility: "public", paramCount: 2, returnType: "int" },
+              { name: "Registrar", visibility: "public", paramCount: 1 },
+              { name: "Registrar", visibility: "public", paramCount: 2 },
+              { name: "AcumuladoMinutos", visibility: "public", returnType: "int" },
             ],
           },
         ],
@@ -311,12 +330,12 @@ class Program
     testCases: [
         {
           stdin: "3\n2\n15\n",
-          expectedStdout: "180\n135\n",
+          expectedStdout: "138\n",
           visible: true,
         },
         {
           stdin: "0\n10\n0\n",
-          expectedStdout: "0\n600\n",
+          expectedStdout: "600\n",
           visible: false,
         },
       ],

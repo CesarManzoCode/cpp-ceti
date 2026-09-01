@@ -185,7 +185,7 @@ class Program
       slug: "csharp-poo-transferencia-segura",
       title: "Transferencia segura",
       description: "Coordina dos objetos manteniendo invariantes.",
-      prompt: "Cuenta tiene saldo no negativo y TransferirA(Cuenta,decimal). Rechaza monto <=0 con \"Monto invalido\" y monto mayor al saldo con \"Saldo insuficiente\". Lee dos saldos y monto; imprime ambos con dos decimales o error.",
+      prompt: "Cuenta nace con saldo no negativo (rechaza el saldo inicial negativo con \"Saldo invalido\") y tiene TransferirA(Cuenta,decimal). Rechaza monto <=0 con \"Monto invalido\" y monto mayor al saldo con \"Saldo insuficiente\". Lee dos saldos y monto; imprime ambos con dos decimales o el primer error.",
       starterCode: `using System;
 class Cuenta
 {
@@ -208,6 +208,7 @@ class Cuenta
     }
     public Cuenta(decimal s)
     {
+        if(s<0)throw new ArgumentException("Saldo invalido");
         Saldo=s;
     }
     public void TransferirA(Cuenta destino, decimal m)
@@ -223,10 +224,10 @@ class Program
 {
     static void Main()
     {
-        Cuenta a=new Cuenta(decimal.Parse(Console.ReadLine())), b=new Cuenta(decimal.Parse(Console.ReadLine()));
-        decimal m=decimal.Parse(Console.ReadLine());
         try
         {
+            Cuenta a=new Cuenta(decimal.Parse(Console.ReadLine())), b=new Cuenta(decimal.Parse(Console.ReadLine()));
+            decimal m=decimal.Parse(Console.ReadLine());
             a.TransferirA(b, m);
             Console.WriteLine(a.Saldo.ToString("0.00"));
             Console.WriteLine(b.Saldo.ToString("0.00"));
@@ -239,7 +240,7 @@ class Program
 }`,
       hints: [
         "La operación pertenece a Cuenta.",
-        "Valida antes de modificar.",
+        "Cuenta se protege desde su nacimiento: valida también en el constructor.",
         "private set permite modificar dentro de la misma clase.",
       ],
       difficulty: "medium",
@@ -270,13 +271,19 @@ class Program
           expectedStdout: "Error: Monto invalido\n",
           visible: false,
         },
+        {
+          stdin: "-5\n10\n1\n",
+          expectedStdout: "Error: Saldo invalido\n",
+          visible: false,
+          description: "Invariante desde el constructor",
+        },
       ],
     },
     {
       slug: "csharp-poo-pedido-multiclase",
       title: "Pedido multiclase",
       description: "Separa catálogo, renglón y cálculo.",
-      prompt: "Articulo tiene nombre/precio. RenglonPedido compone un Articulo y cantidad positiva, Total devuelve precio*cantidad. Lee datos; imprime \"nombre x cantidad = total\" o \"Error: Cantidad invalida\".",
+      prompt: "Articulo tiene nombre/precio y existe por su cuenta en el catálogo. RenglonPedido conserva una referencia a un Articulo existente y una cantidad positiva (es asociación, no composición: el Articulo no nace ni muere con el renglón). Total devuelve precio*cantidad. Lee datos; imprime \"nombre x cantidad = total\" o \"Error: Cantidad invalida\".",
       starterCode: `using System;
 class Articulo
 {

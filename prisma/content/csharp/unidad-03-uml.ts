@@ -414,9 +414,38 @@ Puerta
           explanation: "El diagrama de clase muestra estructura, no el algoritmo interno completo.",
         },
         {
+          // Antes este paso era "usa Semaforo desde Main": no evaluaba UML,
+          // sólo llamar métodos. La unidad promete C#→UML, así que el reto
+          // debe pedir el diagrama, no una llamada más.
+          type: "fill_blank",
+          prompt: "A partir de esta clase, completa su diagrama UML.",
+          template: `class Semaforo
+{
+    private string color;
+    public Semaforo(string inicial) { color = inicial; }
+    public void Cambiar(string nuevo) { color = nuevo; }
+    public string ColorActual() { return color; }
+}
+
+// Diagrama:
+// Semaforo
+// -----------------
+// {{0}}: string
+// -----------------
+// +Semaforo(inicial: string)
+// +Cambiar(nuevo: string): {{1}}
+// +ColorActual(): {{2}}`,
+          blanks: [
+            { answer: "-color", hint: "El campo es privado: usa el signo `-` seguido del nombre exacto del campo." },
+            { answer: "void", hint: "Cambiar no devuelve nada." },
+            { answer: "string", hint: "ColorActual devuelve el color." },
+          ],
+          explanation: "El diagrama registra visibilidad, atributos y firmas — nunca el cuerpo de los métodos. `Cambiar` no retorna nada (`void`); `ColorActual` retorna `string`.",
+        },
+        {
           type: "code_challenge",
           exercise: {
-            prompt: "El programa contiene una clase Semaforo. Completa sólo Main para demostrar su contrato: lee color inicial, crea el objeto, llama Cambiar una vez con el segundo color e imprime ColorActual(). No modifiques la clase.",
+            prompt: "Ahora al revés: usa el contrato de Semaforo (ya escrito, no lo modifiques) desde Main. Lee color inicial, crea el objeto, llama Cambiar una vez con el segundo color e imprime ColorActual().",
             starterCode: `using System;
 
 class Semaforo
@@ -463,7 +492,7 @@ class Program
               "No agregues acceso directo al campo.",
             ],
             difficulty: "easy",
-            xpReward: 24,
+            xpReward: 20,
             structure: {
               classes: [
                 {
@@ -530,21 +559,32 @@ No crees \`Papeleria\`, \`Sistema\`, \`Usuario\`, \`Pantalla\` y \`BaseDeDatos\`
           explanation: "Separar dominio de interfaz desde el modelo evita una clase que haga todo.",
         },
         {
+          // Antes de programar, decisión explícita sobre ESTE requerimiento:
+          // el conjunto exacto de miembros que Articulo va a tener, contra
+          // tres alternativas plausibles pero equivocadas (dato inventado,
+          // dato faltante que la regla necesita, responsabilidad de GUI).
+          // El challenge que sigue implementa justo lo que aquí se decide.
           type: "quiz",
-          question: "¿Qué decisión demuestra mejor abstracción para este requerimiento?",
+          question: "Según el requerimiento de la papelería, ¿qué conjunto de miembros debe tener Articulo?",
           options: [
-            "Agregar 20 datos “por si acaso”",
-            "Modelar sólo datos y operaciones usados por venta",
-            "Poner todo en Main",
-            "Hacer públicos todos los campos",
+            "Codigo, Precio, Existencias, Vender(cantidad), ConsultarExistencias()",
+            "Codigo, Precio, Existencias, NombreProveedor, Vender(cantidad)",
+            "Codigo, Precio, Vender(cantidad), ConsultarExistencias() (sin Existencias)",
+            "Codigo, Precio, Existencias, Vender(cantidad), MostrarBotonVender()",
           ],
-          correctIndex: 1,
-          explanation: "El modelo mínimo cubre las reglas observables sin inventar alcance.",
+          feedbackPerOption: [
+            "",
+            "NombreProveedor no aparece en el requerimiento ni lo necesita ninguna regla: es un dato inventado.",
+            "Sin Existencias no hay con qué comparar la cantidad ni qué reducir: la regla central queda sin dónde vivir.",
+            "Mostrar un botón es responsabilidad de la interfaz, no del artículo del dominio.",
+          ],
+          correctIndex: 0,
+          explanation: "Cada miembro de este conjunto responde a algo que el requerimiento pide o que la regla de venta necesita — ni un dato de más, ni uno de menos.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: "Implementa Articulo con Codigo de sólo lectura externa, Precio y Existencias privados, constructor, Vender(int):bool y ConsultarExistencias():int. El constructor convierte precio/existencias negativos a 0. Lee artículo y dos ventas; por cada venta imprime OK/NO; al final Stock: N.",
+            prompt: "Implementa el modelo que acabas de decidir: Articulo con Codigo de sólo lectura externa, Precio y Existencias privados, constructor, Vender(int):bool y ConsultarExistencias():int. El constructor convierte precio/existencias negativos a 0. Lee artículo y dos ventas; por cada venta imprime OK/NO; al final Stock: N.",
             starterCode: `using System;
 
 class Articulo

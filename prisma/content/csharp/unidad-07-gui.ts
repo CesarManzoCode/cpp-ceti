@@ -25,24 +25,47 @@ export const unidad07: UnitDefinition = {
       slug: "formularios-controles-eventos",
       title: "Formulario, controles y eventos",
       description: "Comprende el ciclo de interacción y crea la primera interfaz local.",
-      estimatedMinutes: 20,
-      xpReward: 45,
+      estimatedMinutes: 24,
+      xpReward: 48,
       steps: [
         {
+          // Primer contacto con WinForms: qué es la ventana, de dónde
+          // salen los controles, y por qué Name y Text son cosas distintas
+          // — todo lo que alguien que abre Visual Studio por primera vez
+          // necesita para no perderse en el resto de la unidad.
           type: "theory",
-          markdown: `# La interfaz reacciona a eventos
+          markdown: `# Tu primera ventana
 
-Un \`Form\` es una ventana/contenedor; \`TextBox\`, \`Button\` y \`Label\` son controles. El usuario dispara un evento como \`Click\`; un manejador lee la entrada, llama al dominio y actualiza la salida.
+Hasta ahora tus programas de C# corrían en la consola: leían texto y escribían texto. **Windows Forms** es otra forma de correr un programa de C#: en vez de texto, el usuario ve una **ventana** con botones y cajas.
 
-Flujo: **entrada del control → manejador → objeto de dominio → resultado → control de salida**. El diseñador genera parte de la inicialización; no copies ese código al ejecutor web.`,
+- **\`Form\`** es la ventana misma. Cuando creas un proyecto Windows Forms, Visual Studio te da una ventana vacía llamada \`Form1\`.
+- El **Toolbox** (la caja de herramientas, normalmente a un lado del editor) es la lista de controles disponibles: \`Button\`, \`TextBox\`, \`Label\`, etc. **Arrastras** uno del Toolbox al \`Form\` para agregarlo — no lo escribes a mano.
+- Cada control que arrastras tiene, entre muchas propiedades, dos que vale la pena distinguir desde ya:
+  - **\`Name\`**: el identificador que vas a usar en tu código C# para referirte a ese control (\`txtNombre\`, \`btnSaludar\`). Nadie lo ve en la ventana.
+  - **\`Text\`**: lo que el usuario SÍ ve dibujado — el texto de un botón, el contenido inicial de una caja.
+
+Cambiar \`Text\` de un botón a "Saludar" no cambia su \`Name\`; puedes seguir llamándolo \`btnSaludar\` en el código aunque diga otra cosa en pantalla.`,
+        },
+        {
+          type: "theory",
+          markdown: `# De un clic a una respuesta
+
+Un control puede disparar **eventos**: cosas que le pasan, como que le hagan \`Click\`. Tú no revisas "¿ya hicieron clic?" en un ciclo — en vez de eso, **conectas** un método tuyo a ese evento, y Windows Forms lo llama automáticamente cuando ocurre.
+
+Para conectar un \`Click\`: seleccionas el botón en el diseñador y das doble clic sobre él (o usas la ventana de Propiedades → el ícono de rayo → \`Click\`). Visual Studio genera un método vacío con el nombre \`nombreDelBoton_Click\` y te deja escribiendo dentro de él.
+
+Ese método es el **manejador** (handler). El flujo completo de la unidad es siempre el mismo:
+
+**entrada del control → manejador → objeto de dominio → resultado → control de salida**`,
         },
         {
           type: "matching",
           pairs: [
             { left: "Form", right: "Ventana y contenedor principal" },
+            { left: "Toolbox", right: "De aquí arrastras los controles al Form" },
             { left: "TextBox", right: "Entrada de texto" },
             { left: "Button.Click", right: "Evento" },
-            { left: "btnGuardar_Click", right: "Manejador" },
+            { left: "btnGuardar_Click", right: "Manejador conectado al evento" },
             { left: "Label", right: "Salida breve" },
           ],
           explanation: "El evento no contiene por sí mismo la regla de negocio; sólo activa el manejador.",
@@ -62,12 +85,23 @@ private void btnSaludar_Click(object sender, EventArgs e)
         },
         {
           type: "theory",
+          markdown: `# Form1.cs y el código del Designer
+
+Cada formulario en realidad son DOS archivos:
+
+- **\`Form1.cs\`**: donde tú escribes, incluidos los manejadores como \`btnSaludar_Click\`.
+- **\`Form1.Designer.cs\`**: lo genera automáticamente Visual Studio cada vez que arrastras un control o cambias una propiedad desde el diseñador visual. Ahí es donde vive la línea que crea \`txtNombre\`, le pone su \`Name\`, su posición, etc.
+
+No necesitas escribir el \`.Designer.cs\` a mano ni entender cada línea — sólo saber que existe, que lo genera el diseñador, y que tu código de verdad (los manejadores, la lógica) va en \`Form1.cs\`.`,
+        },
+        {
+          type: "theory",
           markdown: `## Laboratorio local verificable
 
 1. En Visual Studio crea **Windows Forms App (.NET)**, C#, con .NET 10 LTS si está instalado; .NET 8 es aceptable.
-2. Agrega \`txtNombre\`, \`btnSaludar\` y \`lblResultado\`; asigna esos valores a \`Name\`.
-3. Enlaza \`btnSaludar.Click\` al manejador mostrado.
-4. Ejecuta, escribe \`Franco\` y pulsa el botón.
+2. Desde el Toolbox, arrastra un \`TextBox\`, un \`Button\` y un \`Label\` al \`Form1\`. Con cada uno seleccionado, cambia su \`Name\` en la ventana de Propiedades a \`txtNombre\`, \`btnSaludar\` y \`lblResultado\` — y el \`Text\` del botón a "Saludar" (el \`Name\` no cambia por eso).
+3. Da doble clic sobre \`btnSaludar\` para generar su manejador de \`Click\`, y escribe dentro el código mostrado arriba.
+4. Ejecuta, escribe \`Franco\` en la caja y pulsa el botón.
 
 **Evidencia observable:** la ventana permanece abierta y \`lblResultado\` muestra \`Hola, Franco\`. Entrega captura y el archivo \`Form1.cs\`; explica en una frase qué control originó el evento.`,
         },
@@ -211,11 +245,35 @@ Implementa \`Pedido\` con la regla \`cantidad > 0\` y el manejador mostrado. Ver
       estimatedMinutes: 20,
       xpReward: 45,
       steps: [
+        // --- Parte A: estado/referencias que sobreviven entre eventos ---
         {
           type: "theory",
-          markdown: `# Una ventana con flujo visible
+          markdown: `# Parte 1: lo que sobrevive entre clics
 
-Usa \`Panel\`, \`GroupBox\` o \`TableLayoutPanel\` para agrupar entrada, acciones y resultado. El formulario puede conservar una referencia privada a un servicio de dominio; no debe recrearlo si el estado necesita sobrevivir entre clics. Dibuja antes el flujo de datos y de procesos.
+Cada método manejador (\`btnX_Click\`) corre y termina. Sus variables locales mueren con él. Pero a veces necesitas que algo **recuerde** su valor de un clic al siguiente — por ejemplo, un servicio de dominio que no tiene sentido recrear cada vez.
+
+Para eso, el \`Form\` puede tener sus propios **campos privados**, igual que cualquier otra clase que ya conoces. Un campo del \`Form\` se crea una sola vez (normalmente en el constructor, después de \`InitializeComponent();\`) y cada manejador puede leerlo y usarlo sin volver a construirlo.`,
+        },
+        {
+          type: "quiz",
+          question: "¿Cuál referencia debe ser campo privado del formulario, en vez de una variable local dentro del manejador?",
+          options: [
+            "Una variable temporal usada en una sola línea.",
+            "El servicio que conserva el estado entre varios clics.",
+            "El texto de un Label que nunca se lee.",
+            "Cada argumento de un método.",
+          ],
+          correctIndex: 1,
+          explanation: "Su ciclo de vida coincide con el de la ventana: se crea una vez y varios manejadores lo usan, en vez de recrearlo en cada clic.",
+        },
+        // --- Parte B: organización visual y publicación ---
+        {
+          type: "theory",
+          markdown: `# Parte 2: organizar la ventana y publicarla
+
+Con controles y manejadores ya resueltos, falta ordenar la ventana y entregarla como programa ejecutable. Son dos decisiones distintas de las de la Parte 1: aquí no se trata de qué recuerda el formulario, sino de cómo se ve y cómo se comparte.
+
+Usa \`Panel\`, \`GroupBox\` o \`TableLayoutPanel\` para agrupar entrada, acciones y resultado — así el usuario reconoce de un vistazo qué hace cada zona. Dibuja antes el flujo de datos y de procesos.
 
 Para entregar, usa **Publish** de Visual Studio o \`dotnet publish -c Release\`. Define sistema operativo, arquitectura y modo dependiente del framework o autónomo. Prueba el resultado en otra carpeta o equipo; publicar no sustituye probar.`,
         },
@@ -224,28 +282,15 @@ Para entregar, usa **Publish** de Visual Studio o \`dotnet publish -c Release\`.
           pairs: [
             { left: "TableLayoutPanel", right: "Alineación adaptable de controles" },
             { left: "GroupBox", right: "Agrupación con título" },
-            { left: "Campo privado del Form", right: "Referencia que sobrevive entre eventos" },
             { left: "Publish", right: "Salida desplegable" },
           ],
-          explanation: "La organización visual y la vida de los objetos son decisiones distintas pero coordinadas.",
-        },
-        {
-          type: "quiz",
-          question: "¿Cuál referencia debe ser campo del formulario?",
-          options: [
-            "Una variable temporal usada en una sola línea.",
-            "El servicio que conserva el estado entre varios clics.",
-            "El texto de un Label que nunca se lee.",
-            "Cada argumento de un método.",
-          ],
-          correctIndex: 1,
-          explanation: "Su ciclo de vida coincide con el de la ventana.",
+          explanation: "Organizar la ventana y publicarla son pasos posteriores a resolver el estado que conserva el formulario.",
         },
         {
           type: "theory",
           markdown: `## Laboratorio local verificable
 
-Reorganiza la aplicación de pedidos en tres contenedores: Entrada, Acciones y Resultado. Conserva un \`ServicioPedidos\` como campo privado. Publica en Release para \`win-x64\` con el modo acordado por el docente.
+Reorganiza la aplicación de pedidos en tres contenedores: Entrada, Acciones y Resultado. Conserva un \`ServicioPedidos\` como campo privado (Parte 1). Publica en Release para \`win-x64\` con el modo acordado por el docente (Parte 2).
 
 **Evidencia observable:** captura de la interfaz, diagrama de flujo de datos, carpeta publicada y prueba desde el ejecutable publicado. Incluye \`README.txt\` con requisitos, pasos y versión de .NET. No subas \`bin/\` o \`obj/\` al contenido del curso.`,
         },
