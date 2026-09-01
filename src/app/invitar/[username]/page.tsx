@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/shared/logo";
 import { ProfileActions } from "@/features/friends/components/profile-actions";
 import { getPublicProfile, type PublicProfile } from "@/features/friends/queries";
+import { CaptureInviteCookie } from "@/features/invites/components/capture-invite-cookie";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/get-session";
 import { levelFromXp } from "@/lib/level";
@@ -68,6 +69,7 @@ export default async function InvitarPage({ params }: PageProps) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
+      {!session ? <CaptureInviteCookie inviterUsername={profile.username} /> : null}
       <header className="border-b border-border px-5 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link
@@ -134,6 +136,7 @@ export default async function InvitarPage({ params }: PageProps) {
                 userId={profile.id}
                 username={profile.username}
                 state={profile.state}
+                source="invite"
               />
             ) : (
               <div className="flex flex-col gap-2.5">

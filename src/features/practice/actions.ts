@@ -13,6 +13,7 @@ import { enforceRateLimit } from "@/lib/rate-limit";
 import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak } from "@/lib/streak";
 import { codeSubmissionSchema, parseOrThrow } from "@/lib/validation";
+import { xpDedupeKey } from "@/lib/xp";
 
 /**
  * Envía un intento de un ejercicio de PRÁCTICA (standalone).
@@ -122,7 +123,11 @@ export const submitPracticeExercise = withActionErrorHandling(
       });
 
       if (isFirstPass) {
-        await awardXpAndUpdateStreak(tx, userId, exercise.xpReward);
+        await awardXpAndUpdateStreak(tx, userId, exercise.xpReward, {
+          reason: "practice_first_pass",
+          dedupeKey: xpDedupeKey.practice(exercise.id),
+          practiceExerciseId: exercise.id,
+        });
         return { xpEarned: exercise.xpReward, firstPass: true };
       }
       return { xpEarned: 0, firstPass: false };

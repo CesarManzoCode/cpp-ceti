@@ -36,6 +36,21 @@ model User {
   /// reportes). La autorización SIEMPRE se resuelve leyendo esta columna en
   /// el servidor (`requireAdmin`), nunca desde el payload de la sesión.
   role          UserRole @default(student)
+  /// true SOLO para cuentas OAuth nuevas con username provisional de alta
+  /// entropía (no derivado del email). Bloquea únicamente funcionalidad
+  /// SOCIAL que depende de una identidad pública estable — nunca aprender.
+  /// Se apaga una sola vez, vía `confirmOAuthUsername`.
+  usernameSetupRequired Boolean @default(false)
+
+  // Identidad académica — opcional, nunca bloquea registro/login/aprender.
+  academicOfferingId        String?
+  academicOffering          AcademicOffering? @relation(fields: [academicOfferingId], references: [id], onDelete: SetNull)
+  /// 1..academicOffering.semesterCount. Sólo tiene sentido con offering.
+  academicSemester          Int?
+  /// Trim + colapsa espacios + uppercase, <=20 chars. Sólo con offering+semester.
+  academicGroup             String?   @db.VarChar(20)
+  academicPromptDismissedAt DateTime?
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -63,10 +78,26 @@ model User {
   // Relaciones sociales
   friendshipsSent     Friendship[] @relation("FriendshipRequester")
   friendshipsReceived Friendship[] @relation("FriendshipAddressee")
+  friendshipPeriodsLow  FriendshipPeriod[] @relation("FriendshipPeriodLow")
+  friendshipPeriodsHigh FriendshipPeriod[] @relation("FriendshipPeriodHigh")
+  invitesSent         InviteAttribution[] @relation("InviterOf")
+  inviteReceived      InviteAttribution?  @relation("InviteeOf")
+  socialEvents        SocialEvent[]
+  kudosGiven          Kudos[]
+  xpAwards            XpAward[]
+  leagueMemberships   LeagueMembership[]
+  friendStreaksLow    FriendStreak[] @relation("FriendStreakLow")
+  friendStreaksHigh   FriendStreak[] @relation("FriendStreakHigh")
+  friendStreaksCreated FriendStreak[] @relation("FriendStreakCreator")
+  remindersSent       StreakReminder[] @relation("ReminderSender")
+  remindersReceived   StreakReminder[] @relation("ReminderRecipient")
+  friendQuestParticipations FriendQuestParticipant[]
 
   @@index([email])
   /// Altas por ventana temporal en el panel interno.
   @@index([createdAt])
+  /// Descubrimiento por cohorte (bucket2/bucket3 en discovery).
+  @@index([academicOfferingId, academicSemester, academicGroup])
   @@map("user")
 }
 
@@ -160,6 +191,7 @@ model Course {
   units             Unit[]
   progress          UserCourseProgress[]
   practiceExercises PracticeExercise[]
+  socialEvents      SocialEvent[]
 
   @@map("course")
 }
@@ -180,6 +212,7 @@ model Unit {
 
   lessons           Lesson[]
   practiceExercises PracticeExercise[]
+  socialEvents      SocialEvent[]
 
   @@unique([courseId, slug])
   @@index([courseId, order])
@@ -209,6 +242,7 @@ model Lesson {
   progress      UserLessonProgress[]
   feedback      Feedback[]
   productEvents ProductEvent[]
+  xpAwards      XpAward[]
 
   @@unique([unitId, slug])
   @@index([unitId, order])
@@ -281,6 +315,7 @@ model Exercise {
   hintsViewed       UserHintViewed[]
   bugReports        BugReport[]
   productEvents     ProductEvent[]
+  xpAwards          XpAward[]
   /// Hash corto del contenido vigente (prompt + starter + solución + hints +
   /// tests). Lo escribe el seed; ver `src/lib/content-revision.ts`.
   contentRevision   String?
@@ -479,6 +514,7 @@ model PracticeExercise {
   bugReports    BugReport[]
   feedback      Feedback[]
   productEvents ProductEvent[]
+  xpAwards      XpAward[]
 
   @@unique([courseId, slug])
   @@index([courseId, unitSlug, position])
@@ -863,6 +899,27 @@ enum ProductEventName {
    * Compiló/ejecutó en el playground SIN calificar. Lo emite el servidor.
    */
   code_run
+  /**
+   * Se renderizó una página de resultados de discovery (personas que
+   * quizá conozcas). Servidor.
+   */
+  discovery_impression
+  /**
+   * Abrió el perfil de un candidato de discovery. Servidor.
+   */
+  discovery_profile_open
+  /**
+   * Abrió el ranking semanal de amigos.
+   */
+  friends_ranking_view
+  /**
+   * Abrió /app/liga.
+   */
+  league_view
+  /**
+   * Copió su link de invitación.
+   */
+  invite_link_copied
 }
 
 enum ProductSurface {
@@ -870,6 +927,10 @@ enum ProductSurface {
   practice
   playground
   app
+  /**
+   * Superficies sociales: discovery, ranking, liga, invitación.
+   */
+  social
 }
 
 // ---------------------------------------------------------------------
@@ -931,7 +992,18 @@ model Friendship {
   createdAt   DateTime     @default(now())
   acceptedAt  DateTime?
 
+  /// Par canónico (menor id, mayor id) — hace imposible A→B y B→A a la vez.
+  /// Nullable durante el backfill de la migración de consolidación; NOT NULL
+  /// después. Ver `scripts/social/backfill-friendship-pairkey.ts`.
+  pairKey        String?
+  /// Quién originó la solicitud. El cliente NUNCA lo declara libremente —
+  /// lo resuelve el servidor según la superficie desde la que se manda.
+  requestSource  FriendRequestSource?
+  /// Token de correlación opcional (ej. discovery context token).
+  sourceContextKey String?
+
   @@unique([requesterId, addresseeId])
+  @@unique([pairKey])
   @@index([addresseeId, status])
   @@index([requesterId, status])
   @@map("friendship")
@@ -941,6 +1013,378 @@ enum FriendStatus {
   pending
   accepted
   blocked
+}
+
+enum FriendRequestSource {
+  profile
+  search
+  discovery
+  invite
+}
+
+/// Historia de amistad por par canónico. Se abre un periodo al aceptar y se
+/// cierra al remover/bloquear — en la MISMA transacción que el cambio de
+/// `Friendship`. A lo más un periodo abierto por par (constraint parcial en
+/// migración SQL, `friendship_period` no lo expresa en el schema).
+model FriendshipPeriod {
+  id                String                @id @default(cuid())
+  userLowId         String
+  userLow           User                  @relation("FriendshipPeriodLow", fields: [userLowId], references: [id], onDelete: Cascade)
+  userHighId        String
+  userHigh          User                  @relation("FriendshipPeriodHigh", fields: [userHighId], references: [id], onDelete: Cascade)
+  /// `null` sólo para periodos abiertos por el backfill de amistades
+  /// accepted preexistentes (su source real no se registró). Todo periodo
+  /// abierto por código nuevo SIEMPRE trae un source real.
+  source            FriendRequestSource?
+  sourceContextKey  String?
+  startedAt         DateTime
+  endedAt           DateTime?
+  endReason         FriendshipEndReason?
+
+  @@index([userLowId, startedAt])
+  @@index([userHighId, startedAt])
+  @@index([startedAt])
+  @@map("friendship_period")
+}
+
+enum FriendshipEndReason {
+  unfriended
+  blocked
+}
+
+/// Atribución de invitación: quién trajo a quién. Una fila por invitado
+/// (first-touch, UNIQUE inviteeId). Se consume una sola vez al registrarse.
+model InviteAttribution {
+  id         String   @id @default(cuid())
+  inviterId  String
+  inviter    User     @relation("InviterOf", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId  String   @unique
+  invitee    User     @relation("InviteeOf", fields: [inviteeId], references: [id], onDelete: Cascade)
+  capturedAt DateTime @default(now())
+
+  @@index([inviterId])
+  @@map("invite_attribution")
+}
+
+// =====================================================================
+//  SOCIAL — feed de hitos + kudos
+// =====================================================================
+
+model SocialEvent {
+  id         String          @id @default(cuid())
+  actorId    String
+  actor      User            @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  kind       SocialEventKind
+  /// Idempotencia del hito (ej. `unit_completed:<unitId>`,
+  /// `streak_milestone:<n>`). UNIQUE (actorId, dedupeKey).
+  dedupeKey  String
+  unitId     String?
+  unit       Unit?           @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  courseId   String?
+  course     Course?         @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  /// Valor asociado al hito cuando aplica (ej. días de racha, tier).
+  value      Int?
+  occurredAt DateTime        @default(now())
+
+  kudos Kudos[]
+
+  @@unique([actorId, dedupeKey])
+  @@index([actorId, occurredAt, id])
+  @@index([kind, occurredAt])
+  @@map("social_event")
+}
+
+enum SocialEventKind {
+  unit_completed
+  course_completed
+  streak_milestone
+  league_promoted
+  friend_quest_completed
+}
+
+model Kudos {
+  id        String      @id @default(cuid())
+  eventId   String
+  event     SocialEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([eventId, userId])
+  @@map("kudos")
+}
+
+// =====================================================================
+//  SOCIAL — XP ledger, ranking semanal, ligas
+// =====================================================================
+
+/// Ledger append-only de XP. Fuente de verdad para ranking/ligas.
+/// `UserStreak.totalXp` es un contador materializado que sólo se mueve
+/// cuando esta tabla efectivamente insertó una fila nueva (dedupe por
+/// UNIQUE (userId, dedupeKey)).
+model XpAward {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount             Int
+  reason             XpReason
+  dedupeKey          String
+  lessonId           String?
+  lesson             Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  exerciseId         String?
+  exercise           Exercise?         @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+  practiceExerciseId String?
+  practiceExercise   PracticeExercise? @relation(fields: [practiceExerciseId], references: [id], onDelete: SetNull)
+  /// Hora del SERVIDOR. Nunca la manda el cliente.
+  earnedAt           DateTime          @default(now())
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, earnedAt])
+  @@index([earnedAt, userId])
+  @@index([reason, earnedAt])
+  @@map("xp_award")
+}
+
+enum XpReason {
+  /// Baseline pre-ledger, UNA fila por usuario. NO cuenta para
+  /// ranking/ligas (ver `src/lib/xp.ts`).
+  legacy_balance
+  lesson_completed
+  lesson_exercise_first_pass
+  practice_first_pass
+}
+
+enum LeagueTier {
+  bronze
+  silver
+  gold
+  platinum
+  diamond
+}
+
+enum LeagueSeasonStatus {
+  open
+  closing
+  closed
+}
+
+enum LeagueOutcome {
+  promoted
+  relegated
+  stayed
+  held_at_ceiling
+  held_at_floor
+}
+
+model LeagueSeason {
+  id       String             @id @default(cuid())
+  key      String             @unique
+  startsAt DateTime
+  endsAt   DateTime
+  status   LeagueSeasonStatus @default(open)
+  closedAt DateTime?
+
+  divisions   LeagueDivision[]
+  memberships LeagueMembership[]
+
+  @@index([status, endsAt])
+  @@map("league_season")
+}
+
+model LeagueDivision {
+  id       String     @id @default(cuid())
+  seasonId String
+  season   LeagueSeason @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  tier     LeagueTier
+  /// Ordinal DENTRO del tier de esta temporada (1, 2, 3...).
+  number   Int
+
+  memberships LeagueMembership[]
+
+  @@unique([seasonId, tier, number])
+  @@index([seasonId, tier])
+  @@map("league_division")
+}
+
+model LeagueMembership {
+  id         String         @id @default(cuid())
+  seasonId   String
+  season     LeagueSeason   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  divisionId String
+  division   LeagueDivision @relation(fields: [divisionId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime       @default(now())
+  finalXp    Int?
+  finalRank  Int?
+  outcome    LeagueOutcome?
+  nextTier   LeagueTier?
+
+  @@unique([seasonId, userId])
+  @@index([divisionId, userId])
+  @@map("league_membership")
+}
+
+// =====================================================================
+//  SOCIAL — Friend Streak + reminders
+// =====================================================================
+
+enum FriendStreakStatus {
+  pending
+  active
+  ended
+}
+
+enum FriendStreakEndReason {
+  unfriended
+  blocked
+  expired
+}
+
+model FriendStreak {
+  id               String                  @id @default(cuid())
+  userLowId        String
+  userLow          User                    @relation("FriendStreakLow", fields: [userLowId], references: [id], onDelete: Cascade)
+  userHighId       String
+  userHigh         User                    @relation("FriendStreakHigh", fields: [userHighId], references: [id], onDelete: Cascade)
+  createdById      String
+  createdBy        User                    @relation("FriendStreakCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  status           FriendStreakStatus      @default(pending)
+  pendingExpiresAt DateTime?
+  acceptedAt       DateTime?
+  endedAt          DateTime?
+  endReason        FriendStreakEndReason?
+  currentStreak    Int                     @default(0)
+  longestStreak    Int                     @default(0)
+  /// DATE en America/Mexico_City — última vez que AMBOS calificaron.
+  lastQualifiedDay DateTime?               @db.Date
+  lastEvaluatedDay DateTime?               @db.Date
+
+  days      FriendStreakDay[]
+  reminders StreakReminder[]
+
+  @@unique([userLowId, userHighId])
+  @@index([userLowId, status])
+  @@index([userHighId, status])
+  @@map("friend_streak")
+}
+
+model FriendStreakDay {
+  id        String       @id @default(cuid())
+  streakId  String
+  streak    FriendStreak @relation(fields: [streakId], references: [id], onDelete: Cascade)
+  day       DateTime     @db.Date
+  createdAt DateTime     @default(now())
+
+  @@unique([streakId, day])
+  @@map("friend_streak_day")
+}
+
+model StreakReminder {
+  id          String       @id @default(cuid())
+  streakId    String
+  streak      FriendStreak @relation(fields: [streakId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User         @relation("ReminderSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User         @relation("ReminderRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  day         DateTime     @db.Date
+  createdAt   DateTime     @default(now())
+  expiresAt   DateTime
+  readAt      DateTime?
+
+  @@unique([streakId, senderId, day])
+  @@index([recipientId, readAt, createdAt])
+  @@map("streak_reminder")
+}
+
+// =====================================================================
+//  SOCIAL — Friend Quests
+// =====================================================================
+
+enum FriendQuestType {
+  lessons_completed
+}
+
+enum FriendQuestStatus {
+  active
+  completed
+  expired
+  cancelled
+}
+
+model FriendQuest {
+  id          String            @id @default(cuid())
+  weekStart   DateTime          @db.Date
+  startsAt    DateTime
+  endsAt      DateTime
+  type        FriendQuestType
+  target      Int
+  status      FriendQuestStatus @default(active)
+  completedAt DateTime?
+
+  participants FriendQuestParticipant[]
+
+  @@index([weekStart, status])
+  @@map("friend_quest")
+}
+
+model FriendQuestParticipant {
+  id        String      @id @default(cuid())
+  questId   String
+  quest     FriendQuest @relation(fields: [questId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart DateTime    @db.Date
+
+  @@unique([questId, userId])
+  @@unique([userId, weekStart])
+  @@map("friend_quest_participant")
+}
+
+// =====================================================================
+//  ACADÉMICO — campus, programa, oferta (catálogo CETI)
+// =====================================================================
+
+model AcademicCampus {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+
+  offerings AcademicOffering[]
+
+  @@map("academic_campus")
+}
+
+model AcademicProgram {
+  id     String  @id @default(cuid())
+  code   String  @unique
+  name   String
+  active Boolean @default(true)
+
+  offerings AcademicOffering[]
+
+  @@map("academic_program")
+}
+
+/// Combinación real campus×programa que el CETI ofrece hoy. UNIQUE evita
+/// combinaciones inventadas por el cliente: sólo se puede elegir una oferta
+/// que exista en este catálogo.
+model AcademicOffering {
+  id            String  @id @default(cuid())
+  campusId      String
+  campus        AcademicCampus  @relation(fields: [campusId], references: [id], onDelete: Restrict)
+  programId     String
+  program       AcademicProgram @relation(fields: [programId], references: [id], onDelete: Restrict)
+  semesterCount Int
+  active        Boolean @default(true)
+
+  users User[]
+
+  @@unique([campusId, programId])
+  @@map("academic_offering")
 }
 
 // =====================================================================

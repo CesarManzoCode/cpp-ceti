@@ -34,7 +34,7 @@ const UNIQUES: Record<string, string[][]> = {
   userStepProgress: [["userId", "stepId"]],
   userLessonProgress: [["userId", "lessonId"]],
   userStreak: [["userId"]],
-  friendship: [["requesterId", "addresseeId"]],
+  friendship: [["requesterId", "addresseeId"], ["pairKey"]],
   practiceExercise: [["courseId", "slug"]],
   unit: [["courseId", "slug"]],
   productEvent: [["userId", "dedupeKey"]],
@@ -43,6 +43,21 @@ const UNIQUES: Record<string, string[][]> = {
     ["userId", "exerciseId", "hintIndex"],
     ["userId", "practiceExerciseId", "hintIndex"],
   ],
+  // Social (Fases 1-6)
+  xpAward: [["userId", "dedupeKey"]],
+  socialEvent: [["actorId", "dedupeKey"]],
+  kudos: [["eventId", "userId"]],
+  inviteAttribution: [["inviteeId"]],
+  friendStreak: [["userLowId", "userHighId"]],
+  friendStreakDay: [["streakId", "day"]],
+  streakReminder: [["streakId", "senderId", "day"]],
+  friendQuestParticipant: [["questId", "userId"], ["userId", "weekStart"]],
+  leagueSeason: [["key"]],
+  leagueDivision: [["seasonId", "tier", "number"]],
+  leagueMembership: [["seasonId", "userId"]],
+  academicCampus: [["code"]],
+  academicProgram: [["code"]],
+  academicOffering: [["campusId", "programId"]],
 };
 
 /** Valores por defecto que aplica el schema y que algún test podría leer. */

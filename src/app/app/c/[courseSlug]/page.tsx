@@ -10,7 +10,7 @@ import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
-import { getActivityFeed, getFriends } from "@/features/friends/queries";
+import { getFriends, getFriendsActivityFeed } from "@/features/friends/queries";
 import { RoadmapUnits } from "@/features/roadmap/components/roadmap-units";
 import {
   findNextLesson,
@@ -46,7 +46,7 @@ export default async function CourseHomePage({ params }: PageProps) {
     getUserStats(session.user.id),
     findNextLesson(session.user.id, course.id),
     getFriends(session.user.id),
-    getActivityFeed(session.user.id, 5),
+    getFriendsActivityFeed(session.user.id, 5),
     getRoadmapUnits(course.id, session.user.id),
   ]);
 

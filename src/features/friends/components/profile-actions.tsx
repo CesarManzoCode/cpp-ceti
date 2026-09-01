@@ -11,6 +11,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
+import type { FriendRequestSource } from "@prisma/client";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -36,12 +37,15 @@ interface ProfileActionsProps {
   userId: string;
   username: string;
   state: FriendshipState;
+  /** Superficie desde la que se manda la solicitud — nunca la elige el cliente libremente. */
+  source?: FriendRequestSource;
 }
 
 export function ProfileActions({
   userId,
   username,
   state: initialState,
+  source = "profile",
 }: ProfileActionsProps) {
   const router = useRouter();
   const [state, setState] = React.useState<FriendshipState>(initialState);
@@ -75,7 +79,7 @@ export function ProfileActions({
         loading={pending}
         onClick={() =>
           runWith(async () => {
-            const result = await sendFriendRequest({ username });
+            const result = await sendFriendRequest({ username, source });
             return {
               next: result.status === "accepted" ? "friends" : "pending_outgoing",
               toast:

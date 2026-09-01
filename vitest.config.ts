@@ -12,7 +12,9 @@ export default defineConfig({
   },
   test: {
     include: ["src/**/*.{test,spec}.{ts,tsx}", "tests/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["**/node_modules/**", "**/.next/**"],
+    // Los tests de integración necesitan PostgreSQL real y corren aparte
+    // (`npm run test:integration`, ver `vitest.integration.config.ts`).
+    exclude: ["**/node_modules/**", "**/.next/**", "tests/integration/**"],
     environment: "node",
     // Mínimas env vars que src/env.ts requiere al boot. Cualquier módulo que
     // se importe indirectamente desde un test (logger, executor, etc.) las

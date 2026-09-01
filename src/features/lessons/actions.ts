@@ -17,6 +17,7 @@ import {
   parseOrThrow,
   stepCompletionSchema,
 } from "@/lib/validation";
+import { xpDedupeKey } from "@/lib/xp";
 
 import { requireAccessibleExercise, requireAccessibleStep } from "./lib/access";
 import { markStepCompletedInTx } from "./lib/progression";
@@ -57,7 +58,11 @@ export const completeStep = withActionErrorHandling(
         assisted,
       );
       if (progression.lessonJustCompleted) {
-        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned);
+        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned, {
+          reason: "lesson_completed",
+          dedupeKey: xpDedupeKey.lesson(step.lessonId),
+          lessonId: step.lessonId,
+        });
       }
       return progression;
     });
@@ -231,11 +236,19 @@ export const submitExercise = withActionErrorHandling(
 
       let xp = 0;
       if (firstPass) {
-        await incrementUserXp(tx, userId, exercise.xpReward);
+        await incrementUserXp(tx, userId, exercise.xpReward, {
+          reason: "lesson_exercise_first_pass",
+          dedupeKey: xpDedupeKey.exercise(exercise.id),
+          exerciseId: exercise.id,
+        });
         xp += exercise.xpReward;
       }
       if (progression.lessonJustCompleted) {
-        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned);
+        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned, {
+          reason: "lesson_completed",
+          dedupeKey: xpDedupeKey.lesson(lesson.id),
+          lessonId: lesson.id,
+        });
         xp += progression.lessonXpEarned;
       }
       return xp;

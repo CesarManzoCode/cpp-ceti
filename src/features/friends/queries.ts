@@ -1,4 +1,4 @@
-import { FriendStatus, type Prisma } from "@prisma/client";
+import { FriendStatus, Prisma } from "@prisma/client";
 import { cache } from "react";
 
 import { db } from "@/lib/db";
@@ -220,10 +220,13 @@ export async function searchUsers(
     excludedIds.add(b.addresseeId);
   }
 
-  // username prefix (case-insensitive) o name contains (case-insensitive)
+  // username prefix (case-insensitive) o name contains (case-insensitive).
+  // Excluye cuentas OAuth con setup pendiente: sin identidad pública
+  // estable, no deben aparecer en discovery/search.
   const candidates = await db.user.findMany({
     where: {
       id: { notIn: Array.from(excludedIds) },
+      usernameSetupRequired: false,
       OR: [
         { username: { startsWith: q.toLowerCase(), mode: "insensitive" } },
         { name: { contains: q, mode: "insensitive" } },
@@ -283,10 +286,14 @@ export async function getPublicProfile(
       image: true,
       bio: true,
       createdAt: true,
+      usernameSetupRequired: true,
       streak: { select: { totalXp: true, currentStreak: true, longestStreak: true } },
     },
   });
   if (!user) return null;
+  // Setup de username sin terminar: sin identidad pública estable, no hay
+  // perfil social que mostrar a un tercero (self sigue viendo el suyo).
+  if (user.usernameSetupRequired && user.id !== viewerId) return null;
 
   const [completedLessons, completedExercises, state] = await Promise.all([
     db.userLessonProgress.count({
@@ -312,56 +319,28 @@ export async function getPublicProfile(
   };
 }
 
-/**
- * Feed de actividad reciente de los amigos del usuario.
- * V1 sólo emite "lesson_completed" — los milestones de level-up/racha
- * requerirían snapshots históricos que aún no almacenamos.
- */
-export async function getActivityFeed(
-  viewerId: string,
-  limit = 30,
-): Promise<ActivityEvent[]> {
-  const friendIds = (
-    await db.friendship.findMany({
-      where: {
-        status: FriendStatus.accepted,
-        OR: [{ requesterId: viewerId }, { addresseeId: viewerId }],
-      },
-      select: { requesterId: true, addresseeId: true },
-    })
-  )
-    .map((r) => (r.requesterId === viewerId ? r.addresseeId : r.requesterId));
-
-  if (friendIds.length === 0) return [];
-
-  const rows = await db.userLessonProgress.findMany({
-    where: {
-      userId: { in: friendIds },
-      status: "completed",
-      completedAt: { not: null },
-    },
+const ACTIVITY_SELECT = {
+  completedAt: true,
+  user: { select: { id: true, username: true, name: true, image: true } },
+  lesson: {
     select: {
-      completedAt: true,
-      user: { select: { id: true, username: true, name: true, image: true } },
-      lesson: {
+      title: true,
+      slug: true,
+      xpReward: true,
+      unit: {
         select: {
           title: true,
           slug: true,
-          xpReward: true,
-          unit: {
-            select: {
-              title: true,
-              slug: true,
-              course: { select: { slug: true } },
-            },
-          },
+          course: { select: { slug: true } },
         },
       },
     },
-    orderBy: { completedAt: "desc" },
-    take: limit,
-  });
+  },
+} satisfies Prisma.UserLessonProgressSelect;
 
+function toActivityEvents(
+  rows: Prisma.UserLessonProgressGetPayload<{ select: typeof ACTIVITY_SELECT }>[],
+): ActivityEvent[] {
   return rows.flatMap<ActivityEvent>((row) => {
     if (!row.completedAt) return [];
     return [
@@ -380,6 +359,92 @@ export async function getActivityFeed(
       },
     ];
   });
+}
+
+/**
+ * Actividad propia de UN usuario (`actorId`) — lo que un perfil (el suyo o
+ * el de un amigo) tiene que mostrar de sí mismo. NO amigos de `actorId`.
+ *
+ * Antes de esta separación, el perfil público llamaba a lo que hoy es
+ * `getFriendsActivityFeed` pasándole el id del DUEÑO del perfil como si
+ * fuera el viewer: eso mostraba "actividad de los amigos de A" en la
+ * página de A, en vez de la actividad de A. Ver
+ * `tests/features/friends/activity.test.ts`.
+ */
+export async function getUserLessonActivity(
+  actorId: string,
+  limit = 30,
+): Promise<ActivityEvent[]> {
+  const rows = await db.userLessonProgress.findMany({
+    where: { userId: actorId, status: "completed", completedAt: { not: null } },
+    select: ACTIVITY_SELECT,
+    orderBy: { completedAt: "desc" },
+    take: limit,
+  });
+  return toActivityEvents(rows);
+}
+
+/**
+ * Feed de actividad reciente de los amigos ACEPTADOS de `viewerId` (no
+ * incluye la actividad del propio viewer). V1 sólo emite
+ * "lesson_completed" — los milestones (Fase 3, `SocialEvent`) tienen su
+ * propio feed en `src/features/social-feed`.
+ */
+export async function getFriendsActivityFeed(
+  viewerId: string,
+  limit = 30,
+): Promise<ActivityEvent[]> {
+  const friendIds = (
+    await db.friendship.findMany({
+      where: {
+        status: FriendStatus.accepted,
+        OR: [{ requesterId: viewerId }, { addresseeId: viewerId }],
+      },
+      select: { requesterId: true, addresseeId: true },
+    })
+  )
+    .map((r) => (r.requesterId === viewerId ? r.addresseeId : r.requesterId));
+
+  if (friendIds.length === 0) return [];
+
+  const rows = await db.userLessonProgress.findMany({
+    where: { userId: { in: friendIds }, status: "completed", completedAt: { not: null } },
+    select: ACTIVITY_SELECT,
+    orderBy: { completedAt: "desc" },
+    take: limit,
+  });
+  return toActivityEvents(rows);
+}
+
+/**
+ * Amigos en común entre `viewerId` y `otherId` — normaliza los edges
+ * accepted (direccionales en la tabla) en SQL para no hacer N+1. `preview`
+ * trae hasta 3 para la UI ("Juan, Ana y 2 más").
+ */
+export async function getMutualFriends(
+  viewerId: string,
+  otherId: string,
+): Promise<{ count: number; preview: { id: string; username: string; name: string; image: string | null }[] }> {
+  const rows = await db.$queryRaw<
+    { id: string; username: string; name: string; image: string | null }[]
+  >(Prisma.sql`
+    WITH viewer_friends AS (
+      SELECT CASE WHEN f."requesterId" = ${viewerId} THEN f."addresseeId" ELSE f."requesterId" END AS friend_id
+      FROM friendship f
+      WHERE f.status = 'accepted' AND ${viewerId} IN (f."requesterId", f."addresseeId")
+    ),
+    other_friends AS (
+      SELECT CASE WHEN f."requesterId" = ${otherId} THEN f."addresseeId" ELSE f."requesterId" END AS friend_id
+      FROM friendship f
+      WHERE f.status = 'accepted' AND ${otherId} IN (f."requesterId", f."addresseeId")
+    )
+    SELECT u.id, u.username, u.name, u.image
+    FROM viewer_friends vf
+    JOIN other_friends "of" ON "of".friend_id = vf.friend_id
+    JOIN "user" u ON u.id = vf.friend_id
+    ORDER BY u.username ASC
+  `);
+  return { count: rows.length, preview: rows.slice(0, 3) };
 }
 
 const friendUserSelect = {

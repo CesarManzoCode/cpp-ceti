@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
+import { safeInternalRedirect } from "@/lib/social/redirect";
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, "Tu correo es obligatorio").email("Correo inválido"),
@@ -27,7 +28,7 @@ type FieldErrors = Partial<Record<"email" | "password", string>>;
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/app";
+  const redirectTo = safeInternalRedirect(searchParams.get("redirectTo"), "/app");
 
   const [isPending, startTransition] = React.useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);

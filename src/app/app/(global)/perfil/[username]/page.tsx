@@ -8,7 +8,7 @@ import { LevelBar } from "@/components/ui/level-bar";
 import { Readout, ReadoutBar } from "@/components/ui/readout";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import { getActivityFeed, getPublicProfile } from "@/features/friends/queries";
+import { getPublicProfile, getUserLessonActivity } from "@/features/friends/queries";
 import { ProfileActions } from "@/features/friends/components/profile-actions";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
 import { BioEditor } from "@/features/profile/components/bio-editor";
@@ -68,8 +68,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
     .slice(0, 2)
     .toUpperCase();
 
-  // Feed sólo para uno mismo y amigos.
-  const feed = isSelf || isFriend ? await getActivityFeed(profile.id, 8) : [];
+  // Feed sólo para uno mismo y amigos. `profile.id` es el DUEÑO del
+  // perfil: esto trae la actividad de esa persona, no la de sus amigos
+  // (ver `getUserLessonActivity`).
+  const feed = isSelf || isFriend ? await getUserLessonActivity(profile.id, 8) : [];
 
   return (
     <div

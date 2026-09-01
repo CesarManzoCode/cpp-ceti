@@ -6,7 +6,7 @@ import {
   getPendingIncoming,
   getPendingOutgoing,
 } from "@/features/friends/queries";
-import { requireSession } from "@/lib/get-session";
+import { requireConfirmedUsername } from "@/lib/get-session";
 
 export const metadata = {
   title: "Amigos",
@@ -17,7 +17,9 @@ export default async function AmigosPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const session = await requireSession();
+  // Amigos depende de una identidad pública estable — con username
+  // provisional (OAuth sin confirmar) redirige a completarlo primero.
+  const session = await requireConfirmedUsername();
   const userId = session.user.id;
 
   const [friends, incoming, outgoing, params] = await Promise.all([
