@@ -560,8 +560,8 @@ class Program
       slug: "estado-y-comportamiento",
       title: "Los métodos cambian el estado",
       description: "Predice el valor antes y después de la llamada a un método.",
-      estimatedMinutes: 9,
-      xpReward: 32,
+      estimatedMinutes: 12,
+      xpReward: 36,
       steps: [
         {
           type: "theory",
@@ -636,9 +636,128 @@ class Program
           explanation: "Primero cambia el estado; después muestra el estado ya actualizado.",
         },
         {
+          // Dos huecos, dos habilidades distintas y pequeñas antes de pedir
+          // escribir un método completo: primero sólo el CUERPO (la firma
+          // ya está), después sólo la FIRMA (el cuerpo ya está).
+          type: "fill_blank",
+          prompt: "Marcador va a tener dos métodos. Primero completa sólo el CUERPO de Sumar — la firma ya está escrita. Luego completa sólo la FIRMA de Restar — el cuerpo ya está escrito.",
+          template: `class Marcador
+{
+    public int Puntos;
+
+    public void Sumar(int cantidad)
+    {
+        {{0}} = {{1}} + cantidad;
+    }
+
+    public void {{2}}({{3}} cantidad)
+    {
+        Puntos = Puntos - cantidad;
+    }
+}`,
+          blanks: [
+            { answer: "Puntos", hint: "El campo que Sumar debe cambiar." },
+            { answer: "Puntos", hint: "El cuerpo lee el valor actual antes de sumarle." },
+            { answer: "Restar", hint: "El nombre del segundo método." },
+            { answer: "int", hint: "El tipo del parámetro `cantidad`." },
+          ],
+          explanation: "Sumar y Restar tienen la misma forma: reciben una cantidad y cambian Puntos. Completar el cuerpo o la firma por separado te obliga a leer ambas partes con cuidado.",
+        },
+        {
           type: "code_challenge",
           exercise: {
-            prompt: `## Un marcador que se mueve solo
+            prompt: `## Un solo método, desde cero
+
+Antes de juntar dos métodos en una clase, escribe uno solo y compruébalo.
+
+\`Marcador\` ya tiene el campo \`Puntos\` y \`Main\` ya está completo. Falta un único método: \`Reiniciar()\`, sin parámetros, que ponga \`Puntos\` en \`0\`.`,
+            starterCode: `using System;
+
+class Marcador
+{
+    public int Puntos;
+
+    // Escribe aquí el método Reiniciar()
+}
+
+class Program
+{
+    static void Main()
+    {
+        int inicial = int.Parse(Console.ReadLine());
+
+        Marcador marcador = new Marcador();
+        marcador.Puntos = inicial;
+
+        Console.WriteLine(marcador.Puntos);
+        marcador.Reiniciar();
+        Console.WriteLine(marcador.Puntos);
+    }
+}`,
+            solutionCode: `using System;
+
+class Marcador
+{
+    public int Puntos;
+
+    public void Reiniciar()
+    {
+        Puntos = 0;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int inicial = int.Parse(Console.ReadLine());
+
+        Marcador marcador = new Marcador();
+        marcador.Puntos = inicial;
+
+        Console.WriteLine(marcador.Puntos);
+        marcador.Reiniciar();
+        Console.WriteLine(marcador.Puntos);
+    }
+}`,
+            hints: [
+              "Reiniciar no recibe ningún parámetro.",
+              "El cuerpo tiene una sola línea: Puntos = 0;",
+              "No cambies nada en Main: ya está listo.",
+            ],
+            difficulty: "easy",
+            xpReward: 16,
+            structure: {
+              classes: [
+                {
+                  name: "Marcador",
+                  fields: [{ name: "Puntos", visibility: "public", type: "int" }],
+                  methods: [{ name: "Reiniciar", visibility: "public", paramCount: 0 }],
+                },
+              ],
+            },
+            testCases: [
+              {
+                stdin: "12\n",
+                expectedStdout: "12\n0\n",
+                visible: true,
+                description: "Reinicia a cero",
+              },
+              {
+                stdin: "0\n",
+                expectedStdout: "0\n0\n",
+                visible: false,
+                description: "Ya estaba en cero",
+              },
+            ],
+          },
+        },
+        {
+          type: "code_challenge",
+          exercise: {
+            prompt: `## Ahora dos métodos juntos
+
+Ya escribiste un método solo (\`Reiniciar\`). Ahora integra dos que sí necesitan trabajar juntos: uno que suma y otro que resta, cada uno con su propio parámetro.
 
 \`Main\` ya lee los tres números y ya crea el marcador con su valor inicial. Te toca la clase y las dos llamadas.
 
@@ -648,7 +767,7 @@ Escribe \`Marcador\` con:
 - un método \`Sumar(int cantidad)\` que le sume al estado
 - un método \`Restar(int cantidad)\` que le reste al estado
 
-Y en \`Main\`, pídele al objeto que sume y que reste — **no cambies \`Puntos\` desde fuera**. La dimensión nueva es una: métodos que reciben un dato y modifican el estado.`,
+Y en \`Main\`, pídele al objeto que sume y que reste — **no cambies \`Puntos\` desde fuera**. La dimensión nueva es una: dos métodos que reciben un dato cada uno y modifican el mismo estado.`,
             starterCode: `using System;
 
 // Escribe aquí la clase Marcador

@@ -61,7 +61,9 @@ Clases del modelo — y sólo ésas se implementan en toda la unidad, sin agrega
           type: "theory",
           markdown: `## Entregable de diseño
 
-Produce: (1) alcance de cinco a ocho requisitos; (2) diagrama UML con visibilidad, atributos, operaciones, multiplicidades y relaciones; (3) flujo de proceso; (4) seis criterios de aceptación, incluidos dos inválidos; (5) matriz requisito → clase responsable → prueba.
+Produce: (1) alcance de cinco a ocho requisitos; (2) diagrama UML con visibilidad, atributos, operaciones y relaciones; (3) flujo de proceso; (4) seis criterios de aceptación, incluidos dos inválidos; (5) matriz requisito → clase responsable → prueba.
+
+No se exigen multiplicidades (1, 0..1, 0..*, etc.): no se enseñaron en U3/U4, así que no forman parte de lo que este diagrama tiene que mostrar.
 
 Revisión obligatoria: ninguna regla vive únicamente en el formulario; toda relación del UML aparece en código; ningún elemento “futuro” se implementa por accidente.`,
         },

@@ -559,21 +559,32 @@ No crees \`Papeleria\`, \`Sistema\`, \`Usuario\`, \`Pantalla\` y \`BaseDeDatos\`
           explanation: "Separar dominio de interfaz desde el modelo evita una clase que haga todo.",
         },
         {
+          // Antes de programar, decisión explícita sobre ESTE requerimiento:
+          // el conjunto exacto de miembros que Articulo va a tener, contra
+          // tres alternativas plausibles pero equivocadas (dato inventado,
+          // dato faltante que la regla necesita, responsabilidad de GUI).
+          // El challenge que sigue implementa justo lo que aquí se decide.
           type: "quiz",
-          question: "¿Qué decisión demuestra mejor abstracción para este requerimiento?",
+          question: "Según el requerimiento de la papelería, ¿qué conjunto de miembros debe tener Articulo?",
           options: [
-            "Agregar 20 datos “por si acaso”",
-            "Modelar sólo datos y operaciones usados por venta",
-            "Poner todo en Main",
-            "Hacer públicos todos los campos",
+            "Codigo, Precio, Existencias, Vender(cantidad), ConsultarExistencias()",
+            "Codigo, Precio, Existencias, NombreProveedor, Vender(cantidad)",
+            "Codigo, Precio, Vender(cantidad), ConsultarExistencias() (sin Existencias)",
+            "Codigo, Precio, Existencias, Vender(cantidad), MostrarBotonVender()",
           ],
-          correctIndex: 1,
-          explanation: "El modelo mínimo cubre las reglas observables sin inventar alcance.",
+          feedbackPerOption: [
+            "",
+            "NombreProveedor no aparece en el requerimiento ni lo necesita ninguna regla: es un dato inventado.",
+            "Sin Existencias no hay con qué comparar la cantidad ni qué reducir: la regla central queda sin dónde vivir.",
+            "Mostrar un botón es responsabilidad de la interfaz, no del artículo del dominio.",
+          ],
+          correctIndex: 0,
+          explanation: "Cada miembro de este conjunto responde a algo que el requerimiento pide o que la regla de venta necesita — ni un dato de más, ni uno de menos.",
         },
         {
           type: "code_challenge",
           exercise: {
-            prompt: "Implementa Articulo con Codigo de sólo lectura externa, Precio y Existencias privados, constructor, Vender(int):bool y ConsultarExistencias():int. El constructor convierte precio/existencias negativos a 0. Lee artículo y dos ventas; por cada venta imprime OK/NO; al final Stock: N.",
+            prompt: "Implementa el modelo que acabas de decidir: Articulo con Codigo de sólo lectura externa, Precio y Existencias privados, constructor, Vender(int):bool y ConsultarExistencias():int. El constructor convierte precio/existencias negativos a 0. Lee artículo y dos ventas; por cada venta imprime OK/NO; al final Stock: N.",
             starterCode: `using System;
 
 class Articulo
