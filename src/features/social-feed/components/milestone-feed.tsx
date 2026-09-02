@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Heart, PartyPopper, Sparkles, Trophy } from "lucide-react";
+import { toast } from "sonner";
 
 import { relativeFromNow } from "@/lib/relative-time";
 import { giveKudos, removeKudos } from "@/features/social-feed/actions";
@@ -70,9 +71,12 @@ function MilestoneRow({ event, viewerId }: { event: FeedEvent; viewerId: string 
     startTransition(async () => {
       try {
         await (next ? giveKudos({ eventId: event.id }) : removeKudos({ eventId: event.id }));
-      } catch {
+      } catch (err) {
         setGiven(!next);
         setCount((c) => c + (next ? -1 : 1));
+        toast.error(
+          err instanceof Error ? err.message : "No pudimos guardar tus kudos",
+        );
       }
     });
   }
@@ -95,24 +99,41 @@ function MilestoneRow({ event, viewerId }: { event: FeedEvent; viewerId: string 
           <time dateTime={event.occurredAt.toISOString()}>{relativeFromNow(event.occurredAt)}</time>
         </p>
       </div>
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={isSelf}
-        aria-pressed={given}
-        aria-label={given ? "Quitar kudos" : "Dar kudos"}
-        className={cn(
-          "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-bold transition-colors",
-          isSelf
-            ? "cursor-not-allowed border-border text-subtle-foreground"
-            : given
+      {isSelf ? (
+        count > 0 ? (
+          <span
+            className="flex shrink-0 items-center gap-1.5 self-center text-[13px] font-bold text-muted-foreground"
+            title={`${count} ${count === 1 ? "kudo" : "kudos"} de tus amigos`}
+          >
+            <Heart className="size-3.5 fill-current text-primary" aria-hidden />
+            <span className="tabular-nums">{count}</span>
+            <span className="sr-only">
+              {count === 1 ? "kudo recibido" : "kudos recibidos"}
+            </span>
+          </span>
+        ) : null
+      ) : (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-pressed={given}
+          aria-label={
+            given
+              ? `Quitar kudos a ${event.actor.name}`
+              : `Dar kudos a ${event.actor.name}`
+          }
+          className={cn(
+            "flex min-h-11 shrink-0 items-center gap-1.5 self-center rounded-full border px-3.5 text-[13px] font-bold transition-colors",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+            given
               ? "border-primary bg-primary-soft text-primary-soft-foreground"
               : "border-border text-muted-foreground hover:border-border-strong hover:text-foreground",
-        )}
-      >
-        <Heart className={cn("size-3.5", given && "fill-current")} aria-hidden />
-        {count > 0 ? count : null}
-      </button>
+          )}
+        >
+          <Heart className={cn("size-3.5", given && "fill-current")} aria-hidden />
+          <span className="tabular-nums">{count > 0 ? count : null}</span>
+        </button>
+      )}
     </li>
   );
 }

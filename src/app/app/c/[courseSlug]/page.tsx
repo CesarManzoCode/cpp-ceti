@@ -26,6 +26,7 @@ import { getMyFriendStreaks } from "@/features/streaks/queries";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
 import { LEAGUE_TIER_LABEL } from "@/lib/social/league-labels";
+import { mxHourOfDay } from "@/lib/social/time";
 import { pluralize } from "@/lib/utils";
 import type { NextLesson, RoadmapUnit } from "@/features/roadmap/types";
 
@@ -418,8 +419,13 @@ function FriendsEmpty() {
   );
 }
 
+/**
+ * El saludo se decide con la hora de México, no con la del servidor
+ * (en producción corre en UTC: a las 8 p.m. de Guadalajara ya sería el
+ * día siguiente y saludaba "buenos días").
+ */
 function greetingFor(date: Date): string {
-  const h = date.getHours();
+  const h = mxHourOfDay(date);
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";

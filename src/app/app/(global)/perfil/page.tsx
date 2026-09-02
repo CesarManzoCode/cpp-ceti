@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { User as UserIcon } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/ui/animated-number";
@@ -68,14 +69,28 @@ export default async function PerfilPage() {
           <h1 className="truncate text-[24px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
             {user.name}
           </h1>
-          <p className="mt-1 truncate text-[15px] text-muted-foreground">
-            {user.email}
+          <p className="mt-1 truncate font-mono text-[15px] text-muted-foreground">
+            @{user.username}
           </p>
-          <p className="mt-1 text-[13px] font-medium text-subtle-foreground">
-            Miembro desde {memberSince}
+          <p className="mt-1 truncate text-[13px] font-medium text-subtle-foreground">
+            {user.email} · desde {memberSince}
           </p>
         </div>
       </header>
+
+      {!user.usernameSetupRequired ? (
+        <p className="mt-4 text-[14px]">
+          <Link
+            href={`/app/perfil/${user.username}`}
+            className="font-semibold text-primary underline decoration-primary/35 decoration-2 underline-offset-4 hover:decoration-primary"
+          >
+            Ver mi perfil público
+          </Link>
+          <span className="text-muted-foreground">
+            {" "}— es lo que ven tus compañeros.
+          </span>
+        </p>
+      ) : null}
 
       <LevelBar totalXp={stats.totalXp} className="mt-7" />
 

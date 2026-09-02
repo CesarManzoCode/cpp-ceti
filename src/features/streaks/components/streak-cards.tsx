@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Bell, Check, Flame, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { FriendAvatar } from "@/features/friends/components/friend-avatar";
+import { PersonIdentity } from "@/features/friends/components/person-identity";
 import {
   acceptFriendStreak,
   declineFriendStreak,
@@ -15,6 +15,14 @@ import {
 } from "@/features/streaks/actions";
 import type { FriendStreakCard, StreakReminderCard } from "@/features/streaks/queries";
 import { relativeFromNow } from "@/lib/relative-time";
+import { pluralize } from "@/lib/utils";
+
+/** Primero lo que pide respuesta, luego las activas, al final lo enviado. */
+function sortOrder(s: FriendStreakCard): number {
+  if (s.status === "pending" && !s.isCreator) return 0;
+  if (s.status === "active") return 1;
+  return 2;
+}
 
 export function StreakCards({
   streaks,
@@ -24,6 +32,13 @@ export function StreakCards({
   reminders: StreakReminderCard[];
 }) {
   const unreadReminders = reminders.filter((r) => !r.readAt);
+  const ordered = React.useMemo(
+    () =>
+      [...streaks].sort(
+        (a, b) => sortOrder(a) - sortOrder(b) || b.currentStreak - a.currentStreak,
+      ),
+    [streaks],
+  );
 
   return (
     <div className="space-y-6">
@@ -35,18 +50,18 @@ export function StreakCards({
         </ul>
       ) : null}
 
-      {streaks.length === 0 ? (
+      {ordered.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
           <Flame className="mx-auto size-6 text-subtle-foreground" aria-hidden />
           <p className="mt-2 text-[15px] font-bold">Sin rachas con amigos todavía</p>
           <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
-            Invita a un amigo desde su perfil a mantener una racha juntos —
-            los dos tienen que estudiar el mismo día para que cuente.
+            Entra al perfil de un amigo y proponle una racha: cuenta sólo si
+            los dos estudian el mismo día.
           </p>
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
-          {streaks.slice(0, 3).map((s) => (
+          {ordered.map((s) => (
             <StreakRow key={s.id} streak={s} />
           ))}
         </ul>
@@ -64,12 +79,14 @@ function ReminderBanner({ reminder }: { reminder: StreakReminderCard }) {
       <FriendAvatar name={reminder.sender.name} image={reminder.sender.image} className="size-8 shrink-0" />
       <p className="min-w-0 flex-1 text-[14px] leading-snug">
         <span className="font-bold">{reminder.sender.name}</span>{" "}
-        <span className="text-muted-foreground">te recordó mantener su racha.</span>
+        <span className="text-muted-foreground">
+          te recordó que hoy les falta estudiar para mantener su racha.
+        </span>
       </p>
       <button
         type="button"
-        aria-label="Descartar"
-        className="shrink-0 rounded-full p-1 text-subtle-foreground hover:bg-accent"
+        aria-label={`Descartar el recordatorio de ${reminder.sender.name}`}
+        className="-m-1 grid size-11 shrink-0 place-items-center rounded-full text-subtle-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         onClick={() => {
           setDismissed(true);
           void markStreakReminderRead({ reminderId: reminder.id });
@@ -84,6 +101,9 @@ function ReminderBanner({ reminder }: { reminder: StreakReminderCard }) {
 function StreakRow({ streak }: { streak: FriendStreakCard }) {
   const [pending, startTransition] = React.useTransition();
   const [local, setLocal] = React.useState(streak);
+  const [gone, setGone] = React.useState(false);
+
+  if (gone) return null;
 
   function respond(accept: boolean) {
     startTransition(async () => {
@@ -94,7 +114,10 @@ function StreakRow({ streak }: { streak: FriendStreakCard }) {
           toast.success(`Racha activa con ${local.other.name}`);
         } else {
           await declineFriendStreak({ streakId: local.id });
-          toast.success("Solicitud rechazada");
+          setGone(true);
+          toast.success(
+            local.isCreator ? "Cancelaste la propuesta" : "Propuesta rechazada",
+          );
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Algo salió mal");
@@ -114,43 +137,76 @@ function StreakRow({ streak }: { streak: FriendStreakCard }) {
     });
   }
 
+  const meta =
+    local.status === "pending" ? (
+      local.isCreator ? (
+        <>
+          Esperando a que acepte
+          {local.pendingExpiresAt ? ` · vence ${relativeFromNow(local.pendingExpiresAt)}` : null}
+        </>
+      ) : (
+        "Te propuso una racha"
+      )
+    ) : (
+      <>
+        {local.qualifiedToday ? (
+          <span className="font-bold text-success">Hoy ya cuenta</span>
+        ) : (
+          <span className="font-bold text-warning">Hoy les falta</span>
+        )}
+        {" · "}
+        {local.currentStreak} {pluralize(local.currentStreak, "día", "días")} · mejor{" "}
+        {local.longestStreak}
+      </>
+    );
+
   return (
     <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
-      <Link href={`/app/perfil/${local.other.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-        <FriendAvatar name={local.other.name} image={local.other.image} className="size-10 shrink-0" />
-        <div className="min-w-0">
-          <p className="truncate text-[15px] font-bold text-foreground">{local.other.name}</p>
-          <p className="mt-0.5 text-[13px] font-medium text-muted-foreground">
-            {local.status === "pending"
-              ? local.isCreator
-                ? "Esperando que acepte"
-                : "Te invitó a una racha"
-              : `${local.currentStreak} ${local.currentStreak === 1 ? "día" : "días"} · mejor ${local.longestStreak}`}
-          </p>
-        </div>
-      </Link>
+      <PersonIdentity
+        name={local.other.name}
+        username={local.other.username}
+        image={local.other.image}
+        href={`/app/perfil/${local.other.username}`}
+        meta={meta}
+      />
 
       {local.status === "pending" && !local.isCreator ? (
         <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" disabled={pending} onClick={() => respond(true)}>
-            <Check className="size-4" />
+          <Button
+            size="icon"
+            variant="outline"
+            disabled={pending}
+            onClick={() => respond(false)}
+            aria-label={`Rechazar la racha con ${local.other.name}`}
+          >
+            <X />
           </Button>
-          <Button size="sm" variant="outline" disabled={pending} onClick={() => respond(false)}>
-            <X className="size-4" />
+          <Button size="default" loading={pending} onClick={() => respond(true)}>
+            <Check />
+            Aceptar
           </Button>
         </div>
       ) : local.status === "pending" ? (
-        <span className="shrink-0 text-[12px] font-semibold text-subtle-foreground">
-          {local.pendingExpiresAt ? `Vence ${relativeFromNow(local.pendingExpiresAt)}` : null}
-        </span>
-      ) : (
         <Button
-          size="sm"
+          size="default"
+          variant="ghost"
+          loading={pending}
+          onClick={() => respond(false)}
+          className="shrink-0"
+        >
+          <X />
+          Cancelar
+        </Button>
+      ) : local.qualifiedToday ? null : (
+        <Button
+          size="default"
           variant="outline"
           disabled={pending || !local.canRemindToday}
           onClick={remind}
+          className="shrink-0"
         >
-          <Bell className="size-4" />
+          <Bell />
+          {local.canRemindToday ? "Recordar" : "Recordado"}
         </Button>
       )}
     </li>

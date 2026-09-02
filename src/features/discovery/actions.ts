@@ -60,6 +60,37 @@ export const getDiscoveryPage = withActionErrorHandling(
   },
 );
 
+const impressionSchema = z.object({
+  discoverySessionKey: z.string().min(1).max(100),
+  resultCount: z.number().int().min(0),
+  bucketCounts: z.record(z.string(), z.number().int().min(0)),
+});
+
+/**
+ * Impresión de la PRIMERA página de discovery. La lista se renderiza en
+ * una pestaña (Radix monta el contenido sólo cuando está activa), así que
+ * el evento se registra cuando el alumno la ve de verdad — no cuando el
+ * servidor precarga los candidatos. Las páginas siguientes las registra
+ * `getDiscoveryPage`.
+ */
+export const trackDiscoveryImpression = withActionErrorHandling(
+  "trackDiscoveryImpression",
+  async (input: {
+    discoverySessionKey: string;
+    resultCount: number;
+    bucketCounts: Record<string, number>;
+  }): Promise<void> => {
+    const session = await requireSession();
+    const props = impressionSchema.parse(input);
+    await recordProductEventSafely(db, {
+      userId: session.user.id,
+      name: "discovery_impression",
+      surface: "social",
+      props: discoveryImpressionPropsSchema.parse(props),
+    });
+  },
+);
+
 const profileOpenSchema = z.object({
   bucket: z.number().int().min(1).max(5),
   discoverySessionKey: z.string().min(1).max(100),

@@ -13,7 +13,7 @@ export function StartStreakButton({ userId }: { userId: string }) {
 
   if (sent) {
     return (
-      <Button variant="outline" size="sm" disabled>
+      <Button variant="outline" size="default" disabled>
         <Flame className="size-4" />
         Racha propuesta
       </Button>
@@ -23,7 +23,7 @@ export function StartStreakButton({ userId }: { userId: string }) {
   return (
     <Button
       variant="outline"
-      size="sm"
+      size="default"
       loading={pending}
       onClick={() =>
         startTransition(async () => {

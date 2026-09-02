@@ -166,6 +166,11 @@ export function mxToday(): Date {
   return mxDateOnly(new Date());
 }
 
+/** Hora local (0-23) de un instante — para saludos y cortes de UI. */
+export function mxHourOfDay(date: Date = new Date()): number {
+  return partsInTz(date, SOCIAL_TIME_ZONE).hour;
+}
+
 /** El día calendario local inmediatamente anterior a `dateOnly`. */
 export function mxYesterdayOf(dateOnly: Date): Date {
   return shiftDateOnly(dateOnly, -1);

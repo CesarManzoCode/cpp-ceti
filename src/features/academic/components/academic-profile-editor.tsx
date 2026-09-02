@@ -39,6 +39,18 @@ export function AcademicProfileEditor({ options, initial }: Props) {
 
   const programsForCampus = options.filter((o) => o.campusId === campusId);
   const selectedOffering = options.find((o) => o.id === offeringId) ?? null;
+  // Falta el semestre: el botón se apaga, así que hay que decir por qué.
+  const missingSemester = Boolean(offeringId) && !semester;
+
+  function selectOffering(nextOfferingId: string) {
+    setOfferingId(nextOfferingId);
+    // Un semestre que no existe en la nueva carrera dejaría el select en
+    // blanco con un valor "fantasma" en el state.
+    const next = options.find((o) => o.id === nextOfferingId) ?? null;
+    if (!next || (semester && Number(semester) > next.semesterCount)) {
+      setSemester("");
+    }
+  }
 
   function save() {
     startTransition(async () => {
@@ -68,7 +80,7 @@ export function AcademicProfileEditor({ options, initial }: Props) {
             value={campusId}
             onChange={(e) => {
               setCampusId(e.currentTarget.value);
-              setOfferingId("");
+              selectOffering("");
             }}
           >
             <option value="">Elige tu plantel</option>
@@ -88,7 +100,7 @@ export function AcademicProfileEditor({ options, initial }: Props) {
             id="academic-program"
             className={selectClass}
             value={offeringId}
-            onChange={(e) => setOfferingId(e.currentTarget.value)}
+            onChange={(e) => selectOffering(e.currentTarget.value)}
             disabled={!campusId}
           >
             <option value="">Elige tu carrera</option>
@@ -136,9 +148,16 @@ export function AcademicProfileEditor({ options, initial }: Props) {
         </div>
       ) : null}
 
-      <Button size="sm" loading={pending} disabled={Boolean(offeringId) && !semester} onClick={save}>
-        Guardar
-      </Button>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Button size="default" loading={pending} disabled={missingSemester} onClick={save}>
+          Guardar
+        </Button>
+        {missingSemester ? (
+          <p className="text-[13px] text-muted-foreground">
+            Elige tu semestre para guardar.
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

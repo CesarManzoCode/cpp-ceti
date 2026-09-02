@@ -1,10 +1,8 @@
-import { randomUUID } from "node:crypto";
-
 import { SectionRule } from "@/components/ui/section-rule";
 import { getDiscoveryCandidates } from "@/features/discovery/queries";
 import { FriendRankingList } from "@/features/league/components/friend-ranking-list";
 import { getFriendWeeklyRanking } from "@/features/league/queries";
-import { discoveryImpressionPropsSchema, emptyPropsSchema } from "@/lib/analytics/social-props";
+import { emptyPropsSchema } from "@/lib/analytics/social-props";
 import { recordProductEventSafely } from "@/lib/analytics/record";
 import { FriendsTabs } from "@/features/friends/components/friends-tabs";
 import { InviteLinkCard } from "@/features/friends/components/invite-link-card";
@@ -59,19 +57,6 @@ export default async function AmigosPage({
     });
   }
 
-  const bucketCounts: Record<string, number> = {};
-  for (const c of discovery.candidates) bucketCounts[c.bucket] = (bucketCounts[c.bucket] ?? 0) + 1;
-  await recordProductEventSafely(db, {
-    userId,
-    name: "discovery_impression",
-    surface: "social",
-    props: discoveryImpressionPropsSchema.parse({
-      discoverySessionKey: randomUUID(),
-      resultCount: discovery.candidates.length,
-      bucketCounts,
-    }),
-  });
-
   const initialTab =
     params.tab === "solicitudes" ||
     params.tab === "buscar" ||
@@ -98,13 +83,9 @@ export default async function AmigosPage({
         </p>
       </header>
 
-      {friends.length === 0 && incoming.length === 0 && outgoing.length === 0 ? (
-        <EmptyAmigos username={session.user.username} />
-      ) : null}
-
       {ranking.length > 1 ? (
         <section className="mt-8">
-          <SectionRule>Ranking semanal</SectionRule>
+          <SectionRule trailing="XP de esta semana">Ranking semanal</SectionRule>
           <div className="mt-4">
             <FriendRankingList rows={ranking} />
           </div>
@@ -132,29 +113,6 @@ export default async function AmigosPage({
           <InviteLinkCard username={session.user.username} />
         </div>
       </section>
-    </div>
-  );
-}
-
-function EmptyAmigos({ username }: { username: string }) {
-  return (
-    <div className="mt-8 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-5 sm:p-6">
-      <h2 className="text-balance text-[19px] font-bold leading-snug">
-        Aún no tienes amigos aquí.
-      </h2>
-      <p className="mt-2 max-w-[54ch] text-[15px] leading-relaxed text-muted-foreground">
-        Busca a tus compañeros por{" "}
-        <span className="font-mono font-semibold text-foreground">@usuario</span>{" "}
-        o mándales tu link de invitación. Cuando acepten verás su progreso en
-        tu inicio.
-      </p>
-      <p className="mt-2.5 text-[14px] text-muted-foreground">
-        Tu handle es{" "}
-        <span className="font-mono font-semibold text-foreground">
-          @{username}
-        </span>
-        .
-      </p>
     </div>
   );
 }

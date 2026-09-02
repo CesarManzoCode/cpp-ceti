@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Check, Inbox, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,7 +10,7 @@ import {
   respondFriendRequest,
 } from "@/features/friends/actions";
 import type { PendingRequest } from "@/features/friends/queries";
-import { FriendAvatar } from "./friend-avatar";
+import { PersonIdentity } from "./person-identity";
 
 interface IncomingRequestsProps {
   requests: PendingRequest[];
@@ -22,10 +21,10 @@ export function IncomingRequests({ requests }: IncomingRequestsProps) {
     return (
       <section className="space-y-2">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Entrantes</h3>
-        <div className="border border-dashed border-border px-5 py-6 text-center">
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-border px-5 py-6 text-center">
           <Inbox className="mx-auto size-6 text-muted-foreground/40" aria-hidden />
           <p className="mt-2 text-[14px] text-muted-foreground">
-            No tienes solicitudes pendientes.
+            Nadie te ha mandado solicitud.
           </p>
         </div>
       </section>
@@ -36,11 +35,11 @@ export function IncomingRequests({ requests }: IncomingRequestsProps) {
     <section className="space-y-2">
       <div className="flex items-baseline justify-between">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Entrantes</h3>
-        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+        <span className="text-[13px] font-semibold tabular-nums text-muted-foreground">
           {requests.length}
         </span>
       </div>
-      <ul className="space-y-2">
+      <ul className="flex flex-col gap-2">
         {requests.map((r) => (
           <IncomingRow key={r.friendshipId} request={r} />
         ))}
@@ -73,7 +72,7 @@ function IncomingRow({ request }: { request: PendingRequest }) {
 
   if (resolved) {
     return (
-      <li className="border-b border-border py-3 text-[14px] text-muted-foreground last:border-b-0">
+      <li className="rounded-[var(--radius-lg)] border border-border bg-surface-2 px-3.5 py-3 text-[14px] text-muted-foreground">
         {resolved === "accepted"
           ? `Aceptaste a @${request.user.username}.`
           : `Rechazaste la solicitud de @${request.user.username}.`}
@@ -82,36 +81,26 @@ function IncomingRow({ request }: { request: PendingRequest }) {
   }
 
   return (
-    <li className="flex items-center gap-3 border-b border-border py-3 last:border-b-0">
-      <Link
+    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+      <PersonIdentity
+        name={request.user.name}
+        username={request.user.username}
+        image={request.user.image}
         href={`/app/perfil/${request.user.username}`}
-        className="shrink-0 rounded-[var(--radius-xs)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      >
-        <FriendAvatar name={request.user.name} image={request.user.image} />
-      </Link>
-      <div className="min-w-0 flex-1">
-        <Link
-          href={`/app/perfil/${request.user.username}`}
-          className="block truncate text-sm font-medium underline decoration-transparent underline-offset-4 hover:decoration-border-strong"
-        >
-          {request.user.name}
-        </Link>
-        <p className="truncate font-mono text-[11px] text-muted-foreground">
-          @{request.user.username} · {relativeFromNow(request.createdAt)}
-        </p>
-      </div>
+        meta={`@${request.user.username} · ${relativeFromNow(request.createdAt)}`}
+      />
       <div className="flex shrink-0 gap-2">
         <Button
-          size="sm"
+          size="icon"
           variant="outline"
           onClick={() => respond(false)}
           disabled={pending}
-          aria-label="Rechazar solicitud"
+          aria-label={`Rechazar la solicitud de @${request.user.username}`}
         >
           <X />
         </Button>
         <Button
-          size="sm"
+          size="default"
           onClick={() => respond(true)}
           loading={pending}
         >
