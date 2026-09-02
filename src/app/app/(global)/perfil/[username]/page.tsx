@@ -80,36 +80,40 @@ export default async function PublicProfilePage({ params }: PageProps) {
       className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
       <header>
-        <div className="flex items-start gap-4">
-          <Avatar className="size-16 shrink-0 ring-1 ring-inset ring-border sm:size-20">
-            {profile.image ? (
-              <AvatarImage src={profile.image} alt={profile.name} />
-            ) : null}
-            <AvatarFallback className="bg-primary-soft text-xl font-bold text-primary-soft-foreground">
-              {initials || <UserIcon className="size-7" />}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-              <h1 className="truncate text-[24px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
-                {profile.name}
-              </h1>
-              {isSelf ? (
-                <Badge variant="secondary" size="sm">
-                  Tú
-                </Badge>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            <Avatar className="size-16 shrink-0 ring-1 ring-inset ring-border sm:size-20">
+              {profile.image ? (
+                <AvatarImage src={profile.image} alt={profile.name} />
               ) : null}
+              <AvatarFallback className="bg-primary-soft text-xl font-bold text-primary-soft-foreground">
+                {initials || <UserIcon className="size-7" />}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <h1 className="truncate text-[24px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[30px]">
+                  {profile.name}
+                </h1>
+                {isSelf ? (
+                  <Badge variant="secondary" size="sm">
+                    Tú
+                  </Badge>
+                ) : null}
+              </div>
+              <p className="mt-1 truncate font-mono text-[15px] text-muted-foreground">
+                @{profile.username}
+              </p>
+              <p className="mt-1 text-[13px] font-medium text-subtle-foreground">
+                Miembro desde {memberSince}
+              </p>
             </div>
-            <p className="mt-1 font-mono text-[15px] text-muted-foreground">
-              @{profile.username}
-            </p>
-            <p className="mt-1 text-[13px] font-medium text-subtle-foreground">
-              Miembro desde {memberSince}
-            </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          {/* En móvil las acciones bajan a su propia fila: en 360px no
+              caben junto al nombre sin dejarlo en dos letras. */}
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {isFriend ? <StartStreakButton userId={profile.id} /> : null}
             <ProfileActions
               userId={profile.id}

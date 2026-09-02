@@ -12,7 +12,7 @@ import {
   searchUsersAction,
   type SearchActionResult,
 } from "@/features/friends/search-action";
-import { FriendAvatar } from "./friend-avatar";
+import { PersonIdentity } from "./person-identity";
 
 interface UserSearchProps {
   meUsername: string;
@@ -25,6 +25,7 @@ export function UserSearch({ meUsername }: UserSearchProps) {
   const [results, setResults] = React.useState<ResultItem[]>([]);
   const [searching, setSearching] = React.useState(false);
   const [hasSearched, setHasSearched] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
 
   const trimmed = query.trim();
   // Render-derived: cuando el query está vacío o muy corto no mostramos
@@ -42,8 +43,9 @@ export function UserSearch({ meUsername }: UserSearchProps) {
         if (cancelled) return;
         setResults(data);
         setHasSearched(true);
+        setFailed(false);
       } catch {
-        // silent
+        if (!cancelled) setFailed(true);
       } finally {
         if (!cancelled) setSearching(false);
       }
@@ -116,6 +118,10 @@ export function UserSearch({ meUsername }: UserSearchProps) {
         </p>
       ) : searching ? (
         <p className="text-[14px] text-muted-foreground">Buscando…</p>
+      ) : failed ? (
+        <p className="text-[14px] text-destructive" role="alert">
+          No pudimos buscar ahorita. Revisa tu conexión e intenta de nuevo.
+        </p>
       ) : displayResults.length === 0 && displayHasSearched ? (
         <p className="text-[14px] text-muted-foreground">
           Nadie con ese nombre. Revisa la ortografía o invítalos por link.
@@ -127,23 +133,12 @@ export function UserSearch({ meUsername }: UserSearchProps) {
               key={user.id}
               className="flex items-center gap-3 border-b border-border py-3 last:border-b-0"
             >
-              <Link
+              <PersonIdentity
+                name={user.name}
+                username={user.username}
+                image={user.image}
                 href={`/app/perfil/${user.username}`}
-                className="shrink-0 rounded-[var(--radius-xs)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
-                <FriendAvatar name={user.name} image={user.image} />
-              </Link>
-              <div className="min-w-0 flex-1">
-                <Link
-                  href={`/app/perfil/${user.username}`}
-                  className="block truncate text-sm font-medium underline decoration-transparent underline-offset-4 hover:decoration-border-strong"
-                >
-                  {user.name}
-                </Link>
-                <p className="truncate font-mono text-[11px] text-muted-foreground">
-                  @{user.username}
-                </p>
-              </div>
+              />
               <ResultAction user={user} onAdd={() => handleAdd(user)} />
             </li>
           ))}
@@ -162,36 +157,37 @@ function ResultAction({
 }) {
   if (user.state === "friends") {
     return (
-      <span className="text-[13px] font-bold text-success">Amigos</span>
+      <span className="shrink-0 text-[13px] font-bold text-success">Amigos</span>
     );
   }
   if (user.state === "pending_outgoing") {
     return (
-      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+      <span className="shrink-0 text-[13px] font-semibold text-muted-foreground">
         Pendiente
       </span>
     );
   }
   if (user.state === "pending_incoming") {
     return (
-      <Button size="sm" asChild>
+      <Button size="default" asChild className="shrink-0">
         <Link href="/app/amigos?tab=solicitudes">Responder</Link>
       </Button>
     );
   }
   if (user.state === "blocked_by_me" || user.state === "blocked_by_them") {
     return (
-      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+      <span className="shrink-0 text-[13px] font-semibold text-muted-foreground">
         Bloqueado
       </span>
     );
   }
   return (
     <Button
-      size="sm"
+      size="default"
       onClick={onAdd}
       loading={user.pending}
       aria-label={`Agregar a @${user.username}`}
+      className="shrink-0"
     >
       <UserPlus />
       Agregar

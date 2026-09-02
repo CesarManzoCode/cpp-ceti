@@ -43,7 +43,7 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
 
   if (glyphOnly) {
     return (
-      <span aria-label={PRODUCT_NAME} className="inline-flex">
+      <span aria-label={PRODUCT_NAME} className={cn("inline-flex", className)}>
         {glyph}
       </span>
     );

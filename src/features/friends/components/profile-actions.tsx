@@ -66,7 +66,7 @@ export function ProfileActions({
 
   if (state === "self") {
     return (
-      <Button asChild variant="outline" size="sm">
+      <Button asChild variant="outline" size="default">
         <Link href="/app/perfil">Editar mi perfil</Link>
       </Button>
     );
@@ -75,7 +75,7 @@ export function ProfileActions({
   if (state === "none") {
     return (
       <Button
-        size="sm"
+        size="default"
         loading={pending}
         onClick={() =>
           runWith(async () => {
@@ -99,12 +99,12 @@ export function ProfileActions({
   if (state === "pending_outgoing") {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" disabled>
+        <Button variant="outline" size="default" disabled>
           Solicitud enviada
         </Button>
         <Button
           variant="ghost"
-          size="sm"
+          size="default"
           loading={pending}
           onClick={() =>
             runWith(async () => {
@@ -124,7 +124,7 @@ export function ProfileActions({
     return (
       <div className="flex items-center gap-2">
         <Button
-          size="sm"
+          size="default"
           loading={pending}
           onClick={() =>
             runWith(async () => {
@@ -139,9 +139,9 @@ export function ProfileActions({
         </Button>
         <Button
           variant="outline"
-          size="sm"
+          size="icon"
           disabled={pending}
-          aria-label="Rechazar solicitud"
+          aria-label={`Rechazar la solicitud de @${username}`}
           onClick={() =>
             runWith(async () => {
               const { responded } = await respondPendingByRequesterId({ userId, accept: false });
@@ -159,13 +159,14 @@ export function ProfileActions({
   if (state === "friends") {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" disabled className="text-success">
+        {/* Estado, no acción: el verde tiene que sobrevivir al disabled. */}
+        <Button variant="outline" size="default" disabled className="disabled:text-success">
           <Check />
           Amigos
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" aria-label="Más opciones">
+            <Button variant="outline" size="icon" aria-label={`Más opciones para @${username}`}>
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
@@ -205,7 +206,7 @@ export function ProfileActions({
     return (
       <Button
         variant="outline"
-        size="sm"
+        size="default"
         loading={pending}
         onClick={() =>
           runWith(async () => {
@@ -221,7 +222,7 @@ export function ProfileActions({
 
   if (state === "blocked_by_them") {
     return (
-      <Button variant="outline" size="sm" disabled>
+      <Button variant="outline" size="default" disabled>
         No disponible
       </Button>
     );

@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Bug, MessageSquarePlus } from "lucide-react";
+import { Bug } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import type { CourseSwitcherItem } from "@/features/courses/components/course-switcher";
-import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
+import { FeedbackRailButton } from "@/features/feedback/components/feedback-rail-button";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 /**
@@ -53,15 +53,7 @@ export function Sidebar({
         <div className="shrink-0 space-y-1.5 border-t border-border px-6 py-3">
           {/* Feedback general de la experiencia. Para contenido roto está el
               botón de reporte dentro de la propia lección/ejercicio. */}
-          <FeedbackDialog>
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 text-[13px] font-medium text-subtle-foreground transition-colors hover:text-foreground"
-            >
-              <MessageSquarePlus className="size-4" aria-hidden />
-              Enviar comentario
-            </button>
-          </FeedbackDialog>
+          <FeedbackRailButton />
           <a
             href="https://github.com/CesarManzoCode/cpp-ceti/issues"
             target="_blank"

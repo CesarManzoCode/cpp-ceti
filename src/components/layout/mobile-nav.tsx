@@ -38,7 +38,9 @@ function itemsFor(courseSlug: string | null): {
       icon: Users,
       badgeKey: "friends" as const,
     },
-    { href: "/app/perfil", label: "Perfil", icon: User },
+    // exact: el perfil público de alguien más (/app/perfil/@usuario) no
+    // es "mi perfil" y no debe marcar la pestaña como activa.
+    { href: "/app/perfil", label: "Perfil", icon: User, exact: true },
   ];
 }
 
@@ -90,11 +92,11 @@ export function MobileNav({
                     aria-hidden
                   />
                   {badge ? (
-                    <span
-                      className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold tabular-nums text-primary-foreground"
-                      aria-label={`${badge} solicitudes pendientes`}
-                    >
-                      {badge}
+                    <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold tabular-nums text-primary-foreground">
+                      <span aria-hidden>{badge > 9 ? "9+" : badge}</span>
+                      <span className="sr-only">
+                        {badge} {badge === 1 ? "solicitud pendiente" : "solicitudes pendientes"}
+                      </span>
                     </span>
                   ) : null}
                 </span>

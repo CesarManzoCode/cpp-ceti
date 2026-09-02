@@ -47,10 +47,29 @@ export function FriendsTabs({
   reminders,
 }: FriendsTabsProps) {
   const [tab, setTab] = React.useState<TabKey>(initialTab);
+  const listRef = React.useRef<HTMLDivElement>(null);
+
+  // En móvil el carril de pestañas se desplaza: si la activa queda fuera
+  // de vista (llegando con ?tab=rachas, o al cambiar de pestaña), la
+  // traemos al centro sin mover el scroll de la página.
+  React.useEffect(() => {
+    const list = listRef.current;
+    if (!list || list.scrollWidth <= list.clientWidth) return;
+    const active = list.querySelector<HTMLElement>('[data-state="active"]');
+    if (!active) return;
+    list.scrollTo({
+      left: Math.max(0, active.offsetLeft - (list.clientWidth - active.offsetWidth) / 2),
+      behavior: "smooth",
+    });
+  }, [tab]);
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="space-y-5">
-      <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto p-1">
+      <TabsList
+        ref={listRef}
+        aria-label="Secciones de amigos"
+        className="h-auto w-full justify-start gap-1 overflow-x-auto p-1"
+      >
         <TabsTrigger value="amigos" className="gap-1.5">
           Amigos
           {friends.length > 0 ? (
@@ -81,7 +100,11 @@ export function FriendsTabs({
       </TabsList>
 
       <TabsContent value="amigos" className="mt-5">
-        <FriendsList friends={friends} />
+        <FriendsList
+          friends={friends}
+          onGoToSearch={() => setTab("buscar")}
+          onGoToDiscovery={() => setTab("descubrir")}
+        />
       </TabsContent>
 
       <TabsContent value="solicitudes" className="mt-5 space-y-8">

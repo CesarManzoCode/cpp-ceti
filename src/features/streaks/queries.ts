@@ -12,6 +12,8 @@ export interface FriendStreakCard {
   currentStreak: number;
   longestStreak: number;
   canRemindToday: boolean;
+  /** true si HOY ya calificó para los dos (`lastQualifiedDay` = hoy). */
+  qualifiedToday: boolean;
   pendingExpiresAt: Date | null;
 }
 
@@ -53,6 +55,7 @@ export async function getMyFriendStreaks(viewerId: string): Promise<FriendStreak
       currentStreak: f.currentStreak,
       longestStreak: f.longestStreak,
       canRemindToday: f.status === "active" && !remindedToday.has(row.id),
+      qualifiedToday: f.lastQualifiedDay?.getTime() === today.getTime(),
       pendingExpiresAt: f.pendingExpiresAt,
     };
   });

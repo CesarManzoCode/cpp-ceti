@@ -9,6 +9,7 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
  * - radius y sombras alineados a tokens
  * - tonos suaves para success/error/warning (no rich colors saturados)
  * - close-button siempre visible al hover
+ * - en móvil sube por encima de la barra de navegación inferior
  */
 function Toaster({ ...props }: ToasterProps) {
   const { theme = "system" } = useTheme();
@@ -19,6 +20,13 @@ function Toaster({ ...props }: ToasterProps) {
       className="toaster group"
       position="bottom-right"
       offset={16}
+      // La nav móvil ocupa 4rem fijos abajo: sin este colchón el toast
+      // aparece debajo de ella y se pierde.
+      mobileOffset={{
+        bottom: "calc(4rem + env(safe-area-inset-bottom) + 0.75rem)",
+        left: "0.75rem",
+        right: "0.75rem",
+      }}
       gap={8}
       visibleToasts={4}
       closeButton

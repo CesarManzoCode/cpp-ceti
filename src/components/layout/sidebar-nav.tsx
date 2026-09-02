@@ -112,11 +112,11 @@ export function SidebarNav({
                 />
                 <span className="flex-1">{link.label}</span>
                 {badge ? (
-                  <span
-                    className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold tabular-nums text-primary-foreground"
-                    aria-label={`${badge} solicitudes pendientes`}
-                  >
-                    {badge}
+                  <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold tabular-nums text-primary-foreground">
+                    <span aria-hidden>{badge > 99 ? "99+" : badge}</span>
+                    <span className="sr-only">
+                      {badge} {badge === 1 ? "solicitud pendiente" : "solicitudes pendientes"}
+                    </span>
                   </span>
                 ) : null}
               </Link>

@@ -66,8 +66,10 @@ function reasonFor(bucket: DiscoveryBucket, row: Row, courseTitle: string | null
     case 2:
       return "Mismo grupo";
     case 3:
+      // El semestre va primero: en móvil la razón se recorta por la
+      // derecha y el nombre largo de la carrera se comía el dato corto.
       return row.program_name && row.semester
-        ? `${row.program_name} · ${row.semester}.º semestre`
+        ? `${row.semester}.º semestre · ${row.program_name}`
         : "Misma carrera y semestre";
     case 4:
       return courseTitle ? `También estudia ${courseTitle}` : "También estudia este curso";

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { promotionSlotsFor } from "@/lib/social/league";
 import { ensureCurrentSeason } from "@/lib/social/league-season";
 import { rankMembers } from "@/lib/social/ranking";
 
@@ -124,9 +125,9 @@ export async function getLeagueStanding(userId: string): Promise<LeagueStanding 
     return { userId: member.userId, username: u.username, name: u.name, image: u.image, xp: member.xp, rank, isSelf: member.userId === userId };
   });
 
-  const n = rows.length;
-  const promoteCount = n >= 10 ? 5 : Math.floor(n / 2);
-  const relegateCount = promoteCount;
+  // Las plazas salen de la MISMA función que decide el rollover: si el
+  // panel y el cierre de temporada no cuentan igual, la leyenda miente.
+  const { promoteCount, relegateCount } = promotionSlotsFor(rows.length);
 
   return {
     season: { key: season.key, startsAt: season.startsAt, endsAt: season.endsAt },

@@ -2,13 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { UserPlus, Users } from "lucide-react";
+import { Check, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { FriendAvatar } from "@/features/friends/components/friend-avatar";
+import { PersonIdentity } from "@/features/friends/components/person-identity";
 import { sendFriendRequest } from "@/features/friends/actions";
-import { getDiscoveryPage, trackDiscoveryProfileOpen } from "@/features/discovery/actions";
+import {
+  getDiscoveryPage,
+  trackDiscoveryImpression,
+  trackDiscoveryProfileOpen,
+} from "@/features/discovery/actions";
 import type { DiscoveryCandidate } from "@/features/discovery/queries";
 
 type CardState = DiscoveryCandidate & { status: "idle" | "sent" };
@@ -20,6 +24,23 @@ export function DiscoveryList({ initialPage }: { initialPage: { candidates: Disc
   );
   const [cursor, setCursor] = React.useState(initialPage.nextCursor);
   const [loadingMore, setLoadingMore] = React.useState(false);
+
+  // La impresión se registra cuando la lista se muestra (la pestaña se
+  // monta), no cuando el servidor precarga los candidatos.
+  const impressionSent = React.useRef(false);
+  React.useEffect(() => {
+    if (impressionSent.current) return;
+    impressionSent.current = true;
+    const bucketCounts: Record<string, number> = {};
+    for (const c of initialPage.candidates) {
+      bucketCounts[c.bucket] = (bucketCounts[c.bucket] ?? 0) + 1;
+    }
+    void trackDiscoveryImpression({
+      discoverySessionKey: sessionKey,
+      resultCount: initialPage.candidates.length,
+      bucketCounts,
+    });
+  }, [initialPage.candidates, sessionKey]);
 
   async function loadMore() {
     if (!cursor || loadingMore) return;
@@ -54,11 +75,14 @@ export function DiscoveryList({ initialPage }: { initialPage: { candidates: Disc
     return (
       <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
         <Users className="mx-auto size-6 text-subtle-foreground" aria-hidden />
-        <p className="mt-2 text-[15px] font-bold">Nada por aquí todavía</p>
+        <p className="mt-2 text-[15px] font-bold">Todavía no hay sugerencias</p>
         <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
-          Completa tu perfil académico para que encontremos compañeros de tu
-          grupo, carrera o plantel.
+          Dinos tu plantel, carrera y grupo: con eso te sugerimos compañeros
+          que van en lo mismo que tú.
         </p>
+        <Button asChild variant="outline" size="lg" className="mt-5">
+          <Link href="/app/perfil#academico">Completar mi perfil</Link>
+        </Button>
       </div>
     );
   }
@@ -71,36 +95,39 @@ export function DiscoveryList({ initialPage }: { initialPage: { candidates: Disc
             key={candidate.id}
             className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]"
           >
-            <Link
+            <PersonIdentity
+              name={candidate.name}
+              username={candidate.username}
+              image={candidate.image}
               href={`/app/perfil/${candidate.username}`}
-              onClick={() =>
+              onNavigate={() =>
                 void trackDiscoveryProfileOpen({ bucket: candidate.bucket, discoverySessionKey: sessionKey })
               }
-              className="flex min-w-0 flex-1 items-center gap-3"
-            >
-              <FriendAvatar name={candidate.name} image={candidate.image} className="size-10 shrink-0" />
-              <div className="min-w-0">
-                <p className="truncate text-[15px] font-bold text-foreground">{candidate.name}</p>
-                <p className="mt-0.5 truncate text-[13px] font-medium text-muted-foreground">
-                  {candidate.reason}
-                </p>
-              </div>
-            </Link>
+              meta={
+                <span className="text-primary-soft-foreground">{candidate.reason}</span>
+              }
+            />
             <Button
-              size="sm"
+              size="default"
               variant={candidate.status === "sent" ? "outline" : "default"}
               disabled={candidate.status === "sent"}
               onClick={() => handleAdd(candidate)}
+              aria-label={
+                candidate.status === "sent"
+                  ? `Solicitud enviada a @${candidate.username}`
+                  : `Agregar a @${candidate.username}`
+              }
+              className="shrink-0"
             >
-              <UserPlus className="size-4" />
+              {candidate.status === "sent" ? <Check /> : <UserPlus />}
               {candidate.status === "sent" ? "Enviada" : "Agregar"}
             </Button>
           </li>
         ))}
       </ul>
       {cursor ? (
-        <Button variant="outline" size="sm" loading={loadingMore} onClick={loadMore} className="self-center">
-          Ver más
+        <Button variant="outline" size="lg" loading={loadingMore} onClick={loadMore} className="self-center">
+          Ver más compañeros
         </Button>
       ) : null}
     </div>

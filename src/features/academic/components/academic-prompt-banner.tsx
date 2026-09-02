@@ -11,26 +11,27 @@ export function AcademicPromptBanner() {
   if (dismissed) return null;
 
   return (
-    <div className="mt-6 flex items-center gap-3 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-4">
+    <div className="relative mt-6 flex flex-wrap items-center gap-x-3 gap-y-4 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-4 pr-12">
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-soft text-primary-soft-foreground">
         <Users className="size-[18px]" />
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-48">
         <p className="text-[14px] font-bold leading-snug">Encuentra a tus compañeros</p>
         <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
-          Cuéntanos tu plantel y carrera para encontrar gente de tu grupo.
+          Dinos tu plantel y carrera y te sugerimos gente de tu grupo.
         </p>
       </div>
+      {/* En móvil el botón baja a su propia línea a ancho completo. */}
       <Link
         href="/app/perfil#academico"
-        className="shrink-0 rounded-[var(--radius-sm)] bg-primary px-3 py-1.5 text-[13px] font-bold text-primary-foreground hover:opacity-90"
+        className="inline-flex h-11 w-full shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-primary px-4 text-[14px] font-bold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:w-auto"
       >
         Completar
       </Link>
       <button
         type="button"
-        aria-label="Descartar"
-        className="shrink-0 rounded-full p-1 text-subtle-foreground hover:bg-accent"
+        aria-label="Descartar esta sugerencia"
+        className="absolute right-1 top-1 grid size-11 place-items-center rounded-full text-subtle-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         onClick={() => {
           setDismissed(true);
           void dismissAcademicPrompt();
