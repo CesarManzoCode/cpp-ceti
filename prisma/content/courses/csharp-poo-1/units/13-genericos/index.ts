@@ -14,7 +14,7 @@ export const csharpPoo2Genericos = defineUnit({
   description:
     "Reutiliza estructuras y operaciones sin perder type safety, y usa restricciones para expresar qué capacidades necesita un tipo genérico.",
   icon: "🧩",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });

@@ -13,7 +13,7 @@ export const csharpPoo2Integrador = defineUnit({
   description:
     "Integra estructuras dinámicas, genéricos, XML, concurrencia y un protocolo cliente-servidor en una solución orientada a objetos documentada.",
   icon: "🏗️",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04],
   practice,
 });

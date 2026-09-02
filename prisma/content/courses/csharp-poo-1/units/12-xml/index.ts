@@ -14,7 +14,7 @@ export const csharpPoo2Xml = defineUnit({
   description:
     "Representa objetos como XML, valida su estructura, transforma texto en datos tipados y separa serialización de persistencia física.",
   icon: "🧾",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });

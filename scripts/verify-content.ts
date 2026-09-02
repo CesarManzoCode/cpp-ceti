@@ -230,13 +230,36 @@ function formatSqlValue(value: unknown): string {
  * Separa un script en sentencias individuales por `;`. Naïve a propósito
  * (sin parser SQL, ver TECHNICAL_CONTRACT §7): el contenido del curso no
  * usa `;` dentro de literales ni comentarios con `;`, así que partir por el
- * delimitador es suficiente y exactamente lo que hace `sqlite3 < script.sql`.
+ * delimitador es suficiente y exactamente lo que hace `sqlite3 < script.sql`
+ * — con UNA excepción: `CREATE TRIGGER ... BEGIN ... END` (DB2, unidad
+ * triggers/integrador) SÍ contiene `;` internos entre `BEGIN` y `END`. El
+ * `sqlite3` CLI real reconoce ese bloque como una sola sentencia; este
+ * splitter naïve debe hacer lo mismo o corta el CREATE TRIGGER a la mitad
+ * ("incomplete input"). No es una re-implementación de un parser SQL: sólo
+ * sigue acumulando fragmentos mientras el trozo actual empieza con
+ * `CREATE TRIGGER` y todavía no termina en `END`.
  */
 function splitSqlStatements(script: string): string[] {
-  return script
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+  const statements: string[] = [];
+  let buffer: string | null = null;
+
+  for (const rawPart of script.split(";")) {
+    buffer = buffer === null ? rawPart : `${buffer};${rawPart}`;
+    const trimmed = buffer.trim();
+    if (trimmed.length === 0) {
+      buffer = null;
+      continue;
+    }
+
+    const opensTriggerBody = /^create\s+trigger\b/i.test(trimmed);
+    const closesTriggerBody = /\bend\s*$/i.test(trimmed);
+    if (opensTriggerBody && !closesTriggerBody) continue;
+
+    statements.push(trimmed);
+    buffer = null;
+  }
+
+  return statements;
 }
 
 async function runCase(

@@ -14,7 +14,7 @@ export const csharpPoo2Ordenamiento = defineUnit({
   description:
     "Define criterios de comparación, implementa ordenamientos básicos y aprovecha el orden para buscar objetos de forma predecible.",
   icon: "↕️",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });

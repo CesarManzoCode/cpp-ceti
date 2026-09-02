@@ -15,7 +15,7 @@ export const csharpPoo2Redes = defineUnit({
   description:
     "Diseña mensajes, identifica protocolos y direccionamiento, y construye la lógica de una aplicación cliente-servidor sin confundir el protocolo con el transporte.",
   icon: "🌐",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05, leccion06],
   practice,
 });

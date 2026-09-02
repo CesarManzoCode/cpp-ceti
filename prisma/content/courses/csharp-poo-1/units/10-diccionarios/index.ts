@@ -14,7 +14,7 @@ export const csharpPoo2Diccionarios = defineUnit({
   description:
     "Organiza objetos por una clave estable y realiza altas, consultas, actualizaciones y bajas sin recorrer toda la colección.",
   icon: "🗂️",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });
