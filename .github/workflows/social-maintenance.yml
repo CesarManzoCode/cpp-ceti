@@ -1,0 +1,34 @@
+name: Social maintenance
+
+# Dispara /api/jobs/social-maintenance cada hora. Vivía como cron de
+# vercel.json, pero el plan actual de Vercel no permite frecuencia horaria;
+# el disparo se movió aquí. Toda la lógica sigue viviendo exclusivamente en
+# el endpoint — este workflow sólo hace la request HTTPS.
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    name: llamar social-maintenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Verificar secret CRON_SECRET
+        run: |
+          if [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "::error::Falta el secret CRON_SECRET. Configúralo en Settings → Secrets and variables → Actions con el mismo valor que en Vercel Environment Variables."
+            exit 1
+          fi
+
+      - name: Llamar /api/jobs/social-maintenance
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --max-time 60 \
+            --connect-timeout 10 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "https://cpp-ceti.vercel.app/api/jobs/social-maintenance"
