@@ -6,16 +6,25 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-import { CourseSwitcher } from "@/features/courses/components/course-switcher";
+import {
+  CourseSwitcher,
+  courseSwitcherSubtitle,
+} from "@/features/courses/components/course-switcher";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 
 const COURSES = [
-  { slug: "cpp-desde-cero", title: "C++ desde cero", languageLabel: "C++" },
+  {
+    slug: "cpp-desde-cero",
+    title: "C++ desde cero",
+    languageLabel: "C++",
+    curriculumSummary: "Semestres 1 y 2",
+  },
   {
     slug: "csharp-poo-1",
     title: "Programación Orientada a Objetos I con C#",
     languageLabel: "C#",
+    curriculumSummary: null,
   },
 ];
 
@@ -45,6 +54,20 @@ describe("CourseSwitcher", () => {
       <CourseSwitcher courses={COURSES} activeSlug={null} />,
     );
     expect(html).toContain("Elegir curso");
+  });
+
+  it("con curriculumSummary: el subtítulo del menú es lenguaje · resumen", () => {
+    expect(courseSwitcherSubtitle(COURSES[0], false)).toBe(
+      "C++ · Semestres 1 y 2",
+    );
+    expect(courseSwitcherSubtitle(COURSES[0], true)).toBe(
+      "C++ · Semestres 1 y 2 · curso actual",
+    );
+  });
+
+  it("sin curriculumSummary: conserva el comportamiento anterior (sólo lenguaje)", () => {
+    expect(courseSwitcherSubtitle(COURSES[1], false)).toBe("C#");
+    expect(courseSwitcherSubtitle(COURSES[1], true)).toBe("C# · curso actual");
   });
 });
 

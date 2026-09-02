@@ -220,3 +220,93 @@ describe("baseline de contenido C++", () => {
     expect(LANGUAGE_PROFILES[cpp.language].markdownFences).toContain("cpp");
   });
 });
+
+describe("curriculum de C++: 2 secciones semestrales", () => {
+  const cpp = courseBySlug.get("cpp-desde-cero")!;
+
+  it("declara exactamente 2 sections", () => {
+    expect(cpp.curriculum).toBeDefined();
+    expect(cpp.curriculum).toHaveLength(2);
+  });
+
+  it("S1: semester 1, subjectName exacto, 6 units exactas", () => {
+    const s1 = cpp.curriculum!.find((s) => s.key === "s1-fundamentos-desarrollo-software");
+    expect(s1).toBeDefined();
+    expect(s1!.semester).toBe(1);
+    expect(s1!.order).toBe(1);
+    expect(s1!.subjectName).toBe("Fundamentos de Desarrollo de Software");
+    expect(s1!.unitSlugs).toEqual([
+      "primer-programa",
+      "variables-y-tipos",
+      "leer-datos",
+      "control-de-flujo",
+      "loops",
+      "printf-scanf",
+    ]);
+  });
+
+  it("S2: semester 2, subjectName exacto, 4 units exactas", () => {
+    const s2 = cpp.curriculum!.find((s) => s.key === "s2-programacion-estructurada");
+    expect(s2).toBeDefined();
+    expect(s2!.semester).toBe(2);
+    expect(s2!.order).toBe(2);
+    expect(s2!.subjectName).toBe("Programación Estructurada");
+    expect(s2!.unitSlugs).toEqual(["funciones", "arreglos", "archivos", "matrices"]);
+  });
+
+  it("el orden GLOBAL aplanado (Unit.order) es exactamente el contrato", () => {
+    expect(cpp.units.map((u) => u.slug)).toEqual([
+      "primer-programa",
+      "variables-y-tipos",
+      "leer-datos",
+      "control-de-flujo",
+      "loops",
+      "printf-scanf",
+      "funciones",
+      "arreglos",
+      "archivos",
+      "matrices",
+    ]);
+  });
+
+  it("los totales del curso siguen intactos: 10 units, 67 lessons, 314 steps, 80 practices", () => {
+    const lessons = cpp.units.flatMap((u) => u.lessons);
+    const steps = lessons.flatMap((l) => l.steps);
+    const cppSets = allPracticeSets.filter((s) => s.courseSlug === "cpp-desde-cero");
+    const totalPractice = cppSets.reduce((n, s) => n + s.exercises.length, 0);
+
+    expect(cpp.units.length).toBe(10);
+    expect(lessons.length).toBe(67);
+    expect(steps.length).toBe(314);
+    expect(totalPractice).toBe(80);
+  });
+
+  it("S1 tiene 41 lessons y S2 tiene 26 lessons", () => {
+    const unitBySlug = new Map(cpp.units.map((u) => [u.slug, u]));
+    const s1 = cpp.curriculum!.find((s) => s.key === "s1-fundamentos-desarrollo-software")!;
+    const s2 = cpp.curriculum!.find((s) => s.key === "s2-programacion-estructurada")!;
+
+    const lessonsOf = (slugs: string[]) =>
+      slugs.reduce((n, slug) => n + unitBySlug.get(slug)!.lessons.length, 0);
+
+    expect(lessonsOf(s1.unitSlugs)).toBe(41);
+    expect(lessonsOf(s2.unitSlugs)).toBe(26);
+  });
+});
+
+describe("curriculum de C#: 1 sección (demuestra que no está hardcodeado a C++)", () => {
+  const csharp = courseBySlug.get("csharp-poo-1")!;
+
+  it("declara exactamente 1 section: semester 3, subjectName exacto, 8 Units existentes", () => {
+    expect(csharp.curriculum).toBeDefined();
+    expect(csharp.curriculum).toHaveLength(1);
+
+    const [s3] = csharp.curriculum!;
+    expect(s3.key).toBe("s3-programacion-orientada-objetos-1");
+    expect(s3.semester).toBe(3);
+    expect(s3.order).toBe(1);
+    expect(s3.subjectName).toBe("Programación Orientada a Objetos I");
+    expect(s3.unitSlugs).toEqual(csharp.units.map((u) => u.slug));
+    expect(s3.unitSlugs).toHaveLength(8);
+  });
+});

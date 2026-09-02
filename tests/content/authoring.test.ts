@@ -65,14 +65,17 @@ const legacyCursoCpp: CourseDefinition = {
   academicContext: "Curso introductorio CETI",
   language: "cpp",
   executionProfile: "cpp17-wandbox",
+  // Orden CANÓNICO actual (ver `prisma/content/courses/cpp-desde-cero/index.ts`):
+  // el único cambio respecto al histórico es que `printf-scanf` (unidad07) pasa
+  // ANTES de `funciones` (unidad06) — es la transición 1.er → 2.º semestre.
   units: [
     unidad01,
     unidadVariables,
     unidadCin,
     unidad04,
     unidad05,
-    unidad06,
     unidad07,
+    unidad06,
     unidad08,
     unidad09,
     unidad10,
@@ -407,7 +410,25 @@ describe("adaptLegacyUnits", () => {
     expect(authored).toHaveLength(1);
     expect(authored[0].practice).toBe(validSet.exercises);
 
-    const pkg = defineCourse({ ...baseCourse, units: authored });
+    const {
+      slug,
+      title,
+      description,
+      subjectName,
+      academicContext,
+      language,
+      executionProfile,
+    } = baseCourse;
+    const pkg = defineCourse({
+      slug,
+      title,
+      description,
+      subjectName,
+      academicContext,
+      language,
+      executionProfile,
+      units: authored,
+    });
     expect(pkg.practiceSets[0].unitTitle).toBe("Unidad Uno");
     expect(pkg.practiceSets[0].unitIcon).toBe("1️⃣");
     // Explícitamente NO igual a la metadata legacy del set original.
@@ -419,6 +440,347 @@ describe("adaptLegacyUnits", () => {
     const authored = adaptLegacyUnits(baseCourse, []);
     expect(authored).toHaveLength(1);
     expect(authored[0].practice).toBeUndefined();
+  });
+});
+
+// =======================================================================
+// defineCourse: camino `curriculum` — agrupaciones curriculares
+// =======================================================================
+
+function curriculumToyUnit(slug: string): AuthoredUnitDefinition {
+  return defineUnit({
+    slug,
+    title: `Unidad ${slug}`,
+    description: `desc ${slug}`,
+    lessons: [
+      defineLesson({
+        slug: `${slug}-l1`,
+        title: `Lección de ${slug}`,
+        description: "desc",
+        steps: [{ type: "theory", markdown: "hola" }],
+      }),
+    ],
+  });
+}
+
+function curriculumBaseMetadata(slug = "curso-curricular") {
+  return {
+    slug,
+    title: "Curso curricular",
+    description: "desc",
+    subjectName: "Materia",
+    academicContext: "Contexto",
+    language: "cpp" as const,
+    executionProfile: "cpp17-wandbox" as const,
+  };
+}
+
+describe("defineCourse: curriculum", () => {
+  it("curso SIN curriculum: units se conserva y curriculum queda undefined (comportamiento legacy intacto)", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata(),
+      units: [curriculumToyUnit("unidad-a")],
+    });
+    expect(pkg.course.curriculum).toBeUndefined();
+    expect(pkg.course.units.map((u) => u.slug)).toEqual(["unidad-a"]);
+  });
+
+  it("una sección: aplana sus unidades y deriva order=1 y unitSlugs", () => {
+    const unitA = curriculumToyUnit("unidad-a");
+    const unitB = curriculumToyUnit("unidad-b");
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata(),
+      curriculum: [
+        {
+          key: "s1",
+          semester: 1,
+          subjectName: "Materia 1",
+          units: [unitA, unitB],
+        },
+      ],
+    });
+
+    expect(pkg.course.units.map((u) => u.slug)).toEqual(["unidad-a", "unidad-b"]);
+    expect(pkg.course.curriculum).toEqual([
+      {
+        key: "s1",
+        semester: 1,
+        subjectName: "Materia 1",
+        order: 1,
+        unitSlugs: ["unidad-a", "unidad-b"],
+      },
+    ]);
+  });
+
+  it("varias secciones: recorre sections y units EN EL ORDEN recibido y deriva order = índice + 1", () => {
+    const unitA = curriculumToyUnit("unidad-a");
+    const unitB = curriculumToyUnit("unidad-b");
+    const unitC = curriculumToyUnit("unidad-c");
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata(),
+      curriculum: [
+        { key: "s1", semester: 1, subjectName: "Materia 1", units: [unitA] },
+        { key: "s2", semester: 2, subjectName: "Materia 2", units: [unitB, unitC] },
+      ],
+    });
+
+    // Flatten correcto: el orden GLOBAL de units es sección→unidad, en orden.
+    expect(pkg.course.units.map((u) => u.slug)).toEqual([
+      "unidad-a",
+      "unidad-b",
+      "unidad-c",
+    ]);
+    expect(pkg.course.curriculum!.map((s) => s.order)).toEqual([1, 2]);
+    expect(pkg.course.curriculum!.map((s) => s.unitSlugs)).toEqual([
+      ["unidad-a"],
+      ["unidad-b", "unidad-c"],
+    ]);
+  });
+
+  it("preserva el orden de la práctica colocalizada dentro de las unidades del curriculum", () => {
+    const unitA = defineUnit({
+      slug: "unidad-a",
+      title: "Unidad A",
+      description: "desc",
+      lessons: [
+        defineLesson({
+          slug: "l1",
+          title: "L1",
+          description: "d",
+          steps: [{ type: "theory", markdown: "x" }],
+        }),
+      ],
+      practice: [
+        {
+          slug: "ex1",
+          title: "E1",
+          description: "d",
+          prompt: "p",
+          starterCode: "",
+          solutionCode: "s",
+          difficulty: "easy",
+          testCases: [{ expectedStdout: "1" }],
+        },
+        {
+          slug: "ex2",
+          title: "E2",
+          description: "d",
+          prompt: "p",
+          starterCode: "",
+          solutionCode: "s",
+          difficulty: "easy",
+          testCases: [{ expectedStdout: "2" }],
+        },
+      ],
+    });
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata(),
+      curriculum: [
+        { key: "s1", semester: 1, subjectName: "Materia", units: [unitA] },
+      ],
+    });
+    expect(pkg.practiceSets).toHaveLength(1);
+    expect(pkg.practiceSets[0].exercises.map((e) => e.slug)).toEqual([
+      "ex1",
+      "ex2",
+    ]);
+  });
+
+  it("no muta el arreglo curriculum recibido", () => {
+    const sections = [
+      {
+        key: "s1",
+        semester: 1,
+        subjectName: "Materia 1",
+        units: [curriculumToyUnit("unidad-a")],
+      },
+    ];
+    const snapshot = JSON.parse(JSON.stringify(sections));
+    defineCourse({ ...curriculumBaseMetadata(), curriculum: sections });
+    expect(JSON.parse(JSON.stringify(sections))).toEqual(snapshot);
+  });
+});
+
+// =======================================================================
+// validate: curriculum — issues acumulados vía buildContentRegistry
+// =======================================================================
+
+describe("validate: curriculum", () => {
+  function expectCurriculumIssue(
+    pkg: CoursePackageDefinition,
+    pathSubstring: string,
+    messagePattern: RegExp,
+  ) {
+    try {
+      buildContentRegistry([pkg]);
+      throw new Error("se esperaba que buildContentRegistry lanzara");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ContentValidationError);
+      const validationErr = err as ContentValidationError;
+      expect(
+        validationErr.issues.some(
+          (i) => i.path.includes(pathSubstring) && messagePattern.test(i.message),
+        ),
+        `issues: ${JSON.stringify(validationErr.issues)}`,
+      ).toBe(true);
+    }
+  }
+
+  it("curriculum vacío ([]) es inválido", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-curriculum-vacio"),
+      curriculum: [],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /al menos 1 sección/);
+  });
+
+  it("key vacía es inválida", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-key-vacia"),
+      curriculum: [
+        {
+          key: "",
+          semester: 1,
+          subjectName: "Materia",
+          units: [curriculumToyUnit("u1")],
+        },
+      ],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /key vacía/);
+  });
+
+  it("key duplicada dentro del curso es inválida", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-key-duplicada"),
+      curriculum: [
+        {
+          key: "s1",
+          semester: 1,
+          subjectName: "M1",
+          units: [curriculumToyUnit("u1")],
+        },
+        {
+          key: "s1",
+          semester: 2,
+          subjectName: "M2",
+          units: [curriculumToyUnit("u2")],
+        },
+      ],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /key duplicada/);
+  });
+
+  it("semester 0 es inválido", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-semester-0"),
+      curriculum: [
+        {
+          key: "s1",
+          semester: 0,
+          subjectName: "M1",
+          units: [curriculumToyUnit("u1")],
+        },
+      ],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /semester/);
+  });
+
+  it("semester decimal es inválido", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-semester-decimal"),
+      curriculum: [
+        {
+          key: "s1",
+          semester: 1.5,
+          subjectName: "M1",
+          units: [curriculumToyUnit("u1")],
+        },
+      ],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /semester/);
+  });
+
+  it("subjectName vacío es inválido", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-subjectname-vacio"),
+      curriculum: [
+        {
+          key: "s1",
+          semester: 1,
+          subjectName: "   ",
+          units: [curriculumToyUnit("u1")],
+        },
+      ],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /subjectName vacío/);
+  });
+
+  it("una sección sin unidades es inválida", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-seccion-vacia"),
+      curriculum: [{ key: "s1", semester: 1, subjectName: "M1", units: [] }],
+    });
+    expectCurriculumIssue(pkg, "curriculum", /al menos 1 unidad/);
+  });
+
+  it("una Unit que aparece en dos secciones es inválida", () => {
+    const shared = curriculumToyUnit("compartida");
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-unidad-repetida"),
+      curriculum: [
+        { key: "s1", semester: 1, subjectName: "M1", units: [shared] },
+        { key: "s2", semester: 2, subjectName: "M2", units: [shared] },
+      ],
+    });
+    expectCurriculumIssue(
+      pkg,
+      "curriculum[s2].unitSlugs",
+      /ya pertenece a la sección "s1"/,
+    );
+  });
+
+  it("un unitSlug que no existe en course.units es inválido", () => {
+    const course: CourseDefinition = {
+      ...curriculumBaseMetadata("curso-unitslug-inexistente"),
+      units: [
+        {
+          slug: "u1",
+          title: "U1",
+          description: "d",
+          lessons: [
+            {
+              slug: "l1",
+              title: "L",
+              description: "d",
+              steps: [{ type: "theory", markdown: "x" }],
+            },
+          ],
+        },
+      ],
+      curriculum: [
+        {
+          key: "s1",
+          semester: 1,
+          subjectName: "M1",
+          order: 1,
+          unitSlugs: ["u1", "fantasma"],
+        },
+      ],
+    };
+    const pkg: CoursePackageDefinition = { course, practiceSets: [] };
+    expectCurriculumIssue(
+      pkg,
+      "curriculum[s1].unitSlugs[1]",
+      /no existe en course\.units/,
+    );
+  });
+
+  it("un curso sin curriculum sigue siendo válido", () => {
+    const pkg = defineCourse({
+      ...curriculumBaseMetadata("curso-sin-curriculum-valido"),
+      units: [curriculumToyUnit("u1")],
+    });
+    expect(() => buildContentRegistry([pkg])).not.toThrow();
   });
 });
 

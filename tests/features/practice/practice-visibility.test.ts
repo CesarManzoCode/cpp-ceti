@@ -108,3 +108,79 @@ describe("visibilidad de práctica bajo unidad no publicada", () => {
     expect(await getPracticeBySlug(COURSE, "u7-boton", "user_1")).not.toBeNull();
   });
 });
+
+/**
+ * Refactor de curriculum: `getPracticeGroups` sigue derivando el orden de
+ * los grupos EXCLUSIVAMENTE de `Unit.order` — nunca de una noción de
+ * semestre. Con el swap `printf-scanf` (order 6) / `funciones` (order 7),
+ * los grupos deben salir en ese mismo orden. `PracticeExercise` no lleva
+ * (ni necesita) ningún campo de semestre/curriculum.
+ */
+describe("los grupos de práctica siguen Unit.order (curriculum es transparente)", () => {
+  const CPP_COURSE = "course_cpp";
+
+  beforeEach(() => {
+    fake.reset();
+    fake.seed("unit", [
+      {
+        id: "u-printf",
+        courseId: CPP_COURSE,
+        slug: "printf-scanf",
+        title: "printf y scanf",
+        icon: null,
+        order: 6,
+        published: true,
+      },
+      {
+        id: "u-funciones",
+        courseId: CPP_COURSE,
+        slug: "funciones",
+        title: "Funciones",
+        icon: null,
+        order: 7,
+        published: true,
+      },
+    ]);
+    fake.seed("practiceExercise", [
+      {
+        id: "pex_funciones",
+        courseId: CPP_COURSE,
+        slug: "funciones-suma",
+        unitSlug: "funciones",
+        title: "Suma",
+        description: "d",
+        prompt: "p",
+        starterCode: "",
+        hints: [],
+        difficulty: "easy",
+        xpReward: 10,
+        position: 1,
+        published: true,
+        contentRevision: "r1",
+        testCases: [],
+      },
+      {
+        id: "pex_printf",
+        courseId: CPP_COURSE,
+        slug: "printf-hola",
+        unitSlug: "printf-scanf",
+        title: "Hola",
+        description: "d",
+        prompt: "p",
+        starterCode: "",
+        hints: [],
+        difficulty: "easy",
+        xpReward: 10,
+        position: 1,
+        published: true,
+        contentRevision: "r1",
+        testCases: [],
+      },
+    ]);
+  });
+
+  it("printf-scanf (order 6) sale antes que funciones (order 7)", async () => {
+    const groups = await getPracticeGroups(CPP_COURSE, "user_1");
+    expect(groups.map((g) => g.unitSlug)).toEqual(["printf-scanf", "funciones"]);
+  });
+});
