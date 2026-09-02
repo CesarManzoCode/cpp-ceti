@@ -14,7 +14,7 @@ export const csharpPoo2Colecciones = defineUnit({
   description:
     "Sustituye arreglos de tamaño fijo por colecciones dinámicas y elige entre lista, pila y cola según la operación del problema.",
   icon: "📚",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });

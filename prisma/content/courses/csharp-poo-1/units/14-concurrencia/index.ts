@@ -14,7 +14,7 @@ export const csharpPoo2Concurrencia = defineUnit({
   description:
     "Ejecuta trabajo concurrente, identifica estado compartido y protege recursos críticos con sincronización explícita.",
   icon: "🧵",
-  published: false,
+  published: true,
   lessons: [leccion01, leccion02, leccion03, leccion04, leccion05],
   practice,
 });

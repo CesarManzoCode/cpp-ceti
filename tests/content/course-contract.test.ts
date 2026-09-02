@@ -354,7 +354,7 @@ describe("curriculum de C#: 2 secciones (S3 POO I + S4 POO II)", () => {
     ]);
   });
 
-  it("S4: semester 4, subjectName exacto, 8 unidades EXACTAS en el orden contractual, todas unpublished", () => {
+  it("S4: semester 4, subjectName exacto, 8 unidades EXACTAS en el orden contractual, todas publicadas", () => {
     const s4 = csharp.curriculum!.find(
       (s) => s.key === "s4-programacion-orientada-objetos-2",
     )!;
@@ -373,8 +373,9 @@ describe("curriculum de C#: 2 secciones (S3 POO I + S4 POO II)", () => {
     ]);
     expect(lessonsOf(s4.unitSlugs)).toBe(40);
     expect(practicesOf(s4.unitSlugs)).toBe(32);
+    // Release gate levantado: el fix del sprint DB2 publica las 8 unidades.
     for (const slug of s4.unitSlugs) {
-      expect(unitBySlug.get(slug)!.published, slug).toBe(false);
+      expect(unitBySlug.get(slug)!.published, slug).toBe(true);
     }
   });
 
@@ -488,9 +489,9 @@ describe("política de ejecución de S4 (red, sockets, concurrencia no determini
     }
   });
 
-  it("las 8 unidades de S4 están unpublished (release gate pendiente)", () => {
+  it("las 8 unidades de S4 están publicadas (release gate levantado)", () => {
     for (const unit of s4Units) {
-      expect(unit.published, unit.slug).toBe(false);
+      expect(unit.published, unit.slug).toBe(true);
     }
   });
 });
@@ -633,38 +634,217 @@ describe("curso S5: Modelos y métodos de desarrollo de software", () => {
   });
 });
 
-describe("curso S4: Bases de datos (Base de Datos I)", () => {
+describe("curso: Bases de datos (S4 Base de Datos I + S5 Base de Datos II)", () => {
   it("el curso está registrado EXACTAMENTE una vez", () => {
     const matches = allCourses.filter((c) => c.slug === "bases-de-datos");
     expect(matches).toHaveLength(1);
   });
 
-  const bd1 = courseBySlug.get("bases-de-datos")!;
+  const bd = courseBySlug.get("bases-de-datos")!;
+  const bdUnitBySlug = new Map(bd.units.map((u) => [u.slug, u]));
+  const bdLessonsOf = (slugs: string[]) =>
+    slugs.reduce((n, slug) => n + bdUnitBySlug.get(slug)!.lessons.length, 0);
+  const bdStepsOf = (slugs: string[]) =>
+    slugs.reduce(
+      (n, slug) =>
+        n + bdUnitBySlug.get(slug)!.lessons.reduce((m, l) => m + l.steps.length, 0),
+      0,
+    );
+  const bdPracticesOf = (slugs: string[]) =>
+    allPracticeSets
+      .filter((s) => s.courseSlug === "bases-de-datos" && slugs.includes(s.unitSlug))
+      .reduce((n, s) => n + s.exercises.length, 0);
 
   it("declara la metadata exacta del contrato", () => {
-    expect(bd1).toBeDefined();
-    expect(bd1.title).toBe("Bases de datos");
-    expect(bd1.description).toBe(
+    expect(bd).toBeDefined();
+    expect(bd.title).toBe("Bases de datos");
+    expect(bd.description).toBe(
       "Diseña bases relacionales desde necesidades reales, normalízalas y consulta información con SQL.",
     );
-    expect(bd1.subjectName).toBe("Bases de datos");
-    expect(bd1.academicContext).toBe("CETI · Tecnólogo en Desarrollo de Software");
-    expect(bd1.language).toBe("sql");
-    expect(bd1.executionProfile).toBe("sql-sqlite3-wandbox");
+    expect(bd.subjectName).toBe("Bases de datos");
+    expect(bd.academicContext).toBe("CETI · Tecnólogo en Desarrollo de Software");
+    expect(bd.language).toBe("sql");
+    expect(bd.executionProfile).toBe("sql-sqlite3-wandbox");
   });
 
-  it("declara EXACTAMENTE una CurriculumSection de semestre 4", () => {
-    expect(bd1.curriculum).toBeDefined();
-    expect(bd1.curriculum).toHaveLength(1);
-    const s4 = bd1.curriculum![0];
-    expect(s4.key).toBe("s4-base-de-datos-1");
-    expect(s4.semester).toBe(4);
-    expect(s4.order).toBe(1);
-    expect(s4.subjectName).toBe("Base de Datos I");
+  it("declara EXACTAMENTE dos CurriculumSection, S4 y S5, en orden", () => {
+    expect(bd.curriculum).toBeDefined();
+    expect(bd.curriculum).toHaveLength(2);
+    expect(bd.curriculum!.map((s) => s.key)).toEqual([
+      "s4-base-de-datos-1",
+      "s5-base-de-datos-2",
+    ]);
   });
 
-  it("declara las 10 Units EXACTAS, en el orden contractual", () => {
-    expect(bd1.units.map((u) => u.slug)).toEqual([
+  it("todo el contenido usa el fence de SQL", () => {
+    expect(LANGUAGE_PROFILES[bd.language].markdownFences).toContain("sql");
+  });
+
+  describe("S4 — Base de Datos I (intacta)", () => {
+    const s4 = bd.curriculum!.find((s) => s.key === "s4-base-de-datos-1")!;
+
+    it("semester 4, order 1, subjectName exacto", () => {
+      expect(s4.semester).toBe(4);
+      expect(s4.order).toBe(1);
+      expect(s4.subjectName).toBe("Base de Datos I");
+    });
+
+    it("declara las 10 Units EXACTAS, en el orden contractual", () => {
+      expect(s4.unitSlugs).toEqual([
+        "bd1-01-fundamentos-sgbd",
+        "bd1-02-requerimientos-informacion",
+        "bd1-03-modelo-er",
+        "bd1-04-modelo-relacional",
+        "bd1-05-normalizacion",
+        "bd1-06-algebra-relacional",
+        "bd1-07-ddl",
+        "bd1-08-dml",
+        "bd1-09-consultas-reportes",
+        "bd1-10-respaldo-integrador",
+      ]);
+    });
+
+    it("las 10 Units están published=true (sin release gate para BD I)", () => {
+      for (const slug of s4.unitSlugs) {
+        expect(bdUnitBySlug.get(slug)!.published, slug).toBe(true);
+      }
+    });
+
+    it("totales EXACTOS: 47 lessons, 188 steps, 36 practices", () => {
+      expect(s4.unitSlugs.length).toBe(10);
+      expect(bdLessonsOf(s4.unitSlugs)).toBe(47);
+      expect(bdStepsOf(s4.unitSlugs)).toBe(188);
+      expect(bdPracticesOf(s4.unitSlugs)).toBe(36);
+    });
+
+    it("cada lección tiene EXACTAMENTE 4 steps", () => {
+      for (const slug of s4.unitSlugs) {
+        for (const lesson of bdUnitBySlug.get(slug)!.lessons) {
+          expect(lesson.steps.length, `${slug}/${lesson.slug}`).toBe(4);
+        }
+      }
+    });
+
+    it("todas las 10 unidades traen práctica independiente", () => {
+      const practiceUnitSlugs = new Set(
+        allPracticeSets
+          .filter((s) => s.courseSlug === "bases-de-datos")
+          .map((s) => s.unitSlug),
+      );
+      for (const slug of s4.unitSlugs) {
+        expect(practiceUnitSlugs.has(slug), slug).toBe(true);
+      }
+    });
+  });
+
+  describe("S5 — Base de Datos II", () => {
+    const s5 = bd.curriculum!.find((s) => s.key === "s5-base-de-datos-2")!;
+
+    it("semester 5, order 2, subjectName exacto", () => {
+      expect(s5.semester).toBe(5);
+      expect(s5.order).toBe(2);
+      expect(s5.subjectName).toBe("Base de Datos II");
+    });
+
+    it("declara las 10 Units EXACTAS, en el orden contractual", () => {
+      expect(s5.unitSlugs).toEqual([
+        "bd2-11-procedimientos",
+        "bd2-12-triggers-jobs",
+        "bd2-13-transacciones",
+        "bd2-14-usuarios-permisos",
+        "bd2-15-mantenimiento",
+        "bd2-16-conexiones",
+        "bd2-17-crud-interfaz",
+        "bd2-18-nosql-modelo",
+        "bd2-19-mongodb-crud",
+        "bd2-20-integrador",
+      ]);
+    });
+
+    it("las 10 Units DB2 están published=true (10/10)", () => {
+      for (const slug of s5.unitSlugs) {
+        expect(bdUnitBySlug.get(slug)!.published, slug).toBe(true);
+      }
+    });
+
+    it("totales EXACTOS: 45 lessons, 180 steps, 15 practices", () => {
+      expect(s5.unitSlugs.length).toBe(10);
+      expect(bdLessonsOf(s5.unitSlugs)).toBe(45);
+      expect(bdStepsOf(s5.unitSlugs)).toBe(180);
+      expect(bdPracticesOf(s5.unitSlugs)).toBe(15);
+    });
+
+    it("cada lección tiene EXACTAMENTE 4 steps", () => {
+      for (const slug of s5.unitSlugs) {
+        for (const lesson of bdUnitBySlug.get(slug)!.lessons) {
+          expect(lesson.steps.length, `${slug}/${lesson.slug}`).toBe(4);
+        }
+      }
+    });
+
+    it("sólo las 4 unidades con práctica independiente la declaran (triggers, transacciones, crud-interfaz, integrador)", () => {
+      const practiceUnitSlugs = new Set(
+        allPracticeSets
+          .filter((s) => s.courseSlug === "bases-de-datos" && s5.unitSlugs.includes(s.unitSlug))
+          .map((s) => s.unitSlug),
+      );
+      expect(practiceUnitSlugs).toEqual(
+        new Set([
+          "bd2-12-triggers-jobs",
+          "bd2-13-transacciones",
+          "bd2-17-crud-interfaz",
+          "bd2-20-integrador",
+        ]),
+      );
+    });
+
+    it("las capacidades MySQL-only y MongoDB quedan runnable:false con localOnlyNote, nunca se envían al profile SQLite", () => {
+      const s5Units = bd.units.filter((u) => s5.unitSlugs.includes(u.slug));
+      const codeExampleSteps = s5Units.flatMap((u) =>
+        u.lessons.flatMap((l) =>
+          l.steps
+            .filter((s): s is CodeExampleStep => s.type === "code_example")
+            .map((step) => ({ where: `${u.slug}/${l.slug}`, step })),
+        ),
+      );
+      // Marcadores de sintaxis que SQLite no soporta: si aparecen en un
+      // ejemplo, ese ejemplo NUNCA puede ser runnable:true (no debe
+      // enviarse al profile sql-sqlite3-wandbox).
+      const NON_SQLITE_MARKERS =
+        /\bCREATE PROCEDURE\b|\bCALL \w|\bCREATE EVENT\b|\bCREATE ROLE\b|\bGRANT\b|\bREVOKE\b|\bANALYZE TABLE\b|\bOPTIMIZE TABLE\b|\bdb\.\w+\.(insertOne|find|updateOne|deleteOne)\b/;
+      let sawNonSqliteExample = false;
+      for (const { where, step } of codeExampleSteps) {
+        if (NON_SQLITE_MARKERS.test(step.code)) {
+          sawNonSqliteExample = true;
+          expect(step.runnable === true, `${where}: sintaxis no-SQLite marcada runnable`).toBe(
+            false,
+          );
+        }
+        if (step.runnable !== true) {
+          expect(step.localOnlyNote?.trim(), `${where}: falta localOnlyNote`).toBeTruthy();
+        }
+      }
+      expect(sawNonSqliteExample).toBe(true);
+
+      // Ningún ejercicio de práctica automática (siempre ejecutado contra
+      // SQLite) referencia sintaxis MySQL/MongoDB: los 15 practices de DB2
+      // son SQL compatible con SQLite, tal como exige el contrato.
+      const s5PracticeSets = allPracticeSets.filter(
+        (s) => s.courseSlug === "bases-de-datos" && s5.unitSlugs.includes(s.unitSlug),
+      );
+      for (const set of s5PracticeSets) {
+        for (const ex of set.exercises) {
+          expect(
+            NON_SQLITE_MARKERS.test(ex.solutionCode),
+            `${ex.slug}: la práctica automática usa sintaxis no-SQLite`,
+          ).toBe(false);
+        }
+      }
+    });
+  });
+
+  it("el orden GLOBAL aplanado (Unit.order) pone S4 completo antes de S5 completo", () => {
+    expect(bd.units.map((u) => u.slug)).toEqual([
       "bd1-01-fundamentos-sgbd",
       "bd1-02-requerimientos-informacion",
       "bd1-03-modelo-er",
@@ -675,50 +855,30 @@ describe("curso S4: Bases de datos (Base de Datos I)", () => {
       "bd1-08-dml",
       "bd1-09-consultas-reportes",
       "bd1-10-respaldo-integrador",
+      "bd2-11-procedimientos",
+      "bd2-12-triggers-jobs",
+      "bd2-13-transacciones",
+      "bd2-14-usuarios-permisos",
+      "bd2-15-mantenimiento",
+      "bd2-16-conexiones",
+      "bd2-17-crud-interfaz",
+      "bd2-18-nosql-modelo",
+      "bd2-19-mongodb-crud",
+      "bd2-20-integrador",
     ]);
-    expect(bd1.curriculum![0].unitSlugs).toEqual(bd1.units.map((u) => u.slug));
   });
 
-  it("las 10 Units están published=true (sin release gate para BD I)", () => {
-    for (const unit of bd1.units) {
-      expect(unit.published, unit.slug).toBe(true);
-    }
-  });
-
-  it("totales EXACTOS: 47 lessons, 188 steps, 36 practices", () => {
-    const lessons = bd1.units.flatMap((u) => u.lessons);
+  it("totales del curso completo: 20 units, 92 lessons, 368 steps, 51 practices", () => {
+    const lessons = bd.units.flatMap((u) => u.lessons);
     const steps = lessons.flatMap((l) => l.steps);
     const totalPractice = allPracticeSets
       .filter((s) => s.courseSlug === "bases-de-datos")
       .reduce((n, s) => n + s.exercises.length, 0);
 
-    expect(bd1.units.length).toBe(10);
-    expect(lessons.length).toBe(47);
-    expect(steps.length).toBe(188);
-    expect(totalPractice).toBe(36);
-  });
-
-  it("cada lección tiene EXACTAMENTE 4 steps", () => {
-    for (const unit of bd1.units) {
-      for (const lesson of unit.lessons) {
-        expect(lesson.steps.length, `${unit.slug}/${lesson.slug}`).toBe(4);
-      }
-    }
-  });
-
-  it("todas las 10 unidades traen práctica independiente", () => {
-    const practiceUnitSlugs = new Set(
-      allPracticeSets
-        .filter((s) => s.courseSlug === "bases-de-datos")
-        .map((s) => s.unitSlug),
-    );
-    for (const unit of bd1.units) {
-      expect(practiceUnitSlugs.has(unit.slug), unit.slug).toBe(true);
-    }
-  });
-
-  it("todo el contenido usa el fence de SQL", () => {
-    expect(LANGUAGE_PROFILES[bd1.language].markdownFences).toContain("sql");
+    expect(bd.units.length).toBe(20);
+    expect(lessons.length).toBe(92);
+    expect(steps.length).toBe(368);
+    expect(totalPractice).toBe(51);
   });
 
   /**
@@ -727,11 +887,12 @@ describe("curso S4: Bases de datos (Base de Datos I)", () => {
    * genérica de "cada práctica que usa stdin necesita un oculto
    * discriminante" (ver describe "contrato de prácticas" arriba) YA cubre
    * a SQL. Esta prueba confirma explícitamente que las prácticas con fixture
-   * no vacío del curso declaran al menos un test oculto con fixture distinto.
+   * no vacío del curso (DB1 + DB2) declaran al menos un test oculto con
+   * fixture distinto.
    */
   it("las prácticas SQL con fixture no vacío tienen un test oculto con fixture distinto", () => {
-    const bd1Sets = allPracticeSets.filter((s) => s.courseSlug === "bases-de-datos");
-    for (const set of bd1Sets) {
+    const bdSets = allPracticeSets.filter((s) => s.courseSlug === "bases-de-datos");
+    for (const set of bdSets) {
       for (const ex of set.exercises) {
         const hasFixture = ex.testCases.some(
           (tc) => (tc.stdin ?? "").trim().length > 0,
@@ -748,7 +909,7 @@ describe("curso S4: Bases de datos (Base de Datos I)", () => {
     }
   });
 
-  it("no toca csharp-poo-1, cpp-desde-cero ni S5 al agregarse", () => {
+  it("no toca csharp-poo-1, cpp-desde-cero ni el curso de modelos y métodos al agregarse", () => {
     const cpp = courseBySlug.get("cpp-desde-cero")!;
     const csharp = courseBySlug.get("csharp-poo-1")!;
     const mm = courseBySlug.get("modelos-metodos-desarrollo-software")!;
