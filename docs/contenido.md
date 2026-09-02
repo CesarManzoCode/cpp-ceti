@@ -8,16 +8,76 @@ a la base.
 
 ```
 prisma/content/
-├── types.ts                    # la forma de todo lo de abajo
-├── index.ts                    # registro de CURSOS
-├── unidad-01-primer-programa.ts … unidad-10-matrices.ts   # curso de C++
-├── csharp/                     # curso de POO I en C#
-│   ├── index.ts                # el curso y su lenguaje/perfil
+├── types.ts                    # la forma de una lección/unidad/curso (IR)
+├── authoring.ts                # defineLesson / defineUnit / defineCourse / registry
+├── validate.ts                 # validación semántica (sin DB, sin compiladores)
+├── index.ts                    # re-exports legacy (cursoCpp, allCourses)
+├── courses/
+│   ├── index.ts                # EL REGISTRY ÚNICO — un curso nuevo se agrega aquí
+│   ├── cpp-desde-cero/index.ts # ensambla el curso legacy de C++ (ver abajo)
+│   └── csharp-poo-1/index.ts   # ensambla el curso legacy de C#
+├── unidad-01-primer-programa.ts … unidad-10-matrices.ts   # curso de C++ (legacy)
+├── csharp/                     # curso de POO I en C# (legacy)
+│   ├── index.ts
 │   └── unidad-01-modelar.ts … unidad-08-integrador.ts
 └── exercises/                  # práctica por unidad
-    ├── u01-…-u10-…             # banco de C++
-    └── csharp/                 # banco de C#
+    ├── index.ts                # re-export legacy (allPracticeSets)
+    ├── u01-…-u10-…             # banco de C++ (legacy)
+    └── csharp/                 # banco de C# (legacy)
 ```
+
+C++ y C# son contenido **legacy**: sus unidades y su práctica viven en los archivos
+grandes de siempre y NO se movieron. `prisma/content/courses/cpp-desde-cero/index.ts` y
+`.../csharp-poo-1/index.ts` sólo los ENSAMBLAN con `adaptLegacyUnits` + `defineCourse`
+para que entren al mismo registry que un curso nuevo. No repitas ese layout para
+contenido viejo — es sólo el punto de entrada.
+
+## Agregar un curso NUEVO
+
+Un curso nuevo SÍ usa el layout completo, con la práctica de cada unidad colocalizada
+junto a sus lecciones:
+
+```
+prisma/content/courses/<course-slug>/
+├── index.ts                    # defineCourse({...metadata, units})
+└── units/
+    └── 01-<unit-name>/
+        ├── index.ts             # defineUnit({...metadata, lessons, practice})
+        ├── practice.ts          # PracticeExerciseDefinition[] de la unidad
+        └── lessons/
+            ├── 01-<lesson>.ts   # defineLesson({...})
+            ├── 02-<lesson>.ts
+            └── ...
+```
+
+- `defineLesson` y `defineUnit` son identidad type-safe: no aplican defaults, no
+  reordenan, no mutan lo que les pasas — sólo ayudan a que TypeScript infiera el tipo
+  correcto.
+- `practice` vive DENTRO de `AuthoredUnitDefinition` (colocalizada con la unidad, en vez
+  de un registry aparte que hay que mantener sincronizado a mano). `defineCourse` la
+  separa en su propio `PracticeUnitSetDefinition`, derivando `courseSlug`, `unitSlug`,
+  `unitTitle` e `unitIcon` de la unidad — no los repitas.
+- Registra el curso UNA sola vez, en el orden en que debe aparecer, en
+  [`prisma/content/courses/index.ts`](../prisma/content/courses/index.ts):
+
+  ```ts
+  import { cppDesdeCero } from "./cpp-desde-cero";
+  import { csharpPoo1 } from "./csharp-poo-1";
+  import { miCursoNuevo } from "./mi-curso-nuevo";
+
+  const packages = [cppDesdeCero, csharpPoo1, miCursoNuevo] satisfies
+    readonly CoursePackageDefinition[];
+
+  export const { allCourses, allPracticeSets } = buildContentRegistry(packages);
+  ```
+
+- Antes de sembrar, corre `npm run content:validate`: valida TODO el contenido (slugs
+  únicos, quiz/fill_blank/code_challenge bien formados, referencias de práctica, el par
+  lenguaje/perfil, etc.) sin tocar la base ni compilar código. Si algo falla, imprime
+  CADA problema con su `path` (ej. `courses[mi-curso].units[u1].lessons[l1].steps[3]`) y
+  sale con código 1 — corre esto en vez de intentar depurar un `db:seed` a medias.
+
+No hace falta migrar el contenido viejo a este layout: C++ y C# se quedan como están.
 
 ## El curso declara su lenguaje
 
