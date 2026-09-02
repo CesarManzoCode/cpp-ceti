@@ -933,23 +933,27 @@ describe("equivalencia legacy: el refactor de authoring no cambia contenido", ()
     expect(cpp.units).toEqual(legacyCursoCpp.units);
   });
 
-  it("C#: metadata de curso idéntica", () => {
+  it("C#: identidad de curso preservada (slug/lenguaje/perfil) tras agregar S4", () => {
+    // El Course ahora cubre POO I + POO II: title/description/subjectName
+    // cambiaron a propósito (ver "la metadata general del Course cubre
+    // ambas asignaturas" en course-contract.test.ts) y ya NO deben ser
+    // idénticos al legacy. Lo que este test protege es que `adaptLegacyUnits`
+    // no tocó la identidad que S4 no tiene permitido cambiar.
     const csharp = allCourses.find((c) => c.slug === "csharp-poo-1")!;
     expect(csharp.slug).toBe(legacyCursoCsharp.slug);
-    expect(csharp.title).toBe(legacyCursoCsharp.title);
-    expect(csharp.description).toBe(legacyCursoCsharp.description);
-    expect(csharp.subjectName).toBe(legacyCursoCsharp.subjectName);
-    expect(csharp.academicContext).toBe(legacyCursoCsharp.academicContext);
     expect(csharp.language).toBe(legacyCursoCsharp.language);
     expect(csharp.executionProfile).toBe(legacyCursoCsharp.executionProfile);
   });
 
-  it("C#: mismo orden de unidades, unidades, lecciones y steps idénticos", () => {
+  it("C#: las 8 unidades legacy de S3 siguen idénticas y en el mismo orden dentro del Course", () => {
+    // El Course ahora tiene 16 unidades (S3 + S4 nueva); sólo las primeras
+    // 8 son el contenido legacy que este test de equivalencia protege.
     const csharp = allCourses.find((c) => c.slug === "csharp-poo-1")!;
-    expect(csharp.units.map((u) => u.slug)).toEqual(
+    const s3Units = csharp.units.slice(0, legacyCursoCsharp.units.length);
+    expect(s3Units.map((u) => u.slug)).toEqual(
       legacyCursoCsharp.units.map((u) => u.slug),
     );
-    expect(csharp.units).toEqual(legacyCursoCsharp.units);
+    expect(s3Units).toEqual(legacyCursoCsharp.units);
   });
 
   it("C++: mismos grupos de práctica (por unidad), exercises y test cases idénticos y en el mismo orden dentro de cada grupo", () => {
@@ -974,9 +978,14 @@ describe("equivalencia legacy: el refactor de authoring no cambia contenido", ()
     }
   });
 
-  it("C#: mismos grupos de práctica (por unidad), exercises y test cases idénticos y en el mismo orden dentro de cada grupo", () => {
+  it("C#: mismos grupos de práctica de S3 (por unidad), exercises y test cases idénticos y en el mismo orden dentro de cada grupo", () => {
+    // S4 agregó 8 grupos de práctica NUEVOS que no existen en el legacy:
+    // este test de equivalencia sólo protege los 8 grupos de S3.
+    const legacyUnitSlugs = new Set(legacyCursoCsharp.units.map((u) => u.slug));
     const canonical = byUnitSlug(
-      allPracticeSets.filter((s) => s.courseSlug === "csharp-poo-1"),
+      allPracticeSets.filter(
+        (s) => s.courseSlug === "csharp-poo-1" && legacyUnitSlugs.has(s.unitSlug),
+      ),
     );
     const legacy = byUnitSlug(legacyCsharpPracticeSets);
 
@@ -985,7 +994,7 @@ describe("equivalencia legacy: el refactor de authoring no cambia contenido", ()
     // unidades del curso: lo comprobamos también posicionalmente.
     expect(
       allPracticeSets
-        .filter((s) => s.courseSlug === "csharp-poo-1")
+        .filter((s) => s.courseSlug === "csharp-poo-1" && legacyUnitSlugs.has(s.unitSlug))
         .map((s) => s.unitSlug),
     ).toEqual(legacyCsharpPracticeSets.map((s) => s.unitSlug));
 
@@ -1019,8 +1028,11 @@ describe("equivalencia legacy: el refactor de authoring no cambia contenido", ()
       }
     }
 
+    // Sólo las primeras 8 unidades del Course son el legacy S3 que este
+    // test de equivalencia protege; S4 (unidades 9-16) es contenido nuevo,
+    // sin contraparte legacy con la que comparar.
     const csharp = allCourses.find((c) => c.slug === "csharp-poo-1")!;
-    for (let i = 0; i < csharp.units.length; i++) {
+    for (let i = 0; i < legacyCursoCsharp.units.length; i++) {
       expect(csharp.units[i].published).toBe(legacyCursoCsharp.units[i].published);
     }
   });
