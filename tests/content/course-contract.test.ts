@@ -494,3 +494,141 @@ describe("política de ejecución de S4 (red, sockets, concurrencia no determini
     }
   });
 });
+
+describe("curso S5: Modelos y métodos de desarrollo de software", () => {
+  it("el curso está registrado EXACTAMENTE una vez", () => {
+    const matches = allCourses.filter(
+      (c) => c.slug === "modelos-metodos-desarrollo-software",
+    );
+    expect(matches).toHaveLength(1);
+  });
+
+  const mm = courseBySlug.get("modelos-metodos-desarrollo-software")!;
+
+  it("declara la metadata exacta del contrato", () => {
+    expect(mm).toBeDefined();
+    expect(mm.title).toBe("Modelos y métodos de desarrollo de software");
+    expect(mm.description).toBe(
+      "Convierte problemas en proyectos de software trazables: requisitos, diseño, control de versiones, pruebas, mantenimiento, SOLID y entregas incrementales.",
+    );
+    expect(mm.subjectName).toBe("Modelos y métodos de desarrollo de software");
+    expect(mm.academicContext).toBe("CETI · Tecnólogo en Desarrollo de Software");
+    expect(mm.language).toBe("csharp");
+    expect(mm.executionProfile).toBe("csharp-mono-6.12");
+  });
+
+  it("declara EXACTAMENTE una CurriculumSection de semestre 5", () => {
+    expect(mm.curriculum).toBeDefined();
+    expect(mm.curriculum).toHaveLength(1);
+    const s5 = mm.curriculum![0];
+    expect(s5.key).toBe("s5-modelos-metodos-desarrollo-software-1");
+    expect(s5.semester).toBe(5);
+    expect(s5.order).toBe(1);
+    expect(s5.subjectName).toBe("Modelos y Métodos de Desarrollo de Software I");
+  });
+
+  it("declara las 10 Units EXACTAS, en el orden contractual", () => {
+    expect(mm.units.map((u) => u.slug)).toEqual([
+      "mm-01-proyecto-cascada",
+      "mm-02-requerimientos",
+      "mm-03-uml-diseno",
+      "mm-04-git-versiones",
+      "mm-05-planificacion-implementacion",
+      "mm-06-pruebas-calidad",
+      "mm-07-mantenimiento",
+      "mm-08-solid",
+      "mm-09-incremental",
+      "mm-10-integrador",
+    ]);
+    // La sección semestral referencia exactamente esas mismas 10 units, en
+    // el mismo orden, y ese aplanado es el orden GLOBAL de navegación.
+    expect(mm.curriculum![0].unitSlugs).toEqual(mm.units.map((u) => u.slug));
+  });
+
+  it("las 10 Units están published=true (sin release gate para S5)", () => {
+    for (const unit of mm.units) {
+      expect(unit.published, unit.slug).toBe(true);
+    }
+  });
+
+  it("totales EXACTOS: 44 lessons, 176 steps, 32 practices", () => {
+    const lessons = mm.units.flatMap((u) => u.lessons);
+    const steps = lessons.flatMap((l) => l.steps);
+    const totalPractice = allPracticeSets
+      .filter((s) => s.courseSlug === "modelos-metodos-desarrollo-software")
+      .reduce((n, s) => n + s.exercises.length, 0);
+
+    expect(mm.units.length).toBe(10);
+    expect(lessons.length).toBe(44);
+    expect(steps.length).toBe(176);
+    expect(totalPractice).toBe(32);
+  });
+
+  it("cada lección tiene EXACTAMENTE 4 steps", () => {
+    for (const unit of mm.units) {
+      for (const lesson of unit.lessons) {
+        expect(lesson.steps.length, `${unit.slug}/${lesson.slug}`).toBe(4);
+      }
+    }
+  });
+
+  it("U1 (cascada) y U4 (Git) no fuerzan retos C# artificiales: sin práctica independiente", () => {
+    const practiceUnitSlugs = new Set(
+      allPracticeSets
+        .filter((s) => s.courseSlug === "modelos-metodos-desarrollo-software")
+        .map((s) => s.unitSlug),
+    );
+    expect(practiceUnitSlugs.has("mm-01-proyecto-cascada")).toBe(false);
+    expect(practiceUnitSlugs.has("mm-04-git-versiones")).toBe(false);
+  });
+
+  it("las otras 8 unidades sí traen práctica independiente", () => {
+    const practiceUnitSlugs = new Set(
+      allPracticeSets
+        .filter((s) => s.courseSlug === "modelos-metodos-desarrollo-software")
+        .map((s) => s.unitSlug),
+    );
+    const expected = [
+      "mm-02-requerimientos",
+      "mm-03-uml-diseno",
+      "mm-05-planificacion-implementacion",
+      "mm-06-pruebas-calidad",
+      "mm-07-mantenimiento",
+      "mm-08-solid",
+      "mm-09-incremental",
+      "mm-10-integrador",
+    ];
+    for (const slug of expected) {
+      expect(practiceUnitSlugs.has(slug), slug).toBe(true);
+    }
+  });
+
+  it("el laboratorio local de Windows Forms del integrador no es ejecutable y no despublica la unidad", () => {
+    const integrador = mm.units.find((u) => u.slug === "mm-10-integrador")!;
+    expect(integrador.published).toBe(true);
+    const nonRunnable = integrador.lessons
+      .flatMap((l) => l.steps)
+      .filter(
+        (s): s is CodeExampleStep => s.type === "code_example" && s.runnable !== true,
+      );
+    expect(nonRunnable.length).toBeGreaterThan(0);
+    for (const step of nonRunnable) {
+      expect(step.localOnlyNote?.trim()).toBeTruthy();
+    }
+  });
+
+  it("el curso C++ y el curso C# (S3+S4) siguen intactos tras agregar S5", () => {
+    const cpp = courseBySlug.get("cpp-desde-cero")!;
+    const csharp = courseBySlug.get("csharp-poo-1")!;
+
+    expect(cpp.units.length).toBe(10);
+    expect(cpp.units.flatMap((u) => u.lessons).length).toBe(67);
+
+    expect(csharp.units.length).toBe(16);
+    expect(csharp.units.flatMap((u) => u.lessons).length).toBe(73);
+    expect(csharp.curriculum!.map((s) => s.key)).toEqual([
+      "s3-programacion-orientada-objetos-1",
+      "s4-programacion-orientada-objetos-2",
+    ]);
+  });
+});

@@ -1,0 +1,66 @@
+import type { PracticeExerciseDefinition } from "../../../../exercises/types";
+
+export const practice = [
+  {
+    slug: "mm-test-rangos",
+    title: "Rangos y fronteras",
+    description: "Practica particiones.",
+    prompt: "0..17 MENOR, 18..64 ADULTO, >=65 MAYOR; negativo INVALIDA.",
+    starterCode: `using System; class Program{static void Main(){int n=int.Parse(Console.ReadLine());/* completa */}}`,
+    solutionCode: `using System; class Program{static void Main(){int n=int.Parse(Console.ReadLine());if(n<0)Console.WriteLine("INVALIDA");else if(n<18)Console.WriteLine("MENOR");else if(n<65)Console.WriteLine("ADULTO");else Console.WriteLine("MAYOR");}}`,
+    difficulty: "medium",
+    xpReward: 28,
+    testCases: [
+      { stdin: "17\n", expectedStdout: "MENOR\n", visible: true, description: "Borde" },
+      { stdin: "18\n", expectedStdout: "ADULTO\n", visible: false, description: "Borde" },
+      { stdin: "65\n", expectedStdout: "MAYOR\n", visible: false, description: "Borde" },
+      { stdin: "-1\n", expectedStdout: "INVALIDA\n", visible: false, description: "Inválido" },
+    ],
+  },
+  {
+    slug: "mm-test-intentos",
+    title: "Máximo de intentos",
+    description: "Evalúa frontera inclusiva.",
+    prompt: "1..5 PERMITIDO; >5 BLOQUEADO; <=0 INVALIDA.",
+    starterCode: `using System; class Program{static void Main(){int n=int.Parse(Console.ReadLine());/* completa */}}`,
+    solutionCode: `using System; class Program{static void Main(){int n=int.Parse(Console.ReadLine());if(n<=0)Console.WriteLine("INVALIDA");else Console.WriteLine(n<=5?"PERMITIDO":"BLOQUEADO");}}`,
+    difficulty: "medium",
+    xpReward: 28,
+    testCases: [
+      { stdin: "5\n", expectedStdout: "PERMITIDO\n", visible: true, description: "Límite" },
+      { stdin: "6\n", expectedStdout: "BLOQUEADO\n", visible: false, description: "Sobre límite" },
+      { stdin: "0\n", expectedStdout: "INVALIDA\n", visible: false, description: "Inválido" },
+    ],
+  },
+  {
+    slug: "mm-test-regresion",
+    title: "Caso de regresión",
+    description: "Corrige una tarifa preservando comportamiento.",
+    prompt: "Base 80 + 20 por unidad adicional; cantidad<=0=0.",
+    starterCode: `using System; class Program{static int Total(int n){return 0;}static void Main(){Console.WriteLine(Total(int.Parse(Console.ReadLine())));}}`,
+    solutionCode: `using System; class Program{static int Total(int n){if(n<=0)return 0;return 80+(n-1)*20;}static void Main(){Console.WriteLine(Total(int.Parse(Console.ReadLine())));}}`,
+    difficulty: "medium",
+    xpReward: 28,
+    testCases: [
+      { stdin: "1\n", expectedStdout: "80\n", visible: true, description: "Base" },
+      { stdin: "2\n", expectedStdout: "100\n", visible: false, description: "Regresión" },
+      { stdin: "0\n", expectedStdout: "0\n", visible: false, description: "Cero" },
+    ],
+  },
+  {
+    slug: "mm-test-matriz",
+    title: "Matriz de autorización",
+    description: "Cubre combinaciones de roles/acciones.",
+    prompt: "ADMIN puede VER/EDITAR; TECNICO VER; otro NO.",
+    starterCode: `using System; class Program{static void Main(){string r=Console.ReadLine();string a=Console.ReadLine();/* completa */}}`,
+    solutionCode: `using System; class Program{static void Main(){string r=Console.ReadLine();string a=Console.ReadLine();bool ok=(r=="ADMIN"&&(a=="VER"||a=="EDITAR"))||(r=="TECNICO"&&a=="VER");Console.WriteLine(ok?"SI":"NO");}}`,
+    difficulty: "medium",
+    xpReward: 28,
+    testCases: [
+      { stdin: "ADMIN\nEDITAR\n", expectedStdout: "SI\n", visible: true, description: "Admin" },
+      { stdin: "TECNICO\nEDITAR\n", expectedStdout: "NO\n", visible: false, description: "Técnico" },
+      { stdin: "TECNICO\nVER\n", expectedStdout: "SI\n", visible: false, description: "Ver" },
+      { stdin: "X\nVER\n", expectedStdout: "NO\n", visible: false, description: "Desconocido" },
+    ],
+  },
+] satisfies PracticeExerciseDefinition[];
