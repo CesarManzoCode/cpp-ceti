@@ -10,6 +10,7 @@ import { buildFeedback, getExecutorForProfile } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { checkUnitAndCourseCompletion } from "@/lib/social/social-events";
 import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak, incrementUserXp } from "@/lib/streak";
 import {
@@ -63,6 +64,7 @@ export const completeStep = withActionErrorHandling(
           dedupeKey: xpDedupeKey.lesson(step.lessonId),
           lessonId: step.lessonId,
         });
+        await checkUnitAndCourseCompletion(tx, userId, step.lesson.unit.id, step.lesson.unit.course.id);
       }
       return progression;
     });
@@ -249,6 +251,7 @@ export const submitExercise = withActionErrorHandling(
           dedupeKey: xpDedupeKey.lesson(lesson.id),
           lessonId: lesson.id,
         });
+        await checkUnitAndCourseCompletion(tx, userId, lesson.unit.id, lesson.unit.course.id);
         xp += progression.lessonXpEarned;
       }
       return xp;

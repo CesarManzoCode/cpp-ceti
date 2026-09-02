@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { cache } from "react";
 
 import { db } from "@/lib/db";
+import { maybeEmitStreakMilestone } from "@/lib/social/social-events";
 import { recordXpAward, type XpAwardDescriptor } from "@/lib/xp";
 
 export interface UserStats {
@@ -63,6 +64,7 @@ export async function awardXpAndUpdateStreak(
         totalXp: xpEarned,
       },
     });
+    await maybeEmitStreakMilestone(tx, userId, 1);
     return;
   }
 
@@ -90,6 +92,9 @@ export async function awardXpAndUpdateStreak(
       totalXp: { increment: xpEarned },
     },
   });
+  if (newStreak !== existing.currentStreak) {
+    await maybeEmitStreakMilestone(tx, userId, newStreak);
+  }
 }
 
 /**
