@@ -6,7 +6,9 @@ import { z } from "zod";
 import { withActionErrorHandling } from "@/lib/action-error";
 import { db } from "@/lib/db";
 import { env } from "@/env";
-import { getSession } from "@/lib/get-session";
+import { emptyPropsSchema } from "@/lib/analytics/social-props";
+import { recordProductEventSafely } from "@/lib/analytics/record";
+import { getSession, requireSession } from "@/lib/get-session";
 import { INVITE_COOKIE_MAX_AGE_SEC, INVITE_COOKIE_NAME } from "@/lib/social/invite-cookie";
 import { encodeSignedToken } from "@/lib/social/signed-token";
 import { parseOrThrow, usernameSchema } from "@/lib/validation";
@@ -47,5 +49,19 @@ export const captureInviteAttribution = withActionErrorHandling(
       maxAge: INVITE_COOKIE_MAX_AGE_SEC,
     });
     return { captured: true };
+  },
+);
+
+/** Registra que el usuario copió/compartió su link de invitación. */
+export const trackInviteLinkCopied = withActionErrorHandling(
+  "trackInviteLinkCopied",
+  async (): Promise<void> => {
+    const session = await requireSession();
+    await recordProductEventSafely(db, {
+      userId: session.user.id,
+      name: "invite_link_copied",
+      surface: "social",
+      props: emptyPropsSchema.parse({}),
+    });
   },
 );

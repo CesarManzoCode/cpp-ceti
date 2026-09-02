@@ -3,7 +3,7 @@ import type { FriendStreakEndReason, Prisma } from "@prisma/client";
 import { ActionError } from "@/lib/action-error";
 import { db } from "@/lib/db";
 import { canonicalPair } from "@/lib/social/pair";
-import { isNextDateOnly, mxDayRangeForDateOnly } from "@/lib/social/time";
+import { isNextDateOnly, mxDateOnly, mxDayRangeForDateOnly, mxYesterdayOf } from "@/lib/social/time";
 
 export const MAX_ACTIVE_FRIEND_STREAKS = 3;
 export const MAX_PENDING_OUTGOING_FRIEND_STREAKS = 3;
@@ -271,4 +271,25 @@ export async function refreshFriendStreakDay(
       });
     }
   });
+}
+
+/**
+ * Job diario: evalúa AYER para todo streak activo que aún no lo tenga
+ * evaluado (`lastEvaluatedDay < ayer`). Seguro de correr cada hora — el
+ * guard de `refreshFriendStreakDay` hace que sólo la primera pasada del
+ * día haga algo.
+ */
+export async function evaluateAllActiveStreaksForYesterday(now: Date = new Date()): Promise<number> {
+  const yesterday = mxYesterdayOf(mxDateOnly(now));
+  const candidates = await db.friendStreak.findMany({
+    where: {
+      status: "active",
+      OR: [{ lastEvaluatedDay: null }, { lastEvaluatedDay: { lt: yesterday } }],
+    },
+    select: { id: true },
+  });
+  for (const c of candidates) {
+    await refreshFriendStreakDay(c.id, yesterday, { breakOnMiss: true });
+  }
+  return candidates.length;
 }

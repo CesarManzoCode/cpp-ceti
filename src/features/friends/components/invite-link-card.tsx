@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { trackInviteLinkCopied } from "@/features/invites/actions";
 import { PRODUCT_NAME } from "@/lib/branding";
 
 interface InviteLinkCardProps {
@@ -33,6 +34,7 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
       setCopied(true);
       toast.success("Link copiado al portapapeles");
       setTimeout(() => setCopied(false), 2000);
+      void trackInviteLinkCopied();
     } catch {
       toast.error("No pudimos copiar el link");
     }
@@ -48,6 +50,7 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
           text: "Aprende C++ con lecciones interactivas",
           url: inviteUrl,
         });
+        void trackInviteLinkCopied();
         return;
       } catch {
         // usuario cerró el panel; cae al WhatsApp web
@@ -55,6 +58,7 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
     }
     const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(wa, "_blank", "noopener");
+    void trackInviteLinkCopied();
   }
 
   return (

@@ -2,7 +2,9 @@ import { randomUUID } from "node:crypto";
 
 import { SectionRule } from "@/components/ui/section-rule";
 import { getDiscoveryCandidates } from "@/features/discovery/queries";
-import { discoveryImpressionPropsSchema } from "@/lib/analytics/social-props";
+import { FriendRankingList } from "@/features/league/components/friend-ranking-list";
+import { getFriendWeeklyRanking } from "@/features/league/queries";
+import { discoveryImpressionPropsSchema, emptyPropsSchema } from "@/lib/analytics/social-props";
 import { recordProductEventSafely } from "@/lib/analytics/record";
 import { FriendsTabs } from "@/features/friends/components/friends-tabs";
 import { InviteLinkCard } from "@/features/friends/components/invite-link-card";
@@ -36,7 +38,7 @@ export default async function AmigosPage({
     ? await db.course.findUnique({ where: { slug: courseSlug, published: true }, select: { id: true } })
     : null;
 
-  const [friends, incoming, outgoing, discovery, feed, streaks, reminders, params] = await Promise.all([
+  const [friends, incoming, outgoing, discovery, feed, streaks, reminders, ranking, params] = await Promise.all([
     getFriends(userId),
     getPendingIncoming(userId),
     getPendingOutgoing(userId),
@@ -44,8 +46,18 @@ export default async function AmigosPage({
     getSocialFeed(userId),
     getMyFriendStreaks(userId),
     getMyStreakReminders(userId),
+    getFriendWeeklyRanking(userId),
     searchParams,
   ]);
+
+  if (ranking.length > 1) {
+    await recordProductEventSafely(db, {
+      userId,
+      name: "friends_ranking_view",
+      surface: "social",
+      props: emptyPropsSchema.parse({}),
+    });
+  }
 
   const bucketCounts: Record<string, number> = {};
   for (const c of discovery.candidates) bucketCounts[c.bucket] = (bucketCounts[c.bucket] ?? 0) + 1;
@@ -88,6 +100,15 @@ export default async function AmigosPage({
 
       {friends.length === 0 && incoming.length === 0 && outgoing.length === 0 ? (
         <EmptyAmigos username={session.user.username} />
+      ) : null}
+
+      {ranking.length > 1 ? (
+        <section className="mt-8">
+          <SectionRule>Ranking semanal</SectionRule>
+          <div className="mt-4">
+            <FriendRankingList rows={ranking} />
+          </div>
+        </section>
       ) : null}
 
       <div className="mt-8">

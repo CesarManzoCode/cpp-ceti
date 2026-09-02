@@ -65,6 +65,18 @@ export interface ActivityEvent {
   };
 }
 
+export interface PublicProfileAcademic {
+  campusName: string;
+  programName: string;
+  semester: number | null;
+  /**
+   * `null` para un no-amigo — visible siempre para self/friend. Campus,
+   * carrera y semestre SÍ se muestran a cualquier autenticado; el grupo
+   * exacto NUNCA (ver `<privacy>` del contrato).
+   */
+  group: string | null;
+}
+
 export interface PublicProfile {
   id: string;
   username: string;
@@ -78,6 +90,7 @@ export interface PublicProfile {
   completedLessons: number;
   completedExercises: number;
   state: FriendshipState;
+  academic: PublicProfileAcademic | null;
 }
 
 /**
@@ -287,6 +300,11 @@ export async function getPublicProfile(
       bio: true,
       createdAt: true,
       usernameSetupRequired: true,
+      academicSemester: true,
+      academicGroup: true,
+      academicOffering: {
+        select: { campus: { select: { name: true } }, program: { select: { name: true } } },
+      },
       streak: { select: { totalXp: true, currentStreak: true, longestStreak: true } },
     },
   });
@@ -303,6 +321,18 @@ export async function getPublicProfile(
     getFriendshipState(viewerId, user.id),
   ]);
 
+  // Campus/carrera/semestre: visibles para cualquier autenticado. Grupo
+  // exacto: SOLO self o amigo accepted — nunca para un no-amigo.
+  const showGroup = state === "self" || state === "friends";
+  const academic: PublicProfileAcademic | null = user.academicOffering
+    ? {
+        campusName: user.academicOffering.campus.name,
+        programName: user.academicOffering.program.name,
+        semester: user.academicSemester,
+        group: showGroup ? user.academicGroup : null,
+      }
+    : null;
+
   return {
     id: user.id,
     username: user.username,
@@ -316,6 +346,7 @@ export async function getPublicProfile(
     completedLessons,
     completedExercises,
     state,
+    academic,
   };
 }
 

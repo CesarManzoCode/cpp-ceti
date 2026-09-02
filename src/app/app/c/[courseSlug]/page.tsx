@@ -9,16 +9,23 @@ import { LevelBar } from "@/components/ui/level-bar";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
+import { AcademicPromptBanner } from "@/features/academic/components/academic-prompt-banner";
+import { getOwnAcademicProfile } from "@/features/academic/queries";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
 import { getFriends, getFriendsActivityFeed } from "@/features/friends/queries";
+import { getLeagueStanding } from "@/features/league/queries";
+import { QuestCard } from "@/features/quests/components/quest-card";
+import { getMyFriendQuest } from "@/features/quests/queries";
 import { RoadmapUnits } from "@/features/roadmap/components/roadmap-units";
 import {
   findNextLesson,
   getCourseBySlug,
   getRoadmapUnits,
 } from "@/features/roadmap/queries";
+import { getMyFriendStreaks } from "@/features/streaks/queries";
 import { getUserStats } from "@/lib/streak";
 import { getSession } from "@/lib/get-session";
+import { LEAGUE_TIER_LABEL } from "@/lib/social/league-labels";
 import { pluralize } from "@/lib/utils";
 import type { NextLesson, RoadmapUnit } from "@/features/roadmap/types";
 
@@ -42,13 +49,23 @@ export default async function CourseHomePage({ params }: PageProps) {
   const course = await getCourseBySlug(courseSlug);
   if (!course) notFound();
 
-  const [stats, nextLesson, friends, feed, units] = await Promise.all([
+  const [stats, nextLesson, friends, feed, units, standing, myStreaks, myQuest, academicProfile] = await Promise.all([
     getUserStats(session.user.id),
     findNextLesson(session.user.id, course.id),
     getFriends(session.user.id),
     getFriendsActivityFeed(session.user.id, 5),
     getRoadmapUnits(course.id, session.user.id),
+    session.user.usernameSetupRequired ? null : getLeagueStanding(session.user.id),
+    session.user.usernameSetupRequired ? [] : getMyFriendStreaks(session.user.id),
+    session.user.usernameSetupRequired ? null : getMyFriendQuest(session.user.id),
+    session.user.usernameSetupRequired ? null : getOwnAcademicProfile(session.user.id),
   ]);
+  const activeStreakCount = myStreaks.filter((s) => s.status === "active").length;
+  const showAcademicPrompt =
+    !session.user.usernameSetupRequired &&
+    academicProfile !== null &&
+    academicProfile.offering === null &&
+    academicProfile.promptDismissedAt === null;
 
   const totalLessons = units.reduce((sum, u) => sum + u.lessonCount, 0);
   const totalCompleted = units.reduce((sum, u) => sum + u.completedCount, 0);
@@ -82,6 +99,8 @@ export default async function CourseHomePage({ params }: PageProps) {
           ) : (
             <EmptyCoursePanel courseSlug={course.slug} />
           )}
+
+          {showAcademicPrompt ? <AcademicPromptBanner /> : null}
 
           <section className="mt-10">
             <SectionRule
@@ -147,6 +166,37 @@ export default async function CourseHomePage({ params }: PageProps) {
               </div>
             </div>
           </section>
+
+          {standing || activeStreakCount > 0 || myQuest ? (
+            <section className="flex flex-col gap-3">
+              <SectionRule>Compañeros</SectionRule>
+              {standing ? (
+                <Link
+                  href="/app/liga"
+                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-colors hover:border-primary/40"
+                >
+                  <span className="text-[14px] font-bold">
+                    Liga {LEAGUE_TIER_LABEL[standing.tier]}
+                  </span>
+                  <span className="text-[13px] font-semibold text-muted-foreground">
+                    #{standing.rows.find((r) => r.isSelf)?.rank ?? "—"} de {standing.rows.length}
+                  </span>
+                </Link>
+              ) : null}
+              {activeStreakCount > 0 ? (
+                <Link
+                  href="/app/amigos?tab=rachas"
+                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-colors hover:border-primary/40"
+                >
+                  <span className="text-[14px] font-bold">Rachas con amigos</span>
+                  <span className="text-[13px] font-semibold text-muted-foreground">
+                    {activeStreakCount} {pluralize(activeStreakCount, "activa", "activas")}
+                  </span>
+                </Link>
+              ) : null}
+              {myQuest ? <QuestCard quest={myQuest} /> : null}
+            </section>
+          ) : null}
 
           <section>
             <SectionRule

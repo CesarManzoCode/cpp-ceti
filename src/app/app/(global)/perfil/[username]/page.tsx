@@ -132,6 +132,26 @@ export default async function PublicProfilePage({ params }: PageProps) {
         ) : null}
       </header>
 
+      {profile.academic ? (
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-muted-foreground">
+          <span>{profile.academic.campusName}</span>
+          <span aria-hidden className="text-border-strong">·</span>
+          <span>{profile.academic.programName}</span>
+          {profile.academic.semester ? (
+            <>
+              <span aria-hidden className="text-border-strong">·</span>
+              <span>{profile.academic.semester}.º semestre</span>
+            </>
+          ) : null}
+          {profile.academic.group ? (
+            <>
+              <span aria-hidden className="text-border-strong">·</span>
+              <span>Grupo {profile.academic.group}</span>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+
       <LevelBar totalXp={profile.totalXp} className="mt-7" />
 
       <section className="mt-9">

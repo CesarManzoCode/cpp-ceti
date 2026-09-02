@@ -4,5 +4,11 @@
     "deploymentEnabled": {
       "claude/exercise-scoring-bug-cu1zlc": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/jobs/social-maintenance",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

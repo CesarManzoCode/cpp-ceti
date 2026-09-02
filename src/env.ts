@@ -32,6 +32,13 @@ const baseSchema = z.object({
    */
   ADMIN_EMAILS: optionalNonEmpty,
 
+  /**
+   * Secreto compartido con el cron de Vercel (o cualquier scheduler) para
+   * autorizar `/api/jobs/social-maintenance`. Sin esto, ese endpoint
+   * rechaza toda solicitud — nunca corre sin secreto configurado.
+   */
+  CRON_SECRET: optionalNonEmpty,
+
   GOOGLE_CLIENT_ID: optionalNonEmpty,
   GOOGLE_CLIENT_SECRET: optionalNonEmpty,
 

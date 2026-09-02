@@ -8,11 +8,15 @@ import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
 import {
   getCompletedLessonsCount,
+  getDistinctExercisesPassedCount,
   getExerciseAttemptsCount,
 } from "@/features/lessons/queries";
 import { getUserStats } from "@/lib/streak";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
+import { AcademicProfileEditor } from "@/features/academic/components/academic-profile-editor";
+import { getAcademicOptions, getOwnAcademicProfile } from "@/features/academic/queries";
+import { AchievementsSection } from "@/features/profile/components/achievements-section";
 import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
 import { DeleteAccountDialog } from "@/features/profile/components/delete-account-dialog";
 import { SignOutButton } from "@/features/profile/components/sign-out-button";
@@ -25,11 +29,15 @@ export default async function PerfilPage() {
   const session = await requireSession();
   const user = session.user;
 
-  const [stats, lessonsCompleted, attempts] = await Promise.all([
-    getUserStats(user.id),
-    getCompletedLessonsCount(user.id),
-    getExerciseAttemptsCount(user.id),
-  ]);
+  const [stats, lessonsCompleted, attempts, exercisesPassed, academicOptions, academicProfile] =
+    await Promise.all([
+      getUserStats(user.id),
+      getCompletedLessonsCount(user.id),
+      getExerciseAttemptsCount(user.id),
+      getDistinctExercisesPassedCount(user.id),
+      getAcademicOptions(),
+      getOwnAcademicProfile(user.id),
+    ]);
 
   const initials = user.name
     .split(" ")
@@ -71,6 +79,25 @@ export default async function PerfilPage() {
 
       <LevelBar totalXp={stats.totalXp} className="mt-7" />
 
+      <section id="academico" className="mt-9 scroll-mt-20">
+        <SectionRule>Identidad académica</SectionRule>
+        <p className="mt-2 max-w-[58ch] text-[14px] leading-relaxed text-muted-foreground">
+          Opcional — ayuda a tus compañeros del CETI a encontrarte. Campus,
+          carrera y semestre son visibles para cualquier usuario con
+          sesión; tu grupo exacto sólo lo ven tus amigos.
+        </p>
+        <div className="mt-4">
+          <AcademicProfileEditor
+            options={academicOptions}
+            initial={{
+              offeringId: academicProfile.offering?.id ?? null,
+              semester: academicProfile.semester,
+              group: academicProfile.group,
+            }}
+          />
+        </div>
+      </section>
+
       <section className="mt-9">
         <SectionRule>Tu actividad</SectionRule>
         <ReadoutBar className="mt-4">
@@ -101,6 +128,18 @@ export default async function PerfilPage() {
           />
         </ReadoutBar>
       </section>
+
+      <div className="mt-10">
+        <AchievementsSection
+          stats={{
+            totalXp: stats.totalXp,
+            currentStreak: stats.currentStreak,
+            longestStreak: stats.longestStreak,
+            lessonsCompleted,
+            exercisesPassed,
+          }}
+        />
+      </div>
 
       <section className="mt-10">
         <SectionRule trailing="Beta">Cuenta</SectionRule>
