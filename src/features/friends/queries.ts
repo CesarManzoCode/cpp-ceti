@@ -313,12 +313,18 @@ export async function getPublicProfile(
   // perfil social que mostrar a un tercero (self sigue viendo el suyo).
   if (user.usernameSetupRequired && user.id !== viewerId) return null;
 
-  const [completedLessons, completedExercises, state] = await Promise.all([
+  const state = await getFriendshipState(viewerId, user.id);
+  // Blocked-by-target: notFound y exclusión total (nunca se revela ni
+  // siquiera que el usuario existe) — el bloqueado ve exactamente lo mismo
+  // que si el username no existiera. El lado que bloqueó sigue viendo su
+  // perfil normal (ver `ProfileActions`, estado `blocked_by_me`).
+  if (state === "blocked_by_them") return null;
+
+  const [completedLessons, completedExercises] = await Promise.all([
     db.userLessonProgress.count({
       where: { userId: user.id, status: "completed" },
     }),
     db.userExerciseCompletion.count({ where: { userId: user.id } }),
-    getFriendshipState(viewerId, user.id),
   ]);
 
   // Campus/carrera/semestre: visibles para cualquier autenticado. Grupo
