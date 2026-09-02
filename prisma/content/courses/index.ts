@@ -16,10 +16,12 @@ import type { CoursePackageDefinition } from "../authoring";
 
 import { cppDesdeCero } from "./cpp-desde-cero";
 import { csharpPoo1 } from "./csharp-poo-1";
+import { modelosMetodosDesarrolloSoftware } from "./modelos-metodos-desarrollo-software";
 
 const packages = [
   cppDesdeCero,
   csharpPoo1,
+  modelosMetodosDesarrolloSoftware,
 ] satisfies readonly CoursePackageDefinition[];
 
 export const { allCourses, allPracticeSets } = buildContentRegistry(packages);

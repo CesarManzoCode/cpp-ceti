@@ -870,9 +870,9 @@ describe("validate: paths precisos", () => {
 // =======================================================================
 
 describe("los cursos actuales pasan por el registry nuevo", () => {
-  it("cpp-desde-cero y csharp-poo-1 están en allCourses", () => {
+  it("cpp-desde-cero, csharp-poo-1 y modelos-metodos-desarrollo-software están en allCourses", () => {
     expect(allCourses.map((c) => c.slug).sort()).toEqual(
-      ["cpp-desde-cero", "csharp-poo-1"].sort(),
+      ["cpp-desde-cero", "csharp-poo-1", "modelos-metodos-desarrollo-software"].sort(),
     );
   });
 
