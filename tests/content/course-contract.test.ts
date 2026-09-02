@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { allCourses } from "../../prisma/content";
 import { allPracticeSets } from "../../prisma/content/exercises";
-import type { StepDefinition } from "../../prisma/content/types";
+import type { CodeExampleStep, StepDefinition } from "../../prisma/content/types";
 import { isCompatible, LANGUAGE_PROFILES } from "@/lib/code-languages";
 
 /**
@@ -294,19 +294,203 @@ describe("curriculum de C++: 2 secciones semestrales", () => {
   });
 });
 
-describe("curriculum de C#: 1 sección (demuestra que no está hardcodeado a C++)", () => {
+describe("curriculum de C#: 2 secciones (S3 POO I + S4 POO II)", () => {
   const csharp = courseBySlug.get("csharp-poo-1")!;
 
-  it("declara exactamente 1 section: semester 3, subjectName exacto, 8 Units existentes", () => {
-    expect(csharp.curriculum).toBeDefined();
-    expect(csharp.curriculum).toHaveLength(1);
+  const unitBySlug = new Map(csharp.units.map((u) => [u.slug, u]));
+  const lessonsOf = (slugs: string[]) =>
+    slugs.reduce((n, slug) => n + unitBySlug.get(slug)!.lessons.length, 0);
+  const stepsOf = (slugs: string[]) =>
+    slugs.reduce(
+      (n, slug) =>
+        n + unitBySlug.get(slug)!.lessons.reduce((m, l) => m + l.steps.length, 0),
+      0,
+    );
+  const practicesOf = (slugs: string[]) =>
+    allPracticeSets
+      .filter((s) => s.courseSlug === "csharp-poo-1" && slugs.includes(s.unitSlug))
+      .reduce((n, s) => n + s.exercises.length, 0);
 
-    const [s3] = csharp.curriculum!;
-    expect(s3.key).toBe("s3-programacion-orientada-objetos-1");
+  it("declara exactamente 2 sections, en orden: S3 (semester 3) y S4 (semester 4)", () => {
+    expect(csharp.curriculum).toBeDefined();
+    expect(csharp.curriculum).toHaveLength(2);
+    expect(csharp.curriculum!.map((s) => s.key)).toEqual([
+      "s3-programacion-orientada-objetos-1",
+      "s4-programacion-orientada-objetos-2",
+    ]);
+  });
+
+  it("S3: semester 3, subjectName exacto, 8 unidades EXISTENTES, mismo orden, sin cambios académicos", () => {
+    const s3 = csharp.curriculum!.find(
+      (s) => s.key === "s3-programacion-orientada-objetos-1",
+    )!;
     expect(s3.semester).toBe(3);
     expect(s3.order).toBe(1);
     expect(s3.subjectName).toBe("Programación Orientada a Objetos I");
-    expect(s3.unitSlugs).toEqual(csharp.units.map((u) => u.slug));
-    expect(s3.unitSlugs).toHaveLength(8);
+    expect(s3.unitSlugs).toEqual([
+      "csharp-poo-01-modelar",
+      "csharp-poo-02-encapsular",
+      "csharp-poo-03-uml",
+      "csharp-poo-04-relaciones",
+      "csharp-poo-05-herencia",
+      "csharp-poo-06-diseno-robusto",
+      "csharp-poo-07-gui",
+      "csharp-poo-08-integrador",
+    ]);
+    expect(lessonsOf(s3.unitSlugs)).toBe(33);
+    expect(stepsOf(s3.unitSlugs)).toBe(161);
+    expect(practicesOf(s3.unitSlugs)).toBe(32);
+    // GUI e integrador siguen despublicadas hasta la aceptación en Windows;
+    // el resto de S3 sigue publicado, exactamente como antes de S4.
+    expect(s3.unitSlugs.map((slug) => unitBySlug.get(slug)!.published)).toEqual([
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+    ]);
+  });
+
+  it("S4: semester 4, subjectName exacto, 8 unidades EXACTAS en el orden contractual, todas unpublished", () => {
+    const s4 = csharp.curriculum!.find(
+      (s) => s.key === "s4-programacion-orientada-objetos-2",
+    )!;
+    expect(s4.semester).toBe(4);
+    expect(s4.order).toBe(2);
+    expect(s4.subjectName).toBe("Programación Orientada a Objetos II");
+    expect(s4.unitSlugs).toEqual([
+      "csharp-poo2-01-colecciones",
+      "csharp-poo2-02-diccionarios",
+      "csharp-poo2-03-ordenamiento",
+      "csharp-poo2-04-xml",
+      "csharp-poo2-05-genericos",
+      "csharp-poo2-06-concurrencia",
+      "csharp-poo2-07-redes",
+      "csharp-poo2-08-integrador",
+    ]);
+    expect(lessonsOf(s4.unitSlugs)).toBe(40);
+    expect(practicesOf(s4.unitSlugs)).toBe(32);
+    for (const slug of s4.unitSlugs) {
+      expect(unitBySlug.get(slug)!.published, slug).toBe(false);
+    }
+  });
+
+  it("el orden GLOBAL aplanado (Unit.order) pone S4 completo después de S3 completo", () => {
+    expect(csharp.units.map((u) => u.slug)).toEqual([
+      "csharp-poo-01-modelar",
+      "csharp-poo-02-encapsular",
+      "csharp-poo-03-uml",
+      "csharp-poo-04-relaciones",
+      "csharp-poo-05-herencia",
+      "csharp-poo-06-diseno-robusto",
+      "csharp-poo-07-gui",
+      "csharp-poo-08-integrador",
+      "csharp-poo2-01-colecciones",
+      "csharp-poo2-02-diccionarios",
+      "csharp-poo2-03-ordenamiento",
+      "csharp-poo2-04-xml",
+      "csharp-poo2-05-genericos",
+      "csharp-poo2-06-concurrencia",
+      "csharp-poo2-07-redes",
+      "csharp-poo2-08-integrador",
+    ]);
+  });
+
+  it("totales del curso: 16 units, 73 lessons, 321 steps, 64 practices", () => {
+    const lessons = csharp.units.flatMap((u) => u.lessons);
+    const steps = lessons.flatMap((l) => l.steps);
+    const total = allPracticeSets
+      .filter((s) => s.courseSlug === "csharp-poo-1")
+      .reduce((n, s) => n + s.exercises.length, 0);
+
+    expect(csharp.units.length).toBe(16);
+    expect(lessons.length).toBe(73);
+    expect(steps.length).toBe(321);
+    expect(total).toBe(64);
+  });
+
+  it("la metadata general del Course cubre ambas asignaturas", () => {
+    expect(csharp.title).toBe("Programación Orientada a Objetos con C#");
+    expect(csharp.subjectName).toBe("Programación Orientada a Objetos");
+    expect(csharp.slug).toBe("csharp-poo-1");
+    expect(csharp.language).toBe("csharp");
+    expect(csharp.executionProfile).toBe("csharp-mono-6.12");
+  });
+});
+
+describe("política de ejecución de S4 (red, sockets, concurrencia no determinista)", () => {
+  const csharp = courseBySlug.get("csharp-poo-1")!;
+  const s4 = csharp.curriculum!.find(
+    (s) => s.key === "s4-programacion-orientada-objetos-2",
+  )!;
+  const s4Units = csharp.units.filter((u) => s4.unitSlugs.includes(u.slug));
+
+  function codeExampleSteps() {
+    return s4Units.flatMap((u) =>
+      u.lessons.flatMap((l) =>
+        l.steps
+          .filter((s): s is CodeExampleStep => s.type === "code_example")
+          .map((step) => ({ where: `${u.slug}/${l.slug}`, step })),
+      ),
+    );
+  }
+
+  it("ningún ejemplo/reto ejecutable de la unidad de redes abre un socket real", () => {
+    const SOCKET_MARKERS = /\b(TcpListener|TcpClient|UdpClient|Socket\s*\(|\.Accept\(|\.Connect\(|\.Receive\(|\.Send\()/;
+    for (const { where, step } of codeExampleSteps()) {
+      if (!where.startsWith("csharp-poo2-07-redes/")) continue;
+      if (!SOCKET_MARKERS.test(step.code)) continue;
+      expect(step.runnable === true, `${where}: abre socket real y es ejecutable`).toBe(
+        false,
+      );
+      expect(step.localOnlyNote?.trim(), `${where}: falta localOnlyNote`).toBeTruthy();
+    }
+  });
+
+  it("ninguna práctica de redes intenta abrir un socket real", () => {
+    const redesSet = allPracticeSets.find(
+      (s) => s.courseSlug === "csharp-poo-1" && s.unitSlug === "csharp-poo2-07-redes",
+    )!;
+    expect(redesSet).toBeDefined();
+    const SOCKET_MARKERS = /\b(TcpListener|TcpClient|UdpClient|Socket\s*\()/;
+    for (const ex of redesSet.exercises) {
+      expect(
+        SOCKET_MARKERS.test(ex.solutionCode),
+        `${ex.slug}: la solución calificada abre un socket real`,
+      ).toBe(false);
+    }
+  });
+
+  it("la unidad de concurrencia no califica por stdout una demostración de race condition", () => {
+    const concurrencia = s4Units.find((u) => u.slug === "csharp-poo2-06-concurrencia")!;
+    for (const lesson of concurrencia.lessons) {
+      for (const step of lesson.steps) {
+        if (step.type !== "code_challenge") continue;
+        // Un reto calificado de concurrencia debe sincronizar (Join/lock) para
+        // ser determinista; no debe depender de una carrera sin protección.
+        const usesThread = /\bThread\b/.test(step.exercise.solutionCode);
+        if (!usesThread) continue;
+        expect(
+          /\bJoin\s*\(|\block\s*\(/.test(step.exercise.solutionCode),
+          `${lesson.slug}: reto con Thread calificado por stdout sin Join/lock`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("todo code_example de S4 marcado no ejecutable trae localOnlyNote", () => {
+    for (const { where, step } of codeExampleSteps()) {
+      if (step.runnable === true) continue;
+      expect(step.localOnlyNote?.trim(), `${where}: falta localOnlyNote`).toBeTruthy();
+    }
+  });
+
+  it("las 8 unidades de S4 están unpublished (release gate pendiente)", () => {
+    for (const unit of s4Units) {
+      expect(unit.published, unit.slug).toBe(false);
+    }
   });
 });
