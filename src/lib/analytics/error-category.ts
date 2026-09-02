@@ -140,9 +140,29 @@ const CSHARP_RULES: CategoryRule[] = [
   },
 ];
 
+/**
+ * Reglas de SQLite (vía Wandbox). SQLite reporta errores en una línea, sin
+ * archivo/línea/columna, así que no hay un patrón equivalente a
+ * `linker_error` o `unbalanced_delimiters` con la misma fidelidad que
+ * GCC/Mono. Cubrimos sólo los dos casos más frecuentes del curso; cualquier
+ * otro mensaje cae en `other_compile_error` — mostrar el stderr tal cual ya
+ * es suficiente para esta entrega (ver TECHNICAL_CONTRACT §7).
+ */
+const SQL_RULES: CategoryRule[] = [
+  {
+    category: "undeclared_identifier",
+    pattern: /no such table|no such column/i,
+  },
+  {
+    category: "type_mismatch",
+    pattern: /datatype mismatch/i,
+  },
+];
+
 const RULES_BY_LANGUAGE: Record<LanguageId, CategoryRule[]> = {
   cpp: CPP_RULES,
   csharp: CSHARP_RULES,
+  sql: SQL_RULES,
 };
 
 /**

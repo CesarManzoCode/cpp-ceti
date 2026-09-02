@@ -69,9 +69,24 @@ const CSHARP_TYPES = new Set([
   "FormatException", "DivideByZeroException", "Main",
 ]);
 
+const SQL_KEYWORDS = new Set([
+  "SELECT", "FROM", "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET",
+  "DELETE", "CREATE", "TABLE", "ALTER", "DROP", "ADD", "COLUMN",
+  "PRIMARY", "KEY", "FOREIGN", "REFERENCES", "NOT", "NULL", "UNIQUE",
+  "CHECK", "DEFAULT", "ORDER", "BY", "GROUP", "HAVING", "JOIN", "ON",
+  "AND", "OR", "IN", "LIKE", "BETWEEN", "IS", "DISTINCT", "AS",
+  "UNION", "EXCEPT", "PRAGMA", "DESC", "ASC", "LIMIT",
+]);
+
+const SQL_TYPES = new Set(["INTEGER", "TEXT", "REAL", "NUMERIC", "BLOB"]);
+
 const VOCABULARY: Record<LanguageId, { keywords: Set<string>; types: Set<string> }> = {
   cpp: { keywords: CPP_KEYWORDS, types: CPP_TYPES },
   csharp: { keywords: CSHARP_KEYWORDS, types: CSHARP_TYPES },
+  // El contenido y las soluciones del curso escriben las keywords en
+  // MAYÚSCULAS de forma consistente (convención SQL habitual); el match es
+  // por texto exacto, igual que en C++/C#.
+  sql: { keywords: SQL_KEYWORDS, types: SQL_TYPES },
 };
 
 const TOKEN_CLASSES: Record<TokenKind, string> = {

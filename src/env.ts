@@ -66,6 +66,16 @@ const baseSchema = z.object({
   WANDBOX_CSHARP_COMPILER: optionalNonEmpty,
   /** Vacío es un valor válido: Mono no necesita flags para el subconjunto del curso. */
   WANDBOX_CSHARP_OPTIONS: optionalNonEmpty,
+  /**
+   * Compiler SQLite/SQLite3 de Wandbox para `sql-sqlite3-wandbox`. SIN
+   * default: a diferencia de C++/C#, esta implementación no pudo verificar
+   * el inventario real de `/api/list.json` (egress bloqueado en el entorno
+   * de build). Sin esta env var el perfil SQL queda registrado pero NO
+   * disponible para ejecutar — ver `src/lib/executor/wandbox.ts`.
+   */
+  WANDBOX_SQL_COMPILER: optionalNonEmpty,
+  /** Vacío es válido: el subconjunto SQL del curso no necesita flags extra. */
+  WANDBOX_SQL_OPTIONS: optionalNonEmpty,
 
   PISTON_URL: urlOrEmpty,
   PISTON_CPP_VERSION: optionalNonEmpty,

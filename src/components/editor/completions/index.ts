@@ -8,15 +8,18 @@ import type { LanguageId } from "@/lib/code-languages";
 
 import { CPP_COMPLETIONS } from "./cpp";
 import { CSHARP_COMPLETIONS } from "./csharp";
+import { SQL_COMPLETIONS } from "./sql";
 import type { CodeCompletion } from "./types";
 
 export type { CodeCompletion, CompletionKind } from "./types";
 export { CPP_COMPLETIONS } from "./cpp";
 export { CSHARP_COMPLETIONS } from "./csharp";
+export { SQL_COMPLETIONS } from "./sql";
 
 const BY_LANGUAGE: Record<LanguageId, CodeCompletion[]> = {
   cpp: CPP_COMPLETIONS,
   csharp: CSHARP_COMPLETIONS,
+  sql: SQL_COMPLETIONS,
 };
 
 /** Sugerencias del lenguaje indicado. Vacío si no hay registro. */

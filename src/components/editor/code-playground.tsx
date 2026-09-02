@@ -70,7 +70,7 @@ export function CodePlayground({
       {showStdin ? (
         <div className="space-y-1.5">
           <Label className="text-[14px] font-bold text-muted-foreground">
-            Entrada del programa
+            {language === "sql" ? "Preparación SQL" : "Entrada del programa"}
           </Label>
           <textarea
             value={stdin}
@@ -78,7 +78,9 @@ export function CodePlayground({
             placeholder={
               language === "csharp"
                 ? "Valores que tu programa leerá con Console.ReadLine()..."
-                : "Valores que tu programa leerá con cin..."
+                : language === "sql"
+                  ? "SQL de preparación (CREATE TABLE, INSERT...) antes de tu código..."
+                  : "Valores que tu programa leerá con cin..."
             }
             rows={3}
             className="w-full rounded-[var(--radius-sm)] border border-input bg-surface px-3.5 py-2.5 font-mono text-base leading-relaxed transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-ring)] sm:text-[14px]"

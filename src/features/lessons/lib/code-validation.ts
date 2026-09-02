@@ -24,6 +24,7 @@ import type { FillBlankStepContent } from "@/features/lessons/types";
 const IDENTIFIER_RULES: Record<LanguageId, RegExp> = {
   cpp: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
   csharp: /^@?[a-zA-Z_][a-zA-Z0-9_]*$/,
+  sql: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
 };
 
 function identifierRuleFor(language: LanguageId): RegExp {

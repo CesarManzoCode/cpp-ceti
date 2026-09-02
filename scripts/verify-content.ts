@@ -17,6 +17,13 @@
  * Toolchains (locales, NO el proveedor de producción):
  *   cpp    → g++ -std=c++17 -O0 -Wall
  *   csharp → mcs + mono   (mismo compilador que el perfil csharp-mono-6.12)
+ *   sql    → node:sqlite (DatabaseSync), una base efímera en memoria POR CASO
+ *
+ * SQL no usa el `sqlite3` CLI: no está instalado en este entorno de
+ * verificación (ni necesariamente en CI). `node:sqlite` (disponible desde
+ * Node 22, sin dependencias externas) es el mecanismo "ya disponible más
+ * barato/estable" que pide TECHNICAL_CONTRACT §5 — sin introducir una base
+ * compartida: cada caso abre y descarta su propia `:memory:`.
  *
  * Uso:
  *   npx tsx scripts/verify-content.ts             # todos los cursos
@@ -26,12 +33,17 @@ import { execFile } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { promisify } from "node:util";
 
 import { allCourses } from "../prisma/content";
 import { allPracticeSets } from "../prisma/content/exercises";
 import type { LanguageId } from "../src/lib/code-languages";
 import { normalizeOutput } from "../src/lib/executor/normalize";
+
+// Los tipos de `node:sqlite` viven en `scripts/node-sqlite.d.ts` — ver ese
+// archivo para el porqué (incompatibilidad de versión de `@types/node`,
+// no de runtime).
 
 const run = promisify(execFile);
 
@@ -92,6 +104,10 @@ interface Failure {
 async function compileAndRun(unit: Unit, dir: string): Promise<Failure[]> {
   const failures: Failure[] = [];
 
+  if (unit.language === "sql") {
+    return runSqlCases(unit);
+  }
+
   if (unit.language === "cpp") {
     const src = join(dir, "main.cpp");
     const bin = join(dir, "program");
@@ -127,11 +143,100 @@ async function compileAndRun(unit: Unit, dir: string): Promise<Failure[]> {
  * ¿El programa lee de la entrada estándar? Un ejemplo interactivo no se
  * puede verificar por salida sin darle una entrada que el contenido no
  * declara.
+ *
+ * SQL no tiene equivalente: un script no lee entrada interactiva mientras
+ * corre (su "stdin" es el fixture, ver TECHNICAL_CONTRACT §4) — siempre
+ * `false`.
  */
 function readsStdin(code: string, language: LanguageId): boolean {
+  if (language === "sql") return false;
   return language === "cpp"
     ? /\bcin\s*>>|\bscanf\s*\(|\bgetline\s*\(|\bfgets\s*\(/.test(code)
     : /\bConsole\s*\.\s*Read(Line|Key)?\s*\(/.test(code);
+}
+
+/**
+ * Ejecuta los casos de una pieza SQL. A diferencia de C++/C#, aquí NO hay
+ * un binario compartido: cada caso construye su propio `effectiveSource`
+ * (fixture + solución, exactamente como `WandboxExecutor.runTests` — ver
+ * TECHNICAL_CONTRACT §4) y corre contra una `:memory:` NUEVA. Dos casos del
+ * mismo ejercicio nunca comparten estado.
+ */
+function runSqlCases(unit: Unit): Failure[] {
+  const failures: Failure[] = [];
+  for (const testCase of unit.cases) {
+    const label = testCase.description
+      ? `${unit.id} [${testCase.description}]`
+      : `${unit.id} [fixture=${JSON.stringify(testCase.stdin)}]`;
+    const effectiveSource = `${testCase.stdin}\n${unit.code}`;
+
+    const db = new DatabaseSync(":memory:");
+    try {
+      const actual = runSqlScript(db, effectiveSource);
+      if (!testCase.compareOutput) continue;
+      const expected = normalizeOutput(testCase.expectedStdout);
+      const normalizedActual = normalizeOutput(actual);
+      if (normalizedActual !== expected) {
+        failures.push({
+          id: label,
+          kind: "output",
+          detail: `esperado:\n${expected}\nobtenido:\n${normalizedActual}`,
+        });
+      }
+    } catch (err) {
+      failures.push({
+        id: label,
+        kind: "runtime",
+        detail: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      db.close();
+    }
+  }
+  return failures;
+}
+
+/**
+ * Corre un script con múltiples sentencias contra una DB abierta y devuelve
+ * su salida en el formato "list mode" del CLI de SQLite (el que asumen los
+ * `expectedStdout` del paquete): sin encabezados, columnas separadas por
+ * `|`, NULL como cadena vacía, una fila por línea. Sólo las sentencias
+ * `SELECT` producen salida — el resto (DDL/DML/PRAGMA de configuración) se
+ * ejecuta por su efecto.
+ */
+function runSqlScript(db: DatabaseSync, script: string): string {
+  const lines: string[] = [];
+  for (const statement of splitSqlStatements(script)) {
+    if (/^select\b/i.test(statement)) {
+      const stmt = db.prepare(statement);
+      stmt.setReturnArrays(true);
+      for (const row of stmt.all()) {
+        lines.push(row.map(formatSqlValue).join("|"));
+      }
+    } else {
+      db.exec(statement);
+    }
+  }
+  return lines.join("\n");
+}
+
+/** `NULL` imprime como cadena vacía en list mode; todo lo demás, su texto. */
+function formatSqlValue(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  return String(value);
+}
+
+/**
+ * Separa un script en sentencias individuales por `;`. Naïve a propósito
+ * (sin parser SQL, ver TECHNICAL_CONTRACT §7): el contenido del curso no
+ * usa `;` dentro de literales ni comentarios con `;`, así que partir por el
+ * delimitador es suficiente y exactamente lo que hace `sqlite3 < script.sql`.
+ */
+function splitSqlStatements(script: string): string[] {
+  return script
+    .split(";")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
 async function runCase(

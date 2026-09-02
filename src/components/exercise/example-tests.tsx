@@ -1,9 +1,23 @@
 import { IOBlock } from "@/components/exercise/io-block";
 import type { VisibleTest } from "@/components/exercise/types";
+import type { LanguageId } from "@/lib/code-languages";
 
 /** The "Ejemplos" panel of visible input/output samples for an exercise. */
-export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
+export function ExampleTests({
+  tests,
+  language,
+}: {
+  tests: VisibleTest[];
+  /**
+   * Lenguaje del curso dueño del ejercicio. En SQL, `stdin` no es entrada
+   * interactiva: es el SQL de preparación del caso (fixture). La etiqueta
+   * lo dice así — nunca "stdin" (TECHNICAL_CONTRACT §4, sección UI).
+   */
+  language?: LanguageId;
+}) {
   if (tests.length === 0) return null;
+
+  const inputLabel = language === "sql" ? "Preparación SQL" : "Entrada";
 
   return (
     <div className="space-y-3">
@@ -29,7 +43,7 @@ export function ExampleTests({ tests }: { tests: VisibleTest[] }) {
             </div>
             <div className="grid gap-3 p-4 sm:grid-cols-2">
               <IOBlock
-                label="Entrada"
+                label={inputLabel}
                 value={t.stdin || "(ninguna)"}
                 muted={!t.stdin}
               />

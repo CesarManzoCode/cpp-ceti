@@ -164,6 +164,7 @@ model Verification {
 enum ProgrammingLanguage {
   cpp
   csharp
+  sql
 }
 
 model Course {

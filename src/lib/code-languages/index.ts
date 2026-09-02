@@ -13,25 +13,28 @@
 // =====================================================================
 
 /** Lenguajes soportados por la plataforma. */
-export type LanguageId = "cpp" | "csharp";
+export type LanguageId = "cpp" | "csharp" | "sql";
 
 /**
  * Perfil de ejecución: la combinación exacta de lenguaje + toolchain +
  * versión con la que se compila y califica. El `Course` es la fuente de
  * verdad de este valor; el cliente jamás lo elige.
  */
-export type ExecutionProfileId = "cpp17-wandbox" | "csharp-mono-6.12";
+export type ExecutionProfileId =
+  | "cpp17-wandbox"
+  | "csharp-mono-6.12"
+  | "sql-sqlite3-wandbox";
 
 export interface LanguageProfile {
   id: LanguageId;
   /** Etiqueta visible (badges, lectores de pantalla). */
   label: string;
   /** Identificador de lenguaje de Monaco. */
-  monacoLanguage: "cpp" | "csharp";
+  monacoLanguage: "cpp" | "csharp" | "sql";
   /** Fences de markdown que representan a este lenguaje. */
   markdownFences: readonly string[];
-  extension: ".cpp" | ".cs";
-  defaultFileName: "main.cpp" | "Program.cs";
+  extension: ".cpp" | ".cs" | ".sql";
+  defaultFileName: "main.cpp" | "Program.cs" | "main.sql";
   /** Perfiles de ejecución válidos para este lenguaje. */
   executionProfiles: readonly ExecutionProfileId[];
 }
@@ -55,6 +58,15 @@ export const LANGUAGE_PROFILES = {
     defaultFileName: "Program.cs",
     executionProfiles: ["csharp-mono-6.12"],
   },
+  sql: {
+    id: "sql",
+    label: "SQL",
+    monacoLanguage: "sql",
+    markdownFences: ["sql"],
+    extension: ".sql",
+    defaultFileName: "main.sql",
+    executionProfiles: ["sql-sqlite3-wandbox"],
+  },
 } as const satisfies Record<LanguageId, LanguageProfile>;
 
 export const LANGUAGE_IDS = Object.keys(LANGUAGE_PROFILES) as LanguageId[];
@@ -62,12 +74,14 @@ export const LANGUAGE_IDS = Object.keys(LANGUAGE_PROFILES) as LanguageId[];
 export const EXECUTION_PROFILE_IDS: ExecutionProfileId[] = [
   "cpp17-wandbox",
   "csharp-mono-6.12",
+  "sql-sqlite3-wandbox",
 ];
 
 /** Lenguaje al que pertenece cada perfil de ejecución. */
 const PROFILE_LANGUAGE: Record<ExecutionProfileId, LanguageId> = {
   "cpp17-wandbox": "cpp",
   "csharp-mono-6.12": "csharp",
+  "sql-sqlite3-wandbox": "sql",
 };
 
 export function isLanguageId(value: unknown): value is LanguageId {
