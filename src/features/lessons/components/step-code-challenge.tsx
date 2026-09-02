@@ -283,7 +283,7 @@ export function StepCodeChallenge({
 
       {/* Referencia — ejemplos y pistas: bajo el editor en móvil, col. izquierda en desktop */}
       <section className="space-y-5 lg:col-start-1">
-        <ExampleTests tests={exercise.visibleTests} />
+        <ExampleTests tests={exercise.visibleTests} language={language} />
         <HintsTargetProvider
           target={{ kind: "exercise", exerciseId: exercise.id }}
         >

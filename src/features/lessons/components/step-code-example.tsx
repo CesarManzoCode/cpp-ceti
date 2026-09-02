@@ -25,10 +25,15 @@ interface StepCodeExampleProps {
 /**
  * ¿El ejemplo lee de la entrada estándar? Sólo entonces se muestra el campo
  * de stdin. Cada lenguaje tiene su forma de leer.
+ *
+ * SQL no tiene un equivalente de `cin`/`Console.ReadLine`: un script SQL no
+ * lee entrada interactiva mientras corre. Ningún ejemplo `code_example` de
+ * SQL necesita este campo — de ahí el regex que nunca matchea.
  */
 const NEEDS_STDIN_RE: Record<LanguageId, RegExp> = {
   cpp: /\b(cin\s*>>|scanf\s*\(|getline\s*\()/,
   csharp: /\bConsole\s*\.\s*Read(Line|Key)?\s*\(/,
+  sql: /[^\s\S]/,
 };
 
 export function StepCodeExample({

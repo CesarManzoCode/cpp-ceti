@@ -136,6 +136,116 @@ describe("Wandbox por perfil", () => {
   });
 });
 
+describe("Wandbox SQL (sql-sqlite3-wandbox)", () => {
+  it("supportsProfile reconoce el perfil (registro), aunque falte compiler", () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {});
+    expect(executor.supportsProfile("sql-sqlite3-wandbox")).toBe(true);
+  });
+
+  it("sin WANDBOX_SQL_COMPILER el perfil NO está disponible para ejecutar — nunca un id inventado", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {});
+    await expect(
+      executor.execute({
+        profileId: "sql-sqlite3-wandbox",
+        sourceCode: "SELECT 1;",
+      }),
+    ).rejects.toBeInstanceOf(ExecutorProfileUnavailableError);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("con compiler configurado, execute() manda el SQL tal cual (sin fixture)", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    await executor.execute({
+      profileId: "sql-sqlite3-wandbox",
+      sourceCode: "SELECT 1;",
+      stdin: "",
+    });
+    expect(lastBody()).toEqual({
+      compiler: "sqlite-TEST",
+      "compiler-option-raw": "",
+      code: "SELECT 1;",
+      stdin: "",
+      save: false,
+    });
+  });
+
+  it("runTests antepone el fixture (TestCase.stdin) al código y manda stdin real vacío — SÓLO para SQL", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "SELECT * FROM t;" },
+      [
+        {
+          id: "t1",
+          stdin: "CREATE TABLE t(x INTEGER); INSERT INTO t VALUES(1);",
+          expectedStdout: "1",
+          visible: true,
+          description: null,
+        },
+      ],
+    );
+    const body = lastBody();
+    expect(body.code).toBe(
+      "CREATE TABLE t(x INTEGER); INSERT INTO t VALUES(1);\nSELECT * FROM t;",
+    );
+    expect(body.stdin).toBe("");
+  });
+
+  it("dos fixtures ocultos distintos con la MISMA query producen peticiones distintas", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "SELECT COUNT(*) FROM t;" },
+      [
+        {
+          id: "a",
+          stdin: "CREATE TABLE t(x INTEGER); INSERT INTO t VALUES(1);",
+          expectedStdout: "1",
+          visible: true,
+          description: null,
+        },
+        {
+          id: "b",
+          stdin: "CREATE TABLE t(x INTEGER); INSERT INTO t VALUES(1),(2);",
+          expectedStdout: "2",
+          visible: false,
+          description: null,
+        },
+      ],
+    );
+    const codes = fetchMock.mock.calls.map(
+      (c) => JSON.parse((c[1] as { body: string }).body).code as string,
+    );
+    expect(codes).toHaveLength(2);
+    expect(codes[0]).not.toBe(codes[1]);
+    expect(codes[0]).toContain("VALUES(1);");
+    expect(codes[1]).toContain("VALUES(1),(2);");
+  });
+
+  it("C++ y C# NO cambian su semántica de stdin (sólo SQL antepone fixture)", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {});
+    await executor.runTests(
+      { profileId: "cpp17-wandbox", sourceCode: "int main(){}" },
+      [
+        {
+          id: "t1",
+          stdin: "5\n",
+          expectedStdout: "5",
+          visible: true,
+          description: null,
+        },
+      ],
+    );
+    const body = lastBody();
+    expect(body.code).toBe("int main(){}");
+    expect(body.stdin).toBe("5\n");
+  });
+});
+
 describe("Piston por perfil", () => {
   it("C++ conserva lenguaje, versión y nombre de archivo", async () => {
     fetchMock.mockResolvedValue({
@@ -186,6 +296,18 @@ describe("Piston por perfil", () => {
     const body = lastBody() as { language: string; files: { name: string }[] };
     expect(body.language).toBe("csharp");
     expect(body.files[0].name).toBe("Program.cs");
+  });
+
+  it("Piston no finge soportar SQL: falla cerrado, nunca compila con otro lenguaje", async () => {
+    const executor = new PistonExecutor("https://piston.test", {});
+    expect(executor.supportsProfile("sql-sqlite3-wandbox")).toBe(false);
+    await expect(
+      executor.execute({
+        profileId: "sql-sqlite3-wandbox",
+        sourceCode: "SELECT 1;",
+      }),
+    ).rejects.toBeInstanceOf(ExecutorProfileUnavailableError);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("un 401 del endpoint público no cae a otro lenguaje", async () => {
@@ -246,6 +368,18 @@ describe("Judge0 por perfil", () => {
       executor.execute({
         profileId: "csharp-mono-6.12",
         sourceCode: "class Program {}",
+      }),
+    ).rejects.toBeInstanceOf(ExecutorProfileUnavailableError);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("Judge0 no finge soportar SQL: falla cerrado, nunca compila con otro lenguaje", async () => {
+    const executor = new Judge0Executor("https://judge0.test", {}, {});
+    expect(executor.supportsProfile("sql-sqlite3-wandbox")).toBe(false);
+    await expect(
+      executor.execute({
+        profileId: "sql-sqlite3-wandbox",
+        sourceCode: "SELECT 1;",
       }),
     ).rejects.toBeInstanceOf(ExecutorProfileUnavailableError);
     expect(fetchMock).not.toHaveBeenCalled();

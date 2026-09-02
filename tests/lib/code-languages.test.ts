@@ -56,15 +56,26 @@ describe("registro de lenguajes", () => {
       "csharp-mono-6.12",
     ]);
   });
+
+  it("SQL usa main.sql y el perfil sql-sqlite3-wandbox", () => {
+    expect(LANGUAGE_PROFILES.sql.monacoLanguage).toBe("sql");
+    expect(LANGUAGE_PROFILES.sql.defaultFileName).toBe("main.sql");
+    expect(LANGUAGE_PROFILES.sql.extension).toBe(".sql");
+    expect(LANGUAGE_PROFILES.sql.executionProfiles).toEqual([
+      "sql-sqlite3-wandbox",
+    ]);
+  });
 });
 
 describe("guardas de tipo", () => {
   it("reconoce sólo los ids registrados", () => {
     expect(isLanguageId("cpp")).toBe(true);
     expect(isLanguageId("csharp")).toBe(true);
+    expect(isLanguageId("sql")).toBe(true);
     expect(isLanguageId("python")).toBe(false);
     expect(isLanguageId(undefined)).toBe(false);
     expect(isExecutionProfileId("csharp-mono-6.12")).toBe(true);
+    expect(isExecutionProfileId("sql-sqlite3-wandbox")).toBe(true);
     expect(isExecutionProfileId("csharp-dotnet-8")).toBe(false);
   });
 
@@ -72,6 +83,9 @@ describe("guardas de tipo", () => {
     expect(isCompatible("csharp", "cpp17-wandbox")).toBe(false);
     expect(isCompatible("cpp", "csharp-mono-6.12")).toBe(false);
     expect(isCompatible("cpp", "cpp17-wandbox")).toBe(true);
+    expect(isCompatible("sql", "cpp17-wandbox")).toBe(false);
+    expect(isCompatible("cpp", "sql-sqlite3-wandbox")).toBe(false);
+    expect(isCompatible("sql", "sql-sqlite3-wandbox")).toBe(true);
   });
 });
 
@@ -115,6 +129,8 @@ describe("languageFromFence", () => {
     expect(languageFromFence("csharp")).toBe("csharp");
     expect(languageFromFence("cs")).toBe("csharp");
     expect(languageFromFence("CSharp")).toBe("csharp");
+    expect(languageFromFence("sql")).toBe("sql");
+    expect(languageFromFence("SQL")).toBe("sql");
   });
 
   it("un fence desconocido no inventa lenguaje", () => {

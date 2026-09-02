@@ -38,6 +38,33 @@ const DEFAULT_CPP_OPTIONS = ["-std=c++17", "-O0", "-Wall"].join("\n");
 const DEFAULT_CSHARP_COMPILER = "mono-6.12.0.199";
 const DEFAULT_CSHARP_OPTIONS = "";
 
+/**
+ * SQL (`sql-sqlite3-wandbox`) — SIN default congelado a propósito.
+ *
+ * El contrato técnico exige, ANTES de fijar `DEFAULT_SQL_COMPILER`: (1)
+ * consultar `https://wandbox.org/api/list.json`, (2) elegir una versión
+ * ESTABLE de SQLite/SQLite3 (nunca `*-head`), (3) correr un smoke real. La
+ * sesión que implementó este perfil no pudo completar ese preflight: la
+ * política de red del entorno bloqueó la salida a `wandbox.org` (egress
+ * denegado por el proxy), así que no hay forma honesta de "congelar" un id
+ * sin haberlo visto en el inventario real.
+ *
+ * En vez de adivinar un compiler id (el contrato lo prohíbe explícitamente:
+ * "No inventes un provider nuevo sin autorización" aplica con la misma
+ * fuerza a inventar un id de compilador), este perfil exige
+ * `WANDBOX_SQL_COMPILER` por env — exactamente el mismo patrón que ya usan
+ * `JUDGE0_CSHARP_LANGUAGE_ID` y `PISTON_CSHARP_VERSION` para no adivinar en
+ * una instancia ajena. Sin la env var, el perfil está registrado (Monaco,
+ * Prisma, fixtures) pero NO disponible para ejecutar — falla cerrado con
+ * `ExecutorProfileUnavailableError`, nunca con un id inventado.
+ *
+ * Antes de usar este perfil en producción: confirma el compiler contra
+ * `/api/list.json`, corre el smoke real, y fija `WANDBOX_SQL_COMPILER` (o
+ * congela el valor verificado aquí como nuevo default).
+ */
+const DEFAULT_SQL_COMPILER: string | undefined = undefined;
+const DEFAULT_SQL_OPTIONS = "";
+
 export interface WandboxProfileConfig {
   compiler?: string;
   compilerOptions?: string;
@@ -78,7 +105,11 @@ export class WandboxExecutor implements CodeExecutor {
   }
 
   supportsProfile(profileId: ExecutionProfileId): boolean {
-    return profileId === "cpp17-wandbox" || profileId === "csharp-mono-6.12";
+    return (
+      profileId === "cpp17-wandbox" ||
+      profileId === "csharp-mono-6.12" ||
+      profileId === "sql-sqlite3-wandbox"
+    );
   }
 
   /**
@@ -102,6 +133,22 @@ export class WandboxExecutor implements CodeExecutor {
         compiler: configured.compiler ?? DEFAULT_CSHARP_COMPILER,
         options:
           normalizeOptions(configured.compilerOptions) ?? DEFAULT_CSHARP_OPTIONS,
+      };
+    }
+    if (profileId === "sql-sqlite3-wandbox") {
+      const compiler = configured.compiler ?? DEFAULT_SQL_COMPILER;
+      if (!compiler) {
+        throw new ExecutorProfileUnavailableError(
+          profileId,
+          "wandbox",
+          "falta WANDBOX_SQL_COMPILER; el compiler SQLite de Wandbox no se " +
+            "verificó contra /api/list.json en esta implementación (egress " +
+            "bloqueado) — confírmalo y configúralo antes de usar este perfil",
+        );
+      }
+      return {
+        compiler,
+        options: normalizeOptions(configured.compilerOptions) ?? DEFAULT_SQL_OPTIONS,
       };
     }
     throw new ExecutorProfileUnavailableError(profileId, "wandbox");
@@ -154,8 +201,8 @@ export class WandboxExecutor implements CodeExecutor {
       try {
         const result = await this.execute({
           profileId: req.profileId,
-          sourceCode: req.sourceCode,
-          stdin: test.stdin,
+          sourceCode: effectiveSourceFor(req.profileId, req.sourceCode, test.stdin),
+          stdin: effectiveStdinFor(req.profileId, test.stdin),
           cpuTimeLimit: req.cpuTimeLimit,
           memoryLimitKb: req.memoryLimitKb,
         });
@@ -166,6 +213,35 @@ export class WandboxExecutor implements CodeExecutor {
     }
     return results;
   }
+}
+
+/**
+ * Semántica de fixtures SQL (TECHNICAL_CONTRACT §4) — SÓLO para
+ * `sql-sqlite3-wandbox`, y SÓLO al calificar tests (`runTests`): `TestCase.stdin`
+ * no es entrada interactiva de un proceso, es el SQL de PREPARACIÓN del caso
+ * (`CREATE TABLE`, `INSERT`...). Cada caso corre contra una DB efímera
+ * nueva de Wandbox, así que anteponer el fixture al código del alumno
+ * equivale a "crear su propia base y consultarla".
+ *
+ * Para C++ y C# esta función es la identidad: `stdin` sigue siendo
+ * exactamente lo que el programa lee por entrada estándar, sin cambios.
+ */
+function effectiveSourceFor(
+  profileId: ExecutionProfileId,
+  sourceCode: string,
+  fixture: string,
+): string {
+  if (profileId !== "sql-sqlite3-wandbox") return sourceCode;
+  return `${fixture}\n${sourceCode}`;
+}
+
+/** Ver `effectiveSourceFor`: en SQL el stdin REAL enviado a sqlite es "". */
+function effectiveStdinFor(
+  profileId: ExecutionProfileId,
+  fixture: string,
+): string {
+  if (profileId !== "sql-sqlite3-wandbox") return fixture;
+  return "";
 }
 
 function mapWandboxResponse(

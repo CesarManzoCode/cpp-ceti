@@ -870,9 +870,14 @@ describe("validate: paths precisos", () => {
 // =======================================================================
 
 describe("los cursos actuales pasan por el registry nuevo", () => {
-  it("cpp-desde-cero, csharp-poo-1 y modelos-metodos-desarrollo-software están en allCourses", () => {
+  it("cpp-desde-cero, csharp-poo-1, modelos-metodos-desarrollo-software y bases-de-datos están en allCourses", () => {
     expect(allCourses.map((c) => c.slug).sort()).toEqual(
-      ["cpp-desde-cero", "csharp-poo-1", "modelos-metodos-desarrollo-software"].sort(),
+      [
+        "cpp-desde-cero",
+        "csharp-poo-1",
+        "modelos-metodos-desarrollo-software",
+        "bases-de-datos",
+      ].sort(),
     );
   });
 
@@ -880,6 +885,7 @@ describe("los cursos actuales pasan por el registry nuevo", () => {
     const slugs = new Set(allPracticeSets.map((s) => s.courseSlug));
     expect(slugs.has("cpp-desde-cero")).toBe(true);
     expect(slugs.has("csharp-poo-1")).toBe(true);
+    expect(slugs.has("bases-de-datos")).toBe(true);
   });
 });
 

@@ -54,6 +54,10 @@ export function getCodeExecutor(): CodeExecutor {
         compiler: env.WANDBOX_CSHARP_COMPILER,
         compilerOptions: env.WANDBOX_CSHARP_OPTIONS,
       },
+      "sql-sqlite3-wandbox": {
+        compiler: env.WANDBOX_SQL_COMPILER,
+        compilerOptions: env.WANDBOX_SQL_OPTIONS,
+      },
     });
     return cached;
   }

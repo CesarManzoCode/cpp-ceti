@@ -87,9 +87,21 @@ function parseCsharp(text: string): CodeDiagnostic[] {
   return out;
 }
 
+/**
+ * SQLite reporta errores en una sola línea, sin archivo/línea/columna
+ * (`Error: near "SELCT": syntax error`, `Error: no such table: cliente`).
+ * Sin esa ubicación no hay dónde poner un marcador en el editor — el
+ * contrato técnico pide mostrar el stderr legible, no inventar una
+ * posición. El panel de salida ya muestra el mensaje completo.
+ */
+function parseSql(): CodeDiagnostic[] {
+  return [];
+}
+
 const PARSERS: Record<LanguageId, (text: string) => CodeDiagnostic[]> = {
   cpp: parseGcc,
   csharp: parseCsharp,
+  sql: parseSql,
 };
 
 /**
