@@ -71,6 +71,54 @@ prisma/content/courses/<course-slug>/
   export const { allCourses, allPracticeSets } = buildContentRegistry(packages);
   ```
 
+## Agrupar las unidades de un curso por semestre (`curriculum`)
+
+Un `Course` puede tener 0, 1 o varias agrupaciones curriculares (p. ej. "1.er
+semestre — Fundamentos de Desarrollo de Software"). Es organización, no identidad:
+no crea rutas, no crea progreso ni XP propios, y `Unit.order` sigue siendo el único
+orden real de navegación del curso — la agrupación sólo describe cómo se leen esas
+unidades ya ordenadas.
+
+`defineCourse` acepta exactamente uno de estos dos caminos (nunca ambos):
+
+```ts
+// CURSO GENERAL — sin agrupación curricular. Comportamiento de siempre.
+defineCourse({
+  ...metadata,
+  units: [unidadA, unidadB, /* ... */],
+});
+
+// CURSO CURRICULAR — unidades agrupadas por sección.
+defineCourse({
+  ...metadata,
+  curriculum: [
+    {
+      key: "s1-fundamentos-desarrollo-software", // identidad estable, NO va en URLs
+      semester: 1,
+      subjectName: "Fundamentos de Desarrollo de Software",
+      units: [unidadA, unidadB, unidadC],
+    },
+    {
+      key: "s2-programacion-estructurada",
+      semester: 2,
+      subjectName: "Programación Estructurada",
+      units: [unidadD, unidadE],
+    },
+  ],
+});
+```
+
+- El `order` de cada sección se deriva de su posición en el arreglo `curriculum`
+  (base 1) — no se declara a mano.
+- `defineCourse` APLANA las unidades de todas las secciones, en el orden en que
+  aparecen, a `CourseDefinition.units`: ese aplanado es lo que el seed numera como
+  `Unit.order`, el orden real de navegación del curso.
+- `practice` sigue viviendo colocalizada dentro de cada `AuthoredUnitDefinition`,
+  exactamente igual que en el camino sin `curriculum` — la agrupación curricular no
+  cambia en nada cómo se autora la práctica.
+- Un curso sin `curriculum` es tan válido como uno con una o varias secciones:
+  `npm run content:validate` no lo exige.
+
 - Antes de sembrar, corre `npm run content:validate`: valida TODO el contenido (slugs
   únicos, quiz/fill_blank/code_challenge bien formados, referencias de práctica, el par
   lenguaje/perfil, etc.) sin tocar la base ni compilar código. Si algo falla, imprime

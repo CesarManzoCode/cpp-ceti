@@ -29,6 +29,36 @@ export interface CourseDefinition {
   language: LanguageId;
   executionProfile: ExecutionProfileId;
   units: UnitDefinition[];
+  /**
+   * Agrupaciones curriculares OPCIONALES de las `units` de este curso (p.
+   * ej. "1.er semestre — Fundamentos de Desarrollo de Software"). Un curso
+   * sin `curriculum` sigue siendo válido: la agrupación es organización,
+   * no identidad — no crea rutas, no afecta progreso/XP y `Unit.order`
+   * sigue siendo el único orden real de navegación.
+   */
+  curriculum?: CurriculumSectionDefinition[];
+}
+
+/**
+ * Una agrupación curricular (p. ej. una materia de un semestre) dentro de
+ * UN Course. Agrupa `Unit`s ya existentes del curso — no es una entidad de
+ * identidad propia: no aparece en URLs, no tiene progreso ni XP propios.
+ */
+export interface CurriculumSectionDefinition {
+  /** Identidad estable dentro del Course. No forma parte de URLs. */
+  key: string;
+
+  /** Entero positivo. NO limitar a 1..8. */
+  semester: number;
+
+  /** Nombre académico de la materia/bloque. */
+  subjectName: string;
+
+  /** Derivado del orden del array. Base 1. */
+  order: number;
+
+  /** Slugs de las Units pertenecientes a esta section. */
+  unitSlugs: string[];
 }
 
 export interface UnitDefinition {

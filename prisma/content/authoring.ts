@@ -19,6 +19,7 @@ import { validateContentRegistry } from "./validate";
 
 import type {
   CourseDefinition,
+  CurriculumSectionDefinition,
   LessonDefinition,
   UnitDefinition,
 } from "./types";
@@ -46,6 +47,43 @@ export interface CoursePackageDefinition {
 }
 
 /**
+ * Una agrupación curricular tal como se autora: sus unidades EN LÍNEA (en
+ * vez de una lista de slugs apuntando a unidades declaradas aparte). El
+ * `order` de la sección se deriva de su posición en el arreglo
+ * `curriculum` — no se declara aquí.
+ */
+export interface AuthoredCurriculumSectionDefinition {
+  key: string;
+  semester: number;
+  subjectName: string;
+  units: AuthoredUnitDefinition[];
+}
+
+/** Metadata de curso sin `units` ni `curriculum` — común a ambos caminos. */
+type CourseMetadata = Omit<CourseDefinition, "units" | "curriculum">;
+
+/**
+ * Lo que acepta `defineCourse`. Exactamente uno de los dos caminos:
+ *   - `units`: el curso NO tiene agrupación curricular (comportamiento de
+ *     siempre, intacto).
+ *   - `curriculum`: el curso se declara como secciones curriculares, cada
+ *     una con sus unidades; `defineCourse` las aplana a `CourseDefinition.units`
+ *     y deriva las `CurriculumSectionDefinition` correspondientes.
+ * No se acepta mezclar `units` sueltas con `curriculum` en el mismo curso.
+ */
+export type AuthoredCourseDefinition = CourseMetadata &
+  (
+    | {
+        units: AuthoredUnitDefinition[];
+        curriculum?: never;
+      }
+    | {
+        curriculum: AuthoredCurriculumSectionDefinition[];
+        units?: never;
+      }
+  );
+
+/**
  * Identidad type-safe. No aplica defaults, no clona ni reordena — sólo
  * ayuda a que TypeScript infiera el tipo correcto en el sitio donde se
  * declara la lección.
@@ -64,30 +102,86 @@ export function defineUnit(unit: AuthoredUnitDefinition): AuthoredUnitDefinition
 
 /**
  * Ensambla un `CoursePackageDefinition` a partir de metadata de curso +
- * unidades autoradas. Separa la práctica colocalizada de cada unidad en
- * su propio `PracticeUnitSetDefinition`, derivando `courseSlug`,
- * `unitSlug`, `unitTitle` y `unitIcon` de la unidad — nunca se infieren
- * de otro lado ni se piden por duplicado.
+ * unidades autoradas (`units`) O secciones curriculares (`curriculum`),
+ * nunca ambas. Separa la práctica colocalizada de cada unidad en su
+ * propio `PracticeUnitSetDefinition`, derivando `courseSlug`, `unitSlug`,
+ * `unitTitle` y `unitIcon` de la unidad — nunca se infieren de otro lado
+ * ni se piden por duplicado.
  *
- * Preserva EXACTAMENTE el orden de units/lessons/steps/practice/tests
- * recibido: no ordena alfabéticamente, no infiere `language` ni
- * `executionProfile`, no muta el input.
+ * Preserva EXACTAMENTE el orden de sections/units/lessons/steps/practice/
+ * tests recibido: no ordena alfabéticamente, no aplica defaults, no
+ * infiere `language` ni `executionProfile`, no muta el input.
+ *
+ * Camino `curriculum`: recorre las secciones en el orden recibido y,
+ * dentro de cada una, sus unidades en el orden recibido; aplana todas las
+ * unidades a `CourseDefinition.units` (ese aplanado es lo que define el
+ * orden GLOBAL de navegación del curso, vía `Unit.order` en el seed) y
+ * deriva `CurriculumSectionDefinition.order` (= posición de la sección +
+ * 1) y `unitSlugs` (de las unidades de esa sección).
  */
 export function defineCourse(
-  course: Omit<CourseDefinition, "units"> & {
-    units: AuthoredUnitDefinition[];
-  },
+  course: AuthoredCourseDefinition,
+): CoursePackageDefinition {
+  if (course.curriculum) {
+    return assembleFromCurriculum(course, course.curriculum);
+  }
+  return assembleFromUnits(course, course.units);
+}
+
+function assembleFromUnits(
+  metadata: CourseMetadata,
+  authoredUnits: AuthoredUnitDefinition[],
+): CoursePackageDefinition {
+  const { units, practiceSets } = flattenUnits(metadata.slug, authoredUnits);
+  return {
+    course: { ...metadata, units },
+    practiceSets,
+  };
+}
+
+function assembleFromCurriculum(
+  metadata: CourseMetadata,
+  sections: AuthoredCurriculumSectionDefinition[],
 ): CoursePackageDefinition {
   const units: UnitDefinition[] = [];
   const practiceSets: PracticeUnitSetDefinition[] = [];
+  const curriculum: CurriculumSectionDefinition[] = [];
 
-  for (const authoredUnit of course.units) {
+  sections.forEach((section, sectionIndex) => {
+    const flattened = flattenUnits(metadata.slug, section.units);
+    units.push(...flattened.units);
+    practiceSets.push(...flattened.practiceSets);
+
+    curriculum.push({
+      key: section.key,
+      semester: section.semester,
+      subjectName: section.subjectName,
+      order: sectionIndex + 1,
+      unitSlugs: flattened.units.map((u) => u.slug),
+    });
+  });
+
+  return {
+    course: { ...metadata, units, curriculum },
+    practiceSets,
+  };
+}
+
+/** Aplana unidades autoradas a `UnitDefinition[]` + sus `PracticeUnitSetDefinition[]`. */
+function flattenUnits(
+  courseSlug: string,
+  authoredUnits: AuthoredUnitDefinition[],
+): { units: UnitDefinition[]; practiceSets: PracticeUnitSetDefinition[] } {
+  const units: UnitDefinition[] = [];
+  const practiceSets: PracticeUnitSetDefinition[] = [];
+
+  for (const authoredUnit of authoredUnits) {
     const { practice, ...unit } = authoredUnit;
     units.push(unit);
 
     if (practice) {
       practiceSets.push({
-        courseSlug: course.slug,
+        courseSlug,
         unitSlug: unit.slug,
         unitTitle: unit.title,
         unitIcon: unit.icon,
@@ -96,10 +190,7 @@ export function defineCourse(
     }
   }
 
-  return {
-    course: { ...course, units },
-    practiceSets,
-  };
+  return { units, practiceSets };
 }
 
 /**

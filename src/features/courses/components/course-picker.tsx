@@ -12,6 +12,8 @@ export interface CoursePickerItem {
   description: string;
   subjectName: string;
   academicContext: string;
+  /** `null` si el curso no declara `curriculum`; ahí se usa `academicContext`. */
+  curriculumSummary: string | null;
   languageLabel: string;
   unitCount: number;
   lessonCount: number;
@@ -37,7 +39,7 @@ export function CoursePicker({ courses }: { courses: CoursePickerItem[] }) {
                 {course.languageLabel}
               </span>
               <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-subtle-foreground">
-                {course.academicContext}
+                {course.curriculumSummary ?? course.academicContext}
               </span>
             </div>
 

@@ -40,6 +40,7 @@ const CPP_COURSE = {
   language: "cpp",
   unitCount: 1,
   lessonCount: 3,
+  curriculumSummary: "Semestres 1 y 2",
 };
 
 const CSHARP_COURSE = {
@@ -52,6 +53,7 @@ const CSHARP_COURSE = {
   language: "csharp",
   unitCount: 1,
   lessonCount: 8,
+  curriculumSummary: "3.er semestre",
 };
 
 const BASE_SHELL_DATA = {
@@ -64,8 +66,18 @@ const BASE_SHELL_DATA = {
   },
   courses: [CPP_COURSE, CSHARP_COURSE],
   courseOptions: [
-    { slug: CPP_COURSE.slug, title: CPP_COURSE.title, languageLabel: "C++" },
-    { slug: CSHARP_COURSE.slug, title: CSHARP_COURSE.title, languageLabel: "C#" },
+    {
+      slug: CPP_COURSE.slug,
+      title: CPP_COURSE.title,
+      languageLabel: "C++",
+      curriculumSummary: CPP_COURSE.curriculumSummary,
+    },
+    {
+      slug: CSHARP_COURSE.slug,
+      title: CSHARP_COURSE.title,
+      languageLabel: "C#",
+      curriculumSummary: CSHARP_COURSE.curriculumSummary,
+    },
   ],
   stats: { totalXp: 120, currentStreak: 3, longestStreak: 5 },
   pendingFriendsCount: 0,
@@ -89,6 +101,7 @@ vi.mock("@/features/roadmap/queries", () => ({
           published: true,
           lessonCount: 3,
           completedCount: 1,
+          curriculumSection: null,
         },
       ];
     }
@@ -100,6 +113,7 @@ vi.mock("@/features/roadmap/queries", () => ({
         published: true,
         lessonCount: 8,
         completedCount: 2,
+        curriculumSection: null,
       },
     ];
   }),

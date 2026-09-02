@@ -58,6 +58,7 @@ export default async function TusCursosPage() {
             description: course.description,
             subjectName: course.subjectName,
             academicContext: course.academicContext,
+            curriculumSummary: course.curriculumSummary,
             languageLabel: isLanguageId(course.language)
               ? LANGUAGE_PROFILES[course.language].label
               : course.language,
@@ -93,7 +94,9 @@ export default async function TusCursosPage() {
                     {course.title}
                   </h2>
                   <p className="mt-1 text-[13px] font-semibold text-muted-foreground">
-                    {course.subjectName}
+                    {course.curriculumSummary
+                      ? `${course.subjectName} · ${course.curriculumSummary}`
+                      : course.subjectName}
                   </p>
 
                   <div className="mt-5 flex flex-1 items-end">

@@ -5,12 +5,15 @@
 // sus archivos grandes de siempre (`prisma/content/unidad-*.ts` y
 // `prisma/content/exercises/u*.ts`) — NO se movieron ni se editaron. Lo
 // único que vive aquí es el ENSAMBLAJE: la metadata del curso (relocada
-// tal cual desde el `prisma/content/index.ts` anterior) y el paso por
-// `adaptLegacyUnits` + `defineCourse` para entrar a la misma capa de
-// authoring que usan los cursos nuevos.
+// tal cual desde el `prisma/content/index.ts` anterior), el paso por
+// `adaptLegacyUnits` para entrar a la capa de authoring, y la agrupación
+// curricular EN DOS SEMESTRES (`curriculum`) que `defineCourse` aplana de
+// vuelta a `CourseDefinition.units` — ese aplanado es el único orden real
+// de navegación del curso (`Unit.order`, numerado por el seed).
 // =====================================================================
 
 import { adaptLegacyUnits, defineCourse } from "../../authoring";
+import type { AuthoredUnitDefinition } from "../../authoring";
 import type { CourseDefinition } from "../../types";
 
 import { unidad01 } from "../../unidad-01-primer-programa";
@@ -88,7 +91,54 @@ const legacyPracticeSets = [
 
 const authoredUnits = adaptLegacyUnits(cursoCppLegacy, legacyPracticeSets);
 
+const unitsBySlug = new Map(authoredUnits.map((u) => [u.slug, u] as const));
+
+/** Selecciona una Unit legacy ya adaptada por su slug. Falla cerrado. */
+function unit(slug: string): AuthoredUnitDefinition {
+  const found = unitsBySlug.get(slug);
+  if (!found) {
+    throw new Error(
+      `courses/cpp-desde-cero: no existe la unidad "${slug}" en cursoCppLegacy.units.`,
+    );
+  }
+  return found;
+}
+
+const { slug, title, description, subjectName, academicContext, language, executionProfile } =
+  cursoCppLegacy;
+
 export const cppDesdeCero = defineCourse({
-  ...cursoCppLegacy,
-  units: authoredUnits,
+  slug,
+  title,
+  description,
+  subjectName,
+  academicContext,
+  language,
+  executionProfile,
+  curriculum: [
+    {
+      key: "s1-fundamentos-desarrollo-software",
+      semester: 1,
+      subjectName: "Fundamentos de Desarrollo de Software",
+      units: [
+        unit("primer-programa"),
+        unit("variables-y-tipos"),
+        unit("leer-datos"),
+        unit("control-de-flujo"),
+        unit("loops"),
+        unit("printf-scanf"),
+      ],
+    },
+    {
+      key: "s2-programacion-estructurada",
+      semester: 2,
+      subjectName: "Programación Estructurada",
+      units: [
+        unit("funciones"),
+        unit("arreglos"),
+        unit("archivos"),
+        unit("matrices"),
+      ],
+    },
+  ],
 });

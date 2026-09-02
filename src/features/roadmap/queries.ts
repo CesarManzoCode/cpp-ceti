@@ -51,6 +51,9 @@ export const getRoadmapUnits = cache(async (
           },
         },
       },
+      curriculumSection: {
+        select: { key: true, semester: true, subjectName: true, order: true },
+      },
     },
   });
 
@@ -61,6 +64,7 @@ export const getRoadmapUnits = cache(async (
     published: u.published,
     lessonCount: u.lessons.length,
     completedCount: u.lessons.filter((l) => l.progress.length > 0).length,
+    curriculumSection: u.curriculumSection,
   }));
 });
 

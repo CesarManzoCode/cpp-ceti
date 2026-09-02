@@ -110,6 +110,114 @@ function validateCourse(
   for (const unit of course.units) {
     validateUnit(unit, path, issues, seenUnitSlugs);
   }
+
+  if (course.curriculum !== undefined) {
+    validateCurriculum(course, path, issues);
+  }
+}
+
+/**
+ * Un curso SIN `curriculum` es válido: la agrupación curricular es
+ * opcional. Si existe, valida: al menos 1 sección, `key`/`order` únicos y
+ * contiguos desde 1, `semester` entero positivo (sin máximo), cada
+ * sección con al menos 1 unidad, y que cada `unitSlug` referenciado
+ * exista en `course.units` y pertenezca a UNA sola sección.
+ */
+function validateCurriculum(
+  course: CourseDefinition,
+  coursePath: string,
+  issues: ContentValidationIssue[],
+): void {
+  const curriculum = course.curriculum ?? [];
+  const path = `${coursePath}.curriculum`;
+
+  if (curriculum.length === 0) {
+    push(issues, path, "si se declara, debe tener al menos 1 sección");
+    return;
+  }
+
+  const courseUnitSlugs = new Set(course.units.map((u) => u.slug));
+  const seenKeys = new Set<string>();
+  const seenOrders = new Set<number>();
+  const unitOwner = new Map<string, string>();
+
+  curriculum.forEach((section, index) => {
+    const sectionPath = `${path}[${section.key || index}]`;
+
+    if (!section.key.trim()) {
+      push(issues, sectionPath, "key vacía");
+    } else if (seenKeys.has(section.key)) {
+      push(issues, sectionPath, `key duplicada dentro del curso: "${section.key}"`);
+    } else {
+      seenKeys.add(section.key);
+    }
+
+    if (!Number.isInteger(section.semester) || section.semester < 1) {
+      push(
+        issues,
+        sectionPath,
+        `semester debe ser un entero >= 1 (recibido: ${section.semester})`,
+      );
+    }
+
+    if (!section.subjectName.trim()) {
+      push(issues, sectionPath, "subjectName vacío");
+    }
+
+    if (section.unitSlugs.length === 0) {
+      push(issues, sectionPath, "debe contener al menos 1 unidad");
+    }
+
+    if (!Number.isInteger(section.order)) {
+      push(issues, sectionPath, `order debe ser un entero (recibido: ${section.order})`);
+    } else if (seenOrders.has(section.order)) {
+      push(issues, sectionPath, `order duplicado: ${section.order}`);
+    } else {
+      seenOrders.add(section.order);
+    }
+
+    section.unitSlugs.forEach((unitSlug, unitIndex) => {
+      const membershipPath = `${sectionPath}.unitSlugs[${unitIndex}]`;
+
+      if (!courseUnitSlugs.has(unitSlug)) {
+        push(
+          issues,
+          membershipPath,
+          `la unidad "${unitSlug}" no existe en course.units`,
+        );
+        return;
+      }
+
+      const owner = unitOwner.get(unitSlug);
+      if (owner !== undefined && owner !== section.key) {
+        push(
+          issues,
+          membershipPath,
+          `la unidad "${unitSlug}" ya pertenece a la sección "${owner}"`,
+        );
+      } else {
+        unitOwner.set(unitSlug, section.key);
+      }
+    });
+  });
+
+  // order: entero, base 1, único (ya verificado arriba) y CONTIGUO.
+  const orders = curriculum
+    .map((s) => s.order)
+    .filter((o) => Number.isInteger(o))
+    .sort((a, b) => a - b);
+  const expected = orders.map((_, i) => i + 1);
+  const isContiguousFromOne =
+    orders.length > 0 &&
+    orders[0] === 1 &&
+    orders.every((o, i) => o === expected[i]);
+  if (orders.length === curriculum.length && !isContiguousFromOne) {
+    push(
+      issues,
+      path,
+      `order de las secciones debe ser contiguo desde 1 (recibido: ${orders.join(", ")})`,
+    );
+  }
 }
 
 function validateUnit(
