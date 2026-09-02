@@ -12,6 +12,7 @@ import {
   getPendingOutgoing,
 } from "@/features/friends/queries";
 import { getSocialFeed } from "@/features/social-feed/queries";
+import { getMyFriendStreaks, getMyStreakReminders } from "@/features/streaks/queries";
 import { readSelectedCourseSlug } from "@/lib/course-selection";
 import { db } from "@/lib/db";
 import { requireConfirmedUsername } from "@/lib/get-session";
@@ -35,12 +36,14 @@ export default async function AmigosPage({
     ? await db.course.findUnique({ where: { slug: courseSlug, published: true }, select: { id: true } })
     : null;
 
-  const [friends, incoming, outgoing, discovery, feed, params] = await Promise.all([
+  const [friends, incoming, outgoing, discovery, feed, streaks, reminders, params] = await Promise.all([
     getFriends(userId),
     getPendingIncoming(userId),
     getPendingOutgoing(userId),
     getDiscoveryCandidates(userId, { courseId: course?.id ?? null }),
     getSocialFeed(userId),
+    getMyFriendStreaks(userId),
+    getMyStreakReminders(userId),
     searchParams,
   ]);
 
@@ -61,7 +64,8 @@ export default async function AmigosPage({
     params.tab === "solicitudes" ||
     params.tab === "buscar" ||
     params.tab === "descubrir" ||
-    params.tab === "actividad"
+    params.tab === "actividad" ||
+    params.tab === "rachas"
       ? params.tab
       : incoming.length > 0
         ? "solicitudes"
@@ -96,6 +100,8 @@ export default async function AmigosPage({
           meId={userId}
           discovery={discovery}
           feed={feed.events}
+          streaks={streaks}
+          reminders={reminders}
         />
       </div>
 

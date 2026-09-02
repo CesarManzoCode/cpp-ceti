@@ -12,6 +12,7 @@ import { getPublicProfile, getUserLessonActivity } from "@/features/friends/quer
 import { ProfileActions } from "@/features/friends/components/profile-actions";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
 import { BioEditor } from "@/features/profile/components/bio-editor";
+import { StartStreakButton } from "@/features/streaks/components/start-streak-button";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
 import {
@@ -108,7 +109,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
+            {isFriend ? <StartStreakButton userId={profile.id} /> : null}
             <ProfileActions
               userId={profile.id}
               username={profile.username}
