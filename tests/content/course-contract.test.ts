@@ -632,3 +632,132 @@ describe("curso S5: Modelos y métodos de desarrollo de software", () => {
     ]);
   });
 });
+
+describe("curso S4: Bases de datos (Base de Datos I)", () => {
+  it("el curso está registrado EXACTAMENTE una vez", () => {
+    const matches = allCourses.filter((c) => c.slug === "bases-de-datos");
+    expect(matches).toHaveLength(1);
+  });
+
+  const bd1 = courseBySlug.get("bases-de-datos")!;
+
+  it("declara la metadata exacta del contrato", () => {
+    expect(bd1).toBeDefined();
+    expect(bd1.title).toBe("Bases de datos");
+    expect(bd1.description).toBe(
+      "Diseña bases relacionales desde necesidades reales, normalízalas y consulta información con SQL.",
+    );
+    expect(bd1.subjectName).toBe("Bases de datos");
+    expect(bd1.academicContext).toBe("CETI · Tecnólogo en Desarrollo de Software");
+    expect(bd1.language).toBe("sql");
+    expect(bd1.executionProfile).toBe("sql-sqlite3-wandbox");
+  });
+
+  it("declara EXACTAMENTE una CurriculumSection de semestre 4", () => {
+    expect(bd1.curriculum).toBeDefined();
+    expect(bd1.curriculum).toHaveLength(1);
+    const s4 = bd1.curriculum![0];
+    expect(s4.key).toBe("s4-base-de-datos-1");
+    expect(s4.semester).toBe(4);
+    expect(s4.order).toBe(1);
+    expect(s4.subjectName).toBe("Base de Datos I");
+  });
+
+  it("declara las 10 Units EXACTAS, en el orden contractual", () => {
+    expect(bd1.units.map((u) => u.slug)).toEqual([
+      "bd1-01-fundamentos-sgbd",
+      "bd1-02-requerimientos-informacion",
+      "bd1-03-modelo-er",
+      "bd1-04-modelo-relacional",
+      "bd1-05-normalizacion",
+      "bd1-06-algebra-relacional",
+      "bd1-07-ddl",
+      "bd1-08-dml",
+      "bd1-09-consultas-reportes",
+      "bd1-10-respaldo-integrador",
+    ]);
+    expect(bd1.curriculum![0].unitSlugs).toEqual(bd1.units.map((u) => u.slug));
+  });
+
+  it("las 10 Units están published=true (sin release gate para BD I)", () => {
+    for (const unit of bd1.units) {
+      expect(unit.published, unit.slug).toBe(true);
+    }
+  });
+
+  it("totales EXACTOS: 47 lessons, 188 steps, 36 practices", () => {
+    const lessons = bd1.units.flatMap((u) => u.lessons);
+    const steps = lessons.flatMap((l) => l.steps);
+    const totalPractice = allPracticeSets
+      .filter((s) => s.courseSlug === "bases-de-datos")
+      .reduce((n, s) => n + s.exercises.length, 0);
+
+    expect(bd1.units.length).toBe(10);
+    expect(lessons.length).toBe(47);
+    expect(steps.length).toBe(188);
+    expect(totalPractice).toBe(36);
+  });
+
+  it("cada lección tiene EXACTAMENTE 4 steps", () => {
+    for (const unit of bd1.units) {
+      for (const lesson of unit.lessons) {
+        expect(lesson.steps.length, `${unit.slug}/${lesson.slug}`).toBe(4);
+      }
+    }
+  });
+
+  it("todas las 10 unidades traen práctica independiente", () => {
+    const practiceUnitSlugs = new Set(
+      allPracticeSets
+        .filter((s) => s.courseSlug === "bases-de-datos")
+        .map((s) => s.unitSlug),
+    );
+    for (const unit of bd1.units) {
+      expect(practiceUnitSlugs.has(unit.slug), unit.slug).toBe(true);
+    }
+  });
+
+  it("todo el contenido usa el fence de SQL", () => {
+    expect(LANGUAGE_PROFILES[bd1.language].markdownFences).toContain("sql");
+  });
+
+  /**
+   * TECHNICAL_CONTRACT §4: `TestCase.stdin` en SQL es el fixture de
+   * preparación, no stdin interactivo — así que la regla anti-hardcode
+   * genérica de "cada práctica que usa stdin necesita un oculto
+   * discriminante" (ver describe "contrato de prácticas" arriba) YA cubre
+   * a SQL. Esta prueba confirma explícitamente que las prácticas con fixture
+   * no vacío del curso declaran al menos un test oculto con fixture distinto.
+   */
+  it("las prácticas SQL con fixture no vacío tienen un test oculto con fixture distinto", () => {
+    const bd1Sets = allPracticeSets.filter((s) => s.courseSlug === "bases-de-datos");
+    for (const set of bd1Sets) {
+      for (const ex of set.exercises) {
+        const hasFixture = ex.testCases.some(
+          (tc) => (tc.stdin ?? "").trim().length > 0,
+        );
+        if (!hasFixture) continue;
+        const visibleFixtures = new Set(
+          ex.testCases.filter((tc) => tc.visible !== false).map((tc) => tc.stdin ?? ""),
+        );
+        const discriminating = ex.testCases.filter(
+          (tc) => tc.visible === false && !visibleFixtures.has(tc.stdin ?? ""),
+        );
+        expect(discriminating.length, ex.slug).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
+  it("no toca csharp-poo-1, cpp-desde-cero ni S5 al agregarse", () => {
+    const cpp = courseBySlug.get("cpp-desde-cero")!;
+    const csharp = courseBySlug.get("csharp-poo-1")!;
+    const mm = courseBySlug.get("modelos-metodos-desarrollo-software")!;
+
+    expect(cpp.units.length).toBe(10);
+    expect(cpp.units.flatMap((u) => u.lessons).length).toBe(67);
+    expect(csharp.units.length).toBe(16);
+    expect(csharp.units.flatMap((u) => u.lessons).length).toBe(73);
+    expect(mm.units.length).toBe(10);
+    expect(mm.units.flatMap((u) => u.lessons).length).toBe(44);
+  });
+});

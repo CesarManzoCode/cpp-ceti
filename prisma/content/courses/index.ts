@@ -14,6 +14,7 @@
 import { buildContentRegistry } from "../authoring";
 import type { CoursePackageDefinition } from "../authoring";
 
+import { basesDeDatos } from "./bases-de-datos";
 import { cppDesdeCero } from "./cpp-desde-cero";
 import { csharpPoo1 } from "./csharp-poo-1";
 import { modelosMetodosDesarrolloSoftware } from "./modelos-metodos-desarrollo-software";
@@ -22,6 +23,7 @@ const packages = [
   cppDesdeCero,
   csharpPoo1,
   modelosMetodosDesarrolloSoftware,
+  basesDeDatos,
 ] satisfies readonly CoursePackageDefinition[];
 
 export const { allCourses, allPracticeSets } = buildContentRegistry(packages);
