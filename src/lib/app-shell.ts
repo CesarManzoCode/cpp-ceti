@@ -43,6 +43,7 @@ export async function loadAppShellBase() {
     languageLabel: isLanguageId(c.language)
       ? LANGUAGE_PROFILES[c.language].label
       : c.language,
+    curriculumSummary: c.curriculumSummary,
   }));
 
   return {

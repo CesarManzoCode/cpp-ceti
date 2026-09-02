@@ -18,6 +18,26 @@ export interface CourseSwitcherItem {
   slug: string;
   title: string;
   languageLabel: string;
+  /** `null` si el curso no declara `curriculum`. */
+  curriculumSummary: string | null;
+}
+
+/**
+ * Subtítulo de cada curso en el menú: `lenguaje · curriculumSummary`
+ * cuando el curso declara `curriculum`; si no, sólo el lenguaje (más "·
+ * curso actual" si aplica) — el comportamiento de siempre. Exportada
+ * aparte porque el contenido del menú (Radix) no se monta cerrado, así
+ * que esto es lo único de esta pieza comprobable sin abrir el menú.
+ */
+export function courseSwitcherSubtitle(
+  course: Pick<CourseSwitcherItem, "languageLabel" | "curriculumSummary">,
+  isActive: boolean,
+): string {
+  return (
+    course.languageLabel +
+    (course.curriculumSummary ? ` · ${course.curriculumSummary}` : "") +
+    (isActive ? " · curso actual" : "")
+  );
 }
 
 /**
@@ -118,8 +138,7 @@ export function CourseSwitcher({
                     {course.title}
                   </span>
                   <span className="block text-[12px] font-medium text-muted-foreground">
-                    {course.languageLabel}
-                    {isActive ? " · curso actual" : ""}
+                    {courseSwitcherSubtitle(course, isActive)}
                   </span>
                 </span>
               </Link>

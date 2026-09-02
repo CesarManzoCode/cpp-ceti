@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Check, Lock } from "lucide-react";
 
 import { BrickColumn } from "@/components/ui/bricks";
+import { formatSemester } from "@/lib/curriculum";
 import { cn } from "@/lib/utils";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
@@ -35,10 +36,23 @@ export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
   }
 
   const headIndex = findHeadIndex(units);
+  const sectionProgress = buildSectionProgress(units);
+  const renderItems = buildRenderItems(units, sectionProgress);
 
   return (
     <ol className="flex flex-col">
-      {units.map((unit, idx) => {
+      {renderItems.map((item) => {
+        if (item.kind === "section-header") {
+          return (
+            <CurriculumSectionHeader
+              key={item.key}
+              section={item.section}
+              progress={item.progress}
+            />
+          );
+        }
+
+        const { unit, index: idx } = item;
         const completed =
           unit.lessonCount > 0 && unit.completedCount === unit.lessonCount;
         const isHere = idx === headIndex && unit.published;
@@ -178,6 +192,89 @@ function findHeadIndex(units: RoadmapUnit[]): number {
     }
   }
   return -1;
+}
+
+type CurriculumSectionInfo = NonNullable<RoadmapUnit["curriculumSection"]>;
+
+interface SectionProgress {
+  completedCount: number;
+  lessonCount: number;
+}
+
+/** Progreso por sección curricular: suma completedCount/lessonCount de sus Units. */
+function buildSectionProgress(
+  units: RoadmapUnit[],
+): Map<string, SectionProgress> {
+  const progress = new Map<string, SectionProgress>();
+  for (const unit of units) {
+    if (!unit.curriculumSection) continue;
+    const key = unit.curriculumSection.key;
+    const current = progress.get(key) ?? { completedCount: 0, lessonCount: 0 };
+    current.completedCount += unit.completedCount;
+    current.lessonCount += unit.lessonCount;
+    progress.set(key, current);
+  }
+  return progress;
+}
+
+type RenderItem =
+  | { kind: "section-header"; key: string; section: CurriculumSectionInfo; progress: SectionProgress }
+  | { kind: "unit"; key: string; unit: RoadmapUnit; index: number };
+
+/**
+ * Aplana `units` (ya en `Unit.order` global) a la secuencia a renderizar,
+ * insertando un header ANTES de la primera unidad de cada sección nueva —
+ * mismo flujo vertical, mismo orden, sin reordenar por semestre. Un curso
+ * sin `curriculum` (todo `curriculumSection: null`) no produce headers:
+ * renderiza exactamente como la lista plana de siempre.
+ */
+function buildRenderItems(
+  units: RoadmapUnit[],
+  sectionProgress: Map<string, SectionProgress>,
+): RenderItem[] {
+  const items: RenderItem[] = [];
+  let previousSectionKey: string | null = null;
+
+  units.forEach((unit, index) => {
+    const sectionKey = unit.curriculumSection?.key ?? null;
+    if (unit.curriculumSection && sectionKey !== previousSectionKey) {
+      items.push({
+        kind: "section-header",
+        key: `section-${sectionKey}`,
+        section: unit.curriculumSection,
+        progress: sectionProgress.get(sectionKey!) ?? {
+          completedCount: 0,
+          lessonCount: 0,
+        },
+      });
+    }
+    items.push({ kind: "unit", key: unit.slug, unit, index });
+    previousSectionKey = sectionKey;
+  });
+
+  return items;
+}
+
+function CurriculumSectionHeader({
+  section,
+  progress,
+}: {
+  section: CurriculumSectionInfo;
+  progress: SectionProgress;
+}) {
+  return (
+    <li className="pl-[48px] pt-6 pb-2 first:pt-0 sm:pl-[64px]">
+      <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-primary">
+        {formatSemester(section.semester)}
+      </p>
+      <h2 className="mt-1 text-[15px] font-extrabold leading-snug tracking-[-0.01em] text-foreground">
+        {section.subjectName}
+      </h2>
+      <p className="mt-1 text-[13px] font-medium text-muted-foreground">
+        {progress.completedCount} / {progress.lessonCount} lecciones
+      </p>
+    </li>
+  );
 }
 
 /**

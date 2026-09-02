@@ -7,6 +7,11 @@
 // editaron. Aquí sólo se reutilizan y se pasan por `adaptLegacyUnits` +
 // `defineCourse` para entrar a la misma capa de authoring que los cursos
 // nuevos.
+//
+// Segundo caso de `curriculum`, deliberadamente distinto de C++: UNA sola
+// sección (3.er semestre) que envuelve las 8 unidades existentes tal
+// cual, en su mismo orden. Demuestra que la agrupación curricular no está
+// hardcodeada para C++ ni para dos semestres.
 // =====================================================================
 
 import { adaptLegacyUnits, defineCourse } from "../../authoring";
@@ -15,7 +20,30 @@ import { csharpPracticeSets } from "../../exercises/csharp";
 
 const authoredUnits = adaptLegacyUnits(cursoCsharpPoo1, csharpPracticeSets);
 
+const {
+  slug,
+  title,
+  description,
+  subjectName,
+  academicContext,
+  language,
+  executionProfile,
+} = cursoCsharpPoo1;
+
 export const csharpPoo1 = defineCourse({
-  ...cursoCsharpPoo1,
-  units: authoredUnits,
+  slug,
+  title,
+  description,
+  subjectName,
+  academicContext,
+  language,
+  executionProfile,
+  curriculum: [
+    {
+      key: "s3-programacion-orientada-objetos-1",
+      semester: 3,
+      subjectName: "Programación Orientada a Objetos I",
+      units: authoredUnits,
+    },
+  ],
 });

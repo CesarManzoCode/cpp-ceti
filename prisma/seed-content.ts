@@ -10,6 +10,7 @@ import { allCourses } from "./content";
 import { contentRevision, trackRevision } from "./seed-revisions";
 import type {
   CourseDefinition,
+  CurriculumSectionDefinition,
   LessonDefinition,
   StepDefinition,
   UnitDefinition,
@@ -82,8 +83,87 @@ async function upsertCourse(
     },
   });
 
+  const sections = course.curriculum ?? [];
+  const unitToSectionId = await upsertCurriculumSections(db, dbCourse.id, sections);
+
   for (let i = 0; i < course.units.length; i++) {
-    await upsertUnit(db, dbCourse.id, course.units[i], i, runtime);
+    const unit = course.units[i];
+    await upsertUnit(
+      db,
+      dbCourse.id,
+      unit,
+      i,
+      runtime,
+      unitToSectionId.get(unit.slug) ?? null,
+    );
+  }
+
+  // Las Units ya quedaron reasignadas (o en null) arriba: cualquier
+  // sección que ya no esté en el contenido no tiene referencias vivas, así
+  // que borrarla es seguro. `onDelete: SetNull` en `Unit.curriculumSection`
+  // es sólo la red de seguridad, no el mecanismo principal.
+  await pruneStaleCurriculumSections(
+    db,
+    dbCourse.id,
+    sections.map((s) => s.key),
+  );
+}
+
+/**
+ * Upsert de las `CurriculumSection` declaradas por el curso, por
+ * `(courseId, key)`. Devuelve un `Map<unitSlug, curriculumSectionId>` para
+ * que `upsertUnit` sepa a qué sección (si alguna) pertenece cada unidad.
+ * Un curso sin `curriculum` (`sections` vacío) no crea ninguna.
+ */
+async function upsertCurriculumSections(
+  db: PrismaClient,
+  courseId: string,
+  sections: CurriculumSectionDefinition[],
+): Promise<Map<string, string>> {
+  const unitToSectionId = new Map<string, string>();
+
+  for (const section of sections) {
+    console.log(
+      `  🗂️  Sección: ${section.subjectName} (semestre ${section.semester})`,
+    );
+    const dbSection = await db.curriculumSection.upsert({
+      where: { courseId_key: { courseId, key: section.key } },
+      update: {
+        semester: section.semester,
+        subjectName: section.subjectName,
+        order: section.order,
+      },
+      create: {
+        courseId,
+        key: section.key,
+        semester: section.semester,
+        subjectName: section.subjectName,
+        order: section.order,
+      },
+    });
+
+    for (const unitSlug of section.unitSlugs) {
+      unitToSectionId.set(unitSlug, dbSection.id);
+    }
+  }
+
+  return unitToSectionId;
+}
+
+/** Borra las `CurriculumSection` del curso cuya `key` ya no está declarada. */
+async function pruneStaleCurriculumSections(
+  db: PrismaClient,
+  courseId: string,
+  declaredKeys: string[],
+): Promise<void> {
+  const { count } = await db.curriculumSection.deleteMany({
+    where: {
+      courseId,
+      key: declaredKeys.length > 0 ? { notIn: declaredKeys } : undefined,
+    },
+  });
+  if (count > 0) {
+    console.log(`  🗑️  ${count} sección(es) curricular(es) obsoleta(s) eliminada(s).`);
   }
 }
 
@@ -93,6 +173,7 @@ async function upsertUnit(
   unit: UnitDefinition,
   index: number,
   runtime: CourseRuntime,
+  curriculumSectionId: string | null,
 ) {
   console.log(`  📦 Unidad: ${unit.title}`);
   const dbUnit = await db.unit.upsert({
@@ -104,6 +185,7 @@ async function upsertUnit(
       colorAccent: unit.colorAccent ?? null,
       published: unit.published ?? true,
       order: index + 1,
+      curriculumSectionId,
     },
     create: {
       courseId,
@@ -114,6 +196,7 @@ async function upsertUnit(
       colorAccent: unit.colorAccent ?? null,
       published: unit.published ?? true,
       order: index + 1,
+      curriculumSectionId,
     },
   });
 

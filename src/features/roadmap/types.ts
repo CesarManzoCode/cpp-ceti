@@ -5,6 +5,17 @@ export interface RoadmapUnit {
   published: boolean;
   lessonCount: number;
   completedCount: number;
+  /**
+   * Sección curricular a la que pertenece esta unidad, si el curso
+   * declara `curriculum`. `null` en cursos sin agrupación curricular —
+   * ahí el roadmap se ve exactamente como antes: una lista plana.
+   */
+  curriculumSection: {
+    key: string;
+    semester: number;
+    subjectName: string;
+    order: number;
+  } | null;
 }
 
 export type RoadmapLessonStatus = "completed" | "in_progress" | "not_started";

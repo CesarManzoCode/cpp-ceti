@@ -188,12 +188,40 @@ model Course {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
-  units             Unit[]
-  progress          UserCourseProgress[]
-  practiceExercises PracticeExercise[]
-  socialEvents      SocialEvent[]
+  units              Unit[]
+  progress           UserCourseProgress[]
+  practiceExercises  PracticeExercise[]
+  socialEvents       SocialEvent[]
+  curriculumSections CurriculumSection[]
 
   @@map("course")
+}
+
+/// Agrupación curricular (p. ej. "1.er semestre — Fundamentos de
+/// Desarrollo de Software") de las `Unit`s de UN Course. NO es una
+/// entidad de identidad propia: no aparece en URLs, no tiene progreso ni
+/// XP propios, y `Unit.order` sigue siendo el único orden real de
+/// navegación del curso. Un Course puede tener cero, una o varias.
+model CurriculumSection {
+  id String @id @default(cuid())
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  /// Identidad estable dentro del Course. No forma parte de URLs.
+  key String
+  /// Entero positivo. Sin máximo — no se asume una institución de 8 semestres.
+  semester Int
+  /// Nombre académico de la materia/bloque.
+  subjectName String
+  /// Orden de presentación de la sección dentro del curso (base 1, contiguo).
+  order Int
+
+  units Unit[]
+
+  @@unique([courseId, key])
+  @@index([courseId, order])
+  @@map("curriculum_section")
 }
 
 model Unit {
@@ -210,12 +238,20 @@ model Unit {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  /// Sección curricular a la que pertenece esta unidad, si el curso
+  /// declara `curriculum`. Nullable: la mayoría de los cursos no tienen
+  /// agrupación curricular, y una unidad que deja de pertenecer a una
+  /// sección (contenido reorganizado) cae a `null` en vez de romper FK.
+  curriculumSectionId String?
+  curriculumSection   CurriculumSection? @relation(fields: [curriculumSectionId], references: [id], onDelete: SetNull)
+
   lessons           Lesson[]
   practiceExercises PracticeExercise[]
   socialEvents      SocialEvent[]
 
   @@unique([courseId, slug])
   @@index([courseId, order])
+  @@index([curriculumSectionId])
   @@map("unit")
 }
 

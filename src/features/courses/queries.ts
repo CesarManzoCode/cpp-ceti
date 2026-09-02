@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { formatSemesterSummary } from "@/lib/curriculum";
 import { db } from "@/lib/db";
 
 export interface CourseChoice {
@@ -12,6 +13,8 @@ export interface CourseChoice {
   language: string;
   unitCount: number;
   lessonCount: number;
+  /** `null` si el curso no declara `curriculum` (ver `prisma/content/types.ts`). */
+  curriculumSummary: string | null;
 }
 
 /**
@@ -37,6 +40,10 @@ export const getCourseChoices = cache(async (): Promise<CourseChoice[]> => {
         // puede abrir hoy, no lo que existe en la base.
         select: { _count: { select: { lessons: { where: { published: true } } } } },
       },
+      curriculumSections: {
+        orderBy: { order: "asc" },
+        select: { semester: true },
+      },
     },
   });
 
@@ -50,6 +57,9 @@ export const getCourseChoices = cache(async (): Promise<CourseChoice[]> => {
     language: course.language,
     unitCount: course.units.length,
     lessonCount: course.units.reduce((n, u) => n + u._count.lessons, 0),
+    curriculumSummary: formatSemesterSummary(
+      course.curriculumSections.map((s) => s.semester),
+    ),
   }));
 });
 
