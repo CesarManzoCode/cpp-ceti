@@ -1,0 +1,65 @@
+name: Social rollout
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Primero dry-run; después apply"
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+
+permissions:
+  contents: read
+
+concurrency:
+  group: social-rollout-production
+  cancel-in-progress: false
+
+jobs:
+  backfills:
+    name: Social production backfills
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Verificar DATABASE_URL
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Falta DATABASE_URL"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci --ignore-scripts
+
+      - name: Generar Prisma Client
+        run: npx prisma generate
+
+      - name: Preflight Friendship
+        run: npx tsx scripts/social/backfill-friendship-pairkey.ts --dry-run
+
+      - name: Preflight XP
+        run: npx tsx scripts/social/backfill-xp-legacy.ts --dry-run
+
+      - name: Aplicar Friendship
+        if: ${{ inputs.mode == 'apply' }}
+        run: npx tsx scripts/social/backfill-friendship-pairkey.ts --apply
+
+      - name: Aplicar XP
+        if: ${{ inputs.mode == 'apply' }}
+        run: npx tsx scripts/social/backfill-xp-legacy.ts
