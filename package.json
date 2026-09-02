@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "dotenv -e .env.local -- vitest run --config vitest.integration.config.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "dotenv -e .env.local -- prisma db push",

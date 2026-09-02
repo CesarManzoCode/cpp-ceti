@@ -24,6 +24,16 @@ const LIMITS = {
   telemetry: { limit: 90, windowSec: 60 },
   /** Envío de feedback general. */
   feedback: { limit: 5, windowSec: 60 },
+  /** Búsqueda de usuarios (amigos). */
+  "search-users": { limit: 30, windowSec: 60 },
+  /** Descubrimiento de compañeros (páginas de resultados). */
+  discovery: { limit: 20, windowSec: 60 },
+  /** Solicitudes de amistad enviadas. */
+  "friend-request": { limit: 20, windowSec: 3600 },
+  /** Kudos (reacción a un hito del feed). */
+  kudos: { limit: 60, windowSec: 60 },
+  /** Recordatorios de Friend Streak. */
+  "streak-reminder": { limit: 10, windowSec: 60 },
 } satisfies Record<string, { limit: number; windowSec: number }>;
 
 export type RateLimitEndpoint = keyof typeof LIMITS;

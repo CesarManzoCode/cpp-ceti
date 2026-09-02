@@ -36,7 +36,7 @@ describe("sendFriendRequest", () => {
   });
 
   it("crea la solicitud cuando no hay relación previa", async () => {
-    const res = await sendFriendRequest({ username: "otro" });
+    const res = await sendFriendRequest({ username: "otro", source: "profile" });
 
     expect(res.status).toBe("sent");
     expect(friendships()).toHaveLength(1);
@@ -45,8 +45,8 @@ describe("sendFriendRequest", () => {
   });
 
   it("es idempotente: repetir la solicitud no duplica filas", async () => {
-    await sendFriendRequest({ username: "otro" });
-    const res = await sendFriendRequest({ username: "otro" });
+    await sendFriendRequest({ username: "otro", source: "profile" });
+    const res = await sendFriendRequest({ username: "otro", source: "profile" });
 
     expect(res.status).toBe("already");
     expect(friendships()).toHaveLength(1);
@@ -69,7 +69,7 @@ describe("sendFriendRequest", () => {
     const api = fake.friendship as Record<string, unknown>;
     api.findMany = vi.fn(async () => []);
 
-    const res = await sendFriendRequest({ username: "otro" });
+    const res = await sendFriendRequest({ username: "otro", source: "profile" });
 
     expect(res.status).toBe("already");
     expect(friendships()).toHaveLength(1);

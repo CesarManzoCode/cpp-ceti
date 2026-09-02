@@ -8,8 +8,8 @@ import { env, googleAuthEnabled } from "@/env";
 import { db } from "./db";
 import { logger } from "./logger";
 import { PRODUCT_NAME } from "@/lib/branding";
+import { INVITE_COOKIE_NAME, consumeInviteCookieForNewUser } from "@/lib/social/invite-cookie";
 import {
-  generateUsernameFromSeed,
   RESERVED_USERNAMES,
   USERNAME_MAX,
   USERNAME_MIN,
@@ -58,6 +58,16 @@ export const auth = betterAuth({
         input: false,
         returned: true,
       },
+      // true SOLO para cuentas OAuth nuevas con handle provisional. Bloquea
+      // únicamente funcionalidad social (ver `usernameSetupRequired` en
+      // schema.prisma); aprender sigue funcionando. Se apaga una sola vez
+      // desde `confirmOAuthUsername` (src/features/academic/actions.ts).
+      usernameSetupRequired: {
+        type: "boolean",
+        required: false,
+        input: false,
+        returned: true,
+      },
     },
     // Habilita /delete-user. Borra el usuario y su data por cascade
     // (sesiones, progreso, intentos, etc. — definido en schema.prisma).
@@ -97,19 +107,38 @@ export const auth = betterAuth({
               logger.warn({ provided }, "username collision at signup hook");
               return false;
             }
-            return { data: { ...user, username: provided } };
+            return {
+              data: { ...user, username: provided, usernameSetupRequired: false },
+            };
           }
 
-          // Path: OAuth signup — auto-genera y resuelve colisión.
-          const seed = typeof user.email === "string"
-            ? user.email.split("@")[0]
-            : "";
-          const base = generateUsernameFromSeed(
-            seed,
-            typeof user.id === "string" ? user.id : randomUUID(),
-          );
-          const username = await resolveAvailableUsername(base);
-          return { data: { ...user, username } };
+          // Path: OAuth signup — el form no participa, así que no hay
+          // username que validar. El handle es PROVISIONAL: alta entropía,
+          // nunca derivado del email (no revela el correo del alumno y no
+          // colisiona con el username real que va a elegir). El alumno
+          // confirma el definitivo en `confirmOAuthUsername`; hasta entonces
+          // `usernameSetupRequired=true` lo excluye de todo lo social sin
+          // tocar su acceso a cursos/lecciones/práctica.
+          const username = await resolveAvailableProvisionalUsername();
+          return {
+            data: { ...user, username, usernameSetupRequired: true },
+          };
+        },
+        after: async (user, context) => {
+          // Consume la cookie de atribución de invitación — SÓLO corre en
+          // alta nueva (nunca en login), así que "cuenta existente no
+          // genera attribution" sale gratis de estar aquí y no en un flujo
+          // que también dispare en signin.
+          if (!context) return;
+          const raw = context.getCookie(INVITE_COOKIE_NAME);
+          // Se borra siempre, haya servido o no: es de un solo uso.
+          context.setCookie(INVITE_COOKIE_NAME, "", { maxAge: 0, path: "/" });
+          if (!raw) return;
+          try {
+            await consumeInviteCookieForNewUser(db, user.id, raw);
+          } catch (err) {
+            logger.error({ err, userId: user.id }, "invite cookie consumption failed");
+          }
         },
       },
     },
@@ -133,30 +162,30 @@ export const auth = betterAuth({
 
 export type Session = typeof auth.$Infer.Session;
 
-/**
- * Intenta el candidato base; si está tomado, prueba sufijos numéricos cortos
- * (deterministas para que el handle siga siendo bonito) y, como último recurso,
- * cuelga un sufijo aleatorio. La probabilidad de colisión en 5+ rondas es
- * despreciable para nuestra escala.
- */
-async function resolveAvailableUsername(base: string): Promise<string> {
-  const truncated = base.slice(0, USERNAME_MAX);
-  const free = await db.user.findUnique({
-    where: { username: truncated },
-    select: { id: true },
-  });
-  if (!free) return truncated;
+/** Prefijo del handle provisional — deja claro en logs/DB que es temporal. */
+const PROVISIONAL_PREFIX = "alumno_";
 
-  for (let suffix = 2; suffix <= 99; suffix++) {
-    const candidate = `${truncated.slice(0, USERNAME_MAX - String(suffix).length)}${suffix}`;
+/**
+ * Genera un handle provisional de alta entropía (no derivado de ningún dato
+ * del usuario) y resuelve la colisión, si la hay, con más entropía — nunca
+ * con un sufijo predecible. El username real lo elige el alumno en
+ * `confirmOAuthUsername`; a este no le importa ser "bonito".
+ */
+async function resolveAvailableProvisionalUsername(): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const entropy = randomUUID().replace(/-/g, "").slice(0, 12);
+    const candidate = `${PROVISIONAL_PREFIX}${entropy}`.slice(0, USERNAME_MAX);
     const taken = await db.user.findUnique({
       where: { username: candidate },
       select: { id: true },
     });
     if (!taken) return candidate;
   }
-
-  // Fallback con entropía — sólo bajo presión patológica.
-  const rand = randomUUID().replace(/-/g, "").slice(0, 6);
-  return `${truncated.slice(0, USERNAME_MAX - rand.length)}${rand}`;
+  // Presión patológica: 5 colisiones de 48 bits de entropía es
+  // estadísticamente imposible a nuestra escala; si pasa, un id de sesión
+  // adicional termina de romper el empate.
+  return `${PROVISIONAL_PREFIX}${randomUUID().replace(/-/g, "").slice(0, 12)}`.slice(
+    0,
+    USERNAME_MAX,
+  );
 }

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
+import { seedAcademicCatalog } from "./seed-academic";
 import { seedCourse } from "./seed-content";
 import { seedPracticeExercises } from "./seed-practice";
 
@@ -18,6 +19,7 @@ async function main() {
   console.log("🌱 Seeding CETI database...");
   await seedCourse(db);
   await seedPracticeExercises(db);
+  await seedAcademicCatalog(db);
   console.log("✅ Seed completed.");
 }
 

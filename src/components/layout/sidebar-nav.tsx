@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, Dumbbell, Home, Lock, Trophy, Users } from "lucide-react";
+import { Check, Dumbbell, Home, Lock, Swords, Users } from "lucide-react";
 
 import { BrickRow } from "@/components/ui/bricks";
 import {
@@ -43,7 +43,7 @@ function topLinksFor(courseSlug: string | null): {
           },
         ]
       : []),
-    { href: "/app/logros", label: "Logros", icon: Trophy },
+    { href: "/app/liga", label: "Liga", icon: Swords },
     { href: "/app/amigos", label: "Amigos", icon: Users },
   ];
 }

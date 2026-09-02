@@ -60,7 +60,7 @@ export function UserSearch({ meUsername }: UserSearchProps) {
       prev.map((u) => (u.id === user.id ? { ...u, pending: true } : u)),
     );
     try {
-      const result = await sendFriendRequest({ username: user.username });
+      const result = await sendFriendRequest({ username: user.username, source: "search" });
       setResults((prev) =>
         prev.map((u) =>
           u.id === user.id

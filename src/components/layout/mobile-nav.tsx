@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Dumbbell, Home, Trophy, User, Users } from "lucide-react";
+import { Dumbbell, Home, Swords, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ function itemsFor(courseSlug: string | null): {
           },
         ]
       : []),
-    { href: "/app/logros", label: "Logros", icon: Trophy },
+    { href: "/app/liga", label: "Liga", icon: Swords },
     {
       href: "/app/amigos",
       label: "Amigos",

@@ -8,10 +8,11 @@ import { LevelBar } from "@/components/ui/level-bar";
 import { Readout, ReadoutBar } from "@/components/ui/readout";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
-import { getActivityFeed, getPublicProfile } from "@/features/friends/queries";
+import { getPublicProfile, getUserLessonActivity } from "@/features/friends/queries";
 import { ProfileActions } from "@/features/friends/components/profile-actions";
 import { ActivityFeed } from "@/features/friends/components/activity-feed";
 import { BioEditor } from "@/features/profile/components/bio-editor";
+import { StartStreakButton } from "@/features/streaks/components/start-streak-button";
 import { requireSession } from "@/lib/get-session";
 import { pluralize } from "@/lib/utils";
 import {
@@ -68,8 +69,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
     .slice(0, 2)
     .toUpperCase();
 
-  // Feed sólo para uno mismo y amigos.
-  const feed = isSelf || isFriend ? await getActivityFeed(profile.id, 8) : [];
+  // Feed sólo para uno mismo y amigos. `profile.id` es el DUEÑO del
+  // perfil: esto trae la actividad de esa persona, no la de sus amigos
+  // (ver `getUserLessonActivity`).
+  const feed = isSelf || isFriend ? await getUserLessonActivity(profile.id, 8) : [];
 
   return (
     <div
@@ -106,7 +109,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
+            {isFriend ? <StartStreakButton userId={profile.id} /> : null}
             <ProfileActions
               userId={profile.id}
               username={profile.username}
@@ -127,6 +131,26 @@ export default async function PublicProfilePage({ params }: PageProps) {
           </div>
         ) : null}
       </header>
+
+      {profile.academic ? (
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-muted-foreground">
+          <span>{profile.academic.campusName}</span>
+          <span aria-hidden className="text-border-strong">·</span>
+          <span>{profile.academic.programName}</span>
+          {profile.academic.semester ? (
+            <>
+              <span aria-hidden className="text-border-strong">·</span>
+              <span>{profile.academic.semester}.º semestre</span>
+            </>
+          ) : null}
+          {profile.academic.group ? (
+            <>
+              <span aria-hidden className="text-border-strong">·</span>
+              <span>Grupo {profile.academic.group}</span>
+            </>
+          ) : null}
+        </p>
+      ) : null}
 
       <LevelBar totalXp={profile.totalXp} className="mt-7" />
 

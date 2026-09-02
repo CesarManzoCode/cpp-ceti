@@ -10,6 +10,7 @@ import { buildFeedback, getExecutorForProfile } from "@/lib/executor";
 import type { TestCaseResult } from "@/lib/executor";
 import { requireSession } from "@/lib/get-session";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { checkUnitAndCourseCompletion } from "@/lib/social/social-events";
 import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak, incrementUserXp } from "@/lib/streak";
 import {
@@ -17,6 +18,7 @@ import {
   parseOrThrow,
   stepCompletionSchema,
 } from "@/lib/validation";
+import { xpDedupeKey } from "@/lib/xp";
 
 import { requireAccessibleExercise, requireAccessibleStep } from "./lib/access";
 import { markStepCompletedInTx } from "./lib/progression";
@@ -57,7 +59,12 @@ export const completeStep = withActionErrorHandling(
         assisted,
       );
       if (progression.lessonJustCompleted) {
-        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned);
+        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned, {
+          reason: "lesson_completed",
+          dedupeKey: xpDedupeKey.lesson(step.lessonId),
+          lessonId: step.lessonId,
+        });
+        await checkUnitAndCourseCompletion(tx, userId, step.lesson.unit.id, step.lesson.unit.course.id);
       }
       return progression;
     });
@@ -231,11 +238,20 @@ export const submitExercise = withActionErrorHandling(
 
       let xp = 0;
       if (firstPass) {
-        await incrementUserXp(tx, userId, exercise.xpReward);
+        await incrementUserXp(tx, userId, exercise.xpReward, {
+          reason: "lesson_exercise_first_pass",
+          dedupeKey: xpDedupeKey.exercise(exercise.id),
+          exerciseId: exercise.id,
+        });
         xp += exercise.xpReward;
       }
       if (progression.lessonJustCompleted) {
-        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned);
+        await awardXpAndUpdateStreak(tx, userId, progression.lessonXpEarned, {
+          reason: "lesson_completed",
+          dedupeKey: xpDedupeKey.lesson(lesson.id),
+          lessonId: lesson.id,
+        });
+        await checkUnitAndCourseCompletion(tx, userId, lesson.unit.id, lesson.unit.course.id);
         xp += progression.lessonXpEarned;
       }
       return xp;

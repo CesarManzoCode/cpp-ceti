@@ -2,6 +2,8 @@ import type { Prisma } from "@prisma/client";
 import { cache } from "react";
 
 import { db } from "@/lib/db";
+import { maybeEmitStreakMilestone } from "@/lib/social/social-events";
+import { recordXpAward, type XpAwardDescriptor } from "@/lib/xp";
 
 export interface UserStats {
   totalXp: number;
@@ -32,12 +34,21 @@ export const getUserStats = cache(async (userId: string): Promise<UserStats> => 
  *
  * El `totalXp` se incrementa atómicamente (no read-then-write) para evitar
  * lost updates si por alguna razón se invocan dos racha-updates en paralelo.
+ *
+ * `award` describe el otorgamiento para el ledger `XpAward` (fuente de
+ * verdad de ranking/ligas — ver `src/lib/xp.ts`). Si el dedupeKey ya existía
+ * (llamada repetida del mismo evento), NO se toca ni la racha ni `totalXp`:
+ * el ledger es quien decide si esto "ya pasó".
  */
 export async function awardXpAndUpdateStreak(
   tx: Prisma.TransactionClient,
   userId: string,
   xpEarned: number,
+  award: XpAwardDescriptor,
 ): Promise<void> {
+  const granted = await recordXpAward(tx, userId, xpEarned, award);
+  if (!granted) return;
+
   const today = startOfDayUTC(new Date());
   const yesterday = startOfDayUTC(new Date(Date.now() - 86_400_000));
 
@@ -53,6 +64,7 @@ export async function awardXpAndUpdateStreak(
         totalXp: xpEarned,
       },
     });
+    await maybeEmitStreakMilestone(tx, userId, 1);
     return;
   }
 
@@ -80,18 +92,28 @@ export async function awardXpAndUpdateStreak(
       totalXp: { increment: xpEarned },
     },
   });
+  if (newStreak !== existing.currentStreak) {
+    await maybeEmitStreakMilestone(tx, userId, newStreak);
+  }
 }
 
 /**
  * Suma XP sin tocar la racha. Atómico vía `increment`. Usado para XP de
  * sub-eventos (ej. aprobar un ejercicio dentro de una lección, donde la
  * racha la maneja la transición de la lección).
+ *
+ * Igual que `awardXpAndUpdateStreak`: sólo mueve `totalXp` si el ledger
+ * efectivamente otorgó este `award` por primera vez.
  */
 export async function incrementUserXp(
   tx: Prisma.TransactionClient,
   userId: string,
   xp: number,
+  award: XpAwardDescriptor,
 ): Promise<void> {
+  const granted = await recordXpAward(tx, userId, xp, award);
+  if (!granted) return;
+
   await tx.userStreak.upsert({
     where: { userId },
     update: { totalXp: { increment: xp } },

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, AtSign, Check, Lock, Mail, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
+import { safeInternalRedirect } from "@/lib/social/redirect";
 import {
   USERNAME_MAX,
   USERNAME_MIN,
@@ -52,6 +53,8 @@ type UsernameStatus =
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = safeInternalRedirect(searchParams.get("redirectTo"), "/app");
   const [isPending, startTransition] = React.useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
   const [formError, setFormError] = React.useState<string | null>(null);
@@ -181,7 +184,7 @@ export function RegisterForm() {
       }
 
       toast.success(`¡Cuenta creada! Bienvenido a ${PRODUCT_NAME}.`);
-      router.push("/app");
+      router.push(redirectTo);
       router.refresh();
     });
   }
@@ -192,7 +195,7 @@ export function RegisterForm() {
     setIsGoogleLoading(true);
     const { error: oauthError } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/app",
+      callbackURL: redirectTo,
     });
     if (oauthError) {
       failForm(oauthError.message ?? "No pudimos registrarte con Google.");
