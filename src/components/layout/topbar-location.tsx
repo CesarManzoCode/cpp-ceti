@@ -66,13 +66,18 @@ export function TopbarLocation({ units }: { units: RoadmapUnit[] }) {
   const { label, hasParent, home } = resolve(pathname, units);
 
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    /* shrink-0: si este bloque se encoge, el logo (que no se encoge) se
+       sale de su caja y el selector de curso se le encima. */
+    <div className="flex min-w-0 shrink-0 items-center gap-3">
       <Link
         href={home}
         aria-label="Ir a Inicio"
         className="shrink-0 rounded-[var(--radius-sm)] transition-opacity hover:opacity-75 lg:hidden"
       >
-        <Logo size="sm" />
+        {/* Debajo de sm la barra no da para la palabra: queda el glifo,
+            que sigue siendo el enlace a Inicio. */}
+        <Logo size="sm" className="hidden sm:inline-flex" />
+        <Logo size="sm" glyphOnly className="sm:hidden" />
       </Link>
 
       <nav

@@ -141,11 +141,11 @@ function StreakRow({ streak }: { streak: FriendStreakCard }) {
     local.status === "pending" ? (
       local.isCreator ? (
         <>
-          Esperando a que acepte
+          Esperando respuesta
           {local.pendingExpiresAt ? ` · vence ${relativeFromNow(local.pendingExpiresAt)}` : null}
         </>
       ) : (
-        "Te propuso una racha"
+        "Quiere una racha"
       )
     ) : (
       <>

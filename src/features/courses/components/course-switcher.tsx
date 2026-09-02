@@ -67,7 +67,9 @@ export function CourseSwitcher({
                 // nada al alumno. Dos líneas alcanzan para cualquier título
                 // de curso actual sin desbordar el rail.
                 "w-full items-start px-2 py-1.5 text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground hover:bg-accent hover:text-foreground"
-              : "max-w-[52vw] items-center border border-border bg-card px-2.5 py-1.5 text-[13px] font-bold text-foreground hover:bg-accent",
+              : // min-w: el título se recorta, pero el control nunca se
+                // encoge por debajo de sus dos iconos (se salían de la caja).
+                "min-w-[3.25rem] max-w-[52vw] items-center border border-border bg-card px-2.5 py-1.5 text-[13px] font-bold text-foreground hover:bg-accent",
             className,
           )}
         >

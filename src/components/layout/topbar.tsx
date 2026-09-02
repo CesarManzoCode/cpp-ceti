@@ -39,7 +39,7 @@ export function Topbar({
   isAdmin = false,
 }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-background/90 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-1.5 border-b border-border bg-background/90 px-3 backdrop-blur-md sm:gap-2 sm:px-6">
       <TopbarLocation units={units} />
 
       {/* En móvil no hay rail: el curso actual —y su cambio— viven aquí.
@@ -55,9 +55,9 @@ export function Topbar({
 
       <div className="min-w-2 flex-1" />
 
-      <div className="flex items-center gap-2 sm:gap-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
         <span
-          className="flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1.5 text-[13px] font-bold tabular-nums text-warning"
+          className="flex items-center gap-1.5 rounded-full bg-warning-soft px-2 py-1.5 text-[13px] font-bold tabular-nums text-warning sm:px-2.5"
           aria-label={`Racha de ${streak} ${streak === 1 ? "día" : "días"}`}
         >
           <StreakFlame streak={streak} className="size-4" />
@@ -68,13 +68,15 @@ export function Topbar({
         </span>
 
         <span
-          className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-[13px] font-bold tabular-nums text-foreground"
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card py-1 pl-1 pr-2.5 text-[13px] font-bold tabular-nums text-foreground sm:gap-2 sm:pr-3"
           aria-label={`${totalXp} XP totales`}
         >
           <LevelRing totalXp={totalXp} size={26} />
           <span>
             <AnimatedNumber value={totalXp} />
-            <span className="ml-1 text-subtle-foreground">XP</span>
+            {/* Igual que "días" en la racha: en móvil la ficha ya no cabe
+                con la unidad; el aria-label la sigue diciendo. */}
+            <span className="ml-1 hidden text-subtle-foreground sm:inline">XP</span>
           </span>
         </span>
       </div>

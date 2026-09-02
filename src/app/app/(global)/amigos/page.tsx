@@ -58,6 +58,7 @@ export default async function AmigosPage({
   }
 
   const initialTab =
+    params.tab === "amigos" ||
     params.tab === "solicitudes" ||
     params.tab === "buscar" ||
     params.tab === "descubrir" ||
