@@ -11,7 +11,7 @@ import { recordProductEventSafely } from "@/lib/analytics/record";
 import { leagueViewPropsSchema } from "@/lib/analytics/social-props";
 import { relativeFromNow } from "@/lib/relative-time";
 import { LEAGUE_TIER_LABEL } from "@/lib/social/league-labels";
-import { tierAbove, tierBelow } from "@/lib/social/league";
+import { resolveRolloverOutcome, tierAbove, tierBelow } from "@/lib/social/league";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
@@ -181,17 +181,16 @@ function StandingRow({
   row: LeagueStanding["rows"][number];
   standing: LeagueStanding;
 }) {
-  const n = standing.rows.length;
-  // Sólo se marca la zona que de verdad puede pasar: en Diamante no hay
-  // ascenso y en Bronce no hay descenso.
-  const inPromotionZone =
-    tierAbove(standing.tier) !== null &&
-    standing.promoteCount > 0 &&
-    row.rank <= standing.promoteCount;
-  const inRelegationZone =
-    tierBelow(standing.tier) !== null &&
-    standing.relegateCount > 0 &&
-    row.rank > n - standing.relegateCount;
+  // La misma función que decide el rollover decide qué flecha se pinta:
+  // en Diamante nadie sube (held_at_ceiling) y en Bronce nadie baja
+  // (held_at_floor), así que ahí no se marca ninguna zona.
+  const { outcome } = resolveRolloverOutcome(
+    row.rank,
+    standing.rows.length,
+    standing.tier,
+  );
+  const inPromotionZone = outcome === "promoted";
+  const inRelegationZone = outcome === "relegated";
 
   return (
     <li
