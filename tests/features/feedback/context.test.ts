@@ -36,6 +36,10 @@ beforeEach(() => {
       course: { slug: "csharp-poo-1" },
     },
   ]);
+  (db as FakeDb).seed("unit", [
+    { id: "unit_cpp", slug: "u01", courseId: "c_cpp", course: { slug: "cpp-desde-cero" } },
+    { id: "unit_cs", slug: "u01", courseId: "c_cs", course: { slug: "csharp-poo-1" } },
+  ]);
 });
 
 describe("sanitizePath", () => {
@@ -63,9 +67,30 @@ describe("resolveFeedbackContext", () => {
     expect(context).toEqual({
       path: "/app/u/u01/primer-programa",
       surface: "lesson",
+      unitId: null,
       lessonId: "lesson_cpp",
       practiceExerciseId: null,
     });
+  });
+
+  it("deriva la unidad completa cuando no hay lección en la ruta", async () => {
+    const context = await resolveFeedbackContext(asPrisma, "/app/u/u01");
+    expect(context).toEqual({
+      path: "/app/u/u01",
+      surface: "unit",
+      unitId: "unit_cpp",
+      lessonId: null,
+      practiceExerciseId: null,
+    });
+  });
+
+  it("la ruta canónica con curso resuelve la unidad de ESE curso", async () => {
+    const context = await resolveFeedbackContext(
+      asPrisma,
+      "/app/c/csharp-poo-1/u/u01",
+    );
+    expect(context.surface).toBe("unit");
+    expect(context.unitId).toBe("unit_cs");
   });
 
   it("deriva el ejercicio de práctica", async () => {
@@ -123,6 +148,7 @@ describe("resolveFeedbackContext", () => {
     expect(await resolveFeedbackContext(asPrisma, undefined)).toEqual({
       path: null,
       surface: null,
+      unitId: null,
       lessonId: null,
       practiceExerciseId: null,
     });

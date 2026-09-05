@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
+import { ReportDiscrepancyButton } from "@/features/feedback/components/report-discrepancy-button";
 import { RoadmapLessons } from "@/features/roadmap/components/roadmap-lessons";
 import { getCourseBySlug } from "@/features/roadmap/queries";
 import { getUnitBySlug } from "@/features/lessons/queries";
@@ -51,7 +52,7 @@ export default async function UnitPage({ params }: PageProps) {
           >
             {unitComplete ? <Check className="size-6" strokeWidth={3.2} /> : unit.order}
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
               Unidad {unit.order}
             </p>
@@ -64,6 +65,7 @@ export default async function UnitPage({ params }: PageProps) {
               </p>
             )}
           </div>
+          <ReportDiscrepancyButton />
         </div>
 
         <h1 className="mt-5 text-balance text-[30px] font-extrabold leading-[1.1] tracking-[-0.034em] sm:text-[38px]">

@@ -23,6 +23,14 @@ const STATUSES: { value: ReportStatusInput; label: string }[] = [
   { value: "wontfix", label: "No se arregla" },
 ];
 
+const FEEDBACK_KIND_LABEL: Record<string, string> = {
+  discrepancy: "Discrepancia con clase",
+  confusing: "Confuso",
+  idea: "Idea",
+  praise: "Elogio",
+  other: "Otro",
+};
+
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "success" | "warning"> = {
   open: "warning",
   triaged: "default",
@@ -69,8 +77,19 @@ export function TriageRow({ item }: { item: TriageItem }) {
   return (
     <article className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-4">
       <header className="flex flex-wrap items-center gap-2">
-        <Badge variant={item.kind === "bug" ? "destructive" : "info"} size="md">
-          {item.kind === "bug" ? "Bug de contenido" : `Feedback · ${item.feedbackKind}`}
+        <Badge
+          variant={
+            item.kind === "bug" || item.feedbackKind === "discrepancy"
+              ? "destructive"
+              : "info"
+          }
+          size="md"
+        >
+          {item.kind === "bug"
+            ? "Bug de contenido"
+            : `Feedback · ${
+                FEEDBACK_KIND_LABEL[item.feedbackKind ?? ""] ?? item.feedbackKind
+              }`}
         </Badge>
         <Badge variant={STATUS_VARIANT[item.status] ?? "secondary"} size="md">
           {item.status}
