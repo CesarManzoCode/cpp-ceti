@@ -845,6 +845,13 @@ enum FeedbackKind {
    */
   discrepancy
   /**
+   * Error técnico GENERAL, no atado a un paso/ejercicio concreto (para eso
+   * está `BugReport`): "no puedo iniciar sesión", "esta página no carga".
+   * Es el destino del link "Reportar un bug" del rail y del perfil — antes
+   * apuntaba a GitHub, que la mayoría de los alumnos no sabe usar.
+   */
+  bug
+  /**
    * "no entendí esto"
    */
   confusing

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
+  Bug,
   Dumbbell,
   LogOut,
   MessageSquarePlus,
@@ -56,6 +57,9 @@ export function UserMenu({
 }: UserMenuProps) {
   const router = useRouter();
   const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackKind, setFeedbackKind] = React.useState<"confusing" | "bug">(
+    "confusing",
+  );
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -154,11 +158,22 @@ export function UserMenu({
             // El menú se cierra al elegir; abrimos el diálogo aparte para que
             // no se desmonte con él.
             event.preventDefault();
+            setFeedbackKind("confusing");
             setFeedbackOpen(true);
           }}
         >
           <MessageSquarePlus className="size-4" />
           Enviar comentario
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            setFeedbackKind("bug");
+            setFeedbackOpen(true);
+          }}
+        >
+          <Bug className="size-4" />
+          Reportar un bug
         </DropdownMenuItem>
         {isAdmin ? (
           <DropdownMenuItem onClick={() => router.push("/app/admin")}>
@@ -172,7 +187,11 @@ export function UserMenu({
           Cerrar sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+      <FeedbackDialog
+        open={feedbackOpen}
+        onOpenChange={setFeedbackOpen}
+        defaultKind={feedbackKind}
+      />
     </DropdownMenu>
   );
 }

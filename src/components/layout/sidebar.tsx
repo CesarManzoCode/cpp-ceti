@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Bug } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import type { CourseSwitcherItem } from "@/features/courses/components/course-switcher";
 import { FeedbackRailButton } from "@/features/feedback/components/feedback-rail-button";
+import { ReportBugRailRow } from "@/features/feedback/components/report-bug-button";
 import type { RoadmapUnit } from "@/features/roadmap/types";
 
 /**
@@ -52,18 +52,11 @@ export function Sidebar({
 
         <div className="shrink-0 space-y-1.5 border-t border-border px-6 py-3">
           {/* Feedback general de la experiencia. Para contenido roto está el
-              botón de reporte dentro de la propia lección/ejercicio. */}
+              botón de reporte dentro de la propia lección/ejercicio. Ninguno
+              de los dos manda a GitHub: la mayoría de los alumnos no sabe
+              qué es un issue y no lo abriría. */}
           <FeedbackRailButton />
-          <a
-            href="https://github.com/CesarManzoCode/cpp-ceti/issues"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="flex items-center gap-2 text-[13px] font-medium text-subtle-foreground transition-colors hover:text-foreground"
-          >
-            <Bug className="size-4" aria-hidden />
-            Reportar un bug
-            <span className="ml-auto tabular-nums">v0.1</span>
-          </a>
+          <ReportBugRailRow />
           <p className="pt-1 text-[12px] leading-snug text-subtle-foreground">
             {UNOFFICIAL_NOTICE}
           </p>

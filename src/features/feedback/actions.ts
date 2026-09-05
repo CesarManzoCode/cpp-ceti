@@ -26,7 +26,7 @@ import { FEEDBACK_MAX_LENGTH, resolveFeedbackContext } from "./context";
  * (`/app/admin/reportes`) para que un admin lo normalice si vale la pena.
  */
 const feedbackSchema = z.object({
-  kind: z.enum(["discrepancy", "confusing", "idea", "praise", "other"]),
+  kind: z.enum(["discrepancy", "bug", "confusing", "idea", "praise", "other"]),
   message: z
     .string()
     .trim()
@@ -42,7 +42,7 @@ const feedbackSchema = z.object({
 export const submitFeedback = withActionErrorHandling(
   "submitFeedback",
   async (input: {
-    kind: "discrepancy" | "confusing" | "idea" | "praise" | "other";
+    kind: "discrepancy" | "bug" | "confusing" | "idea" | "praise" | "other";
     message: string;
     path?: string;
   }): Promise<{ ok: true }> => {

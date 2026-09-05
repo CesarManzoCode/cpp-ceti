@@ -68,7 +68,7 @@ export function ReportBugDialog({ target, children }: ReportBugDialogProps) {
         {children ?? (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="icon-sm"
             aria-label="Reportar problema en este contenido"
             title="Reportar problema"

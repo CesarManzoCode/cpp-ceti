@@ -13,7 +13,11 @@ import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
  *
  * Vive junto al `ReportBugDialog` en la cabecera de la lección y en la
  * página de unidad: el alumno lo ve exactamente donde nota el problema, sin
- * tener que buscarlo en un menú aparte.
+ * tener que buscarlo en un menú aparte. Estilo llamativo (no `ghost`) a
+ * propósito — un ícono apagado entre otros íconos apagados nunca se nota, y
+ * esto es justo lo que más nos importa saber en semestres avanzados, donde
+ * el temario oficial casi no tiene referencia práctica y cada plantel lo
+ * sigue distinto.
  */
 export function ReportDiscrepancyButton() {
   return (
@@ -21,11 +25,13 @@ export function ReportDiscrepancyButton() {
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
-        aria-label="Reportar que esto no corresponde con tu clase"
-        title="¿No corresponde con tu clase?"
+        size="sm"
+        aria-label="Reportar que esto no corresponde con tu clase o tu plantel"
+        title="¿No corresponde con tu clase o tu plantel?"
+        className="gap-1.5 rounded-full border border-warning/40 bg-warning-soft px-2.5 text-warning hover:border-warning/60 hover:bg-warning-soft hover:text-warning hover:brightness-95"
       >
-        <AlertTriangle className="size-4" />
+        <AlertTriangle className="size-4" aria-hidden />
+        <span className="hidden sm:inline">¿No es tu clase?</span>
       </Button>
     </FeedbackDialog>
   );

@@ -21,6 +21,7 @@ import { AchievementsSection } from "@/features/profile/components/achievements-
 import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
 import { DeleteAccountDialog } from "@/features/profile/components/delete-account-dialog";
 import { SignOutButton } from "@/features/profile/components/sign-out-button";
+import { ReportBugButton } from "@/features/feedback/components/report-bug-button";
 
 export const metadata = {
   title: "Mi perfil",
@@ -198,16 +199,11 @@ export default async function PerfilPage() {
       </section>
 
       <p className="mt-8 text-[14px] text-muted-foreground">
-        ¿Encontraste un bug?{" "}
-        <a
-          href="https://github.com/CesarManzoCode/cpp-ceti/issues"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="font-semibold text-primary underline decoration-primary/35 decoration-2 underline-offset-4 hover:decoration-primary"
-        >
-          Repórtalo en GitHub
-        </a>
-        .
+        ¿Encontraste un bug o algo que no corresponde con tu clase?{" "}
+        <ReportBugButton className="font-semibold text-primary underline decoration-primary/35 decoration-2 underline-offset-4 hover:decoration-primary">
+          Repórtalo aquí
+        </ReportBugButton>{" "}
+        — no hace falta GitHub.
       </p>
     </div>
   );
