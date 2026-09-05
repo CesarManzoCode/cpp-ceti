@@ -111,6 +111,13 @@ export async function getTriageQueue(options: {
         issueUrl: true,
         prUrl: true,
         user: { select: { username: true } },
+        unit: {
+          select: {
+            title: true,
+            slug: true,
+            course: { select: { slug: true } },
+          },
+        },
         lesson: {
           select: {
             title: true,
@@ -162,14 +169,18 @@ export async function getTriageQueue(options: {
   const feedbackItems: TriageItem[] = feedback.map((item) => {
     const target = item.lesson
       ? `Lección: ${item.lesson.title}`
-      : item.practiceExercise
-        ? `Práctica: ${item.practiceExercise.title}`
-        : (item.path ?? "Sin contexto");
+      : item.unit
+        ? `Unidad: ${item.unit.title}`
+        : item.practiceExercise
+          ? `Práctica: ${item.practiceExercise.title}`
+          : (item.path ?? "Sin contexto");
     const href = item.lesson
       ? `/app/c/${item.lesson.unit.course.slug}/u/${item.lesson.unit.slug}/${item.lesson.slug}`
-      : item.practiceExercise
-        ? `/app/c/${item.practiceExercise.course.slug}/ejercicios/${item.practiceExercise.slug}`
-        : item.path;
+      : item.unit
+        ? `/app/c/${item.unit.course.slug}/u/${item.unit.slug}`
+        : item.practiceExercise
+          ? `/app/c/${item.practiceExercise.course.slug}/ejercicios/${item.practiceExercise.slug}`
+          : item.path;
     return {
       id: item.id,
       kind: "feedback",

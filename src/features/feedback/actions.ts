@@ -11,18 +11,22 @@ import { parseOrThrow } from "@/lib/validation";
 import { FEEDBACK_MAX_LENGTH, resolveFeedbackContext } from "./context";
 
 /**
- * Feedback general: "esto me confundió", "estaría bueno que...", "me gustó".
+ * Feedback general: "esto no corresponde con mi clase", "esto me confundió",
+ * "estaría bueno que...", "me gustó".
  *
  * NO reemplaza a `BugReport`, que sigue siendo para contenido roto y apunta a
- * un paso/ejercicio concreto. Aquí el contexto (ruta, superficie, recurso) lo
- * DERIVA EL SERVIDOR de la ruta: al alumno no se le pide que explique dónde
- * estaba, y tampoco se le cree ciegamente lo que manda.
+ * un paso/ejercicio concreto. Aquí el contexto (ruta, superficie, recurso —
+ * incluida la unidad completa cuando el reporte es sobre una) lo DERIVA EL
+ * SERVIDOR de la ruta: al alumno no se le pide que explique dónde estaba, y
+ * tampoco se le cree ciegamente lo que manda.
  *
  * Lo único que se guarda del usuario es su mensaje y su id. Nada de user
- * agent, IP, resolución de pantalla ni contenido del editor.
+ * agent, IP, resolución de pantalla ni contenido del editor. Nada de esto
+ * crea un issue de GitHub: cae en la cola de triage interna
+ * (`/app/admin/reportes`) para que un admin lo normalice si vale la pena.
  */
 const feedbackSchema = z.object({
-  kind: z.enum(["confusing", "idea", "praise", "other"]),
+  kind: z.enum(["discrepancy", "confusing", "idea", "praise", "other"]),
   message: z
     .string()
     .trim()
@@ -38,7 +42,7 @@ const feedbackSchema = z.object({
 export const submitFeedback = withActionErrorHandling(
   "submitFeedback",
   async (input: {
-    kind: "confusing" | "idea" | "praise" | "other";
+    kind: "discrepancy" | "confusing" | "idea" | "praise" | "other";
     message: string;
     path?: string;
   }): Promise<{ ok: true }> => {
@@ -56,6 +60,7 @@ export const submitFeedback = withActionErrorHandling(
         message,
         path: context.path,
         surface: context.surface,
+        unitId: context.unitId,
         lessonId: context.lessonId,
         practiceExerciseId: context.practiceExerciseId,
       },

@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Lightbulb, MessageSquarePlus, Send, Sparkles, HelpCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Lightbulb,
+  MessageSquarePlus,
+  Send,
+  Sparkles,
+  HelpCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,31 +27,73 @@ import { submitFeedback } from "@/features/feedback/actions";
 import { FEEDBACK_MAX_LENGTH } from "@/features/feedback/context";
 import { cn } from "@/lib/utils";
 
-type Kind = "confusing" | "idea" | "praise";
+type Kind = "discrepancy" | "confusing" | "idea" | "praise";
 
 const KINDS: { value: Kind; label: string; icon: typeof HelpCircle }[] = [
+  {
+    value: "discrepancy",
+    label: "No corresponde con mi clase",
+    icon: AlertTriangle,
+  },
   { value: "confusing", label: "Algo me confundió", icon: HelpCircle },
   { value: "idea", label: "Tengo una idea", icon: Lightbulb },
   { value: "praise", label: "Algo me gustó", icon: Sparkles },
 ];
 
+const COPY: Record<
+  Kind,
+  { title: string; description: string; placeholder: string }
+> = {
+  discrepancy: {
+    title: "Reportar una discrepancia",
+    description:
+      '¿Esta lección o unidad no corresponde con lo que viste en tu clase, o te pareció una mala sesión? Cuéntanos qué no cuadra — ya sabemos en qué pantalla estás, no hace falta que lo expliques.',
+    placeholder:
+      'Ej: "En mi clase vimos primero los arreglos y aquí aparecen hasta después de POO."',
+  },
+  confusing: {
+    title: "¿Cómo te está yendo?",
+    description:
+      "Esto nos ayuda a decidir qué mejorar. Sabemos en qué pantalla estás, no hace falta que lo expliques.",
+    placeholder: 'Ej: "No entendí para qué sirve el for anidado en esta lección."',
+  },
+  idea: {
+    title: "¿Cómo te está yendo?",
+    description:
+      "Esto nos ayuda a decidir qué mejorar. Sabemos en qué pantalla estás, no hace falta que lo expliques.",
+    placeholder: 'Ej: "Estaría bueno tener modo oscuro en el editor."',
+  },
+  praise: {
+    title: "¿Cómo te está yendo?",
+    description:
+      "Esto nos ayuda a decidir qué mejorar. Sabemos en qué pantalla estás, no hace falta que lo expliques.",
+    placeholder: 'Ej: "Me encantó cómo explicaron los punteros."',
+  },
+};
+
 /**
- * Feedback general sobre la experiencia. El contexto (dónde estaba el
- * alumno) viaja solo: mandamos la ruta y el servidor la interpreta. No le
- * pedimos que explique en qué pantalla estaba.
+ * Feedback general sobre la experiencia — incluye reportar que el contenido
+ * NO corresponde con la clase real, o que una lección/unidad fue mala. El
+ * contexto (dónde estaba el alumno) viaja solo: mandamos la ruta y el
+ * servidor la interpreta. No le pedimos que explique en qué pantalla estaba.
  *
  * Para contenido roto (typo, test mal configurado) existe `ReportBugDialog`,
- * que sí apunta a un paso/ejercicio concreto.
+ * que sí apunta a un paso/ejercicio concreto. Ninguno de los dos crea un
+ * issue de GitHub: caen en la cola de triage interna (`/app/admin/reportes`)
+ * y un admin decide si vale la pena abrir uno.
  */
 export function FeedbackDialog({
   children,
   open: controlledOpen,
   onOpenChange,
+  defaultKind = "confusing",
 }: {
   children?: React.ReactNode;
   /** Modo controlado (para abrirlo desde un menú, que se cierra al elegir). */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Qué opción viene preseleccionada al abrir (p. ej. "discrepancy" desde un botón dedicado). */
+  defaultKind?: Kind;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -56,10 +105,24 @@ export function FeedbackDialog({
     },
     [isControlled, onOpenChange],
   );
-  const [kind, setKind] = React.useState<Kind>("confusing");
+  const [kind, setKind] = React.useState<Kind>(defaultKind);
   const [message, setMessage] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const pathname = usePathname();
+
+  // Reabrir con la opción correcta preseleccionada: el diálogo del rail y el
+  // de "reportar discrepancia" comparten componente pero no instancia de
+  // estado si el caller lo re-monta, así que al reabrir alineamos con lo que
+  // pidió el trigger en vez de arrastrar la última selección. Ajuste en
+  // render (no en un efecto) siguiendo el patrón de React para "resetear
+  // estado cuando cambia un prop".
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setKind(defaultKind);
+  }
+
+  const copy = COPY[kind];
 
   const trimmed = message.trim();
   const tooShort = trimmed.length > 0 && trimmed.length < 5;
@@ -99,11 +162,8 @@ export function FeedbackDialog({
       <DialogContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>¿Cómo te está yendo?</DialogTitle>
-            <DialogDescription>
-              Esto nos ayuda a decidir qué mejorar. Sabemos en qué pantalla
-              estás, no hace falta que lo expliques.
-            </DialogDescription>
+            <DialogTitle>{copy.title}</DialogTitle>
+            <DialogDescription>{copy.description}</DialogDescription>
           </DialogHeader>
 
           <div
@@ -140,7 +200,7 @@ export function FeedbackDialog({
               id="feedback-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder='Ej: "No entendí para qué sirve el for anidado en esta lección."'
+              placeholder={copy.placeholder}
               rows={4}
               maxLength={FEEDBACK_MAX_LENGTH}
               aria-invalid={tooShort || undefined}

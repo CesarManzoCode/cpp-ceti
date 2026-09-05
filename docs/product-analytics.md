@@ -340,9 +340,23 @@ Borrar la cuenta borra sus eventos, sesiones y pistas por `ON DELETE CASCADE`.
 
 | | `BugReport` | `Feedback` |
 |---|---|---|
-| Para qué | Contenido roto: typo, test mal configurado | Experiencia: "me confundió", idea, algo que gustó |
+| Para qué | Contenido roto: typo, test mal configurado | Experiencia: discrepancia con la clase, "me confundió", idea, algo que gustó |
 | Target | Paso, reto o ejercicio de práctica (elegido por el alumno) | Ruta, superficie y recurso **derivados por el servidor** |
 | Estados | `open` → `triaged` → `resolved` / `duplicate` / `wontfix` | los mismos (`ReportStatus`) |
+
+`Feedback.kind` (`FeedbackKind`): `discrepancy` (el contenido no corresponde
+con lo que el alumno vio en su clase, o una lección/unidad le pareció mala),
+`confusing`, `idea`, `praise`, `other`. El botón dedicado de discrepancia
+vive junto al de `BugReport` en la cabecera de la lección, y en la página de
+unidad — el alumno lo ve donde nota el problema, sin buscar un menú aparte.
+
+`Feedback.surface` incluye `unit` cuando el reporte es sobre una unidad
+completa (`unitId` set, `lessonId` null) en vez de una lección puntual;
+ambos IDs se derivan de la ruta contra la BD, nunca del cliente.
+
+Ninguno de los dos crea un issue de GitHub — la mayoría de los alumnos no
+sabe qué es GitHub y no lo usaría. Todo cae en la cola de triage interna; un
+admin decide si vale la pena normalizarlo como issue real (`issueUrl`).
 
 Ambos guardan evidencia del cierre: `resolutionNote`, `issueUrl`, `prUrl`,
 `triagedAt`, `resolvedAt`, `handledById`.

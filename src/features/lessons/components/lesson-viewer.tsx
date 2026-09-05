@@ -14,6 +14,7 @@ import {
   useStudySession,
 } from "@/features/analytics/telemetry";
 import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
+import { ReportDiscrepancyButton } from "@/features/feedback/components/report-discrepancy-button";
 import { completeStep, markStepAssisted } from "@/features/lessons/actions";
 import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
@@ -311,6 +312,8 @@ function LessonPlayer({
           </div>
 
           <div className="flex shrink-0 items-center">
+            <ReportDiscrepancyButton />
+
             <ReportBugDialog
               target={
                 currentStep.type === "code_challenge" && currentStep.exercise

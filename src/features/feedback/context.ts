@@ -8,6 +8,7 @@ export const FEEDBACK_MAX_LENGTH = 2_000;
 export interface FeedbackContext {
   path: string | null;
   surface: ProductSurface | null;
+  unitId: string | null;
   lessonId: string | null;
   practiceExerciseId: string | null;
 }
@@ -32,8 +33,10 @@ export function sanitizePath(raw: string | undefined | null): string | null {
  *
  * Rutas reconocidas (canónicas y legacy):
  *   · `/app/c/<curso>/u/<unidad>/<leccion>` → lección
+ *   · `/app/c/<curso>/u/<unidad>`           → unidad completa
  *   · `/app/c/<curso>/ejercicios/<slug>`    → ejercicio de práctica
  *   · `/app/u/<unidad>/<leccion>`           → lección del curso C++ legacy
+ *   · `/app/u/<unidad>`                     → unidad del curso C++ legacy
  *   · `/app/ejercicios/<slug>`              → práctica del curso C++ legacy
  *   · cualquier otra de la app              → superficie `app`
  *
@@ -49,6 +52,7 @@ export async function resolveFeedbackContext(
   const empty: FeedbackContext = {
     path,
     surface: null,
+    unitId: null,
     lessonId: null,
     practiceExerciseId: null,
   };
@@ -78,7 +82,23 @@ export async function resolveFeedbackContext(
     return {
       path,
       surface: "lesson",
+      unitId: null,
       lessonId: lesson?.id ?? null,
+      practiceExerciseId: null,
+    };
+  }
+
+  // .../u/<unitSlug> (la unidad completa, sin lección puntual)
+  if (rest[0] === "u" && rest.length === 2) {
+    const unit = await db.unit.findFirst({
+      where: { slug: rest[1], course: { slug: courseSlug } },
+      select: { id: true },
+    });
+    return {
+      path,
+      surface: "unit",
+      unitId: unit?.id ?? null,
+      lessonId: null,
       practiceExerciseId: null,
     };
   }
@@ -92,6 +112,7 @@ export async function resolveFeedbackContext(
     return {
       path,
       surface: "practice",
+      unitId: null,
       lessonId: null,
       practiceExerciseId: exercise?.id ?? null,
     };
