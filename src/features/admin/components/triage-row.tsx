@@ -25,6 +25,7 @@ const STATUSES: { value: ReportStatusInput; label: string }[] = [
 
 const FEEDBACK_KIND_LABEL: Record<string, string> = {
   discrepancy: "Discrepancia con clase",
+  bug: "Error técnico (general)",
   confusing: "Confuso",
   idea: "Idea",
   praise: "Elogio",
@@ -79,7 +80,9 @@ export function TriageRow({ item }: { item: TriageItem }) {
       <header className="flex flex-wrap items-center gap-2">
         <Badge
           variant={
-            item.kind === "bug" || item.feedbackKind === "discrepancy"
+            item.kind === "bug" ||
+            item.feedbackKind === "discrepancy" ||
+            item.feedbackKind === "bug"
               ? "destructive"
               : "info"
           }

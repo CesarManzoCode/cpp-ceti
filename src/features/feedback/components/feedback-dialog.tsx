@@ -4,6 +4,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import {
   AlertTriangle,
+  Bug,
   Lightbulb,
   MessageSquarePlus,
   Send,
@@ -27,7 +28,7 @@ import { submitFeedback } from "@/features/feedback/actions";
 import { FEEDBACK_MAX_LENGTH } from "@/features/feedback/context";
 import { cn } from "@/lib/utils";
 
-type Kind = "discrepancy" | "confusing" | "idea" | "praise";
+type Kind = "discrepancy" | "bug" | "confusing" | "idea" | "praise";
 
 const KINDS: { value: Kind; label: string; icon: typeof HelpCircle }[] = [
   {
@@ -35,6 +36,7 @@ const KINDS: { value: Kind; label: string; icon: typeof HelpCircle }[] = [
     label: "No corresponde con mi clase",
     icon: AlertTriangle,
   },
+  { value: "bug", label: "Encontré un error técnico", icon: Bug },
   { value: "confusing", label: "Algo me confundió", icon: HelpCircle },
   { value: "idea", label: "Tengo una idea", icon: Lightbulb },
   { value: "praise", label: "Algo me gustó", icon: Sparkles },
@@ -45,11 +47,18 @@ const COPY: Record<
   { title: string; description: string; placeholder: string }
 > = {
   discrepancy: {
-    title: "Reportar una discrepancia",
+    title: "Reportar una discrepancia con tu clase",
     description:
-      '¿Esta lección o unidad no corresponde con lo que viste en tu clase, o te pareció una mala sesión? Cuéntanos qué no cuadra — ya sabemos en qué pantalla estás, no hace falta que lo expliques.',
+      "¿Esta lección o unidad no corresponde con lo que tu profe está dando en clase, con el orden de tu plantel, o con el temario oficial? Es especialmente útil en semestres avanzados, donde casi no hay referencia práctica más allá del temario — y no todos los planteles lo siguen igual. Cuéntanos qué no cuadra; ya sabemos en qué pantalla estás.",
     placeholder:
-      'Ej: "En mi clase vimos primero los arreglos y aquí aparecen hasta después de POO."',
+      'Ej: "En mi plantel ya vimos punteros antes que arreglos, y aquí van después."',
+  },
+  bug: {
+    title: "Reportar un error técnico",
+    description:
+      "¿Algo no carga, se traba, o no funciona como debería? No hace falta GitHub ni saber qué es un issue: cuéntanos qué pasó y lo revisamos. Ya sabemos en qué pantalla estás.",
+    placeholder:
+      'Ej: "No puedo iniciar sesión con Google, se queda cargando."',
   },
   confusing: {
     title: "¿Cómo te está yendo?",
@@ -73,14 +82,16 @@ const COPY: Record<
 
 /**
  * Feedback general sobre la experiencia — incluye reportar que el contenido
- * NO corresponde con la clase real, o que una lección/unidad fue mala. El
- * contexto (dónde estaba el alumno) viaja solo: mandamos la ruta y el
+ * NO corresponde con la clase real (o que una lección/unidad fue mala) y
+ * reportar un error técnico general (login, una página que no carga, etc.).
+ * El contexto (dónde estaba el alumno) viaja solo: mandamos la ruta y el
  * servidor la interpreta. No le pedimos que explique en qué pantalla estaba.
  *
- * Para contenido roto (typo, test mal configurado) existe `ReportBugDialog`,
- * que sí apunta a un paso/ejercicio concreto. Ninguno de los dos crea un
- * issue de GitHub: caen en la cola de triage interna (`/app/admin/reportes`)
- * y un admin decide si vale la pena abrir uno.
+ * Para contenido roto atado a un paso/ejercicio concreto (typo, test mal
+ * configurado) existe `ReportBugDialog`. Ninguno de los dos crea un issue de
+ * GitHub — la mayoría de los alumnos no sabe qué es eso y no lo usaría: caen
+ * en la cola de triage interna (`/app/admin/reportes`) y un admin decide si
+ * vale la pena normalizarlo como issue real.
  */
 export function FeedbackDialog({
   children,
