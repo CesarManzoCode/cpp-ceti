@@ -19,12 +19,19 @@ export const practice = [
 11|Ana|CERRADO
 12|Luis|ABIERTO`,
         visible: true,
+        // El mismo resultado se puede obtener con un JOIN plano, sin
+        // CREATE VIEW. El post-check confirma que la vista existe de
+        // verdad como objeto del esquema.
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='view' AND name='ticket_cliente';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "oculto",
         stdin: `CREATE TABLE cliente(id INTEGER,nombre TEXT); CREATE TABLE ticket(id INTEGER,cliente_id INTEGER,estado TEXT,costo INTEGER); INSERT INTO cliente VALUES(5,'Eva'); INSERT INTO ticket VALUES(7,5,'CERRADO',9);`,
         expectedStdout: `7|Eva|CERRADO`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='view' AND name='ticket_cliente';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },

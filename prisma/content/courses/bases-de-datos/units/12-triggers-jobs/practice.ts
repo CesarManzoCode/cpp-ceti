@@ -17,6 +17,11 @@ export const practice = [
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT);`,
         expectedStdout: `5|INSERT`,
         visible: true,
+        // El audit row también podría insertarse a mano (sin trigger) y dar
+        // la misma salida. El post-check confirma que existe un TRIGGER de
+        // verdad sobre `ticket`, no sólo el efecto que produciría uno.
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         // Fixture DISTINTO del visible (auditoria ya trae una fila previa):
@@ -29,6 +34,8 @@ export const practice = [
         expectedStdout: `3|INSERT
 5|INSERT`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
@@ -48,12 +55,16 @@ export const practice = [
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(1,'ABIERTO');`,
         expectedStdout: `1|ABIERTO>CERRADO`,
         visible: true,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "otro estado",
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(1,'EN_PROCESO');`,
         expectedStdout: `1|EN_PROCESO>CERRADO`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
@@ -73,12 +84,16 @@ export const practice = [
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(2,'CERRADO');`,
         expectedStdout: `2|DELETE`,
         visible: true,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "otro estado",
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(2,'ABIERTO');`,
         expectedStdout: `2|DELETE`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
@@ -98,12 +113,16 @@ export const practice = [
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE metricas(total INTEGER); INSERT INTO metricas VALUES(2);`,
         expectedStdout: `3`,
         visible: true,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "parte de 0",
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT); CREATE TABLE metricas(total INTEGER); INSERT INTO metricas VALUES(0);`,
         expectedStdout: `1`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
