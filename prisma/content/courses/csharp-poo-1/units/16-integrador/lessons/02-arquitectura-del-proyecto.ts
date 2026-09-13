@@ -114,6 +114,21 @@ class Program
         ],
         difficulty: "hard",
         xpReward: 42,
+        structure: {
+          classes: [
+            {
+              name: "Inventario",
+              fields: [
+                { name: "stock", type: "Dictionary<string,int>", visibility: "private" },
+              ],
+              methods: [
+                { name: "Alta", paramCount: 2, returnType: "bool" },
+                { name: "Ajustar", paramCount: 2, returnType: "bool" },
+                { name: "Consultar", paramCount: 2, returnType: "bool" },
+              ],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,

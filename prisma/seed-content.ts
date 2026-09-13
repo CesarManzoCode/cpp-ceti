@@ -341,6 +341,8 @@ async function upsertStep(
         visible: tc.visible ?? true,
         description: tc.description ?? null,
         order: i + 1,
+        postCheckSql: tc.postCheckSql ?? null,
+        postCheckExpectedStdout: tc.postCheckExpectedStdout ?? null,
       },
     });
   }
@@ -364,6 +366,8 @@ async function upsertStep(
       expectedStdout: tc.expectedStdout,
       visible: tc.visible ?? true,
       description: tc.description ?? null,
+      postCheckSql: tc.postCheckSql ?? null,
+      postCheckExpectedStdout: tc.postCheckExpectedStdout ?? null,
     })),
   });
   await trackRevision(

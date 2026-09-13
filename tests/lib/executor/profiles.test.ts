@@ -226,6 +226,134 @@ describe("Wandbox SQL (sql-sqlite3-wandbox)", () => {
     expect(codes[1]).toContain("VALUES(1),(2);");
   });
 
+  it("sin postCheckSql, el código no lleva marcador alguno", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "CREATE TABLE t(x INTEGER);" },
+      [
+        {
+          id: "t1",
+          stdin: "",
+          expectedStdout: "",
+          visible: true,
+          description: null,
+        },
+      ],
+    );
+    expect(lastBody().code).toBe("\nCREATE TABLE t(x INTEGER);");
+  });
+
+  it("con postCheckSql, el post-check se agrega DESPUÉS del código del alumno, en el mismo script", async () => {
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "CREATE TABLE cliente(id INTEGER PRIMARY KEY,nombre TEXT NOT NULL);" },
+      [
+        {
+          id: "t1",
+          stdin: "",
+          expectedStdout: "",
+          visible: true,
+          description: null,
+          postCheckSql: "SELECT name FROM pragma_table_info('cliente') ORDER BY cid;",
+          postCheckExpectedStdout: "id\nnombre",
+        },
+      ],
+    );
+    const code = lastBody().code as string;
+    expect(code).toBe(
+      "\nCREATE TABLE cliente(id INTEGER PRIMARY KEY,nombre TEXT NOT NULL);;\n" +
+        "SELECT '__CPP_CETI_POSTCHECK__';\n" +
+        "SELECT name FROM pragma_table_info('cliente') ORDER BY cid;",
+    );
+  });
+
+  it("un post-check que falla reprueba aunque la salida visible del alumno coincida", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: "0",
+        signal: "",
+        compiler_output: "",
+        compiler_error: "",
+        compiler_message: "",
+        // La salida del alumno ("") coincide con expectedStdout, pero el
+        // post-check (después del marcador) da "0" en vez del "1" exigido:
+        // el alumno no creó de verdad el UNIQUE/tabla que el post-check
+        // verifica de forma independiente.
+        program_output: "__CPP_CETI_POSTCHECK__\n0",
+        program_error: "",
+        program_message: "",
+      }),
+      text: async () => "",
+    });
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    const [result] = await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "SELECT 1;" },
+      [
+        {
+          id: "t1",
+          stdin: "",
+          expectedStdout: "",
+          visible: true,
+          description: null,
+          postCheckSql: "SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE \"unique\"=1;",
+          postCheckExpectedStdout: "1",
+        },
+      ],
+    );
+    expect(result.passed).toBe(false);
+    // El post-check nunca llega al cliente: actualStdout es SÓLO lo del alumno.
+    expect(result.actualStdout).not.toContain("POSTCHECK");
+    expect(result.actualStdout).not.toContain("0");
+  });
+
+  it("con salida visible y post-check correctos, el test aprueba", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: "0",
+        signal: "",
+        compiler_output: "",
+        compiler_error: "",
+        compiler_message: "",
+        program_output: "id\nnombre\n__CPP_CETI_POSTCHECK__\nid\nnombre",
+        program_error: "",
+        program_message: "",
+      }),
+      text: async () => "",
+    });
+    const executor = new WandboxExecutor("https://wandbox.org", {
+      "sql-sqlite3-wandbox": { compiler: "sqlite-TEST" },
+    });
+    const [result] = await executor.runTests(
+      { profileId: "sql-sqlite3-wandbox", sourceCode: "-- crea cliente" },
+      [
+        {
+          id: "t1",
+          stdin: "",
+          expectedStdout: "id\nnombre",
+          visible: true,
+          description: null,
+          postCheckSql: "SELECT name FROM pragma_table_info('cliente') ORDER BY cid;",
+          postCheckExpectedStdout: "id\nnombre",
+        },
+      ],
+    );
+    expect(result.passed).toBe(true);
+    // actualStdout es la salida CRUDA del alumno (antes de normalizar),
+    // recortada justo antes del marcador — conserva el salto de línea que
+    // el programa imprimió ahí.
+    expect(result.actualStdout).toBe("id\nnombre\n");
+  });
+
   it("C++ y C# NO cambian su semántica de stdin (sólo SQL antepone fixture)", async () => {
     const executor = new WandboxExecutor("https://wandbox.org", {});
     await executor.runTests(

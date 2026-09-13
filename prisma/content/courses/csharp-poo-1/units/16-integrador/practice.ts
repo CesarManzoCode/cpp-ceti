@@ -16,6 +16,20 @@ class Bien{public string Codigo{get;private set;}public string Nombre{get;privat
 class Program{static void Main(){try{Bien b=new Bien(Console.ReadLine(),Console.ReadLine(),int.Parse(Console.ReadLine()));b.Ajustar(int.Parse(Console.ReadLine()));Console.WriteLine(b.Stock);}catch(ArgumentException){Console.WriteLine("ERROR");}}}`,
     difficulty: "medium",
     xpReward: 34,
+    structure: {
+      classes: [
+        {
+          name: "Bien",
+          properties: [
+            { name: "Codigo", type: "string" },
+            { name: "Nombre", type: "string" },
+            { name: "Stock", type: "int" },
+          ],
+          constructors: [{ paramCount: 3 }],
+          methods: [{ name: "Ajustar", paramCount: 1 }],
+        },
+      ],
+    },
     testCases: [
       {
         visible: true,
@@ -54,6 +68,30 @@ class Repositorio<T> where T:Entidad{private Dictionary<string,T>d=new Dictionar
 class Program{static void Main(){int n=int.Parse(Console.ReadLine());Repositorio<Bien>r=new Repositorio<Bien>();for(int i=0;i<n;i++){string[]p=Console.ReadLine().Split('|');if(p[0]=="A")Console.WriteLine(r.Agregar(new Bien(p[1],p[2]))?"OK":"DUP");else if(p[0]=="B"){Bien b=r.Buscar(p[1]);Console.WriteLine(b==null?"NO":b.Nombre);}else if(p[0]=="E")r.Eliminar(p[1]);}}}`,
     difficulty: "hard",
     xpReward: 40,
+    structure: {
+      classes: [
+        {
+          name: "Entidad",
+          properties: [{ name: "Id", type: "string" }],
+          constructors: [{ paramCount: 1 }],
+        },
+        {
+          name: "Bien",
+          extends: "Entidad",
+          properties: [{ name: "Nombre", type: "string" }],
+          constructors: [{ paramCount: 2, callsBase: true }],
+        },
+        {
+          name: "Repositorio",
+          generic: { arity: 1, constraints: [{ param: "T", types: ["Entidad"] }] },
+          methods: [
+            { name: "Agregar", paramCount: 1 },
+            { name: "Buscar", paramCount: 1, returnType: "T" },
+            { name: "Eliminar", paramCount: 1 },
+          ],
+        },
+      ],
+    },
     testCases: [
       {
         visible: true,
@@ -120,6 +158,20 @@ class Inventario{private int stock;private readonly object g=new object();public
 class Program{static int n;static Inventario inv=new Inventario();static void A(){for(int i=0;i<n;i++)inv.Ajustar(1);}static void B(){for(int i=0;i<n;i++)inv.Ajustar(2);}static void Main(){n=int.Parse(Console.ReadLine());Thread a=new Thread(A),b=new Thread(B);a.Start();b.Start();a.Join();b.Join();Console.WriteLine(inv.Consultar());}}`,
     difficulty: "hard",
     xpReward: 42,
+    structure: {
+      classes: [
+        {
+          name: "Inventario",
+          fields: [{ name: "stock", type: "int", visibility: "private" }],
+          methods: [
+            { name: "Ajustar", paramCount: 1 },
+            { name: "Consultar", returnType: "int" },
+          ],
+          requiresConstructs: ["lock"],
+        },
+        { name: "Program", requiresConstructs: ["Thread", "Join"] },
+      ],
+    },
     testCases: [
       {
         visible: true,

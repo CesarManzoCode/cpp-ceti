@@ -34,6 +34,12 @@ export interface PracticeTestCaseDefinition {
   expectedStdout: string;
   visible?: boolean;
   description?: string;
+  /**
+   * Ver `TestCaseDefinition.postCheckSql` en `prisma/content/types.ts`:
+   * mismo mecanismo y mismo evaluador.
+   */
+  postCheckSql?: string;
+  postCheckExpectedStdout?: string;
 }
 
 export interface PracticeExerciseDefinition {

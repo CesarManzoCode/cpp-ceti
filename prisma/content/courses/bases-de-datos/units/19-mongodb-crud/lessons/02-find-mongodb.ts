@@ -1,4 +1,5 @@
 import { defineLesson } from "../../../../../authoring";
+import { MONGODB_LOCAL_LAB_GUIDE } from "../../../shared/local-lab-guides";
 
 export const leccion02 = defineLesson({
   slug: "find-mongodb",
@@ -12,14 +13,18 @@ export const leccion02 = defineLesson({
       markdown: `\`find\` recibe un filtro documental. Empieza por condiciones explícitas y proyecta sólo campos necesarios cuando el reporte lo requiera.`,
     },
     {
+      type: "theory",
+      markdown: MONGODB_LOCAL_LAB_GUIDE,
+    },
+    {
       type: "code_example",
       code: `db.tickets.find(
   { estado: 'ABIERTO', costo: { $gte: 100 } },
   { folio: 1, costo: 1, _id: 0 }
 )`,
-      explanation: "Filtra y proyecta.",
+      explanation: "Filtra y proyecta. Inserta primero un par de documentos de prueba en `tickets` (como en la lección anterior) para tener algo que consultar.",
       runnable: false,
-      localOnlyNote: "MongoDB local.",
+      localOnlyNote: "Requiere MongoDB local — ver el paso anterior para levantar el motor y correrlo.",
     },
     {
       type: "quiz",

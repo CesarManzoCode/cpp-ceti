@@ -11,6 +11,12 @@ export const practice = [
     solutionCode: `BEGIN; UPDATE cuenta SET saldo=saldo-40 WHERE id=1; UPDATE cuenta SET saldo=saldo+40 WHERE id=2; COMMIT; SELECT id,saldo FROM cuenta ORDER BY id;`,
     difficulty: "medium",
     xpReward: 30,
+    // El estado final de "hice BEGIN/COMMIT" y "nunca abrí una transacción"
+    // es IDÉNTICO (SQLite autocommita cada sentencia sin BEGIN explícito):
+    // ningún post-check contra el resultado puede distinguirlos. La única
+    // evidencia de que el alumno usó la transacción de verdad está en el
+    // texto que envió.
+    structure: { sql: { requiresKeywords: ["BEGIN", "COMMIT"] } },
     testCases: [
       {
         description: "visible",
@@ -38,6 +44,10 @@ export const practice = [
     solutionCode: `BEGIN; UPDATE cuenta SET saldo=saldo-25 WHERE id=1; ROLLBACK; SELECT saldo FROM cuenta WHERE id=1;`,
     difficulty: "easy",
     xpReward: 30,
+    // "Actualicé y reverti" y "nunca lo intenté" terminan en el MISMO
+    // saldo: un post-check contra el resultado no puede probar que hubo
+    // ROLLBACK real. Se exige el texto de la transacción en el envío.
+    structure: { sql: { requiresKeywords: ["BEGIN", "ROLLBACK"] } },
     testCases: [
       {
         description: "visible",
@@ -63,6 +73,7 @@ export const practice = [
     solutionCode: `BEGIN; UPDATE ticket SET estado='CERRADO' WHERE id=1; INSERT INTO pago(ticket_id,monto) VALUES(1,300); COMMIT; SELECT ticket.estado,pago.monto FROM ticket JOIN pago ON pago.ticket_id=ticket.id WHERE ticket.id=1;`,
     difficulty: "medium",
     xpReward: 30,
+    structure: { sql: { requiresKeywords: ["BEGIN", "COMMIT"] } },
     testCases: [
       {
         description: "visible",
@@ -88,6 +99,7 @@ export const practice = [
     solutionCode: `BEGIN; UPDATE ticket SET estado='CERRADO' WHERE id=1; INSERT INTO pago VALUES(1,300); ROLLBACK; SELECT estado,(SELECT COUNT(*) FROM pago) FROM ticket WHERE id=1;`,
     difficulty: "medium",
     xpReward: 30,
+    structure: { sql: { requiresKeywords: ["BEGIN", "ROLLBACK"] } },
     testCases: [
       {
         description: "visible",
@@ -113,6 +125,7 @@ export const practice = [
     solutionCode: `BEGIN; UPDATE cuenta SET saldo=saldo-10 WHERE id=1; UPDATE cuenta SET saldo=saldo+10 WHERE id=2; COMMIT; SELECT SUM(saldo) FROM cuenta;`,
     difficulty: "easy",
     xpReward: 30,
+    structure: { sql: { requiresKeywords: ["BEGIN", "COMMIT"] } },
     testCases: [
       {
         description: "visible",

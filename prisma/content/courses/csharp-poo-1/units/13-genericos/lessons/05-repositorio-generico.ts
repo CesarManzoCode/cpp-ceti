@@ -104,6 +104,35 @@ class Program
         ],
         difficulty: "hard",
         xpReward: 42,
+        structure: {
+          classes: [
+            {
+              name: "Entidad",
+              properties: [{ name: "Id", type: "string" }],
+              constructors: [{ paramCount: 1 }],
+            },
+            {
+              name: "Producto",
+              extends: "Entidad",
+              properties: [{ name: "Stock", type: "int" }],
+              constructors: [{ paramCount: 2, callsBase: true }],
+            },
+            {
+              name: "Cliente",
+              extends: "Entidad",
+              properties: [{ name: "Nombre", type: "string" }],
+              constructors: [{ paramCount: 2, callsBase: true }],
+            },
+            {
+              name: "Repositorio",
+              generic: { arity: 1, constraints: [{ param: "T", types: ["Entidad"] }] },
+              methods: [
+                { name: "Agregar", paramCount: 1 },
+                { name: "Buscar", paramCount: 1, returnType: "T" },
+              ],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,

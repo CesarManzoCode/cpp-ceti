@@ -14,6 +14,15 @@ import type { UnitDefinition } from "./types";
  * printf lo leído". Para imprimir un `std::string` con `printf` se usa
  * `printf("%s\\n", s.c_str());`. Para leer una palabra con `scanf`
  * usamos `char[]`.
+ *
+ * FRONTERA DE EJECUCIÓN (no tocar sin razón): el runner de CPP-CETI no
+ * garantiza filesystem persistente ENTRE ejecuciones. Todo lo que es
+ * `runnable: true` en esta unidad crea, escribe y lee el archivo dentro
+ * de LA MISMA ejecución — eso sí es honesto de demostrar online. Ningún
+ * ejemplo/reto debe depender de que el archivo siga existiendo en una
+ * ejecución posterior; si algún día se agrega una actividad así, debe
+ * quedar `runnable: false` con `localOnlyNote` explicando el laboratorio
+ * local.
  */
 export const unidad09: UnitDefinition = {
   slug: "archivos",
@@ -50,7 +59,18 @@ C++ trae dos herramientas:
 Las dos viven en \`#include <fstream>\`. Para escribir AL archivo usas
 \`<<\` y \`endl\` (sí, como en el viejo cout — esto es la API de
 streams, separada de la consola). Para imprimir EN la TERMINAL ya usas
-\`printf\`.`,
+\`printf\`.
+
+> **Qué puedes probar aquí, y qué no.** Todos los ejemplos y retos de
+> esta unidad crean el archivo, escriben, cierran y vuelven a leer **en
+> el mismo programa, en una sola ejecución** — eso es exactamente lo que
+> el editor en línea de CPP-CETI puede demostrar. Lo que el editor en
+> línea **no** garantiza es que ese archivo siga ahí para una ejecución
+> *distinta* (correr el programa hoy y que otro programa lo lea mañana,
+> o volver a correr el mismo reto esperando encontrar lo que dejó la vez
+> anterior): cada envío corre en un entorno fresco. Si alguna vez quieres
+> comprobar que un archivo sobrevive de verdad entre ejecuciones, eso se
+> hace compilando y corriendo en tu máquina (local), no en este editor.`,
         },
         {
           type: "code_example",

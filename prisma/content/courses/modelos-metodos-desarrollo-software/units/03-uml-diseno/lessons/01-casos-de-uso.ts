@@ -68,8 +68,8 @@ class Program
             {
               name: "Solicitud",
               properties: [
-                { name: "Folio", type: "string", visibility: "public" },
-                { name: "Descripcion", type: "string", visibility: "public" },
+                { name: "Folio", type: "string", visibility: "public", setVisibility: "private" },
+                { name: "Descripcion", type: "string", visibility: "public", setVisibility: "private" },
               ],
               constructors: [{ paramCount: 2 }],
             },

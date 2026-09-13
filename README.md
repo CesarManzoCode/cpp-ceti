@@ -14,7 +14,7 @@ Hoy hay cuatro cursos:
 | `modelos-metodos-desarrollo-software` | Modelos y métodos de desarrollo de software | C# (`csharp-mono-6.12`) | 10 unidades · 44 lecciones · 32 prácticas |
 | `bases-de-datos` | Bases de datos | SQL (`sql-sqlite3-wandbox`) | 20 unidades · 92 lecciones · 51 prácticas |
 
-En total: 56 unidades · 276 lecciones · 1179 pasos · 227 prácticas.
+En total: 56 unidades · 276 lecciones · 1187 pasos · 227 prácticas.
 
 Cada curso trae su propio lenguaje y su propio compilador. **El curso es la fuente de
 verdad**: el editor, el resaltado, los diagnósticos, el compilador con el que se

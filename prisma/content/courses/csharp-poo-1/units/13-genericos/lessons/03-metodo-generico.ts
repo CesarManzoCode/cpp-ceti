@@ -86,6 +86,16 @@ class Program
         ],
         difficulty: "easy",
         xpReward: 26,
+        structure: {
+          classes: [
+            {
+              name: "Program",
+              methods: [
+                { name: "Primero", generic: { arity: 1 }, paramCount: 1, returnType: "T" },
+              ],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,

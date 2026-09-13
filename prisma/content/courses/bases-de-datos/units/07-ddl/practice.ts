@@ -19,6 +19,14 @@ SELECT name FROM pragma_table_info('cliente') ORDER BY cid;`,
         expectedStdout: `id
 nombre`,
         visible: true,
+        // Post-check independiente: re-consulta el esquema REAL después del
+        // envío del alumno, en vez de confiar en que lo que imprimió sea
+        // honesto. Una solución que falsifique el print (p. ej.
+        // `SELECT 'id' UNION SELECT 'nombre';` sin crear la tabla) reprueba
+        // aquí porque `pragma_table_info('cliente')` da vacío.
+        postCheckSql: `SELECT name FROM pragma_table_info('cliente') ORDER BY cid;`,
+        postCheckExpectedStdout: `id
+nombre`,
       },
       {
         description: "ejecución independiente",
@@ -26,6 +34,9 @@ nombre`,
         expectedStdout: `id
 nombre`,
         visible: false,
+        postCheckSql: `SELECT name FROM pragma_table_info('cliente') ORDER BY cid;`,
+        postCheckExpectedStdout: `id
+nombre`,
       },
     ],
   },
@@ -48,12 +59,16 @@ SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
         stdin: ``,
         expectedStdout: `1`,
         visible: true,
+        postCheckSql: `SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "ejecución independiente",
         stdin: ``,
         expectedStdout: `1`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
@@ -74,12 +89,19 @@ SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
         stdin: ``,
         expectedStdout: `10`,
         visible: true,
+        // Insertar 10 y releerlo NO prueba que exista el CHECK: una tabla
+        // sin restricción también deja pasar 10. El post-check inspecciona
+        // el DDL real en sqlite_master en vez de inferirlo del dato.
+        postCheckSql: `SELECT CASE WHEN UPPER(sql) LIKE '%CHECK%' THEN 'HASCHECK' ELSE 'NOCHECK' END FROM sqlite_master WHERE type='table' AND name='ticket';`,
+        postCheckExpectedStdout: `HASCHECK`,
       },
       {
         description: "ejecución independiente",
         stdin: ``,
         expectedStdout: `10`,
         visible: false,
+        postCheckSql: `SELECT CASE WHEN UPPER(sql) LIKE '%CHECK%' THEN 'HASCHECK' ELSE 'NOCHECK' END FROM sqlite_master WHERE type='table' AND name='ticket';`,
+        postCheckExpectedStdout: `HASCHECK`,
       },
     ],
   },
@@ -99,12 +121,16 @@ SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
         stdin: ``,
         expectedStdout: `cliente`,
         visible: true,
+        postCheckSql: `SELECT "table" FROM pragma_foreign_key_list('ticket');`,
+        postCheckExpectedStdout: `cliente`,
       },
       {
         description: "ejecución independiente",
         stdin: ``,
         expectedStdout: `cliente`,
         visible: false,
+        postCheckSql: `SELECT "table" FROM pragma_foreign_key_list('ticket');`,
+        postCheckExpectedStdout: `cliente`,
       },
     ],
   },
@@ -126,6 +152,9 @@ SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
         expectedStdout: `1
 2`,
         visible: true,
+        postCheckSql: `SELECT pk FROM pragma_table_info('asignacion') WHERE name IN ('ticket_id','tecnico_id') ORDER BY pk;`,
+        postCheckExpectedStdout: `1
+2`,
       },
       {
         description: "ejecución independiente",
@@ -133,6 +162,9 @@ SELECT COUNT(*) FROM pragma_index_list('ticket') WHERE "unique"=1;`,
         expectedStdout: `1
 2`,
         visible: false,
+        postCheckSql: `SELECT pk FROM pragma_table_info('asignacion') WHERE name IN ('ticket_id','tecnico_id') ORDER BY pk;`,
+        postCheckExpectedStdout: `1
+2`,
       },
     ],
   },

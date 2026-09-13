@@ -1,4 +1,5 @@
 import { defineLesson } from "../../../../../authoring";
+import { MONGODB_LOCAL_LAB_GUIDE } from "../../../shared/local-lab-guides";
 
 export const leccion01 = defineLesson({
   slug: "insert-mongodb",
@@ -12,6 +13,10 @@ export const leccion01 = defineLesson({
       markdown: `MongoDB usa colecciones y documentos BSON. Este bloque es laboratorio local con \`mongosh\`; no se envía al executor SQL.`,
     },
     {
+      type: "theory",
+      markdown: MONGODB_LOCAL_LAB_GUIDE,
+    },
+    {
       type: "code_example",
       code: `db.tickets.insertOne({
   folio: 'T-10',
@@ -20,7 +25,7 @@ export const leccion01 = defineLesson({
 })`,
       explanation: "Inserta un documento.",
       runnable: false,
-      localOnlyNote: "Requiere MongoDB + mongosh local.",
+      localOnlyNote: "Requiere MongoDB + mongosh local — ver el paso anterior para levantar el motor y correrlo.",
     },
     {
       type: "quiz",

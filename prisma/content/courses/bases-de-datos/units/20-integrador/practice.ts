@@ -17,12 +17,16 @@ export const practice = [
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT,costo INTEGER); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(1,'ABIERTO',100),(2,'CERRADO',200);`,
         expectedStdout: `1|ABIERTO>CERRADO`,
         visible: true,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
       {
         description: "oculto",
         stdin: `CREATE TABLE ticket(id INTEGER PRIMARY KEY,estado TEXT,costo INTEGER); CREATE TABLE auditoria(ticket_id INTEGER,accion TEXT); INSERT INTO ticket VALUES(1,'EN_PROCESO',5);`,
         expectedStdout: `1|EN_PROCESO>CERRADO`,
         visible: false,
+        postCheckSql: `SELECT COUNT(*) FROM sqlite_master WHERE type='trigger' AND tbl_name='ticket';`,
+        postCheckExpectedStdout: `1`,
       },
     ],
   },
@@ -38,6 +42,9 @@ export const practice = [
     solutionCode: `BEGIN; INSERT INTO pago(ticket_id,monto) SELECT id,costo FROM ticket WHERE id=1; UPDATE ticket SET estado='CERRADO' WHERE id=1; COMMIT; SELECT ticket.estado,pago.monto FROM ticket JOIN pago ON pago.ticket_id=ticket.id WHERE ticket.id=1;`,
     difficulty: "hard",
     xpReward: 30,
+    // Ver bd2-tx-commit (unidad 13): el estado final no distingue una
+    // transacción real de nunca haberla abierto.
+    structure: { sql: { requiresKeywords: ["BEGIN", "COMMIT"] } },
     testCases: [
       {
         description: "visible",

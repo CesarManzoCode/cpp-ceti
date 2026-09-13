@@ -88,6 +88,23 @@ class Program
         ],
         difficulty: "medium",
         xpReward: 36,
+        structure: {
+          classes: [
+            {
+              name: "Inventario",
+              fields: [
+                { name: "stock", type: "int", visibility: "private" },
+                { name: "candado", type: "object", visibility: "private" },
+              ],
+              methods: [
+                { name: "Ajustar", paramCount: 1 },
+                { name: "Consultar", returnType: "int" },
+              ],
+              requiresConstructs: ["lock"],
+            },
+            { name: "Program", requiresConstructs: ["Thread", "Join"] },
+          ],
+        },
         testCases: [
           {
             visible: true,

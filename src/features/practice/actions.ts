@@ -78,6 +78,8 @@ export const submitPracticeExercise = withActionErrorHandling(
         expectedStdout: tc.expectedStdout,
         visible: tc.visible,
         description: tc.description ?? null,
+        postCheckSql: tc.postCheckSql,
+        postCheckExpectedStdout: tc.postCheckExpectedStdout,
       })),
     );
     const durationMs = Date.now() - startedAt;

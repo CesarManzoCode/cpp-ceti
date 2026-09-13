@@ -1,4 +1,5 @@
 import { defineLesson } from "../../../../../authoring";
+import { MYSQL_LOCAL_LAB_GUIDE } from "../../../shared/local-lab-guides";
 
 export const leccion03 = defineLesson({
   slug: "grant-revoke",
@@ -12,14 +13,18 @@ export const leccion03 = defineLesson({
       markdown: `MySQL ofrece usuarios, roles, GRANT y REVOKE. SQLite no implementa este modelo de seguridad, por lo que el ejemplo no es ejecutable en plataforma.`,
     },
     {
+      type: "theory",
+      markdown: MYSQL_LOCAL_LAB_GUIDE,
+    },
+    {
       type: "code_example",
       code: `CREATE ROLE 'report_reader';
 GRANT SELECT ON soporte.* TO 'report_reader';
 GRANT 'report_reader' TO 'analista'@'localhost';
 REVOKE INSERT ON soporte.* FROM 'analista'@'localhost';`,
-      explanation: "Concede/revoca privilegios.",
+      explanation: "Concede/revoca privilegios. Conéctate como `root` (o un usuario con privilegios administrativos) para poder crear roles y otorgarlos.",
       runnable: false,
-      localOnlyNote: "Requiere MySQL 8.x local y privilegios administrativos.",
+      localOnlyNote: "Requiere MySQL 8.x local y privilegios administrativos — ver el paso anterior para crear la base y correrlo.",
     },
     {
       type: "quiz",
