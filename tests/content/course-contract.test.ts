@@ -767,19 +767,38 @@ describe("curso: Bases de datos (S4 Base de Datos I + S5 Base de Datos II)", () 
       }
     });
 
-    it("totales EXACTOS: 45 lessons, 180 steps, 15 practices", () => {
+    it("totales EXACTOS: 45 lessons, 188 steps, 15 practices", () => {
       expect(s5.unitSlugs.length).toBe(10);
       expect(bdLessonsOf(s5.unitSlugs)).toBe(45);
-      expect(bdStepsOf(s5.unitSlugs)).toBe(180);
+      expect(bdStepsOf(s5.unitSlugs)).toBe(188);
       expect(bdPracticesOf(s5.unitSlugs)).toBe(15);
     });
 
-    it("cada lección tiene EXACTAMENTE 4 steps", () => {
+    /**
+     * Sprint 2 agregó un step de handoff a estas 8 lecciones puntuales
+     * (188 = 180 + 8). El resto de S5 conserva el contrato original de
+     * EXACTAMENTE 4 steps; sólo estas lecciones pueden tener 5.
+     */
+    it("sólo las lecciones con handoff aprobado tienen 5 steps; el resto EXACTAMENTE 4", () => {
+      const HANDOFF_LESSONS = new Set([
+        "bd2-11-procedimientos/create-procedure-mysql",
+        "bd2-12-triggers-jobs/jobs",
+        "bd2-14-usuarios-permisos/grant-revoke",
+        "bd2-15-mantenimiento/analizar-mysql",
+        "bd2-16-conexiones/parametros",
+        "bd2-19-mongodb-crud/insert-mongodb",
+        "bd2-19-mongodb-crud/find-mongodb",
+        "bd2-19-mongodb-crud/update-delete-mongodb",
+      ]);
+      let handoffSeen = 0;
       for (const slug of s5.unitSlugs) {
         for (const lesson of bdUnitBySlug.get(slug)!.lessons) {
-          expect(lesson.steps.length, `${slug}/${lesson.slug}`).toBe(4);
+          const key = `${slug}/${lesson.slug}`;
+          if (HANDOFF_LESSONS.has(key)) handoffSeen += 1;
+          expect(lesson.steps.length, key).toBe(HANDOFF_LESSONS.has(key) ? 5 : 4);
         }
       }
+      expect(handoffSeen).toBe(HANDOFF_LESSONS.size);
     });
 
     it("sólo las 4 unidades con práctica independiente la declaran (triggers, transacciones, crud-interfaz, integrador)", () => {
@@ -868,7 +887,7 @@ describe("curso: Bases de datos (S4 Base de Datos I + S5 Base de Datos II)", () 
     ]);
   });
 
-  it("totales del curso completo: 20 units, 92 lessons, 368 steps, 51 practices", () => {
+  it("totales del curso completo: 20 units, 92 lessons, 376 steps, 51 practices", () => {
     const lessons = bd.units.flatMap((u) => u.lessons);
     const steps = lessons.flatMap((l) => l.steps);
     const totalPractice = allPracticeSets
@@ -877,7 +896,7 @@ describe("curso: Bases de datos (S4 Base de Datos I + S5 Base de Datos II)", () 
 
     expect(bd.units.length).toBe(20);
     expect(lessons.length).toBe(92);
-    expect(steps.length).toBe(368);
+    expect(steps.length).toBe(376);
     expect(totalPractice).toBe(51);
   });
 
