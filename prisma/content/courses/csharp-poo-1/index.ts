@@ -20,8 +20,9 @@ import { csharpPoo2Integrador } from "./units/16-integrador";
 // Aquí sólo se reutilizan vía `adaptLegacyUnits`.
 //
 // S4 (nueva, POO II): capa de authoring completa, colocalizada por unidad
-// bajo `./units/`. Las 8 unidades entran con `published: false` — el
-// release gate de S4 es una tarea posterior.
+// bajo `./units/`. Las 8 unidades (09-16) están publicadas
+// intencionalmente (`published: true` en cada una) — no son un release
+// pendiente.
 // =====================================================================
 
 const authoredUnitsS3 = adaptLegacyUnits(cursoCsharpPoo1, csharpPracticeSets);
