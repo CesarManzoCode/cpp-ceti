@@ -12,6 +12,16 @@ export const leccion04 = defineLesson({
       markdown: `La entrada del usuario no debe convertirse en sintaxis SQL mediante concatenación. Los parámetros separan datos de código y son la defensa básica contra inyección SQL.`,
     },
     {
+      type: "theory",
+      markdown: `## Laboratorio local: proyecto de consola C# + MySQL
+
+1. **Motor.** MySQL 8.x local (instalado o en contenedor — ver la lección de MySQL local de esta unidad) con la base de prueba \`ceti_lab\` y una tabla \`ticket\`.
+2. **Proyecto.** Crea una app de consola: \`dotnet new console -o ConexionCeti\`.
+3. **Provider.** Agrega el conector oficial: \`dotnet add package MySql.Data\` (trae \`MySqlConnection\`/\`MySqlCommand\`, compatibles con \`DbConnection\`/\`DbCommand\` del ejemplo).
+4. **Conexión.** Construye la cadena con tu host/usuario/contraseña locales, por ejemplo \`"Server=127.0.0.1;Database=ceti_lab;Uid=root;Pwd=ceti;"\`, ábrela y ejecuta el código de este bloque con un \`id\` real de tu tabla.
+5. **Evidencia:** el resultado impreso en consola para al menos dos valores de \`id\` distintos (uno que exista y uno que no).`,
+    },
+    {
       type: "code_example",
       code: `// C# / MySQL — laboratorio local
 using var cmd = connection.CreateCommand();
@@ -22,7 +32,7 @@ p.Value = id;
 cmd.Parameters.Add(p);`,
       explanation: "El valor viaja como parámetro, no como fragmento SQL.",
       runnable: false,
-      localOnlyNote: "Ejemplo C# local: requiere provider real configurado.",
+      localOnlyNote: "Ejemplo C# local: requiere provider real configurado — ver el paso anterior para el paquete y la cadena de conexión.",
     },
     {
       type: "quiz",

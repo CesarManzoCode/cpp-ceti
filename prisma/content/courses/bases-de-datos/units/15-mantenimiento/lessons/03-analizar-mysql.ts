@@ -1,4 +1,5 @@
 import { defineLesson } from "../../../../../authoring";
+import { MYSQL_LOCAL_LAB_GUIDE } from "../../../shared/local-lab-guides";
 
 export const leccion03 = defineLesson({
   slug: "analizar-mysql",
@@ -12,12 +13,16 @@ export const leccion03 = defineLesson({
       markdown: `MySQL expone información y comandos como \`ANALYZE TABLE\` y \`OPTIMIZE TABLE\`. Su impacto/semántica dependen del engine y versión, por lo que se practican localmente con medición antes/después.`,
     },
     {
+      type: "theory",
+      markdown: MYSQL_LOCAL_LAB_GUIDE,
+    },
+    {
       type: "code_example",
       code: `ANALYZE TABLE ticket;
 OPTIMIZE TABLE ticket;`,
-      explanation: "Ejemplos administrativos MySQL.",
+      explanation: "Ejemplos administrativos MySQL. Antes de correrlos, respalda la tabla (`mysqldump ceti_lab ticket > ticket_backup.sql`) y anota el resultado de `SHOW TABLE STATUS LIKE 'ticket';` para comparar antes/después.",
       runnable: false,
-      localOnlyNote: "Requiere MySQL local; medir antes/después y respaldar según riesgo.",
+      localOnlyNote: "Requiere MySQL local; medir antes/después y respaldar según riesgo — ver el paso anterior para crear la base.",
     },
     {
       type: "quiz",

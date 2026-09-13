@@ -1,4 +1,5 @@
 import { defineLesson } from "../../../../../authoring";
+import { MYSQL_LOCAL_LAB_GUIDE } from "../../../shared/local-lab-guides";
 
 export const leccion04 = defineLesson({
   slug: "jobs",
@@ -12,13 +13,19 @@ export const leccion04 = defineLesson({
       markdown: `Un trigger responde a un cambio de datos; un job responde a calendario/tiempo. MySQL concreta jobs con Event Scheduler. SQLite no tiene un scheduler interno equivalente.`,
     },
     {
+      type: "theory",
+      markdown: MYSQL_LOCAL_LAB_GUIDE,
+    },
+    {
       type: "code_example",
-      code: `CREATE EVENT limpiar_sesiones
+      code: `SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT limpiar_sesiones
 ON SCHEDULE EVERY 1 DAY
 DO DELETE FROM sesion WHERE expira_en < NOW();`,
-      explanation: "Ejemplo MySQL de trabajo periódico.",
+      explanation: "Ejemplo MySQL de trabajo periódico. `event_scheduler` debe estar `ON` para que MySQL corra eventos.",
       runnable: false,
-      localOnlyNote: "Requiere MySQL Event Scheduler local.",
+      localOnlyNote: "Requiere MySQL local con Event Scheduler activo — ver el paso anterior para crear la base y correrlo.",
     },
     {
       type: "quiz",
