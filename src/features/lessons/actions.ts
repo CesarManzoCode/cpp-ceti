@@ -127,8 +127,12 @@ export const markStepAssisted = withActionErrorHandling(
  * `revealExerciseSolution` sirva el código. Debe coincidir con lo que la UI
  * comunica al alumno (`step-code-challenge.tsx`), pero la UI es sólo
  * presentación: esta constante es la que realmente decide.
+ *
+ * NO exportada: un módulo `"use server"` sólo puede exportar Server
+ * Actions (funciones async) — exportar una constante desde aquí invalida
+ * el módulo entero (y con él completeStep, markStepAssisted, etc).
  */
-export const REVEAL_SOLUTION_MIN_FAILED_ATTEMPTS = 3;
+const REVEAL_SOLUTION_MIN_FAILED_ATTEMPTS = 3;
 
 /**
  * Sirve `solutionCode` de un ejercicio de lección, y SÓLO si el servidor

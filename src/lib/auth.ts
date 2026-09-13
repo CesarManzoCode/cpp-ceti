@@ -32,7 +32,7 @@ export const auth = betterAuth({
     autoSignIn: true,
     // Flujo "olvidé mi contraseña" nativo de Better Auth: genera y valida
     // el token, nosotros sólo entregamos el correo. `url` ya trae el token
-    // y apunta a `redirectTo` (ver `authClient.forgetPassword` en
+    // y apunta a `redirectTo` (ver `authClient.requestPasswordReset` en
     // `forgot-password-form.tsx`).
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url);

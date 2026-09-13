@@ -42,7 +42,7 @@ export function ForgotPasswordForm() {
     }
 
     startTransition(async () => {
-      const { error } = await authClient.forgetPassword({
+      const { error } = await authClient.requestPasswordReset({
         email: parsed.data.email,
         redirectTo: "/restablecer-contrasena",
       });
