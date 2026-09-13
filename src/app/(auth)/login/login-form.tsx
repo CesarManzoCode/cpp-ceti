@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -136,6 +137,15 @@ export function LoginForm() {
           leadingIcon={<Lock className="size-4" />}
         />
       </FormField>
+
+      <div className="-mt-2 text-right">
+        <Link
+          href="/recuperar-contrasena"
+          className="text-[13px] font-medium text-muted-foreground underline decoration-border-strong underline-offset-4 hover:text-foreground hover:decoration-current"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </div>
 
       {formError ? (
         <p
