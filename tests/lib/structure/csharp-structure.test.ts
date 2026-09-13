@@ -300,6 +300,222 @@ describe("contrato estructural de C#", () => {
       ).toBe(true);
     });
   });
+
+  describe("accessors de propiedad (private set)", () => {
+    const contract = {
+      classes: [
+        {
+          name: "Pedido",
+          properties: [
+            { name: "Folio", visibility: "public", type: "int", setVisibility: "private" },
+          ],
+        },
+      ],
+    };
+
+    it("`{ get; set; }` público NO satisface un `private set` exigido", () => {
+      const result = check(
+        contract,
+        "class Pedido { public int Folio { get; set; } }",
+      );
+      expect(result.satisfied).toBe(false);
+      expect(result.failures[0]).toContain("`set`");
+      expect(result.failures[0]).toContain("`private`");
+      expect(result.failures[0]).toContain("ahora es `public`");
+    });
+
+    it("una propiedad sin setter (sólo get) tampoco satisface `private set`", () => {
+      const soloLectura = `
+        class Pedido {
+          private int folio;
+          public int Folio { get { return folio; } }
+        }`;
+      const result = check(contract, soloLectura);
+      expect(result.satisfied).toBe(false);
+      expect(result.failures[0]).toContain("no tiene setter");
+    });
+
+    it("un cuerpo de expresión (`=>`) tampoco tiene setter", () => {
+      const expresion = `
+        class Pedido {
+          private int folio;
+          public int Folio => folio;
+        }`;
+      expect(check(contract, expresion).satisfied).toBe(false);
+    });
+
+    it("`{ get; private set; }` sí satisface el requisito", () => {
+      const code = "class Pedido { public int Folio { get; private set; } }";
+      expect(check(contract, code)).toEqual({ satisfied: true, failures: [] });
+    });
+
+    it("el orden `{ private set; get; }` también cuenta", () => {
+      const code = "class Pedido { public int Folio { private set; get; } }";
+      expect(check(contract, code).satisfied).toBe(true);
+    });
+
+    it("contratos previos sin setVisibility no se ven afectados", () => {
+      const contratoViejo = {
+        classes: [
+          { name: "Pedido", properties: [{ name: "Folio", visibility: "public" }] },
+        ],
+      };
+      expect(
+        checkStructure(
+          contratoViejo,
+          "class Pedido { public int Folio { get; set; } }",
+          "csharp",
+        ).satisfied,
+      ).toBe(true);
+    });
+  });
+
+  describe("genéricos", () => {
+    it("exige aridad de tipo en la clase", () => {
+      const contract = { classes: [{ name: "Caja", generic: { arity: 1 } }] };
+      expect(check(contract, "class Caja { private object valor; }").failures[0]).toContain(
+        "genérica",
+      );
+      expect(check(contract, "class Caja<T> { private T valor; }").satisfied).toBe(
+        true,
+      );
+    });
+
+    it("una sobrecarga no-genérica por tipo no basta", () => {
+      const contract = { classes: [{ name: "Caja", generic: { arity: 1 } }] };
+      const sobrecargada = `
+        class Caja {
+          private int valorInt;
+          private string valorStr;
+        }`;
+      expect(check(contract, sobrecargada).satisfied).toBe(false);
+    });
+
+    it("exige la restricción `where T : Entidad`", () => {
+      const contract = {
+        classes: [
+          {
+            name: "Repositorio",
+            generic: { arity: 1, constraints: [{ param: "T", types: ["Entidad"] }] },
+          },
+        ],
+      };
+      const sinRestriccion = "class Repositorio<T> { }";
+      expect(check(contract, sinRestriccion).failures[0]).toContain(
+        "where T : Entidad",
+      );
+
+      const conRestriccion = "class Repositorio<T> where T : Entidad { }";
+      expect(check(contract, conRestriccion).satisfied).toBe(true);
+
+      const conOtraRestriccion = "class Repositorio<T> where T : IComparable<T> { }";
+      expect(check(contract, conOtraRestriccion).satisfied).toBe(false);
+    });
+
+    it("método genérico propio: `Primero<T>` no se puede reemplazar por sobrecargas", () => {
+      const contract = {
+        classes: [
+          {
+            name: "Program",
+            methods: [{ name: "Primero", generic: { arity: 1 } }],
+          },
+        ],
+      };
+      const conSobrecargas = `
+        class Program {
+          static string Primero(System.Collections.Generic.List<string> d) { return d[0]; }
+          static int Primero(System.Collections.Generic.List<int> d) { return d[0]; }
+        }`;
+      expect(check(contract, conSobrecargas).satisfied).toBe(false);
+
+      const generico = `
+        class Program {
+          static T Primero<T>(System.Collections.Generic.List<T> datos) { return datos[0]; }
+        }`;
+      expect(check(contract, generico).satisfied).toBe(true);
+    });
+  });
+
+  describe("requiresConstructs: exige el uso real de un constructo", () => {
+    it("exige Thread/Join dentro de la clase indicada", () => {
+      const contract = {
+        classes: [{ name: "Program", requiresConstructs: ["Thread", "Join"] }],
+      };
+      const sinHilos = `
+        class Program {
+          static void Main() { System.Console.WriteLine(42); }
+        }`;
+      const result = check(contract, sinHilos);
+      expect(result.satisfied).toBe(false);
+      expect(result.failures.some((f) => f.includes("Thread"))).toBe(true);
+      expect(result.failures.some((f) => f.includes("Join"))).toBe(true);
+
+      const conHilos = `
+        class Program {
+          static void Main() {
+            System.Threading.Thread t = new System.Threading.Thread(() => {});
+            t.Start();
+            t.Join();
+          }
+        }`;
+      expect(check(contract, conHilos).satisfied).toBe(true);
+    });
+
+    it("el candado debe pertenecer a la clase de dominio, no a Program", () => {
+      const contract = {
+        classes: [
+          { name: "Inventario", requiresConstructs: ["lock"] },
+          { name: "Program", requiresConstructs: ["Thread", "Join"] },
+        ],
+      };
+      const candadoEnProgram = `
+        class Inventario {
+          private int stock;
+          public void Ajustar(int c) { stock += c; }
+        }
+        class Program {
+          static readonly object candado = new object();
+          static Inventario inv = new Inventario();
+          static void Worker() { lock (candado) { inv.Ajustar(1); } }
+          static void Main() {
+            System.Threading.Thread t = new System.Threading.Thread(Worker);
+            t.Start();
+            t.Join();
+          }
+        }`;
+      const result = check(contract, candadoEnProgram);
+      expect(result.satisfied).toBe(false);
+      expect(result.failures.some((f) => f.includes("Inventario") && f.includes("lock"))).toBe(
+        true,
+      );
+
+      const candadoEnInventario = `
+        class Inventario {
+          private int stock;
+          private readonly object candado = new object();
+          public void Ajustar(int c) { lock (candado) { stock += c; } }
+        }
+        class Program {
+          static Inventario inv = new Inventario();
+          static void Main() {
+            System.Threading.Thread t = new System.Threading.Thread(() => inv.Ajustar(1));
+            t.Start();
+            t.Join();
+          }
+        }`;
+      expect(check(contract, candadoEnInventario).satisfied).toBe(true);
+    });
+
+    it("no aprueba por la palabra dentro de un comentario o string", () => {
+      const contract = { classes: [{ name: "Program", requiresConstructs: ["lock"] }] };
+      const falso = `
+        class Program {
+          // usa lock aquí
+          static void Main() { System.Console.WriteLine("lock"); }
+        }`;
+      expect(check(contract, falso).satisfied).toBe(false);
+    });
+  });
 });
 
 describe("dependencia: la clase NO debe guardar la referencia", () => {

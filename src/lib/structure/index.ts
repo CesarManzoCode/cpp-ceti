@@ -3,6 +3,7 @@ import type { LanguageId } from "@/lib/code-languages";
 import {
   parseStructureContract,
   type ClassRequirement,
+  type PropertyRequirement,
   type Visibility,
 } from "./contract";
 import {
@@ -93,6 +94,19 @@ function checkClass(
     );
   }
 
+  if (required.generic) {
+    checkGeneric(required.name, required.generic, found, failures);
+  }
+
+  for (const token of required.requiresConstructs ?? []) {
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (!new RegExp(`\\b${escaped}\\b`).test(found.body)) {
+      failures.push(
+        `\`${required.name}\` debe usar \`${token}\` de verdad: la salida correcta no basta, el reto pide ese constructo.`,
+      );
+    }
+  }
+
   for (const field of required.fields ?? []) {
     const member = pick(found, ["field"], field.name);
     if (!member) {
@@ -132,6 +146,7 @@ function checkClass(
         `La propiedad \`${prop.name}\` de \`${required.name}\` debe ser \`static\`.`,
       );
     }
+    checkPropertyAccessors(required.name, prop, member, failures);
   }
 
   for (const method of required.methods ?? []) {
@@ -165,6 +180,17 @@ function checkClass(
       failures.push(
         `El método \`${method.name}\` de \`${required.name}\` debe devolver \`${method.returnType}\`.`,
       );
+    }
+    if (method.generic?.arity !== undefined) {
+      const arity = member.typeParams?.length ?? 0;
+      if (arity !== method.generic.arity) {
+        const plural = method.generic.arity === 1 ? "parámetro" : "parámetros";
+        failures.push(
+          arity === 0
+            ? `El método \`${method.name}\` de \`${required.name}\` debe ser genérico, con ${method.generic.arity} ${plural} de tipo propio (p. ej. \`${method.name}<T>\`), no una sobrecarga distinta por tipo.`
+            : `El método \`${method.name}\` de \`${required.name}\` debe declarar ${method.generic.arity} ${plural} de tipo (ahora tiene ${arity}).`,
+        );
+      }
     }
     for (const [flag, explanation] of [
       ["virtual", "para que una subclase pueda redefinirlo"],
@@ -276,6 +302,71 @@ function checkVisibility(
   failures.push(
     `El ${label} \`${memberName}\` de \`${className}\` debe ser \`${expected}\` (ahora es \`${actual}\`).`,
   );
+}
+
+function checkGeneric(
+  className: string,
+  generic: NonNullable<ClassRequirement["generic"]>,
+  found: ParsedClass,
+  failures: string[],
+): void {
+  if (generic.arity !== undefined && found.typeParams.length !== generic.arity) {
+    const plural = generic.arity === 1 ? "parámetro" : "parámetros";
+    failures.push(
+      found.typeParams.length === 0
+        ? `\`${className}\` debe ser genérica, con ${generic.arity} ${plural} de tipo (p. ej. \`${className}<T>\`).`
+        : `\`${className}\` debe declarar ${generic.arity} ${plural} de tipo (ahora tiene ${found.typeParams.length}).`,
+    );
+  }
+
+  for (const constraint of generic.constraints ?? []) {
+    const declared = found.constraints.find((c) => c.param === constraint.param);
+    if (!declared) {
+      failures.push(
+        `\`${className}\` necesita la restricción \`where ${constraint.param} : ${constraint.types.join(", ")}\`.`,
+      );
+      continue;
+    }
+    const missing = constraint.types.filter((t) => !declared.types.includes(t));
+    if (missing.length > 0) {
+      failures.push(
+        `La restricción de \`${constraint.param}\` en \`${className}\` debe incluir \`${missing.join(", ")}\` (ahora es \`where ${constraint.param} : ${declared.types.join(", ")}\`).`,
+      );
+    }
+  }
+}
+
+function checkPropertyAccessors(
+  className: string,
+  prop: PropertyRequirement,
+  member: ParsedMember,
+  failures: string[],
+): void {
+  if (prop.getVisibility) {
+    const get = member.accessors?.find((a) => a.kind === "get");
+    const actual = get?.visibility ?? visibilityOf(member);
+    if (actual !== prop.getVisibility) {
+      failures.push(
+        `El \`get\` de \`${prop.name}\` en \`${className}\` debe ser \`${prop.getVisibility}\` (ahora es \`${actual}\`).`,
+      );
+    }
+  }
+
+  if (prop.setVisibility) {
+    const set = member.accessors?.find((a) => a.kind === "set" || a.kind === "init");
+    if (!set) {
+      failures.push(
+        `La propiedad \`${prop.name}\` de \`${className}\` necesita un setter \`${prop.setVisibility}\` (\`{ get; ${prop.setVisibility} set; }\`); ahora no tiene setter.`,
+      );
+      return;
+    }
+    const actual = set.visibility ?? visibilityOf(member);
+    if (actual !== prop.setVisibility) {
+      failures.push(
+        `El \`set\` de \`${prop.name}\` en \`${className}\` debe ser \`${prop.setVisibility}\` (ahora es \`${actual}\`). Con \`{ get; set; }\` cualquiera podría modificarlo desde fuera.`,
+      );
+    }
+  }
 }
 
 function checkType(
