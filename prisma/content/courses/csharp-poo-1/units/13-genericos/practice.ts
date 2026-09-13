@@ -15,6 +15,18 @@ class Caja<T>{private T valor;public void Guardar(T v){valor=v;}public T Obtener
 class Program{static void Main(){Caja<string> a=new Caja<string>();a.Guardar(Console.ReadLine());Caja<int>b=new Caja<int>();b.Guardar(int.Parse(Console.ReadLine()));Console.WriteLine(a.Obtener());Console.WriteLine(b.Obtener());}}`,
     difficulty: "easy",
     xpReward: 24,
+    structure: {
+      classes: [
+        {
+          name: "Caja",
+          generic: { arity: 1 },
+          methods: [
+            { name: "Guardar", paramCount: 1 },
+            { name: "Obtener", returnType: "T" },
+          ],
+        },
+      ],
+    },
     testCases: [
       { stdin: "Hola\n3\n", expectedStdout: "Hola\n3\n", visible: true },
       { stdin: "X Y\n0\n", expectedStdout: "X Y\n0\n", visible: false },
@@ -39,6 +51,27 @@ class Repositorio<T>{private List<T>d=new List<T>();public void Agregar(T x){d.A
 class Program{static void Main(){int n=int.Parse(Console.ReadLine());Repositorio<Producto>r=new Repositorio<Producto>();for(int i=0;i<n;i++)r.Agregar(new Producto(Console.ReadLine(),int.Parse(Console.ReadLine())));int idx=int.Parse(Console.ReadLine());Producto p=r.Obtener(idx);Console.WriteLine(r.Cantidad());Console.WriteLine(p.Codigo+" "+p.Stock);}}`,
     difficulty: "medium",
     xpReward: 32,
+    structure: {
+      classes: [
+        {
+          name: "Producto",
+          properties: [
+            { name: "Codigo", type: "string" },
+            { name: "Stock", type: "int" },
+          ],
+          constructors: [{ paramCount: 2 }],
+        },
+        {
+          name: "Repositorio",
+          generic: { arity: 1 },
+          methods: [
+            { name: "Agregar", paramCount: 1 },
+            { name: "Cantidad", returnType: "int" },
+            { name: "Obtener", paramCount: 1, returnType: "T" },
+          ],
+        },
+      ],
+    },
     testCases: [
       {
         stdin: "2\nA\n1\nB\n2\n1\n",
@@ -70,6 +103,16 @@ class Program { static T Primero<T>(List<T> x) { } static void Main() { } }`,
 class Program{static T Primero<T>(List<T>x){return x[0];}static void Main(){List<string>a=new List<string>();for(int i=0;i<3;i++)a.Add(Console.ReadLine());List<int>b=new List<int>();for(int i=0;i<3;i++)b.Add(int.Parse(Console.ReadLine()));Console.WriteLine(Primero<string>(a));Console.WriteLine(Primero<int>(b));}}`,
     difficulty: "easy",
     xpReward: 24,
+    structure: {
+      classes: [
+        {
+          name: "Program",
+          methods: [
+            { name: "Primero", generic: { arity: 1 }, paramCount: 1, returnType: "T" },
+          ],
+        },
+      ],
+    },
     testCases: [
       { stdin: "A\nB\nC\n1\n2\n3\n", expectedStdout: "A\n1\n", visible: true },
       {
@@ -103,6 +146,29 @@ class Repositorio<T> where T:Entidad{private List<T>d=new List<T>();public void 
 class Program{static void Main(){int n=int.Parse(Console.ReadLine());Repositorio<Bien>r=new Repositorio<Bien>();for(int i=0;i<n;i++)r.Agregar(new Bien(Console.ReadLine(),Console.ReadLine()));Bien b=r.Buscar(Console.ReadLine());Console.WriteLine(b==null?"NO":b.Nombre);}}`,
     difficulty: "hard",
     xpReward: 40,
+    structure: {
+      classes: [
+        {
+          name: "Entidad",
+          properties: [{ name: "Id", type: "string" }],
+          constructors: [{ paramCount: 1 }],
+        },
+        {
+          name: "Bien",
+          extends: "Entidad",
+          properties: [{ name: "Nombre", type: "string" }],
+          constructors: [{ paramCount: 2, callsBase: true }],
+        },
+        {
+          name: "Repositorio",
+          generic: { arity: 1, constraints: [{ param: "T", types: ["Entidad"] }] },
+          methods: [
+            { name: "Agregar", paramCount: 1 },
+            { name: "Buscar", paramCount: 1, returnType: "T" },
+          ],
+        },
+      ],
+    },
     testCases: [
       {
         stdin: "2\nA\nMesa\nB\nSilla\nB\n",

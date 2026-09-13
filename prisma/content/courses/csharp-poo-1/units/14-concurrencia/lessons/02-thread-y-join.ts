@@ -109,6 +109,9 @@ class Program
         ],
         difficulty: "medium",
         xpReward: 32,
+        structure: {
+          classes: [{ name: "Program", requiresConstructs: ["Thread", "Join"] }],
+        },
         testCases: [
           {
             stdin: "5\n",

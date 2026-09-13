@@ -100,6 +100,11 @@ class Program
         ],
         difficulty: "medium",
         xpReward: 34,
+        structure: {
+          classes: [
+            { name: "Program", requiresConstructs: ["Thread", "Join", "lock"] },
+          ],
+        },
         testCases: [
           { stdin: "1000\n", expectedStdout: "2000\n", visible: true },
           { stdin: "1\n", expectedStdout: "2\n", visible: false },

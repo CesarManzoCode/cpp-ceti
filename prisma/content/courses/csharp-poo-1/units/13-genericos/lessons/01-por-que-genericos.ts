@@ -109,6 +109,17 @@ class Program
         ],
         difficulty: "easy",
         xpReward: 26,
+        structure: {
+          classes: [
+            {
+              name: "Caja",
+              generic: { arity: 1 },
+              fields: [{ name: "valor", type: "T", visibility: "private" }],
+              constructors: [{ paramCount: 1 }],
+              methods: [{ name: "Obtener", returnType: "T" }],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,

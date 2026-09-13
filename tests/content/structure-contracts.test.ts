@@ -170,11 +170,18 @@ describe("contratos estructurales publicados", () => {
       // inventario-en-memoria, list-de-objetos; integrador/16:
       // requisitos-y-uml) — el resto evalúa comportamiento: operaciones de
       // colecciones/diccionarios, criterios de ordenamiento, serialización
-      // XML, restricciones genéricas, exclusión mutua/concurrencia,
-      // protocolo de mensajes/redes y el integrador de esas capacidades.
-      // Ninguno de esos retos pide al alumno diseñar una estructura de
-      // clases, así que "sin contrato" es su diseño original, no una
-      // omisión de este sprint.
+      // XML y protocolo de mensajes/redes.
+      //
+      // Genéricos (unidad 13/"csharp-poo2-05-genericos"), concurrencia
+      // (unidad 14/"csharp-poo2-06-concurrencia") y las lecciones/práctica
+      // de arquitectura y concurrencia del integrador (unidad
+      // 16/"csharp-poo2-08-integrador") SÍ pedían estructura verificable
+      // (clase/aridad genérica, restricciones `where`, uso real de
+      // `Thread`/`Join`/`lock`) que sólo comparar stdout no podía probar —
+      // el sprint de hardening de contenido publicado les agregó
+      // `structure`, así que ya NO son "sólo comportamiento" y salen de
+      // esta lista. `csharp-poo2-import-export-xml` se queda: es
+      // serialización XML, no genéricos ni concurrencia.
       "csharp-poo-1/csharp-poo2-01-colecciones/de-arreglos-a-colecciones",
       "csharp-poo-1/csharp-poo2-01-colecciones/stack-y-queue",
       "csharp-poo-1/csharp-poo2-01-colecciones/agregar-buscar-eliminar",
@@ -193,22 +200,11 @@ describe("contratos estructurales publicados", () => {
       "csharp-poo-1/csharp-poo2-04-xml/objetos-a-xml",
       "csharp-poo-1/csharp-poo2-04-xml/xml-a-objetos",
       "csharp-poo-1/csharp-poo2-04-xml/persistencia-xml",
-      "csharp-poo-1/csharp-poo2-05-genericos/por-que-genericos",
-      "csharp-poo-1/csharp-poo2-05-genericos/clase-generica",
-      "csharp-poo-1/csharp-poo2-05-genericos/metodo-generico",
-      "csharp-poo-1/csharp-poo2-05-genericos/restricciones-genericas",
-      "csharp-poo-1/csharp-poo2-05-genericos/repositorio-generico",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/proceso-hilo-concurrencia",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/thread-y-join",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/lock-y-exclusion-mutua",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/errores-en-hilos",
       "csharp-poo-1/csharp-poo2-07-redes/protocolo-mensaje-socket",
       "csharp-poo-1/csharp-poo2-07-redes/ip-puerto-endpoint",
       "csharp-poo-1/csharp-poo2-07-redes/cliente-servidor-tcp",
       "csharp-poo-1/csharp-poo2-07-redes/udp-y-mensajes",
       "csharp-poo-1/csharp-poo2-07-redes/seguridad-del-mensaje",
-      "csharp-poo-1/csharp-poo2-08-integrador/arquitectura-del-proyecto",
-      "csharp-poo-1/csharp-poo2-08-integrador/integracion-concurrente",
       "csharp-poo-1/csharp-poo2-01-colecciones/csharp-poo2-lista-productos",
       "csharp-poo-1/csharp-poo2-01-colecciones/csharp-poo2-eliminar-agotados",
       "csharp-poo-1/csharp-poo2-01-colecciones/csharp-poo2-pila-historial",
@@ -225,22 +221,11 @@ describe("contratos estructurales publicados", () => {
       "csharp-poo-1/csharp-poo2-04-xml/csharp-poo2-crear-xml-producto",
       "csharp-poo-1/csharp-poo2-04-xml/csharp-poo2-parsear-datos-xml",
       "csharp-poo-1/csharp-poo2-04-xml/csharp-poo2-inventario-xml",
-      "csharp-poo-1/csharp-poo2-05-genericos/csharp-poo2-caja-generica",
-      "csharp-poo-1/csharp-poo2-05-genericos/csharp-poo2-repositorio-productos",
-      "csharp-poo-1/csharp-poo2-05-genericos/csharp-poo2-metodo-mostrar",
-      "csharp-poo-1/csharp-poo2-05-genericos/csharp-poo2-repositorio-con-restriccion",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/csharp-poo2-hilo-calculo",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/csharp-poo2-dos-trabajadores",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/csharp-poo2-contador-protegido",
-      "csharp-poo-1/csharp-poo2-06-concurrencia/csharp-poo2-error-en-worker",
       "csharp-poo-1/csharp-poo2-07-redes/csharp-poo2-crear-mensaje-protocolo",
       "csharp-poo-1/csharp-poo2-07-redes/csharp-poo2-parsear-mensaje",
       "csharp-poo-1/csharp-poo2-07-redes/csharp-poo2-validar-endpoint",
       "csharp-poo-1/csharp-poo2-07-redes/csharp-poo2-procesar-comando-remoto",
-      "csharp-poo-1/csharp-poo2-08-integrador/csharp-poo2-modelo-inventario",
-      "csharp-poo-1/csharp-poo2-08-integrador/csharp-poo2-repositorio-dominio",
       "csharp-poo-1/csharp-poo2-08-integrador/csharp-poo2-import-export-xml",
-      "csharp-poo-1/csharp-poo2-08-integrador/csharp-poo2-comandos-thread-safe",
     ]);
     const sinContrato = challenges
       .filter((c) => c.language === "csharp" && c.structure === undefined)

@@ -15,6 +15,9 @@ class Program { static void Main() { } }`,
 class Program{static int n;static long r;static void W(){r=(long)n*n;}static void Main(){n=int.Parse(Console.ReadLine());Thread t=new Thread(W);t.Start();t.Join();Console.WriteLine(r);}}`,
     difficulty: "easy",
     xpReward: 26,
+    structure: {
+      classes: [{ name: "Program", requiresConstructs: ["Thread", "Join"] }],
+    },
     testCases: [
       { stdin: "5\n", expectedStdout: "25\n", visible: true },
       { stdin: "0\n", expectedStdout: "0\n", visible: false },
@@ -35,6 +38,9 @@ class Program { static void Main() { } }`,
 class Program{static int a,b;static long ra,rb;static void A(){ra=(long)a*a;}static void B(){rb=(long)b*b;}static void Main(){a=int.Parse(Console.ReadLine());b=int.Parse(Console.ReadLine());Thread x=new Thread(A),y=new Thread(B);x.Start();y.Start();x.Join();y.Join();Console.WriteLine(ra);Console.WriteLine(rb);Console.WriteLine(ra+rb);}}`,
     difficulty: "medium",
     xpReward: 32,
+    structure: {
+      classes: [{ name: "Program", requiresConstructs: ["Thread", "Join"] }],
+    },
     testCases: [
       { stdin: "3\n4\n", expectedStdout: "9\n16\n25\n", visible: true },
       { stdin: "0\n5\n", expectedStdout: "0\n25\n25\n", visible: false },
@@ -55,6 +61,11 @@ class Program { static void Main() { } }`,
 class Program{static int n,c;static readonly object g=new object();static void W(){for(int i=0;i<n;i++)lock(g){c++;}}static void Main(){n=int.Parse(Console.ReadLine());Thread a=new Thread(W),b=new Thread(W),d=new Thread(W);a.Start();b.Start();d.Start();a.Join();b.Join();d.Join();Console.WriteLine(c);}}`,
     difficulty: "medium",
     xpReward: 34,
+    structure: {
+      classes: [
+        { name: "Program", requiresConstructs: ["Thread", "Join", "lock"] },
+      ],
+    },
     testCases: [
       { stdin: "100\n", expectedStdout: "300\n", visible: true },
       { stdin: "1\n", expectedStdout: "3\n", visible: false },
@@ -75,6 +86,9 @@ class Program { static void Main() { } }`,
 class Program{static string entrada,salida;static void W(){try{int x=int.Parse(entrada);salida="DOBLE "+(x*2);}catch(FormatException){salida="INVALIDO";}}static void Main(){entrada=Console.ReadLine();Thread t=new Thread(W);t.Start();t.Join();Console.WriteLine(salida);}}`,
     difficulty: "medium",
     xpReward: 32,
+    structure: {
+      classes: [{ name: "Program", requiresConstructs: ["Thread", "Join"] }],
+    },
     testCases: [
       { stdin: "7\n", expectedStdout: "DOBLE 14\n", visible: true },
       { stdin: "abc\n", expectedStdout: "INVALIDO\n", visible: false },

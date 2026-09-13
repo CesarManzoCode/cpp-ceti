@@ -120,6 +120,29 @@ class Program
         ],
         difficulty: "hard",
         xpReward: 40,
+        structure: {
+          classes: [
+            {
+              name: "Entidad",
+              properties: [{ name: "Id", type: "string" }],
+              constructors: [{ paramCount: 1 }],
+            },
+            {
+              name: "Alumno",
+              extends: "Entidad",
+              properties: [{ name: "Nombre", type: "string" }],
+              constructors: [{ paramCount: 2, callsBase: true }],
+            },
+            {
+              name: "Repositorio",
+              generic: { arity: 1, constraints: [{ param: "T", types: ["Entidad"] }] },
+              methods: [
+                { name: "Agregar", paramCount: 1 },
+                { name: "Buscar", paramCount: 1, returnType: "T" },
+              ],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,

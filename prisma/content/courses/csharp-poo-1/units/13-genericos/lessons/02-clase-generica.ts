@@ -102,6 +102,20 @@ class Program
         ],
         difficulty: "medium",
         xpReward: 32,
+        structure: {
+          classes: [
+            {
+              name: "Repositorio",
+              generic: { arity: 1 },
+              fields: [{ name: "datos", type: "List<T>", visibility: "private" }],
+              methods: [
+                { name: "Agregar", paramCount: 1 },
+                { name: "Obtener", returnType: "T", paramCount: 1 },
+                { name: "Cantidad", returnType: "int" },
+              ],
+            },
+          ],
+        },
         testCases: [
           {
             visible: true,
