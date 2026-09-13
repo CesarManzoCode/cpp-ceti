@@ -1,4 +1,5 @@
 import { LandingNavbar } from "@/components/landing/navbar";
+import { SkipLink } from "@/components/shared/skip-link";
 import { Hero } from "@/components/landing/hero";
 import { StatsBar } from "@/components/landing/stats-bar";
 import { Why } from "@/components/landing/why";
@@ -12,8 +13,9 @@ import { LandingFooter } from "@/components/landing/footer";
 export default function HomePage() {
   return (
     <>
+      <SkipLink href="#main-content">Saltar al contenido</SkipLink>
       <LandingNavbar />
-      <main>
+      <main id="main-content">
         <Hero />
         <StatsBar />
         <Why />

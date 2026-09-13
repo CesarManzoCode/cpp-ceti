@@ -58,7 +58,7 @@ export default async function LigaPage() {
         </div>
       ) : (
         <>
-          <section className="mt-8 rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
+          <section className="mt-8 rounded-[var(--radius-lg)] border border-border bg-card p-5">
             <div className="flex items-center gap-4">
               <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary-soft text-primary-soft-foreground">
                 <Trophy className="size-6" />

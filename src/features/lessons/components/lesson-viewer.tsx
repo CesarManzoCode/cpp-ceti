@@ -8,19 +8,19 @@ import { toast } from "sonner";
 
 import { BrickRow } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
+import { LearningHelpMenu } from "@/components/layout/learning-help-menu";
 import { InlineCodeText } from "@/components/shared/inline-code-text";
+import { SkipLink } from "@/components/shared/skip-link";
 import {
   StudySessionProvider,
   useStudySession,
 } from "@/features/analytics/telemetry";
-import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
-import { ReportDiscrepancyButton } from "@/features/feedback/components/report-discrepancy-button";
 import { completeStep, markStepAssisted } from "@/features/lessons/actions";
 import type { LanguageId } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 import type { ViewerStep } from "@/features/lessons/types";
 
-import { LessonCompleted } from "./lesson-completed";
+import { LessonCompletedPanel } from "./lesson-completed";
 import { LessonStepRenderer } from "./lesson-step-renderer";
 import type { StepSignal } from "./step-signal";
 
@@ -186,10 +186,13 @@ function LessonPlayer({
   );
 
   const [isPending, startTransition] = React.useTransition();
-  const [completedDialog, setCompletedDialog] = React.useState<{
-    open: boolean;
+  // Cierre EN FLUJO, no modal (blueprint UX/UI, C1/G8): terminar la lección
+  // reemplaza el paso actual por un estado de cierre dentro de la misma
+  // página, con foco propio — no interrumpe con un diálogo.
+  const [completion, setCompletion] = React.useState<{
+    done: boolean;
     xp: number;
-  }>({ open: false, xp: 0 });
+  }>({ done: false, xp: 0 });
 
   const router = useRouter();
   const total = lesson.steps.length;
@@ -204,6 +207,27 @@ function LessonPlayer({
   const isWideStep = currentStep?.type === "code_challenge";
   const containerMax = isWideStep ? "max-w-6xl" : "max-w-[46rem]";
 
+  // Foco y anuncio al cambiar de paso o al cerrar la lección (blueprint
+  // UX/UI, D3/H6/J3): el título del paso recibe el foco programático y un
+  // lector de pantalla anuncia "Paso n de total".
+  const headingRef = React.useRef<HTMLHeadingElement>(null);
+  const isInitialRender = React.useRef(true);
+  const [announcement, setAnnouncement] = React.useState("");
+
+  React.useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    headingRef.current?.focus();
+    setAnnouncement(
+      completion.done
+        ? "Lección completada"
+        : `Paso ${currentIndex + 1} de ${total}`,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, completion.done]);
+
   function scrollTop() {
     if (window.scrollY > 80) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -211,6 +235,11 @@ function LessonPlayer({
   }
 
   function handlePrev() {
+    if (completion.done) {
+      setCompletion({ done: false, xp: 0 });
+      scrollTop();
+      return;
+    }
     if (currentIndex === 0) return;
     setCurrentIndex(currentIndex - 1);
     scrollTop();
@@ -226,7 +255,12 @@ function LessonPlayer({
           assisted: assistedSteps.has(currentStep.id),
         });
         if (res.lessonCompleted) {
-          setCompletedDialog({ open: true, xp: res.xpEarned });
+          setCompletion({ done: true, xp: res.xpEarned || lesson.xpReward });
+          scrollTop();
+          // Invalida el RSC cacheado de unidad/curso: sus contadores de
+          // progreso deben reflejar esta lección ya al volver o navegar a
+          // la siguiente, sin esperar a un refresh manual.
+          router.refresh();
         } else if (currentIndex < total - 1) {
           setCurrentIndex(currentIndex + 1);
           scrollTop();
@@ -247,11 +281,20 @@ function LessonPlayer({
     );
   }
 
+  const bugTarget: React.ComponentProps<typeof LearningHelpMenu>["bugTarget"] =
+    currentStep.type === "code_challenge" && currentStep.exercise
+      ? { kind: "exercise", exerciseId: currentStep.exercise.id }
+      : { kind: "lesson_step", lessonStepId: currentStep.id };
+
   return (
     <>
-      {/* Cabecera del reproductor. Los bloques de la izquierda a la
-          derecha son los pasos de la lección: el mismo objeto con el
-          que se dibuja el curso entero, aquí a la escala más pequeña. */}
+      <SkipLink href="#paso-actual">Saltar a la consigna</SkipLink>
+      {currentStep.type === "code_challenge" ? (
+        <SkipLink href="#banco-de-trabajo">Saltar al editor</SkipLink>
+      ) : null}
+      {/* Learning Bar (blueprint UX/UI, D3/G6): volver → contexto →
+          progreso → ayuda → salir. Sustituye por completo al shell global
+          — sin sidebar ni bottom nav — mientras se estudia. */}
       <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md">
         <div
           className={cn(
@@ -259,7 +302,7 @@ function LessonPlayer({
             containerMax,
           )}
         >
-          {isFirstStep ? (
+          {isFirstStep && !completion.done ? (
             <Button
               asChild
               size="sm"
@@ -281,6 +324,7 @@ function LessonPlayer({
               variant="ghost"
               onClick={handlePrev}
               disabled={isPending}
+              aria-label="Anterior"
               className="-ml-2 shrink-0"
             >
               <ChevronLeft />
@@ -289,38 +333,44 @@ function LessonPlayer({
           )}
 
           <div className="flex min-w-0 flex-1 items-center gap-3">
+            {/* Unidad SIEMPRE identificable, no sólo en el primer paso
+                (blueprint UX/UI, M4: "curso, unidad y paso son
+                identificables en toda lección"). */}
+            <span
+              className="hidden shrink-0 max-w-[16ch] truncate text-[12px] font-bold uppercase tracking-[0.04em] text-subtle-foreground sm:inline"
+              title={unit.title}
+            >
+              {unit.title}
+            </span>
             <BrickRow
               className="min-w-0 flex-1"
               total={total}
-              done={currentIndex}
-              current={currentIndex}
+              done={completion.done ? total : currentIndex}
+              current={completion.done ? -1 : currentIndex}
+              tone={completion.done ? "success" : "primary"}
               size="md"
-              srLabel={`Paso ${currentIndex + 1} de ${total}`}
+              srLabel={
+                completion.done
+                  ? `Lección completada: ${total} de ${total}`
+                  : `Paso ${currentIndex + 1} de ${total}`
+              }
             />
             <span className="shrink-0 text-[13px] font-bold tabular-nums text-muted-foreground">
-              {currentIndex + 1}
+              {completion.done ? total : currentIndex + 1}
               <span className="text-subtle-foreground">/{total}</span>
             </span>
             {/* "Completado" no puede significar lo mismo después de copiar
                 una solución que después de resolverla. El XP no cambia; lo
                 que cambia es saber qué te toca repasar. */}
-            {stepAssisted ? (
+            {stepAssisted && !completion.done ? (
               <span className="hidden shrink-0 rounded-full bg-warning-soft px-2.5 py-1 text-[12px] font-bold text-warning sm:inline">
                 Con ayuda
               </span>
             ) : null}
           </div>
 
-          <div className="flex shrink-0 items-center">
-            <ReportDiscrepancyButton />
-
-            <ReportBugDialog
-              target={
-                currentStep.type === "code_challenge" && currentStep.exercise
-                  ? { kind: "exercise", exerciseId: currentStep.exercise.id }
-                  : { kind: "lesson_step", lessonStepId: currentStep.id }
-              }
-            />
+          <div className="flex shrink-0 items-center gap-0.5">
+            <LearningHelpMenu bugTarget={bugTarget} />
 
             <Button
               asChild
@@ -336,57 +386,69 @@ function LessonPlayer({
         </div>
       </div>
 
-      <div
-        key={currentStep.id}
-        className={cn(
-          "animate-slide-in-right mx-auto flex flex-col gap-7 px-4 py-7 sm:px-6 lg:py-10",
-          containerMax,
-        )}
-      >
-        {isFirstStep ? (
-          <header className="border-b border-border pb-7">
-            <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
-              Unidad {unit.order} · {unit.title}
-            </p>
-            <h1 className="mt-3 text-balance text-[28px] font-extrabold leading-[1.12] tracking-[-0.032em] sm:text-[36px]">
-              <InlineCodeText>{lesson.title}</InlineCodeText>
-            </h1>
-            {lesson.description ? (
-              <p className="mt-3 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-muted-foreground sm:text-[17px]">
-                {lesson.description}
+      {/* Anuncio para lector de pantalla del cambio de paso/cierre. El
+          foco programático (más arriba) ya mueve la atención visual; esto
+          asegura que también se anuncie sin leer el título dos veces. */}
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
+
+      {completion.done ? (
+        <LessonCompletedPanel
+          headingRef={headingRef}
+          xpEarned={completion.xp}
+          nextLessonLink={nextLessonLink}
+          unitHref={`/app/c/${courseSlug}/u/${unit.slug}`}
+          containerMax={containerMax}
+        />
+      ) : (
+        <div
+          key={currentStep.id}
+          className={cn(
+            "animate-slide-in-right mx-auto flex flex-col gap-7 px-4 py-7 sm:px-6 lg:py-10",
+            containerMax,
+          )}
+        >
+          {isFirstStep ? (
+            <header className="border-b border-border pb-7">
+              <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+                Unidad {unit.order} · {unit.title}
               </p>
-            ) : null}
-          </header>
-        ) : (
-          <p className="truncate text-[14px] font-semibold text-subtle-foreground">
-            {lesson.title.replace(/`/g, "")}
-          </p>
-        )}
+              <h1
+                ref={headingRef}
+                tabIndex={-1}
+                className="mt-3 text-balance text-[28px] font-extrabold leading-[1.12] tracking-[-0.032em] outline-none sm:text-[36px]"
+              >
+                <InlineCodeText>{lesson.title}</InlineCodeText>
+              </h1>
+              {lesson.description ? (
+                <p className="mt-3 max-w-[58ch] text-pretty text-[16px] leading-relaxed text-muted-foreground sm:text-[17px]">
+                  {lesson.description}
+                </p>
+              ) : null}
+            </header>
+          ) : (
+            <h2
+              ref={headingRef}
+              tabIndex={-1}
+              className="truncate text-[14px] font-semibold text-subtle-foreground outline-none"
+            >
+              {lesson.title.replace(/`/g, "")}
+            </h2>
+          )}
 
-        <div className="min-h-[280px]">
-          <LessonStepRenderer
-            step={currentStep}
-            language={language}
-            lessonId={lesson.id}
-            onNext={handleNext}
-            isPending={isPending}
-            onSignal={handleStepSignal}
-          />
+          <div id="paso-actual" className="min-h-[280px]">
+            <LessonStepRenderer
+              step={currentStep}
+              language={language}
+              lessonId={lesson.id}
+              onNext={handleNext}
+              isPending={isPending}
+              onSignal={handleStepSignal}
+            />
+          </div>
         </div>
-      </div>
-
-      <LessonCompleted
-        open={completedDialog.open}
-        onOpenChange={(open) => {
-          setCompletedDialog({ ...completedDialog, open });
-          if (!open) {
-            router.refresh();
-          }
-        }}
-        xpEarned={completedDialog.xp || lesson.xpReward}
-        nextLessonLink={nextLessonLink}
-        unitHref={`/app/c/${courseSlug}/u/${unit.slug}`}
-      />
+      )}
     </>
   );
 }

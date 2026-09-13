@@ -85,8 +85,6 @@ describe("el shell expone el cambio de curso en desktop y en móvil", () => {
         courseSlug="csharp-poo-1"
         courses={COURSES}
         user={USER}
-        totalXp={0}
-        streak={0}
         units={[]}
       />,
     );

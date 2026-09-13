@@ -31,7 +31,7 @@ export function ExampleTests({
         {tests.map((t, idx) => (
           <div
             key={t.id}
-            className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-[var(--shadow-xs)]"
+            className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card"
           >
             <div className="flex flex-wrap items-baseline gap-2 border-b border-border bg-surface-2 px-4 py-2.5 text-[13px] font-bold text-muted-foreground">
               Ejemplo {idx + 1}

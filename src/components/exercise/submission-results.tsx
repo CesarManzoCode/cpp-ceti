@@ -34,8 +34,8 @@ export function SubmissionResults({
       className={cn(
         "animate-fade-up rounded-[var(--radius-lg)] border p-4 sm:p-5",
         submission.passed
-          ? "animate-correct border-success/30 bg-success-soft/55"
-          : "animate-shake border-destructive/30 bg-destructive-soft/45",
+          ? "border-success/30 bg-success-soft/55"
+          : "border-destructive/30 bg-destructive-soft/45",
       )}
       aria-live="polite"
     >

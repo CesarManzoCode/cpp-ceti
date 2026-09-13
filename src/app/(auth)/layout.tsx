@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
+import { SkipLink } from "@/components/shared/skip-link";
 import { UNOFFICIAL_NOTICE } from "@/lib/branding";
 
 /**
@@ -15,7 +16,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[1fr_1fr]">
+    <div className="grid min-h-dvh lg:grid-cols-[2fr_3fr]">
+      <SkipLink href="#main-content">Saltar al contenido</SkipLink>
       <aside className="hidden flex-col justify-between border-r border-border bg-surface-2 p-10 lg:flex xl:p-14">
         <Link
           href="/"
@@ -62,7 +64,7 @@ export default function AuthLayout({
         </p>
       </aside>
 
-      <main className="flex flex-col px-5 py-8 sm:px-10">
+      <main id="main-content" className="flex flex-col px-5 py-8 sm:px-10">
         <div className="mb-8 lg:hidden">
           <Link href="/" className="inline-block">
             <Logo />

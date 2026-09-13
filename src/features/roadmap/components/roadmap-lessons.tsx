@@ -26,7 +26,7 @@ export function RoadmapLessons({
 }: RoadmapLessonsProps) {
   if (lessons.length === 0) {
     return (
-      <p className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-6 py-10 text-center text-[15px] text-muted-foreground">
+      <p className="text-[15px] text-muted-foreground">
         Esta unidad aún no tiene lecciones publicadas.
       </p>
     );
@@ -54,14 +54,12 @@ export function RoadmapLessons({
         const body = (
           <div
             className={cn(
-              "flex items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
+              "flex items-start gap-4 rounded-[var(--radius-lg)] border p-4 transition-[border-color,background-color] duration-150 sm:p-5",
               isLocked
                 ? "border-dashed border-border bg-transparent"
                 : inProgress || isNext
-                  ? "border-primary/30 bg-primary-tint shadow-[var(--shadow-xs)]"
-                  : "border-border bg-card shadow-[var(--shadow-xs)]",
-              !isLocked &&
-                "group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-[var(--shadow-md)]",
+                  ? "border-primary/30 bg-primary-tint group-hover:border-primary/50"
+                  : "border-border bg-card group-hover:border-primary/40 group-hover:bg-surface-2",
             )}
           >
             <LessonNode

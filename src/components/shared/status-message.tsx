@@ -32,7 +32,7 @@ export function StatusMessage({
   return (
     <div
       className={cn(
-        "w-full max-w-md rounded-[var(--radius-xl)] border bg-card p-6 shadow-[var(--shadow-sm)] sm:p-7",
+        "w-full max-w-md rounded-[var(--radius-lg)] border bg-card p-6 sm:p-7",
         tone === "error" ? "border-destructive/30" : "border-border",
         className,
       )}

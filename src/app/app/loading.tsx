@@ -8,7 +8,7 @@ export default function DashboardLoading() {
 
       <div className="mt-5 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-10">
         <div className="min-w-0">
-          <Skeleton className="h-[236px] w-full rounded-[var(--radius-xl)]" />
+          <Skeleton className="h-[236px] w-full rounded-[var(--radius-lg)]" />
 
           <div className="mt-10 space-y-4">
             <Skeleton className="h-6 w-40" />

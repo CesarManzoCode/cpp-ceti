@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { formatSemesterSummary } from "@/lib/curriculum";
 import { db } from "@/lib/db";
 
 /**
@@ -63,8 +64,13 @@ export interface LandingUnit {
 export interface LandingCourse {
   slug: string;
   title: string;
+  description: string;
   subjectName: string;
   language: string;
+  curriculumSummary: string | null;
+  /** Publicadas y accesibles. `null` cuando la base no respondió. */
+  lessonCount: number | null;
+  exerciseCount: number | null;
   units: LandingUnit[];
 }
 
@@ -136,34 +142,60 @@ const FALLBACK_BASES_DE_DATOS_UNITS: LandingUnit[] = [
   { slug: "bd2-20-integrador", order: 20, title: "Proyecto integrador de Base de Datos II", published: true },
 ];
 
-/** Sólo se usa si la base no responde: el temario nunca queda en blanco. */
+/**
+ * Sólo se usa si la base no responde: el temario nunca queda en blanco.
+ * `lessonCount`/`exerciseCount` quedan en `null` a propósito — inventar un
+ * número aquí sería justo el tipo de cifra que erosiona confianza que este
+ * blueprint pide evitar (sección C1). La UI oculta esa fila en vez de
+ * mostrar un cero falso.
+ */
 const FALLBACK_COURSES: LandingCourse[] = [
   {
     slug: "cpp-desde-cero",
     title: "C++ desde cero",
+    description:
+      "El curso completo de C++ pensado para estudiantes del CETI Guadalajara. Cada concepto va seguido de práctica inmediata.",
     subjectName: "Programación en C++",
     language: "cpp",
+    curriculumSummary: null,
+    lessonCount: null,
+    exerciseCount: null,
     units: FALLBACK_CPP_UNITS,
   },
   {
     slug: "csharp-poo-1",
     title: "Programación Orientada a Objetos con C#",
+    description:
+      "Modela, implementa y conecta aplicaciones orientadas a objetos en C#, desde clases y relaciones hasta colecciones, persistencia, concurrencia y redes.",
     subjectName: "Programación Orientada a Objetos",
     language: "csharp",
+    curriculumSummary: "Semestres 3 y 4",
+    lessonCount: null,
+    exerciseCount: null,
     units: FALLBACK_CSHARP_UNITS,
   },
   {
     slug: "modelos-metodos-desarrollo-software",
     title: "Modelos y métodos de desarrollo de software",
+    description:
+      "Convierte problemas en proyectos de software trazables: requisitos, diseño, control de versiones, pruebas, mantenimiento, SOLID y entregas incrementales.",
     subjectName: "Modelos y métodos de desarrollo de software",
     language: "csharp",
+    curriculumSummary: null,
+    lessonCount: null,
+    exerciseCount: null,
     units: FALLBACK_MODELOS_METODOS_UNITS,
   },
   {
     slug: "bases-de-datos",
     title: "Bases de datos",
+    description:
+      "Diseña bases relacionales desde necesidades reales, normalízalas y consulta información con SQL.",
     subjectName: "Bases de datos",
     language: "sql",
+    curriculumSummary: null,
+    lessonCount: null,
+    exerciseCount: null,
     units: FALLBACK_BASES_DE_DATOS_UNITS,
   },
 ];
@@ -182,17 +214,69 @@ export const getLandingCourses = cache(async (): Promise<LandingCourse[]> => {
       where: { published: true },
       orderBy: [{ order: "asc" }, { slug: "asc" }],
       select: {
+        id: true,
         slug: true,
         title: true,
+        description: true,
         subjectName: true,
         language: true,
+        curriculumSections: {
+          orderBy: { order: "asc" },
+          select: { semester: true },
+        },
         units: {
           orderBy: { order: "asc" },
-          select: { slug: true, order: true, title: true, published: true },
+          select: {
+            slug: true,
+            order: true,
+            title: true,
+            published: true,
+            _count: { select: { lessons: { where: { published: true } } } },
+          },
         },
       },
     });
-    return courses.length > 0 ? courses : FALLBACK_COURSES;
+
+    if (courses.length === 0) return FALLBACK_COURSES;
+
+    // Publicadas y dentro de una unidad accesible: el mismo criterio que
+    // `getLandingStats`, ahora por curso — el temario nunca puede contradecir
+    // al contador de arriba.
+    const exerciseCounts = await Promise.all(
+      courses.map((c) =>
+        db.exercise.count({
+          where: {
+            step: {
+              lesson: {
+                published: true,
+                unit: { published: true, courseId: c.id },
+              },
+            },
+          },
+        }),
+      ),
+    );
+
+    return courses.map((course, i) => ({
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      subjectName: course.subjectName,
+      language: course.language,
+      curriculumSummary: formatSemesterSummary(
+        course.curriculumSections.map((s) => s.semester),
+      ),
+      lessonCount: course.units
+        .filter((u) => u.published)
+        .reduce((n, u) => n + u._count.lessons, 0),
+      exerciseCount: exerciseCounts[i],
+      units: course.units.map((u) => ({
+        slug: u.slug,
+        order: u.order,
+        title: u.title,
+        published: u.published,
+      })),
+    }));
   } catch {
     return FALLBACK_COURSES;
   }

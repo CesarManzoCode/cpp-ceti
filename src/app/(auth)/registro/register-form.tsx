@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   FormField,
+  focusFirstError,
   zodIssuesToFieldErrors,
 } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -158,7 +159,9 @@ export function RegisterForm() {
       password: String(formData.get("password") ?? ""),
     });
     if (!parsed.success) {
-      setFieldErrors(zodIssuesToFieldErrors(parsed.error.issues));
+      const errors = zodIssuesToFieldErrors(parsed.error.issues);
+      setFieldErrors(errors);
+      focusFirstError(errors);
       return;
     }
 

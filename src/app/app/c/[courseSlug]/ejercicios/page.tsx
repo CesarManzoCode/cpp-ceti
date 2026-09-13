@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, Code2 } from "lucide-react";
+import { Check, ChevronDown, Code2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { BrickRow } from "@/components/ui/bricks";
+import { ProgressSequence } from "@/components/ui/bricks";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { getPracticeGroups } from "@/features/practice/queries";
 import { getCourseBySlug } from "@/features/roadmap/queries";
 import { requireSession } from "@/lib/get-session";
 import { DIFFICULTY_META } from "@/lib/difficulty";
-import { pluralize } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 export const metadata = {
   title: "Práctica",
@@ -48,64 +55,64 @@ export default async function EjerciciosPage({ params }: PageProps) {
         </p>
 
         {totalExercises > 0 ? (
-          <div className="mt-6 flex max-w-md items-center gap-4">
-            <BrickRow
-              className="min-w-0 flex-1"
+          <div className="mt-6 max-w-md">
+            <ProgressSequence
               total={totalExercises}
               done={totalPassed}
-              size="md"
+              label="ejercicios"
               tone="success"
-              srLabel={`${totalPassed} de ${totalExercises} ejercicios resueltos`}
             />
-            <span className="shrink-0 text-[14px] font-bold tabular-nums text-muted-foreground">
-              {totalPassed}/{totalExercises}
-            </span>
           </div>
         ) : null}
       </header>
 
       {groups.length === 0 ? (
-        <div className="mt-10 rounded-[var(--radius-xl)] border border-dashed border-border-strong bg-card px-6 py-12 text-center">
+        <div className="mt-10">
           <h2 className="text-[19px] font-bold">
             Los ejercicios se desbloquean conforme avanzas
           </h2>
-          <p className="mx-auto mt-2.5 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+          <p className="mt-2.5 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
             Sigue el camino del curso y cada unidad te abrirá nuevos retos para
             consolidar lo aprendido.
           </p>
         </div>
       ) : (
         <>
-          <nav aria-label="Ir a una unidad" className="mt-8">
-            <ul className="flex flex-wrap gap-2">
-              {groups.map((group) => {
-                const passed = group.exercises.filter((e) => e.passed).length;
-                const done = passed === group.exercises.length;
-                return (
-                  <li key={group.unitSlug}>
-                    <a
-                      href={`#u-${group.unitSlug}`}
-                      className={
-                        "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-colors " +
-                        (done
-                          ? "border-success/25 bg-success-soft text-success hover:brightness-95"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground")
-                      }
-                    >
-                      <span className="max-w-[18ch] truncate">
-                        {group.unitTitle}
-                      </span>
-                      <span className="tabular-nums opacity-80">
-                        {passed}/{group.exercises.length}
-                      </span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+        <div className="mt-8 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:gap-8">
+          {/* Selector de unidad (blueprint UX/UI, H12): lista vertical
+              compacta en escritorio, sheet accesible en móvil/tablet —
+              nunca la nube de píldoras que hacía competir 10 unidades
+              como si fueran etiquetas. */}
+          <div className="lg:sticky lg:top-24">
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger
+                  className={cn(
+                    "flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border border-border-strong bg-card px-4 text-[14px] font-semibold text-foreground",
+                    "h-11 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  )}
+                >
+                  Ir a una unidad
+                  <ChevronDown className="size-4 text-muted-foreground" aria-hidden />
+                </SheetTrigger>
+                <SheetContent side="bottom" className="max-h-[80svh] overflow-y-auto rounded-t-[var(--radius-lg)] p-4">
+                  <SheetHeader className="px-0 pb-2 pt-0 text-left">
+                    <SheetTitle>Ir a una unidad</SheetTitle>
+                  </SheetHeader>
+                  <UnitSelectorList groups={groups} />
+                </SheetContent>
+              </Sheet>
+            </div>
 
-          <div className="mt-10 flex flex-col gap-10">
+            <nav
+              aria-label="Ir a una unidad"
+              className="hidden lg:block"
+            >
+              <UnitSelectorList groups={groups} />
+            </nav>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-10 lg:mt-0">
             {groups.map((group) => {
               const passed = group.exercises.filter((e) => e.passed).length;
               return (
@@ -128,7 +135,7 @@ export default async function EjerciciosPage({ params }: PageProps) {
                         >
                           <article
                             className={
-                              "flex h-full items-start gap-3.5 rounded-[var(--radius-lg)] border p-4 shadow-[var(--shadow-xs)] transition-[border-color,box-shadow,transform] duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-[var(--shadow-md)] " +
+                              "flex h-full items-start gap-3.5 rounded-[var(--radius-lg)] border p-4 transition-[border-color,box-shadow,transform] duration-200 group-hover:border-primary/40 " +
                               (ex.passed
                                 ? "border-success/25 bg-success-soft/35"
                                 : "border-border bg-card")
@@ -184,6 +191,7 @@ export default async function EjerciciosPage({ params }: PageProps) {
               );
             })}
           </div>
+        </div>
 
           <div className="mt-12 rounded-[var(--radius-lg)] border border-border bg-surface-2 p-5">
             <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
@@ -213,5 +221,43 @@ export default async function EjerciciosPage({ params }: PageProps) {
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Lista de unidades reutilizada por el rail de escritorio y el sheet de
+ * móvil: título, estado y cuenta — nunca una etiqueta truncada entre
+ * otras diez compitiendo por el mismo ancho.
+ */
+function UnitSelectorList({
+  groups,
+}: {
+  groups: Awaited<ReturnType<typeof getPracticeGroups>>;
+}) {
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {groups.map((group) => {
+        const passed = group.exercises.filter((e) => e.passed).length;
+        const done = passed === group.exercises.length;
+        return (
+          <li key={group.unitSlug}>
+            <a
+              href={`#u-${group.unitSlug}`}
+              className={cn(
+                "flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2.5 text-[14px] font-semibold transition-colors",
+                done
+                  ? "text-success hover:bg-success-soft"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+            >
+              <span className="min-w-0 flex-1 truncate">{group.unitTitle}</span>
+              <span className="shrink-0 text-[12.5px] font-bold tabular-nums opacity-80">
+                {passed}/{group.exercises.length}
+              </span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

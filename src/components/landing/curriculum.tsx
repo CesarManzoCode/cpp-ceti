@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { ChevronDown, Lock } from "lucide-react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
 import { getLandingCourses } from "@/components/landing/queries";
 import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
+import { pluralize } from "@/lib/utils";
 
 /**
  * Tópicos por unidad — derivados del contenido real
@@ -57,21 +58,67 @@ export async function Curriculum() {
           description="Construidas sobre los planes oficiales del CETI. Cada unidad combina teoría justa, ejemplos ejecutables, quizzes y retos donde tú escribes el código."
         />
 
-        {courses.map((course) => (
-        <div key={course.slug} className="mt-12 max-w-4xl">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h3 className="text-[20px] font-extrabold tracking-[-0.02em]">
-              {course.title}
-            </h3>
-            <span className="rounded-full bg-primary-tint px-2.5 py-0.5 text-[12px] font-bold text-primary">
-              {isLanguageId(course.language)
-                ? LANGUAGE_PROFILES[course.language].label
-                : course.language}
-            </span>
-            <span className="text-[13px] font-semibold text-subtle-foreground">
-              {course.subjectName}
-            </span>
-          </div>
+        {/* Cuatro paneles resumen, cada uno con su detalle de unidades bajo
+            un `<details>` accesible (blueprint UX/UI, H1): 56 unidades no se
+            renderizan de entrada como una pared de texto. */}
+        <div className="mt-10 flex flex-col gap-4">
+        {courses.map((course, i) => (
+        <details key={course.slug} className="group max-w-4xl" open={i === 0}>
+          <summary
+            className={
+              "flex cursor-pointer list-none flex-col gap-2 rounded-[var(--radius-lg)] border border-border bg-card p-5 outline-none " +
+              "transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 [&::-webkit-details-marker]:hidden"
+            }
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h3 className="text-[20px] font-extrabold tracking-[-0.02em]">
+                    {course.title}
+                  </h3>
+                  <span className="rounded-[var(--radius-xs)] bg-primary-tint px-2 py-0.5 text-[12px] font-bold text-primary">
+                    {isLanguageId(course.language)
+                      ? LANGUAGE_PROFILES[course.language].label
+                      : course.language}
+                  </span>
+                </div>
+                <p className="mt-1 text-[13px] font-semibold text-subtle-foreground">
+                  {course.curriculumSummary ?? course.subjectName}
+                </p>
+              </div>
+              <ChevronDown
+                aria-hidden
+                className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
+              />
+            </div>
+
+            <p className="max-w-[62ch] text-[14px] leading-relaxed text-muted-foreground">
+              {course.description}
+            </p>
+
+            <p className="text-[13px] font-bold tabular-nums text-foreground">
+              {course.units.filter((u) => u.published).length}{" "}
+              {pluralize(
+                course.units.filter((u) => u.published).length,
+                "unidad",
+                "unidades",
+              )}
+              {course.lessonCount !== null ? (
+                <>
+                  {" · "}
+                  {course.lessonCount}{" "}
+                  {pluralize(course.lessonCount, "lección", "lecciones")}
+                </>
+              ) : null}
+              {course.exerciseCount !== null ? (
+                <>
+                  {" · "}
+                  {course.exerciseCount}{" "}
+                  {pluralize(course.exerciseCount, "ejercicio", "ejercicios")}
+                </>
+              ) : null}
+            </p>
+          </summary>
 
         <ol className="mt-5 flex flex-col gap-3">
           {course.units.map((u) => {
@@ -135,7 +182,7 @@ export async function Curriculum() {
                 {u.published ? (
                   <Link
                     href="/registro"
-                    className="flex items-start gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-5"
+                    className="flex items-start gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 transition-[border-color,box-shadow,transform] duration-200 hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-5"
                   >
                     {body}
                   </Link>
@@ -148,8 +195,9 @@ export async function Curriculum() {
             );
           })}
         </ol>
-        </div>
+        </details>
         ))}
+        </div>
       </Reveal>
     </section>
   );

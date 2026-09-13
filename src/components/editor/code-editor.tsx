@@ -3,6 +3,7 @@
 import * as React from "react";
 import dynamic from "next/dynamic";
 import type * as Monaco from "monaco-editor";
+import { Keyboard } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -10,6 +11,14 @@ import {
   type LanguageId,
 } from "@/lib/code-languages";
 import { BrandSpinner } from "@/components/ui/brand-spinner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Kbd } from "@/components/ui/kbd";
 
 import { completionsFor, triggerCharactersFor } from "./completions";
 import type { CompletionKind } from "./completions";
@@ -114,6 +123,9 @@ export function CodeEditor({
     monaco.editor.setModelMarkers(model, "ceti-compiler", markers);
   }, [diagnostics]);
 
+  const diagnosticCount = diagnostics?.length ?? 0;
+  const errorCount = diagnostics?.filter((d) => d.severity === "error").length ?? 0;
+
   return (
     <div
       role="region"
@@ -123,14 +135,50 @@ export function CodeEditor({
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4 py-2.5">
+      {/* Toolbar de 40px: archivo/lenguaje a la izquierda, accesibilidad y
+          atajos a la derecha (blueprint UX/UI, sección G7). */}
+      <div className="flex h-10 items-center justify-between gap-3 border-b border-[var(--terminal-border)] px-4">
         <span className="font-mono text-[12px] font-medium text-terminal-muted">
           {profile.defaultFileName}
         </span>
-        <span className="hidden text-[12px] text-terminal-faint sm:inline">
-          Ctrl+Enter para ejecutar
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="hidden text-[12px] text-terminal-faint sm:inline">
+            Ctrl+Enter para ejecutar
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className="grid size-7 shrink-0 place-items-center rounded-[var(--radius-xs)] text-terminal-muted outline-none transition-colors hover:bg-white/10 hover:text-terminal-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              aria-label="Accesibilidad y atajos de teclado del editor"
+            >
+              <Keyboard className="size-4" aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuLabel>Atajos de teclado</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <ShortcutRow keys={["Ctrl", "Enter"]} label="Ejecutar" />
+              <ShortcutRow keys={["Ctrl", "M"]} label="Salir del editor con Tab" />
+              <ShortcutRow keys={["F8"]} label="Siguiente problema" />
+              <ShortcutRow keys={["Shift", "F8"]} label="Problema anterior" />
+              <DropdownMenuSeparator />
+              <p className="px-2 py-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+                En macOS, libera <Kbd>Tab</Kbd> con{" "}
+                <span className="whitespace-nowrap">
+                  <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>M</Kbd>
+                </span>
+                .
+              </p>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+      {/* Anuncio para lector de pantalla: sólo el resumen, no cada marker. */}
+      <p aria-live="polite" className="sr-only">
+        {diagnosticCount === 0
+          ? ""
+          : errorCount > 0
+            ? `${errorCount} ${errorCount === 1 ? "error" : "errores"} de compilación en el editor.`
+            : `${diagnosticCount} ${diagnosticCount === 1 ? "advertencia" : "advertencias"} en el editor.`}
+      </p>
       <div style={{ height: `min(${minHeight}px, 70svh)` }}>
         <MonacoEditor
           height="100%"
@@ -245,8 +293,11 @@ export function CodeEditor({
           options={{
             fontSize,
             fontFamily:
-              "var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace",
-            fontLigatures: true,
+              "var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace",
+            // Sin ligaduras: quien está aprendiendo necesita ver `>=` y `!=`
+            // tal como se teclean, no un glifo compuesto (blueprint UX/UI,
+            // M1.13 y G7).
+            fontLigatures: false,
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
             tabSize: 2,
@@ -277,6 +328,19 @@ export function CodeEditor({
           }}
         />
       </div>
+    </div>
+  );
+}
+
+function ShortcutRow({ keys, label }: { keys: string[]; label: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-2 py-1.5 text-[13px]">
+      <span className="text-foreground">{label}</span>
+      <span className="flex shrink-0 items-center gap-1">
+        {keys.map((k) => (
+          <Kbd key={k}>{k}</Kbd>
+        ))}
+      </span>
     </div>
   );
 }

@@ -11,7 +11,7 @@ export function AcademicPromptBanner() {
   if (dismissed) return null;
 
   return (
-    <div className="relative mt-6 flex flex-wrap items-center gap-x-3 gap-y-4 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-4 pr-12">
+    <div className="relative flex flex-wrap items-center gap-x-3 gap-y-4 rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint p-4 pr-12">
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-soft text-primary-soft-foreground">
         <Users className="size-[18px]" />
       </span>

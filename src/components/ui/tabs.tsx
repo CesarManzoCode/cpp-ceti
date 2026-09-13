@@ -34,8 +34,9 @@ function TabsTrigger({
         "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:pointer-events-none disabled:opacity-50",
         "hover:text-foreground",
-        // Activo = pastilla elevada dentro del carril.
-        "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[var(--shadow-sm)]",
+        // Activo = pastilla dentro del carril; el contraste de fondo basta,
+        // sin sombra (una pieza en reposo no flota).
+        "data-[state=active]:bg-card data-[state=active]:text-foreground",
         className,
       )}
       {...props}

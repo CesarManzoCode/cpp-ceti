@@ -202,7 +202,7 @@ export function StepCodeChallenge({
       </section>
 
       {/* Editor + acciones — en móvil va justo bajo el enunciado; en desktop, col. derecha */}
-      <section className="space-y-3 lg:col-start-2 lg:row-span-2">
+      <section id="banco-de-trabajo" className="space-y-3 lg:col-start-2 lg:row-span-2">
         <CodeEditor
           language={language}
           value={code}
@@ -216,12 +216,16 @@ export function StepCodeChallenge({
           }}
           minHeight={380}
           diagnostics={diagnostics}
-          ariaLabel="Editor del reto. Ctrl+Enter para ejecutar, botón Enviar para calificar."
+          ariaLabel="Editor del reto. Ctrl+Enter para ejecutar; botón Enviar solución para calificar."
         />
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
+            {/* "Ejecutar" es instrumental (compila y corre, no corrige);
+                "Enviar solución" es la única acción primaria de este bloque
+                (blueprint UX/UI, G7). */}
             <Button
+              variant="outline"
               onClick={() => {
                 markEngaged("code_run");
                 setSubmission(null);
@@ -232,17 +236,16 @@ export function StepCodeChallenge({
               className="h-12 flex-1 sm:h-10 sm:flex-none"
             >
               <Play className="fill-current" />
-              Compilar
+              Ejecutar
             </Button>
             <Button
-              variant="outline"
               onClick={handleSubmit}
               disabled={submitting || running}
               loading={submitting}
               className="h-12 flex-1 sm:h-10 sm:flex-none"
             >
               <Send />
-              Calificar solución
+              Enviar solución
             </Button>
           </div>
           {diagnostics.length > 0 ? (

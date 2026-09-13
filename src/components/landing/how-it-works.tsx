@@ -32,7 +32,7 @@ export function HowItWorks() {
           {steps.map((s, i) => (
             <li
               key={s.title}
-              className="rounded-[var(--radius-lg)] border border-border bg-card p-6 shadow-[var(--shadow-xs)]"
+              className="rounded-[var(--radius-lg)] border border-border bg-card p-6"
             >
               <span
                 aria-hidden

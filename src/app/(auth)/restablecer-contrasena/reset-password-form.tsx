@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { FormField, zodIssuesToFieldErrors } from "@/components/ui/form-field";
+import { FormField, focusFirstError, zodIssuesToFieldErrors } from "@/components/ui/form-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
 
@@ -54,7 +54,9 @@ export function ResetPasswordForm() {
       newPassword: String(formData.get("newPassword") ?? ""),
     });
     if (!parsed.success) {
-      setFieldErrors(zodIssuesToFieldErrors(parsed.error.issues));
+      const errors = zodIssuesToFieldErrors(parsed.error.issues);
+      setFieldErrors(errors);
+      focusFirstError(errors);
       return;
     }
 

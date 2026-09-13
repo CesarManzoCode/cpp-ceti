@@ -91,3 +91,14 @@ export function zodIssuesToFieldErrors(
   }
   return out;
 }
+
+/**
+ * Foco al primer error tras enviar (blueprint UX/UI, G2): el `id` del
+ * control coincide con el nombre del campo porque `FormField` lo asigna
+ * así (`id={name}`). Se llama justo después de `setFieldErrors`.
+ */
+export function focusFirstError(errors: Record<string, string>): void {
+  const firstKey = Object.keys(errors)[0];
+  if (!firstKey) return;
+  document.getElementById(firstKey)?.focus();
+}

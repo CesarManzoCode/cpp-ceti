@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Check } from "lucide-react";
 
-import { BrickRow } from "@/components/ui/bricks";
+import { ProgressSequence } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
 import { ReportDiscrepancyButton } from "@/features/feedback/components/report-discrepancy-button";
 import { RoadmapLessons } from "@/features/roadmap/components/roadmap-lessons";
@@ -79,19 +79,13 @@ export default async function UnitPage({ params }: PageProps) {
         ) : null}
 
         {totalLessons > 0 ? (
-          <div className="mt-6 flex items-center gap-4">
-            <BrickRow
-              className="max-w-sm flex-1"
+          <div className="mt-6 max-w-sm">
+            <ProgressSequence
               total={totalLessons}
               done={completedCount}
-              current={unitComplete ? -1 : completedCount}
-              size="lg"
+              label="lecciones"
               tone={unitComplete ? "success" : "primary"}
-              srLabel={`${completedCount} de ${totalLessons} lecciones completadas`}
             />
-            <span className="shrink-0 text-[14px] font-bold tabular-nums text-muted-foreground">
-              {percent}%
-            </span>
           </div>
         ) : null}
       </header>
@@ -103,7 +97,8 @@ export default async function UnitPage({ params }: PageProps) {
               Unidad terminada
             </p>
             <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">
-              Dominaste esta unidad. Sigue con lo que viene en tu camino.
+              Completaste todas las lecciones de esta unidad. Sigue con lo
+              que viene en tu camino.
             </p>
           </div>
           <Button asChild variant="outline" size="lg" className="shrink-0 max-sm:w-full">

@@ -67,7 +67,6 @@ export function ReadoutBar({
       data-slot="readout-bar"
       className={cn(
         "grid grid-cols-2 gap-x-5 gap-y-6 rounded-[var(--radius-lg)] border border-border bg-card p-5",
-        "shadow-[var(--shadow-xs)]",
         "sm:grid-cols-3 sm:gap-x-0 sm:divide-x sm:divide-border",
         "[&>[data-slot=readout]]:sm:px-6 [&>[data-slot=readout]]:sm:first:pl-0 [&>[data-slot=readout]]:sm:last:pr-0",
         className,

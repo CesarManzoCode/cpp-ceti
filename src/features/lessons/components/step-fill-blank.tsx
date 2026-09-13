@@ -45,11 +45,23 @@ export function StepFillBlank({
     isBlankCorrect(b, values[i] ?? "", values, language),
   );
 
+  // Foco al primer hueco incorrecto tras verificar (blueprint UX/UI, H9):
+  // quien envía con error debe llegar directo a corregirlo, no relocalizarlo
+  // a mano entre el resto del código. Un id estable por hueco evita meter
+  // refs en un árbol que arma una función auxiliar fuera del componente.
+  const blankInputId = (idx: number) => `blank-${idx}`;
+
   function verify() {
     setSubmitted(true);
     setFeedbackKey((k) => k + 1);
     if (!allCorrect) {
       setFailedAttempts((n) => n + 1);
+      const firstWrongIdx = content.blanks.findIndex(
+        (b, i) => !isBlankCorrect(b, values[i] ?? "", values, language),
+      );
+      if (firstWrongIdx !== -1) {
+        document.getElementById(blankInputId(firstWrongIdx))?.focus();
+      }
     }
     onSignal?.({ kind: "attempt", correct: allCorrect });
   }
@@ -91,11 +103,7 @@ export function StepFillBlank({
 
       <div
         key={feedbackKey}
-        className={cn(
-          "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal",
-          submitted && !allCorrect && "animate-shake",
-          submitted && allCorrect && "animate-correct",
-        )}
+        className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal"
       >
         <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2.5 text-[12px] font-semibold text-terminal-muted">
           <span className="font-mono">main.cpp</span>
@@ -274,6 +282,7 @@ function renderTemplateLines(
     lines[lines.length - 1].push(
       <input
         key={`b-${blankIdx}`}
+        id={`blank-${blankIdx}`}
         value={value}
         onChange={(e) => {
           const next = [...values];
@@ -287,8 +296,11 @@ function renderTemplateLines(
         autoCapitalize="off"
         autoComplete="off"
         className={cn(
-          // 16px en móvil evita el auto-zoom de iOS Safari al enfocar el input.
-          "mx-[2px] inline-block min-w-16 rounded-[1px] border px-1.5 py-[1px] align-baseline font-mono text-[16px] outline-none transition-colors sm:text-[13px]",
+          // 16px en móvil evita el auto-zoom de iOS Safari al enfocar el input;
+          // min-h-9 (36px) en móvil cumple el objetivo táctil del hueco
+          // (blueprint UX/UI, H9). En escritorio vuelve al alto de línea del
+          // código: el mouse no necesita el mismo margen.
+          "mx-[2px] inline-block min-h-9 min-w-16 rounded-[1px] border px-1.5 py-1 align-baseline font-mono text-[16px] outline-none transition-colors sm:min-h-0 sm:py-[1px] sm:text-[13px]",
           isWrong
             ? "border-destructive/70 bg-destructive/15 text-destructive"
             : isRight

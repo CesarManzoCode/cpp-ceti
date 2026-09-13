@@ -37,9 +37,9 @@ const KIND_ICON: Record<FeedEvent["kind"], typeof Trophy> = {
 export function MilestoneFeed({ events, viewerId }: { events: FeedEvent[]; viewerId: string }) {
   if (events.length === 0) {
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
+      <div>
         <p className="text-[15px] font-bold">Sin hitos todavía</p>
-        <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
           Cuando tú o tus amigos completen una unidad, un curso o lleguen a
           una racha importante, aparece aquí.
         </p>
@@ -82,7 +82,7 @@ function MilestoneRow({ event, viewerId }: { event: FeedEvent; viewerId: string 
   }
 
   return (
-    <li className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+    <li className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5">
       <FriendAvatar name={event.actor.name} image={event.actor.image} className="size-9" />
       <div className="min-w-0 flex-1">
         <p className="text-[15px] leading-snug">

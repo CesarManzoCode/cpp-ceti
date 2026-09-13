@@ -4,27 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Pieza. En este producto la tarjeta SÍ es la unidad de composición:
- * una lección, una unidad, un logro o un resultado son objetos con
- * bordes propios sobre el lienzo. La elevación es suave y sólo sube
- * cuando el objeto es interactivo o está en foco.
+ * Pieza (nivel 2 de la jerarquía de superficies). Una lección, una
+ * unidad, un logro o un resultado son objetos con bordes propios sobre
+ * el lienzo — pero una pieza en reposo no flota: sin sombra. El hover
+ * cambia borde y fondo, nunca eleva ni escala.
  */
 const cardVariants = cva(
-  "rounded-[var(--radius-lg)] border bg-card text-card-foreground transition-[border-color,background-color,box-shadow,transform] duration-200",
+  "rounded-[var(--radius-lg)] border bg-card text-card-foreground transition-[border-color,background-color] duration-150",
   {
     variants: {
       variant: {
-        default: "border-border shadow-[var(--shadow-xs)]",
+        default: "border-border",
         flat: "border-border",
-        elevated: "border-border shadow-[var(--shadow-md)]",
+        elevated: "border-border",
         interactive: [
-          "border-border shadow-[var(--shadow-xs)] cursor-pointer",
-          "hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[var(--shadow-md)]",
+          "border-border cursor-pointer",
+          "hover:border-primary/40 hover:bg-surface-2",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         ].join(" "),
         muted: "border-border bg-surface-2",
-        accent:
-          "border-primary/25 bg-primary-tint shadow-[var(--shadow-xs)]",
+        accent: "border-primary/25 bg-primary-tint",
       },
     },
     defaultVariants: { variant: "default" },

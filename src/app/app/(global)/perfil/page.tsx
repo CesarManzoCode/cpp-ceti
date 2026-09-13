@@ -7,6 +7,7 @@ import { LevelBar } from "@/components/ui/level-bar";
 import { Readout, ReadoutBar } from "@/components/ui/readout";
 import { SectionRule } from "@/components/ui/section-rule";
 import { StreakFlame } from "@/components/ui/streak-flame";
+import { ThemeSegmented } from "@/components/shared/theme-segmented";
 import {
   getCompletedLessonsCount,
   getDistinctExercisesPassedCount,
@@ -66,7 +67,7 @@ export default async function PerfilPage() {
   return (
     <div
       data-page-enter
-      className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto w-full max-w-[880px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
       <header className="flex items-center gap-4">
         <Avatar className="size-16 shrink-0 ring-1 ring-inset ring-border sm:size-20">
@@ -167,9 +168,16 @@ export default async function PerfilPage() {
       </div>
 
       <section className="mt-10">
+        <SectionRule>Apariencia</SectionRule>
+        <div className="mt-4 max-w-sm">
+          <ThemeSegmented />
+        </div>
+      </section>
+
+      <section className="mt-10">
         <SectionRule trailing="Beta">Cuenta</SectionRule>
 
-        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-[var(--shadow-xs)]">
+        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card">
           <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
             <div className="min-w-0">
               <p className="text-[15px] font-bold">Cerrar sesión</p>
@@ -193,9 +201,15 @@ export default async function PerfilPage() {
               <ChangePasswordDialog hasPassword={accountCapabilities.hasPassword} />
             </div>
           </li>
-          <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
+        </ul>
+
+        {/* Acción destructiva separada por regla, al final (blueprint
+            UX/UI, H15) — nunca en la misma fila que cerrar sesión o
+            cambiar contraseña. */}
+        <div className="mt-6 border-t border-border pt-6">
+          <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-destructive/25 bg-destructive-soft/40 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
             <div className="min-w-0">
-              <p className="text-[15px] font-bold">Eliminar cuenta</p>
+              <p className="text-[15px] font-bold text-destructive">Eliminar cuenta</p>
               <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">
                 Borra tu cuenta y todos tus datos de forma permanente.
               </p>
@@ -206,8 +220,8 @@ export default async function PerfilPage() {
                 hasPassword={accountCapabilities.hasPassword}
               />
             </div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </section>
 
       <p className="mt-8 text-[14px] text-muted-foreground">

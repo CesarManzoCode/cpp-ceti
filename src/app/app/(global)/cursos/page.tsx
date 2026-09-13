@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { BrickRow } from "@/components/ui/bricks";
+import { ProgressSequence } from "@/components/ui/bricks";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CoursePicker } from "@/features/courses/components/course-picker";
 import { getCourseOverviews } from "@/features/courses/queries";
 import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
@@ -76,11 +77,28 @@ export default async function TusCursosPage() {
               ? LANGUAGE_PROFILES[course.language].label
               : course.language;
 
+            // H3: sólo el curso actual tiene borde/alto en primary — no
+            // basta el botón azul para distinguirlo (blueprint UX/UI).
+            const verb = isActive
+              ? course.completedLessonCount > 0
+                ? "Continuar"
+                : "Empezar"
+              : course.completedLessonCount > 0
+                ? "Ver curso"
+                : "Empezar";
+
             return (
               <li key={course.slug}>
-                <article className="flex h-full flex-col rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
+                <article
+                  className={cn(
+                    "flex h-full flex-col rounded-[var(--radius-lg)] border bg-card p-5",
+                    isActive
+                      ? "border-l-[3px] border-primary"
+                      : "border-border",
+                  )}
+                >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-primary-tint px-2.5 py-1 text-[12px] font-bold text-primary">
+                    <span className="rounded-[var(--radius-xs)] bg-primary-tint px-2 py-1 text-[12px] font-bold text-primary">
                       {languageLabel}
                     </span>
                     {isActive ? (
@@ -101,24 +119,22 @@ export default async function TusCursosPage() {
 
                   <div className="mt-5 flex flex-1 items-end">
                     <div className="w-full">
-                      <p className="text-[13px] font-semibold tabular-nums text-muted-foreground">
-                        Progreso en este curso: {course.completedLessonCount}/
-                        {course.lessonCount} lecciones
-                      </p>
                       {course.lessonCount > 0 ? (
-                        <BrickRow
-                          className="mt-2"
-                          size="sm"
+                        <ProgressSequence
                           total={course.lessonCount}
                           done={course.completedLessonCount}
+                          label="lecciones"
                           tone={
                             course.completedLessonCount === course.lessonCount
                               ? "success"
                               : "primary"
                           }
-                          srLabel={`${course.completedLessonCount} de ${course.lessonCount} lecciones`}
                         />
-                      ) : null}
+                      ) : (
+                        <p className="text-[13px] font-semibold text-muted-foreground">
+                          Sin lecciones publicadas todavía
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -131,7 +147,7 @@ export default async function TusCursosPage() {
                     {/* Entrar por la ruta del curso: el layout recuerda la
                         selección al abrirlo. */}
                     <Link href={`/app/c/${course.slug}`}>
-                      {course.completedLessonCount > 0 ? "Continuar" : "Empezar"}
+                      {verb}
                       <ArrowRight />
                     </Link>
                   </Button>

@@ -3,9 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, Dumbbell, Home, Lock, Swords, Users } from "lucide-react";
+import { ArrowRight, Check, Dumbbell, Home, Lock, Swords, Users } from "lucide-react";
 
-import { BrickRow } from "@/components/ui/bricks";
+import { ProgressSequence } from "@/components/ui/bricks";
+import { Button } from "@/components/ui/button";
 import {
   CourseSwitcher,
   type CourseSwitcherItem,
@@ -48,10 +49,25 @@ function topLinksFor(courseSlug: string | null): {
   ];
 }
 
+/** Primera unidad publicada y no terminada: "estás aquí" en el curso. */
+function findCurrentUnitIndex(units: RoadmapUnit[]): number {
+  for (let i = 0; i < units.length; i++) {
+    const u = units[i];
+    const completed = u.lessonCount > 0 && u.completedCount === u.lessonCount;
+    if (u.published && !completed) return i;
+  }
+  return -1;
+}
+
 /**
- * Navegación de escritorio. Arriba las secciones; abajo el curso
- * entero, cada unidad con su hilera de bloques. Desde el margen se ve
- * de un vistazo cuánto se ha construido de cada módulo.
+ * Navegación de escritorio. Arriba las secciones de la cuenta; abajo un
+ * bloque compacto de "curso actual" — progreso global, la unidad en
+ * curso y sus dos vecinas, y un botón al mapa completo.
+ *
+ * A propósito NO dibuja el índice de las 10-20 unidades del curso: eso
+ * duplicaba el mapa vertical de Inicio y convertía el rail en un
+ * segundo currículo compitiendo por el mismo ancho (blueprint UX/UI,
+ * sección C1 y D2). El mapa completo vive en un solo lugar.
  */
 export function SidebarNav({
   courseSlug,
@@ -72,6 +88,11 @@ export function SidebarNav({
 
   const totalLessons = units.reduce((s, u) => s + u.lessonCount, 0);
   const doneLessons = units.reduce((s, u) => s + u.completedCount, 0);
+  const currentIndex = findCurrentUnitIndex(units);
+  const neighborhood =
+    currentIndex === -1
+      ? []
+      : units.slice(Math.max(0, currentIndex - 1), currentIndex + 2);
 
   return (
     <nav className="flex flex-col gap-8">
@@ -126,90 +147,75 @@ export function SidebarNav({
       </ul>
 
       {units.length > 0 && courseSlug ? (
-        <div className="min-w-0">
-          <div className="mb-3 flex items-baseline justify-between gap-3 px-6">
+        <div className="min-w-0 border-t border-border px-3 pt-6">
+          <div className="mb-3 flex items-baseline justify-between gap-3 px-3">
             <h3 className="min-w-0 flex-1 truncate text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
-              Unidades del curso
+              Curso actual
             </h3>
-            {totalLessons > 0 ? (
-              <span className="text-[13px] font-semibold tabular-nums text-subtle-foreground">
-                {doneLessons}/{totalLessons}
-              </span>
-            ) : null}
           </div>
 
-          <ul className="flex flex-col gap-0.5 px-3">
-            {units.map((unit) => {
-              const href = `/app/c/${courseSlug}/u/${unit.slug}`;
-              const active = pathname.startsWith(href) && unit.published;
-              const completed =
-                unit.lessonCount > 0 &&
-                unit.completedCount === unit.lessonCount;
-              const started = unit.completedCount > 0 && !completed;
+          {totalLessons > 0 ? (
+            <div className="px-3">
+              <ProgressSequence
+                total={totalLessons}
+                done={doneLessons}
+                label="lecciones"
+              />
+            </div>
+          ) : null}
 
-              const body = (
-                <>
-                  <span className="flex items-center gap-2.5">
-                    <UnitMark
-                      completed={completed}
-                      locked={!unit.published}
-                      started={started}
-                      order={unit.order}
-                      active={active}
-                    />
-                    <span className="min-w-0 flex-1 truncate">{unit.title}</span>
-                    {unit.published && unit.lessonCount > 0 && !completed ? (
-                      <span className="shrink-0 text-[12px] font-semibold tabular-nums text-subtle-foreground">
-                        {unit.completedCount}/{unit.lessonCount}
+          {neighborhood.length > 0 ? (
+            <ul className="mt-3 flex flex-col gap-0.5">
+              {neighborhood.map((unit) => {
+                const href = `/app/c/${courseSlug}/u/${unit.slug}`;
+                const isCurrent = unit.order === units[currentIndex]?.order;
+                const completed =
+                  unit.lessonCount > 0 && unit.completedCount === unit.lessonCount;
+
+                return (
+                  <li key={unit.slug}>
+                    {unit.published ? (
+                      <Link
+                        href={href}
+                        onClick={onNavigate}
+                        aria-current={isCurrent ? "page" : undefined}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13.5px] transition-colors",
+                          isCurrent
+                            ? "bg-accent font-bold text-foreground"
+                            : "font-medium text-muted-foreground hover:bg-accent hover:text-foreground",
+                        )}
+                      >
+                        <UnitMark completed={completed} order={unit.order} current={isCurrent} />
+                        <span className="min-w-0 flex-1 truncate">{unit.title}</span>
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled
+                        title="Próximamente"
+                        className="flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-[13.5px] font-medium text-subtle-foreground"
+                      >
+                        <UnitMark completed={false} order={unit.order} current={false} locked />
+                        <span className="min-w-0 flex-1 truncate">{unit.title}</span>
                       </span>
-                    ) : null}
-                  </span>
-                  {unit.published && unit.lessonCount > 0 ? (
-                    <BrickRow
-                      className="mt-2 ml-[26px]"
-                      size="sm"
-                      total={unit.lessonCount}
-                      done={unit.completedCount}
-                      tone={completed ? "success" : "primary"}
-                      srLabel={`${unit.completedCount} de ${unit.lessonCount} lecciones`}
-                    />
-                  ) : null}
-                </>
-              );
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
 
-              const rowClass = cn(
-                "block rounded-[var(--radius-md)] px-3 py-2.5 text-[14px] transition-colors",
-                unit.published
-                  ? active
-                    ? "bg-accent font-bold text-foreground"
-                    : "font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-                  : "font-medium text-subtle-foreground",
-              );
-
-              return (
-                <li key={unit.slug}>
-                  {unit.published ? (
-                    <Link
-                      href={href}
-                      onClick={onNavigate}
-                      aria-current={active ? "page" : undefined}
-                      className={rowClass}
-                    >
-                      {body}
-                    </Link>
-                  ) : (
-                    <span
-                      aria-disabled
-                      title="Próximamente"
-                      className={rowClass}
-                    >
-                      {body}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="mt-2 w-full justify-between px-3 text-muted-foreground hover:text-foreground"
+          >
+            <Link href={`/app/c/${courseSlug}`} onClick={onNavigate}>
+              Abrir mapa del curso
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         </div>
       ) : null}
     </nav>
@@ -223,15 +229,13 @@ export function SidebarNav({
 function UnitMark({
   completed,
   locked,
-  started,
   order,
-  active,
+  current,
 }: {
   completed: boolean;
-  locked: boolean;
-  started: boolean;
+  locked?: boolean;
   order: number;
-  active: boolean;
+  current: boolean;
 }) {
   if (locked) {
     return (
@@ -259,7 +263,7 @@ function UnitMark({
       aria-hidden
       className={cn(
         "grid size-[18px] shrink-0 place-items-center rounded-[var(--radius-xs)] text-[11px] font-bold tabular-nums",
-        started || active
+        current
           ? "bg-primary text-primary-foreground"
           : "bg-surface-2 text-subtle-foreground",
       )}

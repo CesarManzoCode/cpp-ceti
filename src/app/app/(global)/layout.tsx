@@ -18,7 +18,7 @@ export default async function GlobalAppLayout({
   children: React.ReactNode;
 }) {
   const [
-    { user, courses, courseOptions, stats, pendingFriendsCount, isAdmin },
+    { user, courses, courseOptions, pendingFriendsCount, isAdmin },
     cookieSlug,
   ] = await Promise.all([loadAppShellBase(), readSelectedCourseSlug()]);
 
@@ -35,8 +35,6 @@ export default async function GlobalAppLayout({
       courses={courseOptions}
       units={units}
       user={user}
-      totalXp={stats.totalXp}
-      streak={stats.currentStreak}
       pendingFriendsCount={pendingFriendsCount}
       isAdmin={isAdmin}
     >

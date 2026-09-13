@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bell, Check, Flame, X } from "lucide-react";
+import { Bell, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -51,10 +51,9 @@ export function StreakCards({
       ) : null}
 
       {ordered.length === 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
-          <Flame className="mx-auto size-6 text-subtle-foreground" aria-hidden />
-          <p className="mt-2 text-[15px] font-bold">Sin rachas con amigos todavía</p>
-          <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+        <div>
+          <p className="text-[15px] font-bold">Sin rachas con amigos todavía</p>
+          <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
             Entra al perfil de un amigo y proponle una racha: cuenta sólo si
             los dos estudian el mismo día.
           </p>
@@ -161,7 +160,7 @@ function StreakRow({ streak }: { streak: FriendStreakCard }) {
     );
 
   return (
-    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5">
       <PersonIdentity
         name={local.other.name}
         username={local.other.username}

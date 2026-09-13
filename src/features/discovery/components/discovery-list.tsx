@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Check, UserPlus, Users } from "lucide-react";
+import { Check, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -72,15 +72,16 @@ export function DiscoveryList({ initialPage }: { initialPage: { candidates: Disc
   }
 
   if (candidates.length === 0) {
+    // Vacío inicial (blueprint UX/UI, G9): texto factual y una acción real,
+    // sin ilustración ni borde punteado ornamental.
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
-        <Users className="mx-auto size-6 text-subtle-foreground" aria-hidden />
-        <p className="mt-2 text-[15px] font-bold">Todavía no hay sugerencias</p>
-        <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+      <div>
+        <p className="text-[15px] font-bold">Todavía no hay sugerencias</p>
+        <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
           Dinos tu plantel, carrera y grupo: con eso te sugerimos compañeros
           que van en lo mismo que tú.
         </p>
-        <Button asChild variant="outline" size="lg" className="mt-5">
+        <Button asChild variant="outline" size="lg" className="mt-4">
           <Link href="/app/perfil#academico">Completar mi perfil</Link>
         </Button>
       </div>
@@ -93,7 +94,7 @@ export function DiscoveryList({ initialPage }: { initialPage: { candidates: Disc
         {candidates.map((candidate) => (
           <li
             key={candidate.id}
-            className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]"
+            className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5"
           >
             <PersonIdentity
               name={candidate.name}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Send, X } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,9 @@ export function OutgoingRequests({ requests }: OutgoingRequestsProps) {
     return (
       <section className="space-y-2">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Enviadas</h3>
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border px-5 py-6 text-center">
-          <Send className="mx-auto size-5 text-muted-foreground/40" aria-hidden />
-          <p className="mt-2 text-[14px] text-muted-foreground">
-            No tienes solicitudes esperando respuesta.
-          </p>
-        </div>
+        <p className="text-[14px] text-muted-foreground">
+          No tienes solicitudes esperando respuesta.
+        </p>
       </section>
     );
   }
@@ -71,7 +68,7 @@ function OutgoingRow({ request }: { request: PendingRequest }) {
   }
 
   return (
-    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5">
       <PersonIdentity
         name={request.user.name}
         username={request.user.username}

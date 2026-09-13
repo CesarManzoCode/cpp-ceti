@@ -12,7 +12,7 @@ export function QuestCard({ quest }: { quest: MyFriendQuest }) {
   const done = quest.status === "completed";
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)]">
+    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4">
       <div className="flex items-center gap-2.5">
         <span className="grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] bg-primary-soft text-primary-soft-foreground">
           <Target className="size-4" />

@@ -9,12 +9,15 @@ import {
   Play,
   RotateCcw,
   Send,
+  X,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LearningHelpMenu } from "@/components/layout/learning-help-menu";
+import { SkipLink } from "@/components/shared/skip-link";
 import { CodeEditor } from "@/components/editor/code-editor";
 import {
   diagnosticsFromExecution,
@@ -35,7 +38,6 @@ import {
   StudySessionProvider,
   useStudySession,
 } from "@/features/analytics/telemetry";
-import { ReportBugDialog } from "@/features/bug-reports/components/report-bug-dialog";
 import { useRunCode } from "@/hooks/use-run-code";
 import { submitPracticeExercise } from "@/features/practice/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
@@ -103,8 +105,8 @@ function PracticePlayer({
 
   const { studySessionId, markEngaged } = useStudySession();
 
-  // "Compilar" sin "Calificar" no dejaba ninguna señal: ahora sí, y sin
-  // duplicar `UserPracticeAttempt` (que sigue siendo el registro del envío).
+  // "Ejecutar" sin "Enviar solución" no dejaba ninguna señal: ahora sí, y
+  // sin duplicar `UserPracticeAttempt` (que sigue siendo el registro del envío).
   const playground = useRunCode({
     target: { practiceExerciseId: exercise.id },
     studySessionId,
@@ -160,144 +162,177 @@ function PracticePlayer({
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-      <header className="space-y-3">
-        <Button asChild size="sm" variant="ghost" className="-ml-2.5">
-          <Link href={`/app/c/${courseSlug}/ejercicios`}>
-            <ChevronLeft />
-            Ejercicios
-          </Link>
-        </Button>
+    <>
+      <SkipLink href="#consigna">Saltar a la consigna</SkipLink>
+      <SkipLink href="#banco-de-trabajo">Saltar al editor</SkipLink>
+      {/* Learning Bar (blueprint UX/UI, D3/G6): un reto de práctica es modo
+          aprendizaje igual que una lección — sin sidebar ni bottom nav, con
+          la misma gramática de volver → contexto → ayuda → salir. */}
+      <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:px-6 lg:px-8">
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="-ml-2 shrink-0"
+            aria-label="Volver a Ejercicios"
+          >
+            <Link href={`/app/c/${courseSlug}/ejercicios`}>
+              <ChevronLeft />
+              <span className="hidden sm:inline">Ejercicios</span>
+            </Link>
+          </Button>
 
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-border pb-4">
-          <div className="space-y-1.5">
-            {exercise.unitTitle ? (
-              <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
-                {exercise.unitTitle}
-              </p>
-            ) : null}
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-[-0.032em] sm:text-[32px]">
-              {exercise.title}
-            </h1>
-          </div>
+          <p className="min-w-0 flex-1 truncate text-[14px] font-bold text-foreground">
+            {exercise.title}
+          </p>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              variant={DIFFICULTY_META[exercise.difficulty].variant}
-              size="md"
-            >
-              {DIFFICULTY_META[exercise.difficulty].label}
-            </Badge>
-            <Badge variant="outline" size="md">
-              <Zap className="text-warning" />+{exercise.xpReward} XP
-            </Badge>
-            {exercise.passed ? (
-              <Badge variant="success" size="md">
-                <CheckCircle2 />
-                Resuelto
-              </Badge>
-            ) : null}
-            <ReportBugDialog
-              target={{
-                kind: "practice",
-                practiceExerciseId: exercise.id,
-              }}
+          <div className="flex shrink-0 items-center gap-0.5">
+            <LearningHelpMenu
+              bugTarget={{ kind: "practice", practiceExerciseId: exercise.id }}
             />
+            <Button
+              asChild
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Salir del ejercicio"
+            >
+              <Link href={`/app/c/${courseSlug}/ejercicios`}>
+                <X className="size-5" />
+              </Link>
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
 
-      <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
-        {/* Enunciado — siempre primero */}
-        <section className="space-y-4">
-          <Markdown language={language}>{exercise.prompt}</Markdown>
-        </section>
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-border pb-4">
+            <div className="space-y-1.5">
+              {exercise.unitTitle ? (
+                <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-subtle-foreground">
+                  {exercise.unitTitle}
+                </p>
+              ) : null}
+              <h1 className="text-[26px] font-extrabold leading-tight tracking-[-0.032em] sm:text-[32px]">
+                {exercise.title}
+              </h1>
+            </div>
 
-        {/* Editor + acciones — bajo el enunciado en móvil; col. derecha en desktop */}
-        <section className="space-y-3 lg:col-start-2 lg:row-span-2">
-          <CodeEditor
-            language={language}
-            value={code}
-            onChange={(next) => {
-              markEngaged("code_edit");
-              setCode(next);
-            }}
-            onRun={handleRun}
-            minHeight={420}
-            diagnostics={diagnostics}
-            ariaLabel={`Editor de práctica: ${exercise.title}. Ctrl+Enter para ejecutar.`}
-          />
-
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleRun}
-              disabled={running || submitting}
-              loading={running}
-              className="h-11 flex-1 sm:h-9 sm:flex-none"
-            >
-              <Play className="fill-current" />
-              Compilar
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleSubmit}
-              disabled={submitting || running}
-              loading={submitting}
-              className="h-11 flex-1 sm:h-9 sm:flex-none"
-            >
-              <Send />
-              Calificar
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={handleReset}
-              disabled={submitting}
-              className={cn(
-                "ml-auto h-11 sm:h-9",
-                confirmReset ? "text-destructive" : "text-muted-foreground",
-              )}
-            >
-              <RotateCcw />
-              {confirmReset ? "¿Reiniciar?" : "Reiniciar"}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                variant={DIFFICULTY_META[exercise.difficulty].variant}
+                size="md"
+              >
+                {DIFFICULTY_META[exercise.difficulty].label}
+              </Badge>
+              <Badge variant="outline" size="md">
+                <Zap className="text-warning" />+{exercise.xpReward} XP
+              </Badge>
+              {exercise.passed ? (
+                <Badge variant="success" size="md">
+                  <CheckCircle2 />
+                  Resuelto
+                </Badge>
+              ) : null}
+            </div>
           </div>
+        </header>
 
-          {diagnostics.length > 0 ? (
-            <p
-              className="flex items-center gap-1.5 text-[13px] font-semibold text-destructive"
-              role="status"
+        <article className="grid gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
+          {/* Enunciado — siempre primero */}
+          <section id="consigna" className="space-y-4">
+            <Markdown language={language}>{exercise.prompt}</Markdown>
+          </section>
+
+          {/* Editor + acciones — bajo el enunciado en móvil; col. derecha en desktop */}
+          <section id="banco-de-trabajo" className="space-y-3 lg:col-start-2 lg:row-span-2">
+            <CodeEditor
+              language={language}
+              value={code}
+              onChange={(next) => {
+                markEngaged("code_edit");
+                setCode(next);
+              }}
+              onRun={handleRun}
+              minHeight={420}
+              diagnostics={diagnostics}
+              ariaLabel={`Editor de práctica: ${exercise.title}. Ctrl+Enter para ejecutar; botón Enviar solución para calificar.`}
+            />
+
+            {/* "Ejecutar" es instrumental; "Enviar solución" es la única
+                acción primaria del bloque (blueprint UX/UI, G7). */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleRun}
+                disabled={running || submitting}
+                loading={running}
+                className="h-11 flex-1 sm:h-9 sm:flex-none"
+              >
+                <Play className="fill-current" />
+                Ejecutar
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || running}
+                loading={submitting}
+                className="h-11 flex-1 sm:h-9 sm:flex-none"
+              >
+                <Send />
+                Enviar solución
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleReset}
+                disabled={submitting}
+                className={cn(
+                  "ml-auto h-11 sm:h-9",
+                  confirmReset ? "text-destructive" : "text-muted-foreground",
+                )}
+              >
+                <RotateCcw />
+                {confirmReset ? "¿Reiniciar?" : "Reiniciar"}
+              </Button>
+            </div>
+
+            {diagnostics.length > 0 ? (
+              <p
+                className="flex items-center gap-1.5 text-[13px] font-semibold text-destructive"
+                role="status"
+              >
+                <AlertTriangle className="size-3 shrink-0" aria-hidden />
+                {diagnostics.length === 1
+                  ? "1 error de compilación marcado en el editor"
+                  : `${diagnostics.length} errores de compilación marcados en el editor`}
+              </p>
+            ) : null}
+
+            {submission ? (
+              <SubmissionResults
+                submission={submission}
+                onTryAgain={() => setSubmission(null)}
+              />
+            ) : (
+              <RunOutput
+                state={playground.state}
+                result={playground.result}
+                error={playground.error}
+              />
+            )}
+          </section>
+
+          {/* Referencia — ejemplos y pistas: bajo el editor en móvil, izquierda en desktop */}
+          <section className="space-y-5 lg:col-start-1">
+            <ExampleTests tests={exercise.visibleTests} language={language} />
+            <HintsTargetProvider
+              target={{ kind: "practice", practiceExerciseId: exercise.id }}
             >
-              <AlertTriangle className="size-3 shrink-0" aria-hidden />
-              {diagnostics.length === 1
-                ? "1 error de compilación marcado en el editor"
-                : `${diagnostics.length} errores de compilación marcados en el editor`}
-            </p>
-          ) : null}
-
-          {submission ? (
-            <SubmissionResults
-              submission={submission}
-              onTryAgain={() => setSubmission(null)}
-            />
-          ) : (
-            <RunOutput
-              state={playground.state}
-              result={playground.result}
-              error={playground.error}
-            />
-          )}
-        </section>
-
-        {/* Referencia — ejemplos y pistas: bajo el editor en móvil, izquierda en desktop */}
-        <section className="space-y-5 lg:col-start-1">
-          <ExampleTests tests={exercise.visibleTests} language={language} />
-          <HintsTargetProvider
-            target={{ kind: "practice", practiceExerciseId: exercise.id }}
-          >
-            <HintsPanel hints={exercise.hints} />
-          </HintsTargetProvider>
-        </section>
-      </article>
-    </div>
+              <HintsPanel hints={exercise.hints} />
+            </HintsTargetProvider>
+          </section>
+        </article>
+      </div>
+    </>
   );
 }

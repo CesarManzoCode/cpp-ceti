@@ -59,7 +59,7 @@ function CodePanel() {
     <div
       role="img"
       aria-label='Editor de C++ con un programa que imprime "Hola, CETI!" y la consola mostrando esa salida.'
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal shadow-[var(--shadow-lg)]"
+      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--terminal-border)] bg-terminal"
     >
       <div className="flex items-center justify-between border-b border-[var(--terminal-border)] px-4 py-2.5">
         <span className="font-mono text-[12px] font-medium text-terminal-muted">

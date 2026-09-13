@@ -116,6 +116,141 @@ interface BrickColumnProps extends Omit<React.ComponentProps<"div">, "children">
  * completo. Los bloques crecen para ocupar el alto de la fila, así que
  * una unidad larga se ve — literalmente — más larga.
  */
+/**
+ * ============================================================
+ * GRAMÁTICA DE PROGRESO (blueprint UX/UI, sección G5)
+ * ============================================================
+ *
+ * `BrickRow` es un objeto legible mientras la secuencia quepa de un
+ * vistazo. Más allá de eso deja de informar y se vuelve un código de
+ * barras decorativo — exactamente lo que el blueprint prohíbe para 68,
+ * 80 o 92 elementos. `ProgressSequence` decide la representación por
+ * cardinalidad y nunca dibuja más de 24 bloques:
+ *
+ *  ·  1        → estado de texto
+ *  ·  2–12     → bloques discretos (BrickRow)
+ *  · 13–24     → segmentos agrupados (menos bloques, cada uno = varias unidades)
+ *  · >24       → barra proporcional + cuenta exacta + porcentaje
+ */
+export function ProgressSequence({
+  total,
+  done,
+  label,
+  tone = "primary",
+  className,
+}: {
+  total: number;
+  done: number;
+  /** Sustantivo de lo que se cuenta, en plural: "lecciones", "ejercicios". */
+  label: string;
+  tone?: "primary" | "success";
+  className?: string;
+}) {
+  const safeTotal = Math.max(0, total);
+  const safeDone = Math.min(Math.max(0, done), safeTotal);
+  const percent = safeTotal === 0 ? 0 : Math.round((safeDone / safeTotal) * 100);
+  const srLabel = `${safeDone} de ${safeTotal} ${label}, ${percent}%`;
+
+  if (safeTotal <= 1) {
+    const text =
+      safeTotal === 0
+        ? "Sin contenido"
+        : safeDone >= safeTotal
+          ? "Completada"
+          : safeDone > 0
+            ? "En curso"
+            : "Sin empezar";
+    return (
+      <span className={cn("text-[13px] font-semibold text-muted-foreground", className)}>
+        {text}
+      </span>
+    );
+  }
+
+  if (safeTotal <= 12) {
+    return (
+      <div className={cn("flex items-center gap-2.5", className)}>
+        <BrickRow
+          className="min-w-0 flex-1"
+          total={safeTotal}
+          done={safeDone}
+          tone={tone}
+          srLabel={srLabel}
+        />
+        <span className="shrink-0 text-[13px] font-semibold tabular-nums text-muted-foreground">
+          {safeDone}/{safeTotal}
+        </span>
+      </div>
+    );
+  }
+
+  if (safeTotal <= 24) {
+    // Segmentos agrupados: como máximo 12 bloques, cada uno representa un
+    // tramo proporcional de la secuencia completa (no un elemento a la vez).
+    const segments = 12;
+    const perSegment = safeTotal / segments;
+    return (
+      <div className={cn("flex items-center gap-2.5", className)}>
+        <div
+          role="img"
+          aria-label={srLabel}
+          className="flex min-w-0 flex-1 items-center gap-1"
+        >
+          {Array.from({ length: segments }, (_, i) => {
+            const segmentDone = Math.min(
+              1,
+              Math.max(0, safeDone / perSegment - i),
+            );
+            return (
+              <span
+                key={i}
+                aria-hidden
+                className="h-1.5 flex-1 overflow-hidden rounded-[2px] bg-surface-3"
+              >
+                <span
+                  className={cn(
+                    "block h-full",
+                    tone === "success" ? "bg-success" : "bg-primary",
+                  )}
+                  style={{ width: `${segmentDone * 100}%` }}
+                />
+              </span>
+            );
+          })}
+        </div>
+        <span className="shrink-0 text-[13px] font-semibold tabular-nums text-muted-foreground">
+          {safeDone}/{safeTotal}
+        </span>
+      </div>
+    );
+  }
+
+  // >24: barra proporcional. Nunca un nodo por elemento.
+  return (
+    <div className={cn("flex items-center gap-3", className)}>
+      <span
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={safeTotal}
+        aria-valuenow={safeDone}
+        aria-label={srLabel}
+        className="block h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-3"
+      >
+        <span
+          className={cn(
+            "block h-full rounded-full transition-[width] duration-500 ease-out",
+            tone === "success" ? "bg-success" : "bg-primary",
+          )}
+          style={{ width: `${percent}%` }}
+        />
+      </span>
+      <span className="shrink-0 text-[13px] font-semibold tabular-nums text-muted-foreground">
+        {safeDone}/{safeTotal} · {percent}%
+      </span>
+    </div>
+  );
+}
+
 export function BrickColumn({
   total,
   done,

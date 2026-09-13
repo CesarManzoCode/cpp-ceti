@@ -166,8 +166,7 @@ export function StepMatching({
                     isSelected && "border-primary ring-2 ring-[var(--primary-ring)]",
                     isPaired && !submitted && "border-primary bg-primary-soft/40",
                     isCorrect && "border-success bg-success-soft text-success",
-                    isWrong &&
-                      "animate-shake border-destructive bg-destructive-soft text-destructive",
+                    isWrong && "border-destructive bg-destructive-soft text-destructive",
                   )}
                 >
                   <span
@@ -222,8 +221,7 @@ export function StepMatching({
                     !isClickable && !submitted && "cursor-default opacity-70",
                     isPaired && !submitted && "border-primary bg-primary-soft/40 opacity-100",
                     isCorrect && "border-success bg-success-soft text-success",
-                    isWrong &&
-                      "animate-shake border-destructive bg-destructive-soft text-destructive",
+                    isWrong && "border-destructive bg-destructive-soft text-destructive",
                   )}
                 >
                   <span

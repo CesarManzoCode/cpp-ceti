@@ -125,12 +125,11 @@ export function StepQuiz({
                 className={cn(
                   "flex w-full items-center gap-3.5 rounded-[var(--radius-lg)] border bg-card p-3.5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 sm:p-4",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  !submitted &&
-                    "shadow-[var(--shadow-xs)] hover:-translate-y-px hover:border-primary/45 hover:shadow-[var(--shadow-sm)]",
+                  !submitted && "hover:border-primary/45",
                   isSelected && !submitted && "border-primary bg-primary-tint",
                   !isSelected && !submitted && "border-border",
                   showCorrect && "border-success bg-success-soft/70",
-                  showWrong && "animate-shake border-destructive bg-destructive-soft/70",
+                  showWrong && "border-destructive bg-destructive-soft/70",
                   submitted &&
                     !isSelected &&
                     !showCorrect &&
@@ -203,7 +202,7 @@ export function StepQuiz({
                 ? "Respuesta revelada"
                 : "Aún no — vuelve a leer la pregunta"
           }
-          className={cn("animate-fade-up", isCorrect && "animate-correct")}
+          className="animate-fade-up"
         >
           {showExplanation ? (
             <Markdown language={language}>{content.explanation}</Markdown>

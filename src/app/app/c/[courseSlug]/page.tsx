@@ -101,8 +101,6 @@ export default async function CourseHomePage({ params }: PageProps) {
             <EmptyCoursePanel courseSlug={course.slug} />
           )}
 
-          {showAcademicPrompt ? <AcademicPromptBanner /> : null}
-
           <section className="mt-10">
             <SectionRule
               trailing={`${totalCompleted}/${totalLessons} lecciones · ${overallPercent}%`}
@@ -121,6 +119,8 @@ export default async function CourseHomePage({ params }: PageProps) {
 
         {/* Columna de contexto: apoya la acción principal, no compite. */}
         <aside className="flex min-w-0 flex-col gap-8">
+          {showAcademicPrompt ? <AcademicPromptBanner /> : null}
+
           <section>
             {/* XP, nivel y racha son de la CUENTA: no se reinician al
                 cambiar de curso. El avance por unidades, en cambio, es de
@@ -174,7 +174,7 @@ export default async function CourseHomePage({ params }: PageProps) {
               {standing ? (
                 <Link
                   href="/app/liga"
-                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-colors hover:border-primary/40"
+                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 transition-colors hover:border-primary/40"
                 >
                   <span className="text-[14px] font-bold">
                     Liga {LEAGUE_TIER_LABEL[standing.tier]}
@@ -187,7 +187,7 @@ export default async function CourseHomePage({ params }: PageProps) {
               {activeStreakCount > 0 ? (
                 <Link
                   href="/app/amigos?tab=rachas"
-                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)] transition-colors hover:border-primary/40"
+                  className="flex items-center justify-between rounded-[var(--radius-lg)] border border-border bg-card p-4 transition-colors hover:border-primary/40"
                 >
                   <span className="text-[14px] font-bold">Rachas con amigos</span>
                   <span className="text-[13px] font-semibold text-muted-foreground">
@@ -249,7 +249,7 @@ function ContinuePanel({
   return (
     <section
       aria-labelledby="continuar-titulo"
-      className="overflow-hidden rounded-[var(--radius-xl)] border border-primary/25 bg-primary-tint shadow-[var(--shadow-md)]"
+      className="max-w-[760px] overflow-hidden rounded-[var(--radius-lg)] border border-primary/25 bg-primary-tint"
     >
       <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-10">
         <div className="min-w-0">
@@ -331,7 +331,7 @@ function ContinuePanel({
 
 function AllDonePanel({ courseSlug }: { courseSlug: string }) {
   return (
-    <section className="rounded-[var(--radius-xl)] border border-success/25 bg-success-soft/50 p-6 shadow-[var(--shadow-xs)] sm:p-7">
+    <section className="rounded-[var(--radius-lg)] border border-success/25 bg-success-soft/50 p-6 sm:p-7">
       <p className="text-[12px] font-bold uppercase tracking-[0.07em] text-success">
         Curso al día
       </p>
@@ -354,7 +354,7 @@ function AllDonePanel({ courseSlug }: { courseSlug: string }) {
 
 function EmptyCoursePanel({ courseSlug }: { courseSlug: string }) {
   return (
-    <section className="rounded-[var(--radius-xl)] border border-dashed border-border-strong bg-card p-6 sm:p-7">
+    <section className="rounded-[var(--radius-lg)] border border-border bg-card p-6 sm:p-7">
       <p className="text-[12px] font-bold uppercase tracking-[0.07em] text-muted-foreground">
         Sin contenido todavía
       </p>
@@ -387,7 +387,7 @@ function StatTile({
   hint: string;
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-[var(--shadow-xs)]">
+    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4">
       <p className="flex items-center gap-1.5 text-[13px] font-bold text-muted-foreground">
         {icon}
         {label}
@@ -404,12 +404,12 @@ function StatTile({
 
 function FriendsEmpty() {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card p-5">
+    <div>
       <p className="text-[15px] font-bold">Estudien juntos</p>
       <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
         Agrega compañeros del CETI y verás aquí en qué van.
       </p>
-      <Button asChild variant="outline" size="sm" className="mt-4 w-full">
+      <Button asChild variant="outline" size="sm" className="mt-4">
         <Link href="/app/amigos?tab=buscar">
           <UserPlus />
           Buscar amigos

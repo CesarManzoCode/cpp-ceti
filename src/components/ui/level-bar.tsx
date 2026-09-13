@@ -19,7 +19,7 @@ export function LevelBar({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)]",
+        "rounded-[var(--radius-lg)] border border-border bg-card p-5",
         className,
       )}
     >

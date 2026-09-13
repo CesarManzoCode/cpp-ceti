@@ -17,14 +17,17 @@ export function PasswordInput(props: Omit<InputProps, "type" | "trailing">) {
       {...props}
       type={show ? "text" : "password"}
       trailing={
+        // Texto + icono, no sólo el ojo (blueprint UX/UI, G2/H2): un
+        // aria-label no ayuda a quien SÍ ve la pantalla pero no reconoce
+        // el glifo como "mostrar contraseña".
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
-          aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
           aria-pressed={show}
-          className="grid -mr-1 size-7 place-items-center rounded-[var(--radius-xs)] text-muted-foreground transition-[background-color,color] hover:bg-accent hover:text-foreground aria-pressed:bg-primary-soft aria-pressed:text-primary-soft-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+          className="-mr-1.5 flex h-8 items-center gap-1.5 rounded-[var(--radius-xs)] px-2 text-[13px] font-semibold text-muted-foreground transition-[background-color,color] hover:bg-accent hover:text-foreground aria-pressed:bg-primary-soft aria-pressed:text-primary-soft-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
         >
           {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          {show ? "Ocultar" : "Mostrar"}
         </button>
       }
     />

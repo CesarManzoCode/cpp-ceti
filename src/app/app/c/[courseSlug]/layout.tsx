@@ -26,7 +26,7 @@ export default async function CourseAppLayout({
   params: Promise<{ courseSlug: string }>;
 }) {
   const { courseSlug } = await params;
-  const { user, courses, courseOptions, stats, pendingFriendsCount, isAdmin } =
+  const { user, courses, courseOptions, pendingFriendsCount, isAdmin } =
     await loadAppShellBase();
 
   const course = courses.find((c) => c.slug === courseSlug) ?? null;
@@ -38,8 +38,6 @@ export default async function CourseAppLayout({
       courses={courseOptions}
       units={units}
       user={user}
-      totalXp={stats.totalXp}
-      streak={stats.currentStreak}
       pendingFriendsCount={pendingFriendsCount}
       isAdmin={isAdmin}
     >

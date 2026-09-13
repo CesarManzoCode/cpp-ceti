@@ -29,7 +29,7 @@ export interface RoadmapUnitsProps {
 export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
   if (units.length === 0) {
     return (
-      <p className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-6 py-10 text-center text-[15px] text-muted-foreground">
+      <p className="text-[15px] text-muted-foreground">
         Aún no hay unidades publicadas en el curso.
       </p>
     );
@@ -77,14 +77,12 @@ export function RoadmapUnits({ courseSlug, units }: RoadmapUnitsProps) {
         const card = (
           <div
             className={cn(
-              "flex min-h-[104px] items-center gap-4 rounded-[var(--radius-lg)] border p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
+              "flex min-h-[104px] items-center gap-4 rounded-[var(--radius-lg)] border p-4 transition-[border-color,background-color] duration-150 sm:p-5",
               locked
                 ? "border-dashed border-border-strong bg-transparent"
                 : isHere
-                  ? "border-primary/30 bg-primary-tint shadow-[var(--shadow-md)]"
-                  : "border-border bg-card shadow-[var(--shadow-xs)]",
-              !locked &&
-                "group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-[var(--shadow-md)]",
+                  ? "border-primary/30 bg-primary-tint group-hover:border-primary/50"
+                  : "border-border bg-card group-hover:border-primary/40 group-hover:bg-surface-2",
             )}
           >
             <div className="min-w-0 flex-1">
@@ -306,7 +304,7 @@ function UnitNode({
     return (
       <span
         aria-hidden
-        className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] bg-success text-success-foreground shadow-[var(--shadow-sm)]"
+        className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] bg-success text-success-foreground"
       >
         <Check className="size-[18px]" strokeWidth={3.2} />
       </span>
@@ -317,8 +315,10 @@ function UnitNode({
       aria-hidden
       className={cn(
         "grid size-9 shrink-0 place-items-center rounded-[var(--radius-md)] text-[15px] font-extrabold tabular-nums",
+        // "Estás aquí" se distingue por color y por la etiqueta de texto de
+        // la pieza (status.text), no por movimiento: en reposo, inmóvil.
         isHere
-          ? "animate-here bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
+          ? "bg-primary text-primary-foreground"
           : "border border-border bg-card text-muted-foreground",
       )}
     >

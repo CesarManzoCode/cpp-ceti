@@ -33,13 +33,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:bg-primary-hover hover:shadow-[var(--shadow-md)]",
+          "bg-primary text-primary-foreground hover:bg-primary-hover",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-[var(--shadow-sm)] hover:brightness-110 data-[loading]:!bg-destructive data-[loading]:!text-destructive-foreground",
+          "bg-destructive text-destructive-foreground hover:brightness-110 data-[loading]:!bg-destructive data-[loading]:!text-destructive-foreground",
         success:
-          "bg-success text-success-foreground shadow-[var(--shadow-sm)] hover:brightness-110 data-[loading]:!bg-success data-[loading]:!text-success-foreground",
+          "bg-success text-success-foreground hover:brightness-110 data-[loading]:!bg-success data-[loading]:!text-success-foreground",
         outline:
-          "border border-border-strong bg-card text-foreground shadow-[var(--shadow-xs)] hover:border-primary/45 hover:bg-primary-tint hover:text-primary-soft-foreground",
+          "border border-border-strong bg-card text-foreground hover:border-primary/45 hover:bg-primary-tint hover:text-primary-soft-foreground",
         secondary:
           "border border-border bg-surface-2 text-secondary-foreground hover:border-border-strong hover:bg-accent",
         soft: "bg-primary-soft text-primary-soft-foreground hover:brightness-[0.97]",

@@ -13,17 +13,16 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ events, emptyHint = "friends" }: ActivityFeedProps) {
   if (events.length === 0) {
+    // Vacío inicial (blueprint UX/UI, G9/H13): texto factual, sin borde
+    // punteado ni ilustración — no es una zona de carga/soltar.
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
-        <p className="text-[15px] font-bold">Nada por aquí todavía</p>
-        <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
-          {emptyHint === "self"
-            ? "Cuando completes una lección aparecerá aquí."
-            : emptyHint === "friend"
-              ? "Cuando complete su próxima lección lo verás aquí."
-              : "Cuando tus amigos completen lecciones aparecerá su actividad aquí."}
-        </p>
-      </div>
+      <p className="text-[14px] leading-relaxed text-muted-foreground">
+        {emptyHint === "self"
+          ? "Todavía no hay actividad. Completa una lección y aparecerá aquí."
+          : emptyHint === "friend"
+            ? "Todavía no hay actividad. Cuando complete su próxima lección lo verás aquí."
+            : "Todavía no hay actividad. Cuando tus amigos completen lecciones aparecerá aquí."}
+      </p>
     );
   }
 
@@ -39,7 +38,7 @@ export function ActivityFeed({ events, emptyHint = "friends" }: ActivityFeedProp
 function FeedRow({ event }: { event: ActivityEvent }) {
   if (event.kind === "lesson_completed") {
     return (
-      <li className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+      <li className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5">
         <FriendAvatar
           name={event.user.name}
           image={event.user.image}

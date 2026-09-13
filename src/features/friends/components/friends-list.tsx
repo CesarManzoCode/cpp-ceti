@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Search, Sparkles, UserPlus, Users } from "lucide-react";
+import { Search, Sparkles, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,15 +34,15 @@ export function FriendsList({
   }, [filter, friends]);
 
   if (friends.length === 0) {
+    // Vacío inicial (blueprint UX/UI, G9): sin ilustración ni borde punteado.
     return (
-      <div className="rounded-[var(--radius-lg)] border border-dashed border-border-strong bg-card px-5 py-7 text-center">
-        <Users className="mx-auto size-6 text-subtle-foreground" aria-hidden />
-        <p className="mt-2 text-[15px] font-bold">Todavía no tienes amigos</p>
-        <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+      <div>
+        <p className="text-[15px] font-bold">Todavía no tienes amigos</p>
+        <p className="mt-1.5 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
           Búscalos por su @usuario o deja que te sugiramos gente de tu
           plantel y tu carrera.
         </p>
-        <div className="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Button size="lg" onClick={onGoToSearch}>
             <UserPlus />
             Buscar compañeros
@@ -95,7 +95,7 @@ function FriendRow({ friend }: { friend: FriendCard }) {
     <li>
       <Link
         href={`/app/perfil/${friend.username}`}
-        className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 transition-[border-color,box-shadow,transform] duration-200 hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <PersonIdentity
           name={friend.name}

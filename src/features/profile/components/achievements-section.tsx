@@ -235,7 +235,7 @@ function BadgeList({ badges, unlocked }: { badges: BadgeDef[]; unlocked: boolean
             className={cn(
               "animate-fade-up flex h-full items-start gap-4 rounded-[var(--radius-lg)] border p-4",
               unlocked
-                ? "border-border bg-card shadow-[var(--shadow-xs)]"
+                ? "border-border bg-card"
                 : "border-dashed border-border-strong bg-transparent",
             )}
           >

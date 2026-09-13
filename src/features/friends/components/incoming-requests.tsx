@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Inbox, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,9 @@ export function IncomingRequests({ requests }: IncomingRequestsProps) {
     return (
       <section className="space-y-2">
         <h3 className="text-[13px] font-bold uppercase tracking-[0.05em] text-subtle-foreground">Entrantes</h3>
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border px-5 py-6 text-center">
-          <Inbox className="mx-auto size-6 text-muted-foreground/40" aria-hidden />
-          <p className="mt-2 text-[14px] text-muted-foreground">
-            Nadie te ha mandado solicitud.
-          </p>
-        </div>
+        <p className="text-[14px] text-muted-foreground">
+          Nadie te ha mandado solicitud.
+        </p>
       </section>
     );
   }
@@ -81,7 +78,7 @@ function IncomingRow({ request }: { request: PendingRequest }) {
   }
 
   return (
-    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5 shadow-[var(--shadow-xs)]">
+    <li className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-border bg-card p-3.5">
       <PersonIdentity
         name={request.user.name}
         username={request.user.username}

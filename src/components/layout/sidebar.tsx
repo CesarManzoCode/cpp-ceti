@@ -27,7 +27,7 @@ export function Sidebar({
     /* El contenedor exterior se estira a todo el alto del documento para
        que el fondo del rail no se corte a mitad de una página larga; el
        contenido queda pegajoso dentro de él. */
-    <div className="hidden w-[268px] shrink-0 border-r border-border bg-surface lg:block">
+    <div className="hidden w-[248px] shrink-0 border-r border-border bg-surface lg:block">
       <aside
         aria-label="Navegación principal"
         className="sticky top-0 flex h-dvh flex-col"

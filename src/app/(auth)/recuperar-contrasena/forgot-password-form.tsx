@@ -5,7 +5,7 @@ import { AlertCircle, Mail, MailCheck } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { FormField, zodIssuesToFieldErrors } from "@/components/ui/form-field";
+import { FormField, focusFirstError, zodIssuesToFieldErrors } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 
@@ -37,7 +37,9 @@ export function ForgotPasswordForm() {
       email: String(formData.get("email") ?? "").trim(),
     });
     if (!parsed.success) {
-      setFieldErrors(zodIssuesToFieldErrors(parsed.error.issues));
+      const errors = zodIssuesToFieldErrors(parsed.error.issues);
+      setFieldErrors(errors);
+      focusFirstError(errors);
       return;
     }
 

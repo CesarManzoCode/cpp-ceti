@@ -97,7 +97,7 @@ export function CodePlayground({
           className="max-sm:flex-1"
         >
           <Play className="fill-current" />
-          {state === "running" ? "Compilando…" : "Compilar y ejecutar"}
+          {state === "running" ? "Ejecutando…" : "Ejecutar"}
         </Button>
         <Button
           onClick={handleReset}

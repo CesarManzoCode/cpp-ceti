@@ -26,16 +26,27 @@ type Target =
 
 interface ReportBugDialogProps {
   target: Target;
-  /** Disparador (botón propio del callsite). */
+  /** Disparador (botón propio del callsite). Se ignora en modo controlado. */
   children?: React.ReactNode;
+  /** Modo controlado (para abrirlo desde un menú, p. ej. la Learning Bar). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 /**
  * Diálogo para reportar un problema en el contenido (typo, test roto, etc.).
  * Acepta tres tipos de target: paso, ejercicio de lección o de práctica.
  */
-export function ReportBugDialog({ target, children }: ReportBugDialogProps) {
-  const [open, setOpen] = React.useState(false);
+export function ReportBugDialog({
+  target,
+  children,
+  open: controlledOpen,
+  onOpenChange,
+}: ReportBugDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = isControlled ? (onOpenChange ?? (() => {})) : setUncontrolledOpen;
   const [message, setMessage] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -64,19 +75,21 @@ export function ReportBugDialog({ target, children }: ReportBugDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children ?? (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            aria-label="Reportar problema en este contenido"
-            title="Reportar problema"
-          >
-            <Flag className="size-4" />
-          </Button>
-        )}
-      </DialogTrigger>
+      {isControlled ? null : (
+        <DialogTrigger asChild>
+          {children ?? (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label="Reportar problema en este contenido"
+              title="Reportar problema"
+            >
+              <Flag className="size-4" />
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <DialogHeader>

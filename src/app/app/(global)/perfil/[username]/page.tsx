@@ -77,7 +77,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <div
       data-page-enter
-      className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
+      className="mx-auto w-full max-w-[880px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10"
     >
       <header>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">

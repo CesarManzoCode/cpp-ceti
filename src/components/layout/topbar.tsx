@@ -1,6 +1,3 @@
-import { AnimatedNumber } from "@/components/ui/animated-number";
-import { LevelRing } from "@/components/ui/level-ring";
-import { StreakFlame } from "@/components/ui/streak-flame";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { TopbarLocation } from "@/components/layout/topbar-location";
@@ -16,8 +13,6 @@ export interface TopbarProps {
   /** Cursos publicados: alimentan el selector visible en móvil. */
   courses?: CourseSwitcherItem[];
   user: { name: string; email: string; image?: string | null; username: string };
-  totalXp: number;
-  streak: number;
   units: RoadmapUnit[];
   pendingFriendsCount?: number;
   /** Muestra el acceso al panel interno (la autorización es server-side). */
@@ -25,15 +20,15 @@ export interface TopbarProps {
 }
 
 /**
- * Barra superior. Sólo tres cosas: dónde estoy, qué llevo acumulado y
- * mi cuenta. Las medidas son fichas pequeñas — apoyan, no gobiernan.
+ * Barra superior. Sólo dónde estoy, el tema y mi cuenta (blueprint
+ * UX/UI, D2): XP y racha son evidencia de aprendizaje, no navegación —
+ * viven en Inicio y en el perfil, nunca aquí, para que no compitan con
+ * la tarea en curso.
  */
 export function Topbar({
   courseSlug,
   courses = [],
   user,
-  totalXp,
-  streak,
   units,
   pendingFriendsCount = 0,
   isAdmin = false,
@@ -55,33 +50,7 @@ export function Topbar({
 
       <div className="min-w-2 flex-1" />
 
-      <div className="flex items-center gap-1.5 sm:gap-2.5">
-        <span
-          className="flex items-center gap-1.5 rounded-full bg-warning-soft px-2 py-1.5 text-[13px] font-bold tabular-nums text-warning sm:px-2.5"
-          aria-label={`Racha de ${streak} ${streak === 1 ? "día" : "días"}`}
-        >
-          <StreakFlame streak={streak} className="size-4" />
-          <AnimatedNumber value={streak} />
-          <span className="hidden font-semibold sm:inline">
-            {streak === 1 ? "día" : "días"}
-          </span>
-        </span>
-
-        <span
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card py-1 pl-1 pr-2.5 text-[13px] font-bold tabular-nums text-foreground sm:gap-2 sm:pr-3"
-          aria-label={`${totalXp} XP totales`}
-        >
-          <LevelRing totalXp={totalXp} size={26} />
-          <span>
-            <AnimatedNumber value={totalXp} />
-            {/* Igual que "días" en la racha: en móvil la ficha ya no cabe
-                con la unidad; el aria-label la sigue diciendo. */}
-            <span className="ml-1 hidden text-subtle-foreground sm:inline">XP</span>
-          </span>
-        </span>
-      </div>
-
-      <div className="ml-1 flex items-center gap-0.5 sm:ml-2">
+      <div className="flex items-center gap-0.5 sm:gap-1">
         <ThemeToggle />
         <UserMenu
           courseSlug={courseSlug}

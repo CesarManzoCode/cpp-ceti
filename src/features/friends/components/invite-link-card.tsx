@@ -62,7 +62,7 @@ export function InviteLinkCard({ username }: InviteLinkCardProps) {
   }
 
   return (
-    <div className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
+    <div className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-5">
       <p className="text-[14px] leading-relaxed text-muted-foreground">
         Cualquiera con este link puede mandarte solicitud con un clic.
       </p>

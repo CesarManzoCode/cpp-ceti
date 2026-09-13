@@ -8,10 +8,17 @@ import { cn } from "@/lib/utils";
  * Ficha de estado. Se lee en sans (no en monoespaciada: no es código)
  * y siempre lleva texto — el color sólo refuerza lo que la palabra ya
  * dice, para que funcione también sin ver el color.
+ *
+ * `shape` distingue dos objetos que se ven parecidos pero significan
+ * distinto (G4 del blueprint de UX/UI):
+ *  · `tag`  — categoría estable ("C++", "Intermedio"): radio de control,
+ *             no píldora completa.
+ *  · `pill` — estado vivo ("Curso actual", "Resuelto") o contador: sí
+ *             puede ser píldora.
  */
 const badgeVariants = cva(
   [
-    "inline-flex items-center gap-1.5 rounded-full border whitespace-nowrap",
+    "inline-flex items-center gap-1.5 border whitespace-nowrap",
     "font-semibold leading-none",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
   ].join(" "),
@@ -32,8 +39,12 @@ const badgeVariants = cva(
         md: "px-2.5 py-1 text-xs [&_svg]:size-3.5",
         lg: "px-3 py-1.5 text-[13px] [&_svg]:size-4",
       },
+      shape: {
+        pill: "rounded-full",
+        tag: "rounded-[var(--radius-xs)]",
+      },
     },
-    defaultVariants: { variant: "default", size: "md" },
+    defaultVariants: { variant: "default", size: "md", shape: "pill" },
   },
 );
 
@@ -43,12 +54,12 @@ interface BadgeProps
   asChild?: boolean;
 }
 
-function Badge({ className, variant, size, asChild = false, ...props }: BadgeProps) {
+function Badge({ className, variant, size, shape, asChild = false, ...props }: BadgeProps) {
   const Comp = asChild ? Slot : "span";
   return (
     <Comp
       data-slot="badge"
-      className={cn(badgeVariants({ variant, size }), className)}
+      className={cn(badgeVariants({ variant, size, shape }), className)}
       {...props}
     />
   );

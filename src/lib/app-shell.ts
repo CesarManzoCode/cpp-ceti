@@ -6,17 +6,18 @@ import { getPendingIncomingCount } from "@/features/friends/queries";
 import { getAdminContext } from "@/lib/admin";
 import { LANGUAGE_PROFILES, isLanguageId } from "@/lib/code-languages";
 import { getSession } from "@/lib/get-session";
-import { getUserStats } from "@/lib/streak";
 
 /**
  * Datos del shell (`AppShell`) que NO dependen del curso: sesión, cursos
- * publicados, XP/racha de la cuenta, solicitudes pendientes y si se
- * muestra el acceso al panel interno.
+ * publicados, solicitudes pendientes y si se muestra el acceso al panel
+ * interno. XP y racha NO viven aquí: el blueprint de UX/UI las saca del
+ * shell (topbar/rail) por completo — son evidencia de aprendizaje que se
+ * muestra en Inicio y en el perfil, cada uno con su propia consulta.
  *
  * Comparte esto entre el layout de rutas globales
  * (`src/app/app/(global)/layout.tsx`) y el de rutas de curso
  * (`src/app/app/c/[courseSlug]/layout.tsx`) para no duplicar las mismas
- * cinco consultas en los dos sitios; lo que SÍ difiere entre ambos —cuál es
+ * consultas en los dos sitios; lo que SÍ difiere entre ambos —cuál es
  * el curso activo y sus unidades— se decide en cada layout por separado,
  * porque es justo ahí donde estaba el bug: un layout compartido por rutas
  * de distinto curso no se vuelve a montar en navegación de cliente.
@@ -27,15 +28,13 @@ export async function loadAppShellBase() {
     redirect("/login?redirectTo=/app");
   }
 
-  const [courses, stats, pendingFriendsCount, adminContext] =
-    await Promise.all([
-      getCourseChoices(),
-      getUserStats(session.user.id),
-      getPendingIncomingCount(session.user.id),
-      // Sólo decide si se muestra el acceso al panel; la autorización real la
-      // hace cada página/acción de /app/admin.
-      getAdminContext(),
-    ]);
+  const [courses, pendingFriendsCount, adminContext] = await Promise.all([
+    getCourseChoices(),
+    getPendingIncomingCount(session.user.id),
+    // Sólo decide si se muestra el acceso al panel; la autorización real la
+    // hace cada página/acción de /app/admin.
+    getAdminContext(),
+  ]);
 
   const courseOptions: CourseSwitcherItem[] = courses.map((c) => ({
     slug: c.slug,
@@ -50,7 +49,6 @@ export async function loadAppShellBase() {
     user: session.user,
     courses,
     courseOptions,
-    stats,
     pendingFriendsCount,
     isAdmin: adminContext !== null,
   };

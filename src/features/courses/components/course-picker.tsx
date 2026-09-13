@@ -33,9 +33,9 @@ export function CoursePicker({ courses }: { courses: CoursePickerItem[] }) {
     <ul className="mt-8 grid gap-4 md:grid-cols-2">
       {courses.map((course) => (
         <li key={course.slug}>
-          <article className="flex h-full flex-col rounded-[var(--radius-lg)] border border-border bg-card p-5 shadow-[var(--shadow-xs)] transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-[var(--shadow-md)]">
+          <article className="flex h-full flex-col rounded-[var(--radius-lg)] border border-border bg-card p-5 transition-[border-color,box-shadow] hover:border-primary/40">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-primary-tint px-2.5 py-1 text-[12px] font-bold text-primary">
+              <span className="rounded-[var(--radius-xs)] bg-primary-tint px-2 py-1 text-[12px] font-bold text-primary">
                 {course.languageLabel}
               </span>
               <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-subtle-foreground">
