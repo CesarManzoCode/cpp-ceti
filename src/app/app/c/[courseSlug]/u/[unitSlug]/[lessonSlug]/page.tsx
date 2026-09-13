@@ -47,7 +47,6 @@ export default async function LessonPage({
           id: s.exercise.id,
           prompt: s.exercise.prompt,
           starterCode: s.exercise.starterCode,
-          solutionCode: s.exercise.solutionCode,
           hints: s.exercise.hints,
           difficulty: s.exercise.difficulty as "easy" | "medium" | "hard",
           xpReward: s.exercise.xpReward,

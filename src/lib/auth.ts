@@ -8,6 +8,7 @@ import { env, googleAuthEnabled } from "@/env";
 import { db } from "./db";
 import { logger } from "./logger";
 import { PRODUCT_NAME } from "@/lib/branding";
+import { sendPasswordResetEmail } from "@/lib/email";
 import { INVITE_COOKIE_NAME, consumeInviteCookieForNewUser } from "@/lib/social/invite-cookie";
 import {
   RESERVED_USERNAMES,
@@ -29,6 +30,13 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     autoSignIn: true,
+    // Flujo "olvidé mi contraseña" nativo de Better Auth: genera y valida
+    // el token, nosotros sólo entregamos el correo. `url` ya trae el token
+    // y apunta a `redirectTo` (ver `authClient.requestPasswordReset` en
+    // `forgot-password-form.tsx`).
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail(user.email, url);
+    },
   },
 
   socialProviders: googleAuthEnabled

@@ -16,6 +16,8 @@ const LIMITS = {
   "submit-lesson-exercise": { limit: 20, windowSec: 60 },
   /** Envíos calificados de un ejercicio de práctica. */
   "submit-practice": { limit: 20, windowSec: 60 },
+  /** Revelar la solución de un reto de lección. */
+  "reveal-solution": { limit: 20, windowSec: 60 },
   /**
    * Telemetría de producto: heartbeats (2/min), vistas, intentos de steps.
    * El tope existe para acotar el abuso del endpoint, no para frenar el uso

@@ -42,6 +42,16 @@ const baseSchema = z.object({
   GOOGLE_CLIENT_ID: optionalNonEmpty,
   GOOGLE_CLIENT_SECRET: optionalNonEmpty,
 
+  /**
+   * Credencial de Resend para enviar el correo de "olvidé mi contraseña"
+   * (Better Auth `emailAndPassword.sendResetPassword`, ver `src/lib/auth.ts`
+   * y `src/lib/email.ts`). Sin esto el flujo de recuperación falla de forma
+   * explícita — nunca finge haber enviado un correo que no salió.
+   */
+  RESEND_API_KEY: optionalNonEmpty,
+  /** Remitente verificado en Resend para ese mismo correo. */
+  EMAIL_FROM: optionalNonEmpty,
+
   CODE_EXECUTOR_PROVIDER: z
     .enum([
       "wandbox",

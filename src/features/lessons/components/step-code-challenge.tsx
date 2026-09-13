@@ -43,7 +43,10 @@ import {
 } from "@/features/analytics/telemetry";
 import { StepKind } from "@/features/lessons/components/step-shell";
 import { useRunCode } from "@/hooks/use-run-code";
-import { submitExercise } from "@/features/lessons/actions";
+import {
+  revealExerciseSolution,
+  submitExercise,
+} from "@/features/lessons/actions";
 import { DIFFICULTY_META } from "@/lib/difficulty";
 
 import type { StepSignalHandler } from "./step-signal";
@@ -56,7 +59,6 @@ interface StepCodeChallengeProps {
     id: string;
     prompt: string;
     starterCode: string;
-    solutionCode: string;
     hints: string[];
     difficulty: "easy" | "medium" | "hard";
     xpReward: number;
@@ -88,6 +90,7 @@ export function StepCodeChallenge({
   const [failedAttempts, setFailedAttempts] = React.useState(0);
   const [showSolutionDialog, setShowSolutionDialog] = React.useState(false);
   const [solutionRevealed, setSolutionRevealed] = React.useState(false);
+  const [revealing, setRevealing] = React.useState(false);
   const [submission, setSubmission] = React.useState<SubmissionState | null>(
     null,
   );
@@ -143,17 +146,30 @@ export function StepCodeChallenge({
     }
   }
 
-  function revealSolution() {
-    // Señal pedagógica: rendirse tras N intentos NO puede quedar
-    // indistinguible de resolverlo a la primera.
-    onSignal?.({ kind: "reveal", failedAttempts });
-    setCode(exercise.solutionCode);
-    setSolutionRevealed(true);
-    setShowSolutionDialog(false);
-    setSubmission(null);
-    toast.info(
-      "Solución insertada. Léela con calma e intenta entender cada línea.",
-    );
+  async function revealSolution() {
+    // El servidor es quien decide si esto procede: vuelve a verificar los
+    // intentos fallidos contra `UserExerciseAttempt` y sólo entonces manda
+    // el código. `failedAttempts` de aquí es sólo para mostrar el botón.
+    setRevealing(true);
+    try {
+      const { solutionCode } = await revealExerciseSolution(exercise.id);
+      // Señal pedagógica: rendirse tras N intentos NO puede quedar
+      // indistinguible de resolverlo a la primera.
+      onSignal?.({ kind: "reveal", failedAttempts });
+      setCode(solutionCode);
+      setSolutionRevealed(true);
+      setShowSolutionDialog(false);
+      setSubmission(null);
+      toast.info(
+        "Solución insertada. Léela con calma e intenta entender cada línea.",
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "No pudimos mostrar la solución",
+      );
+    } finally {
+      setRevealing(false);
+    }
   }
 
   const running = playground.state === "running";
@@ -311,10 +327,11 @@ export function StepCodeChallenge({
             <Button
               variant="ghost"
               onClick={() => setShowSolutionDialog(false)}
+              disabled={revealing}
             >
               Sigo intentando
             </Button>
-            <Button onClick={revealSolution}>
+            <Button onClick={revealSolution} loading={revealing}>
               <Eye />
               Mostrar solución
             </Button>

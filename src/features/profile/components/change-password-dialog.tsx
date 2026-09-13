@@ -22,7 +22,16 @@ type Errors = Partial<
   Record<"currentPassword" | "newPassword" | "confirmPassword", string>
 >;
 
-export function ChangePasswordDialog() {
+interface ChangePasswordDialogProps {
+  /**
+   * Viene de `getAccountCapabilities` (server, autoritativo: existe un
+   * `Account` de credenciales con hash). Una cuenta OAuth-only no tiene
+   * contraseña que cambiar — no tiene sentido ofrecerle este flujo.
+   */
+  hasPassword: boolean;
+}
+
+export function ChangePasswordDialog({ hasPassword }: ChangePasswordDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Errors>({});
@@ -72,6 +81,14 @@ export function ChangePasswordDialog() {
 
     toast.success("Contraseña actualizada. Cerramos otras sesiones por seguridad.");
     setOpen(false);
+  }
+
+  if (!hasPassword) {
+    return (
+      <span className="text-[13px] font-medium text-muted-foreground">
+        Inicias sesión con Google — no hay contraseña que cambiar.
+      </span>
+    );
   }
 
   return (

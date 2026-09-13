@@ -15,6 +15,7 @@ import { buildStructureFeedback, checkStructure } from "@/lib/structure";
 import { awardXpAndUpdateStreak, incrementUserXp } from "@/lib/streak";
 import {
   codeSubmissionSchema,
+  cuidSchema,
   parseOrThrow,
   stepCompletionSchema,
 } from "@/lib/validation";
@@ -118,6 +119,49 @@ export const markStepAssisted = withActionErrorHandling(
         completionCount: 0,
       },
     });
+  },
+);
+
+/**
+ * Umbral de intentos fallidos, verificado server-side, antes de que
+ * `revealExerciseSolution` sirva el código. Debe coincidir con lo que la UI
+ * comunica al alumno (`step-code-challenge.tsx`), pero la UI es sólo
+ * presentación: esta constante es la que realmente decide.
+ *
+ * NO exportada: un módulo `"use server"` sólo puede exportar Server
+ * Actions (funciones async) — exportar una constante desde aquí invalida
+ * el módulo entero (y con él completeStep, markStepAssisted, etc).
+ */
+const REVEAL_SOLUTION_MIN_FAILED_ATTEMPTS = 3;
+
+/**
+ * Sirve `solutionCode` de un ejercicio de lección, y SÓLO si el servidor
+ * puede verificar que el alumno ya falló al menos
+ * `REVEAL_SOLUTION_MIN_FAILED_ATTEMPTS` veces en `UserExerciseAttempt` (la
+ * tabla que graba cada envío real, calificado por el executor — no un
+ * contador del cliente). `solutionCode` nunca viaja en el payload de la
+ * lección (ver `getLessonBySlug`); ésta es la única vía para obtenerlo.
+ */
+export const revealExerciseSolution = withActionErrorHandling(
+  "revealExerciseSolution",
+  async (exerciseId: string): Promise<{ solutionCode: string }> => {
+    const validExerciseId = parseOrThrow(cuidSchema, exerciseId);
+    const session = await requireSession();
+    const userId = session.user.id;
+    await enforceRateLimit(userId, "reveal-solution");
+
+    const exercise = await requireAccessibleExercise(validExerciseId);
+
+    const failedAttempts = await db.userExerciseAttempt.count({
+      where: { userId, exerciseId: exercise.id, passed: false },
+    });
+    if (failedAttempts < REVEAL_SOLUTION_MIN_FAILED_ATTEMPTS) {
+      throw new ActionError(
+        "Todavía no puedes ver la solución: sigue intentando un poco más.",
+      );
+    }
+
+    return { solutionCode: exercise.solutionCode };
   },
 );
 

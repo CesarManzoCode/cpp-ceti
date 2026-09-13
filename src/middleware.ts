@@ -4,7 +4,22 @@ import { getSessionCookie } from "better-auth/cookies";
 import { COURSE_COOKIE } from "@/lib/course-selection";
 import { legacyRedirect } from "@/lib/courses";
 
-const PUBLIC_PATHS = ["/", "/login", "/registro", "/invitar", "/api/auth"];
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/registro",
+  "/recuperar-contrasena",
+  "/restablecer-contrasena",
+  "/invitar",
+  "/api/auth",
+  // Healthcheck de monitoreo externo: no hay sesión de usuario que pedirle
+  // a UptimeRobot/Better Stack. Sin auth propia — no expone nada sensible.
+  "/api/health",
+  // El cron de GitHub Actions llega sin cookie de sesión. Queda "público"
+  // sólo ante el middleware: el route handler exige `Authorization: Bearer
+  // $CRON_SECRET` y devuelve 401 sin él — nunca corre abierto.
+  "/api/jobs/social-maintenance",
+];
 const AUTH_PATHS = ["/login", "/registro"];
 
 /** `/app/c/<curso>/...` */

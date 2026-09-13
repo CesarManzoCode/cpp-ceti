@@ -26,9 +26,39 @@ jobs:
       - name: Llamar /api/jobs/social-maintenance
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        # No usamos `curl -f`: eso sólo falla en >=400, y un redirect (3xx,
+        # p.ej. si el middleware volviera a exigir sesión aquí) es <400 y
+        # pasaría como "éxito" con el body "Redirecting..." — justo lo que
+        # ya ocurrió una vez en producción. Aquí exigimos EXPLÍCITAMENTE
+        # HTTP 200 + JSON válido + `ok: true`; cualquier otra cosa (redirect,
+        # 401, 207, JSON inválido, `ok: false`) hace fallar el job.
         run: |
-          curl --fail-with-body --silent --show-error \
+          set -uo pipefail
+
+          response=$(curl --silent --show-error \
             --max-time 60 \
             --connect-timeout 10 \
             -H "Authorization: Bearer ${CRON_SECRET}" \
-            "https://cpp-ceti.vercel.app/api/jobs/social-maintenance"
+            -w '\nHTTP_STATUS:%{http_code}' \
+            "https://cpp-ceti.vercel.app/api/jobs/social-maintenance")
+
+          http_status=$(printf '%s' "$response" | grep -o 'HTTP_STATUS:[0-9]*$' | cut -d: -f2)
+          body=$(printf '%s' "$response" | sed 's/HTTP_STATUS:[0-9]*$//')
+
+          echo "HTTP status: $http_status"
+          echo "Body: $body"
+
+          if [ "$http_status" != "200" ]; then
+            echo "::error::Esperaba HTTP 200 y llegó $http_status (redirect, 401, 207 u otro código no cuentan como éxito)."
+            exit 1
+          fi
+
+          if ! ok=$(printf '%s' "$body" | jq -er '.ok'); then
+            echo "::error::La respuesta no es JSON válido con \`ok: true\`: $body"
+            exit 1
+          fi
+
+          if [ "$ok" != "true" ]; then
+            echo "::error::El job respondió ok=false: $body"
+            exit 1
+          fi

@@ -128,11 +128,14 @@ export interface ViewerStep {
    * vi": el alumno necesita saber qué le toca repasar.
    */
   assisted?: boolean;
+  // NOTA: NO hay campo `solutionCode` aquí a propósito. No viaja desde el
+  // servidor hasta que se revela: ver `revealExerciseSolution` en
+  // `@/features/lessons/actions`. Si necesitas la solución en un
+  // componente cliente, pídela ahí.
   exercise?: {
     id: string;
     prompt: string;
     starterCode: string;
-    solutionCode: string;
     hints: string[];
     difficulty: "easy" | "medium" | "hard";
     xpReward: number;
