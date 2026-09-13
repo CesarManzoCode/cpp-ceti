@@ -5,12 +5,16 @@ del **CETI Guadalajara**. Lecciones cortas, un editor con compilador de verdad y
 que se califican contra casos de prueba. Todo en español y dentro del navegador: sin
 instalar compiladores, sin configurar un IDE.
 
-Hoy hay dos cursos:
+Hoy hay cuatro cursos:
 
 | Curso | Materia | Lenguaje | Contenido |
 | --- | --- | --- | --- |
 | `cpp-desde-cero` | Programación en C++ | C++ (`cpp17-wandbox`) | 10 unidades · 67 lecciones · 80 prácticas |
-| `csharp-poo-1` | Programación Orientada a Objetos I | C# (`csharp-mono-6.12`) | 8 unidades · 30 lecciones · 32 prácticas |
+| `csharp-poo-1` | Programación Orientada a Objetos | C# (`csharp-mono-6.12`) | 16 unidades (14 publicadas) · 73 lecciones · 64 prácticas |
+| `modelos-metodos-desarrollo-software` | Modelos y métodos de desarrollo de software | C# (`csharp-mono-6.12`) | 10 unidades · 44 lecciones · 32 prácticas |
+| `bases-de-datos` | Bases de datos | SQL (`sql-sqlite3-wandbox`) | 20 unidades · 92 lecciones · 51 prácticas |
+
+En total: 56 unidades · 276 lecciones · 1179 pasos · 227 prácticas.
 
 Cada curso trae su propio lenguaje y su propio compilador. **El curso es la fuente de
 verdad**: el editor, el resaltado, los diagnósticos, el compilador con el que se
@@ -51,7 +55,12 @@ al ejemplo. Las pistas se revelan una por una.
 
 ---
 
-## Qué hay construido
+## Qué hay construido en C++ desde cero
+
+El curso insignia, con más detalle. Los otros tres cursos (POO con C#, Modelos y
+métodos de desarrollo de software, Bases de datos) siguen la misma mecánica —teoría
+corta, ejemplos ejecutables, retos calificados contra casos de prueba— sobre su propio
+temario; ver la tabla de arriba para sus números.
 
 | Qué | Cuánto |
 | --- | --- |
@@ -80,10 +89,10 @@ racha, logros y amigos del CETI para comparar avance.
 | --- | --- |
 | Frontend | Next.js 16 (App Router) · React 19 · TypeScript |
 | UI | Tailwind 4 · shadcn/ui · Radix · Lucide |
-| Editor | Monaco (el de VS Code), con autocompletado de C++ propio |
+| Editor | Monaco (el de VS Code), con autocompletado propio por lenguaje (C++, C#, SQL) |
 | Datos | PostgreSQL + Prisma |
 | Auth | Better Auth (correo/contraseña + Google) |
-| Ejecución de C++ | Adapter: **Wandbox** (default), Piston o Judge0 — público o self-hosted |
+| Ejecución de código | Adapter: **Wandbox** (default), Piston o Judge0 — público o self-hosted |
 | Hosting | Vercel (app) y el servicio de ejecución aparte |
 
 Tres decisiones que explican el resto:
@@ -112,7 +121,7 @@ Necesitas Node 20+ y una base PostgreSQL (Supabase gratis, Docker o una local).
 npm install
 cp .env.example .env.local     # completa DATABASE_URL y BETTER_AUTH_SECRET
 npm run db:push                # crea el schema
-npm run db:seed                # carga las 10 unidades y sus 67 lecciones
+npm run db:seed                # carga los 4 cursos y sus 56 unidades
 npm run dev                    # http://localhost:3000
 ```
 
