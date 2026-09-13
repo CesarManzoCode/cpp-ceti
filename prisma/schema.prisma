@@ -382,6 +382,14 @@ model TestCase {
   visible        Boolean  @default(true)
   description    String?
   order          Int      @default(0)
+  // SQL (curso bases-de-datos) SOLAMENTE: se ejecuta DESPUÉS del código del
+  // alumno, en la MISMA sesión/base, para comprobar el estado real de la BD
+  // (tabla/UNIQUE/CHECK/FK/trigger/vista) en vez de confiar en lo que el
+  // alumno decidió imprimir. Nunca se muestra al alumno — oculto igual que
+  // los hidden tests. Ambos campos van juntos: o los dos null, o los dos
+  // con valor.
+  postCheckSql            String?
+  postCheckExpectedStdout String?
 
   @@index([exerciseId, order])
   @@map("test_case")
@@ -569,6 +577,9 @@ model PracticeTestCase {
   visible        Boolean          @default(true)
   description    String?
   order          Int              @default(0)
+  // Ver TestCase.postCheckSql: mismo mecanismo para ejercicios de práctica.
+  postCheckSql            String?
+  postCheckExpectedStdout String?
 
   @@index([exerciseId, order])
   @@map("practice_test_case")

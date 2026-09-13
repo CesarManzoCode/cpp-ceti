@@ -1,6 +1,8 @@
 import type { ExecutionProfileId } from "@/lib/code-languages";
 
+import { normalizeOutput } from "./normalize";
 import { fetchWithRetry } from "./retry";
+import { buildSqlScriptWithPostCheck, splitAtPostCheckMarker } from "./sql-postcheck";
 import { buildTestResult, failedTestResult } from "./test-result";
 import {
   ExecutorProfileUnavailableError,
@@ -201,12 +203,12 @@ export class WandboxExecutor implements CodeExecutor {
       try {
         const result = await this.execute({
           profileId: req.profileId,
-          sourceCode: effectiveSourceFor(req.profileId, req.sourceCode, test.stdin),
+          sourceCode: effectiveSourceFor(req.profileId, req.sourceCode, test),
           stdin: effectiveStdinFor(req.profileId, test.stdin),
           cpuTimeLimit: req.cpuTimeLimit,
           memoryLimitKb: req.memoryLimitKb,
         });
-        results.push(buildTestResult(test, result));
+        results.push(finalizeTestResult(req.profileId, test, result));
       } catch (err) {
         results.push(failedTestResult(test, err));
       }
@@ -223,16 +225,49 @@ export class WandboxExecutor implements CodeExecutor {
  * nueva de Wandbox, así que anteponer el fixture al código del alumno
  * equivale a "crear su propia base y consultarla".
  *
+ * Cuando el test declara `postCheckSql`, se ejecuta DESPUÉS del código del
+ * alumno, en la MISMA sesión/base — nunca una conexión nueva: Wandbox no
+ * mantiene la base entre peticiones HTTP, así que la única forma de
+ * "seguir usando la misma DB" es que el post-check sea la cola del MISMO
+ * script (`buildSqlScriptWithPostCheck`, compartida con
+ * `scripts/verify-content.ts` para que ambos caminos evalúen lo mismo).
+ *
  * Para C++ y C# esta función es la identidad: `stdin` sigue siendo
  * exactamente lo que el programa lee por entrada estándar, sin cambios.
  */
 function effectiveSourceFor(
   profileId: ExecutionProfileId,
   sourceCode: string,
-  fixture: string,
+  test: Pick<TestCaseInput, "stdin" | "postCheckSql">,
 ): string {
   if (profileId !== "sql-sqlite3-wandbox") return sourceCode;
-  return `${fixture}\n${sourceCode}`;
+  return buildSqlScriptWithPostCheck(test.stdin, sourceCode, test.postCheckSql);
+}
+
+/**
+ * Construye el `TestCaseResult` final. Sin `postCheckSql`, es exactamente
+ * `buildTestResult`. Con `postCheckSql` (sólo SQL), separa la salida del
+ * alumno de la del post-check: `actualStdout` SIEMPRE es sólo la parte del
+ * alumno (el post-check jamás llega al cliente), y `passed` exige AMBAS
+ * partes correctas — el reto no aprueba con salida correcta pero
+ * constructo falso, ni con constructo real pero salida incorrecta.
+ */
+function finalizeTestResult(
+  profileId: ExecutionProfileId,
+  test: TestCaseInput,
+  result: ExecutionResult,
+): TestCaseResult {
+  if (profileId !== "sql-sqlite3-wandbox" || !test.postCheckSql) {
+    return buildTestResult(test, result);
+  }
+
+  const { student, postCheck } = splitAtPostCheckMarker(result.stdout);
+  const studentResult: ExecutionResult = { ...result, stdout: student };
+  const base = buildTestResult(test, studentResult);
+  const postCheckPassed =
+    normalizeOutput(postCheck) === normalizeOutput(test.postCheckExpectedStdout ?? "");
+
+  return { ...base, passed: base.passed && postCheckPassed };
 }
 
 /** Ver `effectiveSourceFor`: en SQL el stdin REAL enviado a sqlite es "". */

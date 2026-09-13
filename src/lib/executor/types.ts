@@ -64,6 +64,16 @@ export interface TestCaseInput {
   expectedStdout: string;
   visible: boolean;
   description?: string | null;
+  /**
+   * SQL, opcional: se ejecuta DESPUÉS del código del alumno, en la MISMA
+   * sesión/base efímera, para comprobar el estado real de la BD (tabla,
+   * UNIQUE, CHECK, FK, trigger, vista...). Sólo lo usa el adapter que sabe
+   * ejecutar SQL (`WandboxExecutor`); el resto lo ignora. Nunca llega al
+   * cliente: `TestCaseResult.actualStdout` sólo reporta lo que imprimió el
+   * ALUMNO, nunca el resultado del post-check.
+   */
+  postCheckSql?: string | null;
+  postCheckExpectedStdout?: string | null;
 }
 
 export interface TestCaseResult {

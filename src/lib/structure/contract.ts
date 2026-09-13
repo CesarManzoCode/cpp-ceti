@@ -137,15 +137,45 @@ const classSchema = z.object({
   requiresConstructs: z.array(z.string().min(1)).optional(),
 });
 
-export const structureContractSchema = z.object({
-  /** Clases que el código DEBE declarar, con sus miembros mínimos. */
-  classes: z.array(classSchema).min(1),
+const sqlContractSchema = z.object({
+  /**
+   * Palabras clave que el SQL ENVIADO por el alumno debe usar de verdad
+   * (comentarios y strings ya neutralizados), p. ej. `["BEGIN", "ROLLBACK"]`.
+   *
+   * Existe para lo que NINGÚN post-check contra el estado final de la base
+   * puede probar: un `ROLLBACK` real y un cambio que nunca se intentó
+   * terminan en el MISMO estado final de la base — no hay forma de
+   * distinguir "lo revirtió" de "nunca lo intentó" inspeccionando sólo el
+   * resultado. La única evidencia posible de que el alumno usó la
+   * transacción de verdad está en el texto de su envío, no en el estado
+   * final.
+   */
+  requiresKeywords: z.array(z.string().min(1)).min(1),
 });
+
+export const structureContractSchema = z
+  .object({
+    /** Clases que el código DEBE declarar (C#), con sus miembros mínimos. */
+    classes: z.array(classSchema).optional(),
+    /** Requisitos sobre el SQL enviado (curso `bases-de-datos`). */
+    sql: sqlContractSchema.optional(),
+  })
+  .refine((c) => (c.classes && c.classes.length > 0) || c.sql !== undefined, {
+    message: "El contrato estructural debe declarar `classes` o `sql`.",
+  });
 
 export type StructureContract = z.infer<typeof structureContractSchema>;
 export type ClassRequirement = z.infer<typeof classSchema>;
 export type PropertyRequirement = z.infer<typeof propertySchema>;
 export type GenericRequirement = z.infer<typeof genericSchema>;
+export type SqlContractRequirement = z.infer<typeof sqlContractSchema>;
+
+export interface StructureCheck {
+  /** `true` cuando no hay contrato o cuando el código lo satisface. */
+  satisfied: boolean;
+  /** Un mensaje por requisito incumplido, en es-MX y accionable. */
+  failures: string[];
+}
 
 /**
  * Lee un contrato guardado en la base (columna `Json?`). Un contrato

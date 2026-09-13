@@ -4,6 +4,7 @@ import {
   parseStructureContract,
   type ClassRequirement,
   type PropertyRequirement,
+  type StructureCheck,
   type Visibility,
 } from "./contract";
 import {
@@ -11,25 +12,24 @@ import {
   type ParsedClass,
   type ParsedMember,
 } from "./csharp-parser";
+import { checkSqlConstructs } from "./sql-checks";
 
 export { parseStructureContract } from "./contract";
-export type { StructureContract, Visibility } from "./contract";
-
-export interface StructureCheck {
-  /** `true` cuando no hay contrato o cuando el código lo satisface. */
-  satisfied: boolean;
-  /** Un mensaje por requisito incumplido, en es-MX y accionable. */
-  failures: string[];
-}
+export type { StructureContract, StructureCheck, Visibility } from "./contract";
 
 const OK: StructureCheck = { satisfied: true, failures: [] };
 
 /**
  * Verifica el contrato estructural de un reto contra el código enviado.
  *
- * Sin contrato —o en un lenguaje sin lector estructural, como C++— el reto
- * se sigue evaluando sólo por comportamiento: esta función no cambia nada
- * de lo que ya funcionaba.
+ * Sin contrato el reto se evalúa sólo por comportamiento: esta función no
+ * cambia nada de lo que ya funcionaba. Con contrato, el chequeo depende del
+ * lenguaje: C# verifica clases/miembros contra un lector estructural ligero
+ * (`csharp-parser.ts`); SQL verifica que el envío use de verdad ciertas
+ * palabras clave (`sql-checks.ts`) para los pocos casos donde el estado
+ * final de la base no puede probar nada (ver `contract.ts#sqlContractSchema`).
+ * C++ no tiene lector estructural: un contrato ahí sería un error de
+ * contenido, no algo que este código deba fingir resolver.
  */
 export function checkStructure(
   contractValue: unknown,
@@ -38,14 +38,22 @@ export function checkStructure(
 ): StructureCheck {
   const contract = parseStructureContract(contractValue);
   if (!contract) return OK;
-  if (language !== "csharp") return OK;
 
-  const classes = parseCsharpClasses(sourceCode);
-  const failures: string[] = [];
-  for (const required of contract.classes) {
-    checkClass(required, classes, failures);
+  if (language === "csharp") {
+    const classes = parseCsharpClasses(sourceCode);
+    const failures: string[] = [];
+    for (const required of contract.classes ?? []) {
+      checkClass(required, classes, failures);
+    }
+    return { satisfied: failures.length === 0, failures };
   }
-  return { satisfied: failures.length === 0, failures };
+
+  if (language === "sql") {
+    if (!contract.sql) return OK;
+    return checkSqlConstructs(contract.sql, sourceCode);
+  }
+
+  return OK;
 }
 
 /** Resumen para el alumno: qué falta y por qué no basta la salida. */

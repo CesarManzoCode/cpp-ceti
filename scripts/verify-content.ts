@@ -33,13 +33,17 @@ import { execFile } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DatabaseSync } from "node:sqlite";
 import { promisify } from "node:util";
 
 import { allCourses } from "../prisma/content";
 import { allPracticeSets } from "../prisma/content/exercises";
 import type { LanguageId } from "../src/lib/code-languages";
 import { normalizeOutput } from "../src/lib/executor/normalize";
+import {
+  buildSqlScriptWithPostCheck,
+  splitAtPostCheckMarker,
+} from "../src/lib/executor/sql-postcheck";
+import { DatabaseSync, runSqlScript } from "../src/lib/executor/sql-node-runtime";
 
 // Los tipos de `node:sqlite` viven en `scripts/node-sqlite.d.ts` — ver ese
 // archivo para el porqué (incompatibilidad de versión de `@types/node`,
@@ -86,6 +90,9 @@ interface Case {
    * runtime_error y el alumno no aprueba.
    */
   allowNonZeroExit: boolean;
+  /** SQL, opcional: ver `TestCaseDefinition.postCheckSql`. */
+  postCheckSql?: string | null;
+  postCheckExpectedStdout?: string | null;
 }
 
 interface Unit {
@@ -157,9 +164,11 @@ function readsStdin(code: string, language: LanguageId): boolean {
 
 /**
  * Ejecuta los casos de una pieza SQL. A diferencia de C++/C#, aquí NO hay
- * un binario compartido: cada caso construye su propio `effectiveSource`
- * (fixture + solución, exactamente como `WandboxExecutor.runTests` — ver
- * TECHNICAL_CONTRACT §4) y corre contra una `:memory:` NUEVA. Dos casos del
+ * un binario compartido: cada caso construye su propio script combinado
+ * (fixture + solución + post-check si lo hay, vía
+ * `buildSqlScriptWithPostCheck` — la MISMA función que usa
+ * `WandboxExecutor.runTests` en producción, para que ambos caminos evalúen
+ * exactamente lo mismo) y corre contra una `:memory:` NUEVA. Dos casos del
  * mismo ejercicio nunca comparten estado.
  */
 function runSqlCases(unit: Unit): Failure[] {
@@ -168,20 +177,39 @@ function runSqlCases(unit: Unit): Failure[] {
     const label = testCase.description
       ? `${unit.id} [${testCase.description}]`
       : `${unit.id} [fixture=${JSON.stringify(testCase.stdin)}]`;
-    const effectiveSource = `${testCase.stdin}\n${unit.code}`;
+    const effectiveSource = buildSqlScriptWithPostCheck(
+      testCase.stdin,
+      unit.code,
+      testCase.postCheckSql,
+    );
 
     const db = new DatabaseSync(":memory:");
     try {
-      const actual = runSqlScript(db, effectiveSource);
-      if (!testCase.compareOutput) continue;
-      const expected = normalizeOutput(testCase.expectedStdout);
-      const normalizedActual = normalizeOutput(actual);
-      if (normalizedActual !== expected) {
-        failures.push({
-          id: label,
-          kind: "output",
-          detail: `esperado:\n${expected}\nobtenido:\n${normalizedActual}`,
-        });
+      const rawOutput = runSqlScript(db, effectiveSource);
+      const { student, postCheck } = splitAtPostCheckMarker(rawOutput);
+
+      if (testCase.compareOutput) {
+        const expected = normalizeOutput(testCase.expectedStdout);
+        const actual = normalizeOutput(student);
+        if (actual !== expected) {
+          failures.push({
+            id: label,
+            kind: "output",
+            detail: `esperado:\n${expected}\nobtenido:\n${actual}`,
+          });
+        }
+      }
+
+      if (testCase.postCheckSql) {
+        const expectedPostCheck = normalizeOutput(testCase.postCheckExpectedStdout ?? "");
+        const actualPostCheck = normalizeOutput(postCheck);
+        if (actualPostCheck !== expectedPostCheck) {
+          failures.push({
+            id: `${label} [post-check]`,
+            kind: "output",
+            detail: `esperado:\n${expectedPostCheck}\nobtenido:\n${actualPostCheck}`,
+          });
+        }
       }
     } catch (err) {
       failures.push({
@@ -194,72 +222,6 @@ function runSqlCases(unit: Unit): Failure[] {
     }
   }
   return failures;
-}
-
-/**
- * Corre un script con múltiples sentencias contra una DB abierta y devuelve
- * su salida en el formato "list mode" del CLI de SQLite (el que asumen los
- * `expectedStdout` del paquete): sin encabezados, columnas separadas por
- * `|`, NULL como cadena vacía, una fila por línea. Sólo las sentencias
- * `SELECT` producen salida — el resto (DDL/DML/PRAGMA de configuración) se
- * ejecuta por su efecto.
- */
-function runSqlScript(db: DatabaseSync, script: string): string {
-  const lines: string[] = [];
-  for (const statement of splitSqlStatements(script)) {
-    if (/^select\b/i.test(statement)) {
-      const stmt = db.prepare(statement);
-      stmt.setReturnArrays(true);
-      for (const row of stmt.all()) {
-        lines.push(row.map(formatSqlValue).join("|"));
-      }
-    } else {
-      db.exec(statement);
-    }
-  }
-  return lines.join("\n");
-}
-
-/** `NULL` imprime como cadena vacía en list mode; todo lo demás, su texto. */
-function formatSqlValue(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  return String(value);
-}
-
-/**
- * Separa un script en sentencias individuales por `;`. Naïve a propósito
- * (sin parser SQL, ver TECHNICAL_CONTRACT §7): el contenido del curso no
- * usa `;` dentro de literales ni comentarios con `;`, así que partir por el
- * delimitador es suficiente y exactamente lo que hace `sqlite3 < script.sql`
- * — con UNA excepción: `CREATE TRIGGER ... BEGIN ... END` (DB2, unidad
- * triggers/integrador) SÍ contiene `;` internos entre `BEGIN` y `END`. El
- * `sqlite3` CLI real reconoce ese bloque como una sola sentencia; este
- * splitter naïve debe hacer lo mismo o corta el CREATE TRIGGER a la mitad
- * ("incomplete input"). No es una re-implementación de un parser SQL: sólo
- * sigue acumulando fragmentos mientras el trozo actual empieza con
- * `CREATE TRIGGER` y todavía no termina en `END`.
- */
-function splitSqlStatements(script: string): string[] {
-  const statements: string[] = [];
-  let buffer: string | null = null;
-
-  for (const rawPart of script.split(";")) {
-    buffer = buffer === null ? rawPart : `${buffer};${rawPart}`;
-    const trimmed = buffer.trim();
-    if (trimmed.length === 0) {
-      buffer = null;
-      continue;
-    }
-
-    const opensTriggerBody = /^create\s+trigger\b/i.test(trimmed);
-    const closesTriggerBody = /\bend\s*$/i.test(trimmed);
-    if (opensTriggerBody && !closesTriggerBody) continue;
-
-    statements.push(trimmed);
-    buffer = null;
-  }
-
-  return statements;
 }
 
 async function runCase(
@@ -370,6 +332,8 @@ function collect(courseFilter: string | undefined): Unit[] {
                 description: tc.description ?? null,
                 compareOutput: true,
                 allowNonZeroExit: false,
+                postCheckSql: tc.postCheckSql,
+                postCheckExpectedStdout: tc.postCheckExpectedStdout,
               })),
             });
           }
@@ -396,6 +360,8 @@ function collect(courseFilter: string | undefined): Unit[] {
           description: tc.description ?? null,
           compareOutput: true,
           allowNonZeroExit: false,
+          postCheckSql: tc.postCheckSql,
+          postCheckExpectedStdout: tc.postCheckExpectedStdout,
         })),
       });
     }

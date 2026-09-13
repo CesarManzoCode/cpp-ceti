@@ -110,6 +110,8 @@ export async function seedPracticeExercises(db: PrismaClient) {
             visible: tc.visible ?? true,
             description: tc.description ?? null,
             order: j + 1,
+            postCheckSql: tc.postCheckSql ?? null,
+            postCheckExpectedStdout: tc.postCheckExpectedStdout ?? null,
           },
         });
       }
@@ -136,6 +138,8 @@ export async function seedPracticeExercises(db: PrismaClient) {
             expectedStdout: tc.expectedStdout,
             visible: tc.visible ?? true,
             description: tc.description ?? null,
+            postCheckSql: tc.postCheckSql ?? null,
+            postCheckExpectedStdout: tc.postCheckExpectedStdout ?? null,
           })),
         }),
         (revision) =>

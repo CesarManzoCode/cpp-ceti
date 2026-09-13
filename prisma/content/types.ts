@@ -191,6 +191,16 @@ export interface TestCaseDefinition {
   expectedStdout: string;
   visible?: boolean;
   description?: string;
+  /**
+   * SQL solamente (curso `bases-de-datos`). Se ejecuta DESPUÉS del código
+   * del alumno, en la MISMA sesión/base efímera, para comprobar el estado
+   * real de la BD (tabla/UNIQUE/CHECK/FK/trigger/vista) — no basta con que
+   * el alumno imprima el texto correcto, el constructo tiene que existir
+   * de verdad. Nunca se muestra al alumno, ni siquiera en un test visible.
+   * Van juntos: o los dos, o ninguno.
+   */
+  postCheckSql?: string;
+  postCheckExpectedStdout?: string;
 }
 
 /**
