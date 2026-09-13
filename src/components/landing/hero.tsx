@@ -23,9 +23,10 @@ export function Hero() {
           </h1>
 
           <p className="mt-5 max-w-[46ch] text-pretty text-[17px] leading-relaxed text-muted-foreground">
-            Cursos de C++ y de Programación Orientada a Objetos con C#, con
-            el compilador dentro del navegador. Escribes el código, se compila,
-            y te dice qué falló y en qué línea.
+            Cuatro cursos del temario del CETI —C++, Programación Orientada a
+            Objetos con C#, Modelos y métodos de desarrollo de software, y
+            Bases de datos— con el compilador dentro del navegador. Escribes
+            el código, se compila, y te dice qué falló y en qué línea.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

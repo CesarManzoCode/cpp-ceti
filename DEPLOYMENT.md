@@ -64,18 +64,20 @@ Con tu `.env.local` ya configurado:
 
 ```bash
 npm run db:push     # crea las tablas en Supabase
-npm run db:seed     # carga los dos cursos con todo su contenido
+npm run db:seed     # carga los cuatro cursos con todo su contenido
 ```
 
 Verifica en Supabase (**Table Editor**) que aparecieron las tablas `course`,
 `unit`, `lesson`, `lesson_step`, `exercise`, `test_case`, `user`, `session`, etc.
 
-Los dos cursos deben quedar así:
+Los cuatro cursos deben quedar así:
 
 | slug | language | executionProfile | unidades | lecciones | prácticas |
 | --- | --- | --- | --- | --- | --- |
 | `cpp-desde-cero` | `cpp` | `cpp17-wandbox` | 10 | 67 | 80 |
-| `csharp-poo-1` | `csharp` | `csharp-mono-6.12` | 8 | 30 | 32 |
+| `csharp-poo-1` | `csharp` | `csharp-mono-6.12` | 16 (14 publicadas) | 73 | 64 |
+| `modelos-metodos-desarrollo-software` | `csharp` | `csharp-mono-6.12` | 10 | 44 | 32 |
+| `bases-de-datos` | `sql` | `sql-sqlite3-wandbox` | 20 | 92 | 51 |
 
 ---
 

@@ -28,7 +28,7 @@ const faqs = [
   },
   {
     q: "¿Quién está detrás de esto?",
-    a: "Es un proyecto independiente. Si encuentras un bug o tienes una idea, puedes reportarla en GitHub.",
+    a: "Es un proyecto independiente. Si encuentras un bug o algo no cuadra, repórtalo desde tu cuenta con el botón \"Reportar un bug\" — no hace falta saber de GitHub.",
   },
 ];
 
@@ -70,16 +70,8 @@ export function Faq() {
         </div>
 
         <p className="mt-8 max-w-3xl text-sm text-muted-foreground">
-          ¿Otra pregunta?{" "}
-          <a
-            href="https://github.com/CesarManzoCode/cpp-ceti/issues"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
-          >
-            Abre un issue en GitHub
-          </a>
-          .
+          ¿Otra pregunta o encontraste un problema? Crea tu cuenta y repórtalo
+          desde ahí — es la vía más rápida para que lo veamos.
         </p>
       </Reveal>
     </section>

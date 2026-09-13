@@ -11,8 +11,10 @@ Plataforma web para que estudiantes del **CETI Guadalajara** aprendan a programa
 con lecciones interactivas y un editor de código en el navegador. Inspirado en
 Mimo, pero siguiendo el temario del CETI y en español.
 
-Dos cursos hoy: **C++ desde cero** (`cpp-desde-cero`) y **Programación Orientada
-a Objetos I con C#** (`csharp-poo-1`).
+Cuatro cursos hoy: **C++ desde cero** (`cpp-desde-cero`), **Programación
+Orientada a Objetos con C#** (`csharp-poo-1`), **Modelos y métodos de
+desarrollo de software** (`modelos-metodos-desarrollo-software`) y **Bases de
+datos** (`bases-de-datos`).
 
 ## Filosofía
 **90% práctica, 10% teoría.** Cada concepto se sigue inmediatamente de
