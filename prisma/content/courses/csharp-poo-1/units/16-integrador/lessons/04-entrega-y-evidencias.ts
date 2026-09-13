@@ -23,6 +23,30 @@ La entrega local debe reutilizar el dominio que ya pasó pruebas de consola.
 - **Hilos:** trabajo concurrente real con estado protegido.
 - **Sockets:** cliente/servidor en localhost o LAN usando un protocolo documentado.
 
+## La UI de escritorio, paso a paso (laboratorio local)
+
+Esta parte se hace en tu máquina, en Visual Studio — no en el editor web:
+
+1. **Proyecto.** Crea un **Windows Forms App (.NET)**, C#. Es un proyecto
+   aparte del de consola: agrega a éste el mismo código de dominio
+   (\`ProcesadorComandos\`, el repositorio genérico, las entidades) ya
+   probado en consola, sin reescribirlo.
+2. **Controles mínimos** en \`Form1\`: un \`ListBox\` o \`DataGridView\` para
+   listar bienes, \`TextBox\` para los campos del bien (nombre, cantidad,
+   etc.), y cuatro \`Button\`: \`btnAlta\`, \`btnConsultar\`, \`btnAjustar\`,
+   \`btnEliminar\`. Arrástralos del Toolbox y ponles \`Name\` desde
+   Propiedades.
+3. **Conectar con el dominio.** Doble clic en cada botón genera su
+   manejador \`Click\`. Dentro, el manejador SOLO lee los \`TextBox\`,
+   llama al método correspondiente de tu repositorio/servicio de dominio,
+   y refresca la lista — igual que en el ejemplo de \`ServidorInventario\`
+   de abajo, donde el adaptador no conoce la regla de negocio, sólo la
+   invoca.
+4. **Evidencia a entregar:** capturas (o una grabación corta) de alta,
+   consulta, ajuste y eliminación funcionando en la ventana; el archivo
+   \`Form1.cs\`; y las pruebas de consola del dominio que ya tenías, para
+   mostrar que la lógica no vive duplicada dentro de los manejadores.
+
 ## Evidencias mínimas
 
 1. descripción y análisis del problema;
