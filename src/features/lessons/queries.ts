@@ -73,7 +73,13 @@ export const getLessonBySlug = cache(async (
       steps: {
         orderBy: { order: "asc" },
         include: {
+          // `solutionCode` NUNCA sale de aquí: cruzar la frontera
+          // servidor→cliente antes de tiempo la deja disponible en el RSC
+          // payload aunque la UI la oculte. El reveal real pasa por
+          // `revealExerciseSolution`, que la sirve sólo tras verificar
+          // intentos fallidos en `UserExerciseAttempt`.
           exercise: {
+            omit: { solutionCode: true },
             include: {
               testCases: {
                 orderBy: { order: "asc" },
