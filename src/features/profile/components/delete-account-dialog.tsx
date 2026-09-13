@@ -22,11 +22,20 @@ import { authClient } from "@/lib/auth-client";
 
 interface DeleteAccountDialogProps {
   userEmail: string;
+  /**
+   * Viene de `getAccountCapabilities` (server, autoritativo). Una cuenta
+   * OAuth-only no tiene contraseña que pedir para confirmar — exigírsela
+   * la dejaría sin forma de eliminar su cuenta.
+   */
+  hasPassword: boolean;
 }
 
 type Errors = Partial<Record<"confirmation" | "password", string>>;
 
-export function DeleteAccountDialog({ userEmail }: DeleteAccountDialogProps) {
+export function DeleteAccountDialog({
+  userEmail,
+  hasPassword,
+}: DeleteAccountDialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
@@ -50,7 +59,7 @@ export function DeleteAccountDialog({ userEmail }: DeleteAccountDialogProps) {
     if (confirmation !== userEmail) {
       fieldErrors.confirmation = "Escribe tu correo exactamente como aparece arriba";
     }
-    if (!password) {
+    if (hasPassword && !password) {
       fieldErrors.password = "Ingresa tu contraseña para confirmar";
     }
     if (Object.keys(fieldErrors).length > 0) {
@@ -59,7 +68,11 @@ export function DeleteAccountDialog({ userEmail }: DeleteAccountDialogProps) {
     }
 
     setSubmitting(true);
-    const { error } = await authClient.deleteUser({ password });
+    // Sin contraseña propia (cuenta OAuth-only) no hay nada que validar
+    // aquí: Better Auth no la exige cuando el `Account` no tiene una.
+    const { error } = await authClient.deleteUser(
+      hasPassword ? { password } : {},
+    );
     setSubmitting(false);
 
     if (error) {
@@ -119,17 +132,19 @@ export function DeleteAccountDialog({ userEmail }: DeleteAccountDialogProps) {
             />
           </FormField>
 
-          <FormField
-            name="password"
-            label="Tu contraseña"
-            error={errors.password}
-          >
-            <PasswordInput
-              autoComplete="current-password"
-              required
-              leadingIcon={<Lock className="size-4" />}
-            />
-          </FormField>
+          {hasPassword ? (
+            <FormField
+              name="password"
+              label="Tu contraseña"
+              error={errors.password}
+            >
+              <PasswordInput
+                autoComplete="current-password"
+                required
+                leadingIcon={<Lock className="size-4" />}
+              />
+            </FormField>
+          ) : null}
 
           {formError ? (
             <p

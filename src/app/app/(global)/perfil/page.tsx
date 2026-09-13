@@ -21,6 +21,7 @@ import { AchievementsSection } from "@/features/profile/components/achievements-
 import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
 import { DeleteAccountDialog } from "@/features/profile/components/delete-account-dialog";
 import { SignOutButton } from "@/features/profile/components/sign-out-button";
+import { getAccountCapabilities } from "@/features/profile/queries";
 import { ReportBugButton } from "@/features/feedback/components/report-bug-button";
 
 export const metadata = {
@@ -31,15 +32,23 @@ export default async function PerfilPage() {
   const session = await requireSession();
   const user = session.user;
 
-  const [stats, lessonsCompleted, attempts, exercisesPassed, academicOptions, academicProfile] =
-    await Promise.all([
-      getUserStats(user.id),
-      getCompletedLessonsCount(user.id),
-      getExerciseAttemptsCount(user.id),
-      getDistinctExercisesPassedCount(user.id),
-      getAcademicOptions(),
-      getOwnAcademicProfile(user.id),
-    ]);
+  const [
+    stats,
+    lessonsCompleted,
+    attempts,
+    exercisesPassed,
+    academicOptions,
+    academicProfile,
+    accountCapabilities,
+  ] = await Promise.all([
+    getUserStats(user.id),
+    getCompletedLessonsCount(user.id),
+    getExerciseAttemptsCount(user.id),
+    getDistinctExercisesPassedCount(user.id),
+    getAcademicOptions(),
+    getOwnAcademicProfile(user.id),
+    getAccountCapabilities(user.id),
+  ]);
 
   const initials = user.name
     .split(" ")
@@ -181,7 +190,7 @@ export default async function PerfilPage() {
               </p>
             </div>
             <div className="shrink-0">
-              <ChangePasswordDialog />
+              <ChangePasswordDialog hasPassword={accountCapabilities.hasPassword} />
             </div>
           </li>
           <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5">
@@ -192,7 +201,10 @@ export default async function PerfilPage() {
               </p>
             </div>
             <div className="shrink-0">
-              <DeleteAccountDialog userEmail={user.email} />
+              <DeleteAccountDialog
+                userEmail={user.email}
+                hasPassword={accountCapabilities.hasPassword}
+              />
             </div>
           </li>
         </ul>
