@@ -176,8 +176,8 @@ class Program
             {
               name: "Producto",
               properties: [
-                { name: "Codigo", visibility: "public", type: "string" },
-                { name: "Stock", visibility: "public", type: "int" },
+                { name: "Codigo", visibility: "public", type: "string", setVisibility: "private" },
+                { name: "Stock", visibility: "public", type: "int", setVisibility: "private" },
               ],
               constructors: [{ paramCount: 2 }],
             },

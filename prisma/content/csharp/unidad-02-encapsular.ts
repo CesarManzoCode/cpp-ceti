@@ -497,8 +497,8 @@ class Program
                 {
                   name: "Pedido",
                   properties: [
-                    { name: "Folio", visibility: "public", type: "int" },
-                    { name: "Total", visibility: "public", type: "double" },
+                    { name: "Folio", visibility: "public", type: "int", setVisibility: "private" },
+                    { name: "Total", visibility: "public", type: "double", setVisibility: "private" },
                   ],
                   constructors: [{ paramCount: 2 }],
                 },
