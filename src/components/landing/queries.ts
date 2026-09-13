@@ -24,9 +24,9 @@ export interface LandingStats {
  * quedarse corto.
  */
 const FALLBACK_STATS: Omit<LandingStats, "degraded"> = {
-  lessons: 90,
-  exercises: 138,
-  units: 16,
+  lessons: 269,
+  exercises: 211,
+  units: 54,
 };
 
 /**
@@ -84,12 +84,56 @@ const FALLBACK_CPP_UNITS: LandingUnit[] = [
 const FALLBACK_CSHARP_UNITS: LandingUnit[] = [
   { slug: "csharp-poo-01-modelar", order: 1, title: "De problemas a objetos", published: true },
   { slug: "csharp-poo-02-encapsular", order: 2, title: "Encapsulamiento y constructores", published: true },
-  { slug: "csharp-poo-03-uml", order: 3, title: "UML como contrato del código", published: true },
+  { slug: "csharp-poo-03-uml", order: 3, title: "UML como contrato de código", published: true },
   { slug: "csharp-poo-04-relaciones", order: 4, title: "Relaciones entre clases", published: true },
   { slug: "csharp-poo-05-herencia", order: 5, title: "Herencia y polimorfismo", published: true },
   { slug: "csharp-poo-06-diseno-robusto", order: 6, title: "Responsabilidades y diseño robusto", published: true },
   { slug: "csharp-poo-07-gui", order: 7, title: "Aplicaciones de escritorio con Windows Forms", published: false },
   { slug: "csharp-poo-08-integrador", order: 8, title: "Proyecto integrador", published: false },
+  { slug: "csharp-poo2-01-colecciones", order: 9, title: "Colecciones y estructuras lineales", published: true },
+  { slug: "csharp-poo2-02-diccionarios", order: 10, title: "Diccionarios de objetos", published: true },
+  { slug: "csharp-poo2-03-ordenamiento", order: 11, title: "Ordenamiento y búsqueda de objetos", published: true },
+  { slug: "csharp-poo2-04-xml", order: 12, title: "XML y persistencia", published: true },
+  { slug: "csharp-poo2-05-genericos", order: 13, title: "Clases y métodos genéricos", published: true },
+  { slug: "csharp-poo2-06-concurrencia", order: 14, title: "Concurrencia e hilos", published: true },
+  { slug: "csharp-poo2-07-redes", order: 15, title: "Redes, protocolos y sockets", published: true },
+  { slug: "csharp-poo2-08-integrador", order: 16, title: "Proyecto integrador: inventario distribuido", published: true },
+];
+
+const FALLBACK_MODELOS_METODOS_UNITS: LandingUnit[] = [
+  { slug: "mm-01-proyecto-cascada", order: 1, title: "Del programa al proyecto: modelo en cascada", published: true },
+  { slug: "mm-02-requerimientos", order: 2, title: "Requerimientos, alcance y criterios de aceptación", published: true },
+  { slug: "mm-03-uml-diseno", order: 3, title: "UML, responsabilidades y diseño", published: true },
+  { slug: "mm-04-git-versiones", order: 4, title: "Git y control de versiones", published: true },
+  { slug: "mm-05-planificacion-implementacion", order: 5, title: "Planificación, tareas e implementación", published: true },
+  { slug: "mm-06-pruebas-calidad", order: 6, title: "Pruebas, verificación y calidad", published: true },
+  { slug: "mm-07-mantenimiento", order: 7, title: "Mantenimiento y evolución segura", published: true },
+  { slug: "mm-08-solid", order: 8, title: "SOLID aplicado a código mantenible", published: true },
+  { slug: "mm-09-incremental", order: 9, title: "Desarrollo incremental e iterativo", published: true },
+  { slug: "mm-10-integrador", order: 10, title: "Proyecto integrador", published: true },
+];
+
+const FALLBACK_BASES_DE_DATOS_UNITS: LandingUnit[] = [
+  { slug: "bd1-01-fundamentos-sgbd", order: 1, title: "Información, bases de datos y SGBD", published: true },
+  { slug: "bd1-02-requerimientos-informacion", order: 2, title: "Requerimientos de información", published: true },
+  { slug: "bd1-03-modelo-er", order: 3, title: "Modelo Entidad-Relación", published: true },
+  { slug: "bd1-04-modelo-relacional", order: 4, title: "Del modelo ER al modelo relacional", published: true },
+  { slug: "bd1-05-normalizacion", order: 5, title: "Normalización", published: true },
+  { slug: "bd1-06-algebra-relacional", order: 6, title: "Álgebra relacional", published: true },
+  { slug: "bd1-07-ddl", order: 7, title: "DDL: construir la estructura", published: true },
+  { slug: "bd1-08-dml", order: 8, title: "DML: insertar, modificar y eliminar", published: true },
+  { slug: "bd1-09-consultas-reportes", order: 9, title: "Consultas SQL y reportes", published: true },
+  { slug: "bd1-10-respaldo-integrador", order: 10, title: "Respaldo, restauración y proyecto integrador", published: true },
+  { slug: "bd2-11-procedimientos", order: 11, title: "Procedimientos almacenados y modularización", published: true },
+  { slug: "bd2-12-triggers-jobs", order: 12, title: "Triggers y automatización programada", published: true },
+  { slug: "bd2-13-transacciones", order: 13, title: "Transacciones y modelo ACID", published: true },
+  { slug: "bd2-14-usuarios-permisos", order: 14, title: "Usuarios, roles, privilegios y permisos", published: true },
+  { slug: "bd2-15-mantenimiento", order: 15, title: "Mantenimiento y fragmentación", published: true },
+  { slug: "bd2-16-conexiones", order: 16, title: "Conectar aplicaciones con bases de datos", published: true },
+  { slug: "bd2-17-crud-interfaz", order: 17, title: "CRUD, vistas e informes desde una aplicación", published: true },
+  { slug: "bd2-18-nosql-modelo", order: 18, title: "Pensar en documentos y colecciones", published: true },
+  { slug: "bd2-19-mongodb-crud", order: 19, title: "CRUD en una base documental", published: true },
+  { slug: "bd2-20-integrador", order: 20, title: "Proyecto integrador de Base de Datos II", published: true },
 ];
 
 /** Sólo se usa si la base no responde: el temario nunca queda en blanco. */
@@ -103,10 +147,24 @@ const FALLBACK_COURSES: LandingCourse[] = [
   },
   {
     slug: "csharp-poo-1",
-    title: "Programación Orientada a Objetos I con C#",
-    subjectName: "Programación Orientada a Objetos I",
+    title: "Programación Orientada a Objetos con C#",
+    subjectName: "Programación Orientada a Objetos",
     language: "csharp",
     units: FALLBACK_CSHARP_UNITS,
+  },
+  {
+    slug: "modelos-metodos-desarrollo-software",
+    title: "Modelos y métodos de desarrollo de software",
+    subjectName: "Modelos y métodos de desarrollo de software",
+    language: "csharp",
+    units: FALLBACK_MODELOS_METODOS_UNITS,
+  },
+  {
+    slug: "bases-de-datos",
+    title: "Bases de datos",
+    subjectName: "Bases de datos",
+    language: "sql",
+    units: FALLBACK_BASES_DE_DATOS_UNITS,
   },
 ];
 
