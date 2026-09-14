@@ -7,6 +7,7 @@ const links: { href: string; label: string; external?: boolean }[] = [
   { href: "/login", label: "Iniciar sesión" },
   { href: "/registro", label: "Crear cuenta" },
   { href: "#temario", label: "Temario" },
+  { href: "/privacidad", label: "Privacidad" },
   {
     href: "https://github.com/CesarManzoCode/cpp-ceti",
     label: "GitHub",

@@ -64,7 +64,7 @@ streams, separada de la consola). Para imprimir EN la TERMINAL ya usas
 > **Qué puedes probar aquí, y qué no.** Todos los ejemplos y retos de
 > esta unidad crean el archivo, escriben, cierran y vuelven a leer **en
 > el mismo programa, en una sola ejecución** — eso es exactamente lo que
-> el editor en línea de CPP-CETI puede demostrar. Lo que el editor en
+> el editor en línea de Índice Cero puede demostrar. Lo que el editor en
 > línea **no** garantiza es que ese archivo siga ahí para una ejecución
 > *distinta* (correr el programa hoy y que otro programa lo lea mañana,
 > o volver a correr el mismo reto esperando encontrar lo que dejó la vez

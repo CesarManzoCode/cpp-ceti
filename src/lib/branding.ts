@@ -5,13 +5,20 @@
 // de un solo lenguaje: el nombre no puede prometer C++ a alguien que
 // viene a POO I. Cada curso pone su propio título dentro de su ruta.
 //
-// Esto es wording PROVISIONAL, no una marca definitiva. Los identificadores
-// internos (paquete, base de datos, prefijo de cookie, slug del curso de
-// C++) NO son marca visible y no se tocan.
+// Nombre definitivo: Índice Cero. Los identificadores internos (paquete,
+// base de datos, prefijo de cookie, slugs de curso) NO son marca visible
+// y no se tocan.
 // =====================================================================
 
-/** Título neutral del producto. */
-export const PRODUCT_NAME = "Plataforma de Programación CETI";
+/** Nombre canónico del producto — el que va en texto y metadata. */
+export const PRODUCT_NAME = "Índice Cero";
+
+/**
+ * Representación visual compacta, para donde el contexto lo permita
+ * (isotipo + wordmark, marcas pequeñas). El nombre textual/canónico
+ * sigue siendo `PRODUCT_NAME`.
+ */
+export const PRODUCT_MARK = "índice[0]";
 
 /** Descripción corta, sin comprometerse con un lenguaje. */
 export const PRODUCT_TAGLINE =

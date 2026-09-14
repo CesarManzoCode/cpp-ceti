@@ -1,4 +1,4 @@
-# Guía de despliegue — Plataforma de Programación CETI
+# Guía de despliegue — Índice Cero
 
 Esta guía te lleva de cero a tener la plataforma corriendo en producción.
 

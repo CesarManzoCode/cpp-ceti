@@ -4,7 +4,7 @@
 This version (16.2.6) has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Contexto para asistentes de IA — Plataforma de Programación CETI
+# Contexto para asistentes de IA — Índice Cero
 
 ## Qué es esto
 Plataforma web para que estudiantes del **CETI Guadalajara** aprendan a programar

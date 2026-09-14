@@ -1,5 +1,7 @@
 "use client";
 
+import { PRODUCT_MARK } from "@/lib/branding";
+
 /**
  * Last-resort error boundary. Renders its own <html>/<body> because
  * it can fire before the root layout renders.
@@ -54,7 +56,7 @@ export default function GlobalError({
             >
               C++
             </span>
-            <span>CETI</span>
+            <span>{PRODUCT_MARK}</span>
           </div>
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
             Algo salió mal

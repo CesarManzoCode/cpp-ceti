@@ -1,4 +1,4 @@
-import { PRODUCT_NAME } from "@/lib/branding";
+import { PRODUCT_MARK, PRODUCT_NAME } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -58,7 +58,7 @@ export function Logo({ className, size = "default", glyphOnly = false }: LogoPro
           layout.word,
         )}
       >
-        CETI
+        {PRODUCT_MARK}
       </span>
     </div>
   );
