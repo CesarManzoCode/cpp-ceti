@@ -13,7 +13,7 @@
 
 export const MYSQL_LOCAL_LAB_GUIDE = `## Laboratorio local: MySQL
 
-Este bloque requiere **MySQL 8.x** corriendo en tu máquina — el editor web de CPP-CETI sólo ejecuta SQLite, así que esto NO corre ahí.
+Este bloque requiere **MySQL 8.x** corriendo en tu máquina — el editor web de Índice Cero sólo ejecuta SQLite, así que esto NO corre ahí.
 
 1. **Levanta el motor.** Instala \`mysql-server\` con el paquete de tu sistema, o usa un contenedor: \`docker run --name ceti-mysql -e MYSQL_ROOT_PASSWORD=ceti -p 3306:3306 -d mysql:8\`.
 2. **Conéctate** con el cliente \`mysql\` (o MySQL Workbench): \`mysql -h 127.0.0.1 -u root -p\`.
@@ -23,7 +23,7 @@ Este bloque requiere **MySQL 8.x** corriendo en tu máquina — el editor web de
 
 export const MONGODB_LOCAL_LAB_GUIDE = `## Laboratorio local: MongoDB
 
-Este bloque requiere **MongoDB local** — el editor web de CPP-CETI sólo ejecuta SQLite, así que esto NO corre ahí.
+Este bloque requiere **MongoDB local** — el editor web de Índice Cero sólo ejecuta SQLite, así que esto NO corre ahí.
 
 1. **Levanta el motor.** Instala MongoDB Community Server, o usa un contenedor: \`docker run --name ceti-mongo -p 27017:27017 -d mongo:7\`.
 2. **Conéctate** con \`mongosh\` (MongoDB Shell): \`mongosh "mongodb://localhost:27017"\`.

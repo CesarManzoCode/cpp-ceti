@@ -208,31 +208,25 @@ export default function PrivacyPage() {
           <Section title="7. Contacto">
             <ul className="list-disc space-y-2 pl-5">
               <li>
-                Para reportar un problema de contenido o dejar
-                retroalimentación, usa el botón de reporte dentro de la
-                plataforma (lo ve cualquier cuenta con sesión iniciada).
-              </li>
-              <li>
-                Para dudas o solicitudes sobre este aviso que la interfaz no
-                resuelva, por ahora el canal disponible es{" "}
+                Para privacidad y solicitudes sobre tus datos —acceso,
+                rectificación, cancelación u oposición— que la interfaz no
+                resuelva directamente, escribe a{" "}
                 <a
-                  href="https://github.com/CesarManzoCode/cpp-ceti/issues"
-                  target="_blank"
-                  rel="noreferrer noopener"
+                  href="mailto:indice0.ceti@gmail.com"
                   className="underline decoration-border-strong underline-offset-4 hover:decoration-current"
                 >
-                  los issues de GitHub del proyecto
+                  indice0.ceti@gmail.com
                 </a>
-                . Ten en cuenta que son públicos: describe tu solicitud en
-                términos generales, sin datos sensibles.
+                , la dirección dedicada del proyecto para este tipo de
+                solicitudes.
+              </li>
+              <li>
+                Para reportar un problema de contenido o dejar
+                retroalimentación general sobre una lección o ejercicio, usa
+                el botón de reporte dentro de la plataforma (lo ve cualquier
+                cuenta con sesión iniciada).
               </li>
             </ul>
-            <p className="rounded-[var(--radius-md)] border border-dashed border-border-strong bg-surface-2 px-4 py-3 text-sm text-muted-foreground">
-              <strong className="text-foreground">Pendiente:</strong> falta
-              una dirección de correo dedicada para solicitudes de
-              privacidad (hoy no existe ninguna configurada en el proyecto).
-              Agrégala aquí en cuanto exista.
-            </p>
           </Section>
 
           <Section title="8. Cambios a este aviso">

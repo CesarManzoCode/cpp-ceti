@@ -1,4 +1,4 @@
-# Plataforma de Programación CETI
+# Índice Cero
 
 Plataforma para **aprender a programar escribiendo código**, pensada para estudiantes
 del **CETI Guadalajara**. Lecciones cortas, un editor con compilador de verdad y retos
