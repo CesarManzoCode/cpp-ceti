@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { UNOFFICIAL_NOTICE } from "@/lib/branding";
+
 import { RegisterForm } from "./register-form";
 
 export const metadata = {
@@ -32,8 +34,15 @@ export default function RegisterPage() {
           </Link>
         </p>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          Al registrarte aceptas que tus datos se usen únicamente para tu
-          progreso académico.
+          Al crear tu cuenta, usamos tus datos para tu cuenta, tu progreso
+          académico y mejorar la plataforma, como se explica en el{" "}
+          <Link
+            href="/privacidad"
+            className="text-foreground underline decoration-border-strong underline-offset-4 hover:decoration-current"
+          >
+            aviso de privacidad
+          </Link>
+          . {UNOFFICIAL_NOTICE}
         </p>
       </div>
     </div>
